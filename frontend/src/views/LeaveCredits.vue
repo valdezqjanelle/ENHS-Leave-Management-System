@@ -275,6 +275,67 @@ class="text-green-600 font-semibold"
     </div>
 
   </div>
+  <!-- Apply Credit Confirmation Modal -->
+<div
+  v-if="showApplyModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+    
+    <h2 class="text-xl font-semibold text-gray-800">
+      Apply Leave Credit?
+    </h2>
+
+    <p class="text-gray-600 mt-3">
+      Are you sure you want to apply this leave credit?
+      This will update the employee's leave balance.
+    </p>
+
+    <!-- Credit Details -->
+    <div
+      v-if="selectedCredit"
+      class="mt-4 bg-gray-50 rounded-lg p-4 space-y-2 text-sm"
+    >
+      <div>
+        <span class="font-medium">Employee:</span>
+        {{ selectedCredit.employee.last_name }},
+        {{ selectedCredit.employee.first_name }}
+      </div>
+
+      <div>
+        <span class="font-medium">Credit Type:</span>
+        {{ selectedCredit.credit_type }}
+      </div>
+
+      <div>
+        <span class="font-medium">Activity:</span>
+        {{ selectedCredit.activity_name }}
+      </div>
+
+      <div>
+        <span class="font-medium">Equivalent Days:</span>
+        {{ selectedCredit.equivalent_leave_days }}
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        @click="closeApplyModal"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+      >
+        Cancel
+      </button>
+
+      <button
+        @click="confirmApplyCredit"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Yes, Apply
+      </button>
+    </div>
+
+  </div>
+</div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
@@ -307,6 +368,8 @@ interface LeaveCredit {
 const employees = ref<Employee[]>([]);
 const credits = ref<LeaveCredit[]>([]);
 
+const showApplyModal = ref(false);
+const selectedCredit = ref<LeaveCredit | null>(null);
 const form = ref({
   employee_id: "",
   activity_name: "",
@@ -353,23 +416,40 @@ const saveCredit = async () => {
   }
 };
 
-const applyCredit = async (id: number) => {
-  try {
+const applyCredit = (id: number) => {
+  const credit = credits.value.find(
+    (credit) => credit.credits_id === id
+  );
 
-    await applyLeaveCredit(id);
+  if (!credit) return;
+
+  selectedCredit.value = credit;
+  showApplyModal.value = true;
+};
+
+const closeApplyModal = () => {
+  showApplyModal.value = false;
+  selectedCredit.value = null;
+};const confirmApplyCredit = async () => {
+  if (!selectedCredit.value) return;
+
+  try {
+    await applyLeaveCredit(selectedCredit.value.credits_id);
 
     alert("Leave credit applied successfully!");
+
+    closeApplyModal();
 
     await loadCredits();
 
   } catch (error) {
-
     console.error(error);
 
     alert("Unable to apply leave credit.");
-
   }
 };
+
+
 
 
 const formatDate = (date: string) => {

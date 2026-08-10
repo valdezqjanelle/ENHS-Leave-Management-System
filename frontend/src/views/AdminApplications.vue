@@ -152,13 +152,13 @@
                 >
                   Download PDF
                 </button>
-                <button
-                  v-if="application.final_status?.toLowerCase() === 'pending'"
-                  @click="updateStatus(application.leave_id, 'approved')"
-                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Approve
-                </button>
+             <button
+  v-if="application.final_status?.toLowerCase() === 'pending'"
+  @click="openApprovalModal(application)"
+  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+>
+  Approve
+</button>
 
                 <button
                   v-if="application.final_status?.toLowerCase() === 'pending'"
@@ -314,7 +314,7 @@
             </button>
             <button
               v-if="selectedApplication.final_status === 'Pending'"
-              @click="updateStatus(selectedApplication.leave_id, 'approved')"
+             @click="openApprovalModal(selectedApplication)"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Approve
@@ -331,6 +331,159 @@
       </div>
     </div>
   </div>
+  <!-- Approval / Deduction Modal -->
+<div
+  v-if="showApprovalModal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]"
+>
+  <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6">
+
+    <h3 class="text-lg font-semibold text-gray-900">
+      Approve Leave Application
+    </h3>
+
+    <p class="text-sm text-gray-600 mt-2">
+      This leave application is for
+      <strong>{{ approvalApplication?.number_of_days }}</strong>
+      day(s).
+    </p>
+
+    <!-- Deduct? -->
+    <div class="mt-5">
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        Deduct leave balance?
+      </label>
+
+      <div class="flex gap-4">
+
+        <label class="flex items-center gap-2 text-black">
+          <input
+            type="radio"
+            value="yes"
+            v-model="deductBalance"
+          />
+          <span>Yes</span>
+        </label>
+
+        <label class="flex items-center gap-2 text-black">
+          <input
+            type="radio"
+            value="no"
+            v-model="deductBalance"
+          />
+          <span>No</span>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- Deduction Options -->
+<div
+  v-if="deductBalance === 'yes'"
+  class="mt-5 border-t pt-4"
+>
+  <h4 class="text-sm font-semibold text-gray-800 mb-3">
+    Leave Balance Deduction
+  </h4>
+
+  <!-- Vacation Leave -->
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">
+      Vacation Leave Days to Deduct
+    </label>
+
+    <input
+      v-model.number="vacationDeductDays"
+      type="number"
+      min="0"
+      :max="approvalApplication?.number_of_days"
+      step="0.5"
+      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+    />
+
+    <p class="text-xs text-gray-500 mt-1">
+      Enter the number of days to deduct from Vacation Leave.
+    </p>
+  </div>
+
+  <!-- Sick Leave -->
+  <div class="mt-4">
+    <label class="block text-sm font-medium text-gray-700 mb-2">
+      Sick Leave Days to Deduct
+    </label>
+
+    <input
+      v-model.number="sickDeductDays"
+      type="number"
+      min="0"
+      :max="approvalApplication?.number_of_days"
+      step="0.5"
+      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+    />
+
+    <p class="text-xs text-gray-500 mt-1">
+      Enter the number of days to deduct from Sick Leave.
+    </p>
+  </div>
+
+  <!-- Total -->
+  <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+    <div class="flex justify-between text-sm">
+      <span class="text-gray-600">
+        Days applied:
+      </span>
+
+      <span class="font-medium text-gray-900">
+        {{ approvalApplication?.number_of_days ?? 0 }} day(s)
+      </span>
+    </div>
+
+    <div class="flex justify-between text-sm mt-1">
+      <span class="text-gray-600">
+        Total deduction:
+      </span>
+
+      <span class="font-semibold text-gray-900">
+        {{ vacationDeductDays + sickDeductDays }} day(s)
+      </span>
+    </div>
+
+    <p
+      v-if="
+        approvalApplication &&
+        vacationDeductDays + sickDeductDays >
+          approvalApplication.number_of_days
+      "
+      class="text-sm text-red-600 mt-2"
+    >
+      Total deduction cannot exceed the number of days applied.
+    </p>
+  </div>
+</div>
+
+     
+
+    <!-- Buttons -->
+    <div class="flex justify-end gap-3 mt-6">
+
+      <button
+        @click="showApprovalModal = false"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+      >
+        Cancel
+      </button>
+
+      <button
+        @click="confirmApproval"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+      >
+        Confirm Approval
+      </button>
+
+    </div>
+
+  </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -371,6 +524,16 @@ const applications = ref<LeaveApplication[]>([]);
 const activeTab = ref("all");
 const showDetailModal = ref(false);
 const selectedApplication = ref<LeaveApplication | null>(null);
+
+const showApprovalModal = ref(false);
+
+const approvalApplication =
+  ref<LeaveApplication | null>(null);
+
+const deductBalance = ref<"yes" | "no">("yes");
+
+const vacationDeductDays = ref(0);
+const sickDeductDays = ref(0);
 
 const tabs = [
   {
@@ -457,11 +620,28 @@ const downloadApplication = (application: LeaveApplication) => {
   router.push(`/leave-print/${application.leave_id}`);
 
 };
-    
+
+const openApprovalModal = (
+  application: LeaveApplication
+) => {
+  approvalApplication.value = application;
+
+  deductBalance.value = "yes";
+
+  vacationDeductDays.value = 0;
+  sickDeductDays.value = application.number_of_days;
+
+  showApprovalModal.value = true;
+};
 
 const updateStatus = async (
   leaveId: number,
   status: "approved" | "rejected",
+deductionData: {
+  deduct_balance?: boolean;
+  vacation_deduct_days?: number;
+  sick_deduct_days?: number;
+} = {},
 ) => {
   try {
     const token = localStorage.getItem("token");
@@ -470,6 +650,8 @@ const updateStatus = async (
       `http://127.0.0.1:8000/api/leave-applications/${leaveId}`,
       {
         final_status: status,
+
+        ...deductionData,
       },
       {
         headers: {
@@ -479,11 +661,66 @@ const updateStatus = async (
     );
 
     showDetailModal.value = false;
+    showApprovalModal.value = false;
 
     await loadApplications();
-  } catch (error) {
+
+  } catch (error: any) {
     console.error(error);
+
+    alert(
+      error.response?.data?.message ??
+      "Failed to update leave application."
+    );
   }
+};
+
+
+const confirmApproval = async () => {
+  if (!approvalApplication.value) {
+    return;
+  }
+
+  const application = approvalApplication.value;
+
+  if (deductBalance.value === "yes") {
+    const vacationDays = Number(vacationDeductDays.value) || 0;
+    const sickDays = Number(sickDeductDays.value) || 0;
+
+    const totalDeduction = vacationDays + sickDays;
+
+    if (totalDeduction <= 0) {
+      alert("Please enter at least one day to deduct.");
+      return;
+    }
+
+    if (totalDeduction > application.number_of_days) {
+      alert(
+        "The total deduction cannot be greater than the number of days applied."
+      );
+      return;
+    }
+
+    await updateStatus(
+      application.leave_id,
+      "approved",
+      {
+        deduct_balance: true,
+        vacation_deduct_days: vacationDays,
+        sick_deduct_days: sickDays,
+      }
+    );
+
+    return;
+  }
+
+  await updateStatus(
+    application.leave_id,
+    "approved",
+    {
+      deduct_balance: false,
+    }
+  );
 };
 
 const loadApplications = async () => {
