@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Mock Application</title>
+</head>
+<body>
+    <h1>Creating Mock Leave Application...</h1>
+    <script>
+        const mockApplication = {
+            id: 'mock-001',
+            submittedAt: new Date().toISOString(),
+            status: 'Pending',
+            office: 'Schools Division Office of Isabela',
+            lastName: 'Smith',
+            firstName: 'John',
+            middleName: 'Doe',
+            dateOfFiling: '2024-05-09',
+            position: 'Teacher I',
+            salary: '25000',
+            leaveType: {
+                vacation: true,
+                mandatory: false,
+                sick: false,
+                maternity: false,
+                paternity: false,
+                specialPrivilege: false,
+                soloParent: false,
+                study: false,
+                vawc: false,
+                rehabilitation: false,
+                specialWomen: false,
+                emergency: false,
+                adoption: false,
+                others: ''
+            },
+            leaveDetails: {
+                vacation: {
+                    withinPhilippines: true,
+                    withinPhilippinesLocation: 'Baguio City',
+                    abroad: false,
+                    abroadLocation: ''
+                },
+                sick: {
+                    inHospital: false,
+                    illness: '',
+                    outPatient: false,
+                    outPatientIllness: ''
+                },
+                specialWomenIllness: '',
+                study: {
+                    completionMasters: false,
+                    barBoardReview: false
+                },
+                other: {
+                    monetization: false,
+                    terminal: false
+                }
+            },
+            numberOfDays: '3',
+            inclusiveDates: 'May 15-17, 2024',
+            commutation: {
+                notRequested: true,
+                requested: false
+            },
+            applicantSignature: 'John Doe Smith',
+            attachments: [],
+            certification: {
+                asOf: 'May 9, 2024',
+                vacation: {
+                    totalEarned: '10',
+                    lessApplication: '3',
+                    balance: '7'
+                },
+                sick: {
+                    totalEarned: '5',
+                    lessApplication: '0',
+                    balance: '5'
+                }
+            },
+            recommendation: {
+                forApproval: true,
+                forDisapproval: false,
+                disapprovalReason: ''
+            },
+            approved: {
+                withPay: false,
+                withPayDays: '',
+                withoutPay: false,
+                withoutPayDays: '',
+                others: false,
+                othersSpecify: ''
+            },
+            disapprovedReason: ''
+        };
+
+        // Get existing applications
+        const existingApplications = JSON.parse(localStorage.getItem('leaveApplications') || '[]');
+        existingApplications.push(mockApplication);
+        localStorage.setItem('leaveApplications', JSON.stringify(existingApplications));
+
+        document.body.innerHTML = `
+            <h1>Mock Application Created Successfully!</h1>
+            <p>Total applications in storage: ${existingApplications.length}</p>
+            <p>Application ID: ${mockApplication.id}</p>
+            <p>Status: ${mockApplication.status}</p>
+            <p>Applicant: ${mockApplication.firstName} ${mockApplication.lastName}</p>
+            <p>Leave Type: Vacation Leave</p>
+            <p>Dates: ${mockApplication.inclusiveDates}</p>
+            <br>
+            <p><strong>Next steps:</strong></p>
+            <p>1. Navigate to the admin applications page (/admin-applications)</p>
+            <p>2. Look for the application by "John Smith"</p>
+            <p>3. Test the download functionality</p>
+            <br>
+            <button onclick="window.close()">Close this window</button>
+        `;
+    </script>
+</body>
+</html>
