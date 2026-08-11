@@ -10,7 +10,7 @@ use App\Models\LeaveAttachment;
 use App\Models\EmployeeRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveType;
-
+use App\Support\AuditLogger;
 
 class LeaveController extends Controller
 {
@@ -402,13 +402,22 @@ public function updateStatus(Request $request, $id)
 );
     }
 
+    $leave->load(['employee', 'leaveType', 'attachments']);
+
+    if ($request->has('final_status') && $newStatus !== $previousStatus) {
+        $employeeName = $leave->employee
+            ? "{$leave->employee->first_name} {$leave->employee->last_name}"
+            : "employee #{$leave->employee_id}";
+
+        AuditLogger::log(
+            'Leave ' . ucfirst($newStatus),
+            "Marked leave #{$leave->leave_id} for {$employeeName} as {$newStatus}"
+        );
+    }
+
     return response()->json([
         'message' => 'Leave updated successfully',
-        'data' => $leave->load([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
+        'data' => $leave
     ]);
 }
 

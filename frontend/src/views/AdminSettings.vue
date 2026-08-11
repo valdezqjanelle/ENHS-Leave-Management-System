@@ -189,7 +189,123 @@
     <div v-if="activeTab === 'backup'" class="bg-white rounded-xl shadow p-6">
       <h2 class="text-xl font-semibold text-gray-800">Backup & Maintenance</h2>
 
-      <p class="text-gray-500 mt-2">Manage database backup and system logs.</p>
+      <p class="text-gray-500 mt-2">
+        Audit trail of admin and login activity.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Logged events</p>
+          <p class="text-2xl font-semibold text-gray-800">{{ auditTotal }}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Showing</p>
+          <p class="text-2xl font-semibold text-gray-800">{{ auditLogs.length }}</p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Last event</p>
+          <p class="text-2xl font-semibold text-gray-800">{{ lastEventComputed }}</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mt-6">
+        <select
+          v-model="auditFilters.action"
+          @change="loadAuditLogs(1)"
+          class="border rounded-lg px-3 py-2 text-sm text-black"
+        >
+          <option value="">All actions</option>
+          <option v-for="a in auditActions" :key="a" :value="a">{{ a }}</option>
+        </select>
+
+        <input
+          type="date"
+          v-model="auditFilters.date_from"
+          @change="loadAuditLogs(1)"
+          class="border rounded-lg px-3 py-2 text-sm text-black"
+        />
+
+        <input
+          type="date"
+          v-model="auditFilters.date_to"
+          @change="loadAuditLogs(1)"
+          class="border rounded-lg px-3 py-2 text-sm text-black"
+        />
+
+        <button
+          v-if="auditFilters.action || auditFilters.date_from || auditFilters.date_to"
+          @click="clearAuditFilters"
+          class="text-sm text-blue-600 hover:underline"
+        >
+          Clear filters
+        </button>
+      </div>
+
+      <div class="mt-4 overflow-x-auto border rounded-lg">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">User</th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">Action</th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">Description</th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-if="auditLoading">
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400">Loading...</td>
+            </tr>
+
+            <tr v-else-if="auditLogs.length === 0">
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400">No audit log entries yet.</td>
+            </tr>
+
+            <tr v-for="log in auditLogs" :key="log.log_id" class="border-t">
+              <td class="px-4 py-3 text-gray-800">{{ log.user?.email ?? "Unknown user" }}</td>
+
+              <td class="px-4 py-3">
+                <span
+                  class="px-2 py-1 rounded-md text-xs font-medium"
+                  :class="actionBadgeClass(log.action)"
+                >
+                  {{ log.action }}
+                </span>
+              </td>
+
+              <td class="px-4 py-3 text-gray-600">{{ log.description }}</td>
+
+              <td class="px-4 py-3 text-gray-500 whitespace-nowrap">{{ formatAuditDate(log.created_at) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <p class="text-sm text-gray-400">
+          Showing {{ auditFrom }}-{{ auditTo }} of {{ auditTotal }}
+        </p>
+
+        <div class="flex gap-2">
+          <button
+            :disabled="auditPage <= 1"
+            @click="loadAuditLogs(auditPage - 1)"
+            class="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Prev
+          </button>
+
+          <button
+            :disabled="auditPage >= auditLastPage"
+            @click="loadAuditLogs(auditPage + 1)"
+            class="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
     <!-- Leave Type Modal -->
 
@@ -257,8 +373,83 @@ import {
   updateLeaveType,
   deleteLeaveType,
 } from "@/services/leaveType";
+import { getAuditLogs, getAuditLogActions } from "@/services/auditLog";
 
 const activeTab = ref("account");
+
+// AUDIT LOGS
+const auditLogs = ref<any[]>([]);
+const auditActions = ref<string[]>([]);
+const auditFilters = ref({ action: "", date_from: "", date_to: "" });
+const auditPage = ref(1);
+const auditLastPage = ref(1);
+const auditTotal = ref(0);
+const auditFrom = ref(0);
+const auditTo = ref(0);
+const auditLoading = ref(false);
+
+// const lastEventLabel = () => {};
+const lastEventComputed = ref("—");
+
+const loadAuditLogs = async (page = 1) => {
+  auditLoading.value = true;
+  try {
+    const { data } = await getAuditLogs({
+      page,
+      action: auditFilters.value.action || undefined,
+      date_from: auditFilters.value.date_from || undefined,
+      date_to: auditFilters.value.date_to || undefined,
+    });
+
+    auditLogs.value = data.data;
+    auditPage.value = data.current_page;
+    auditLastPage.value = data.last_page;
+    auditTotal.value = data.total;
+    auditFrom.value = data.from ?? 0;
+    auditTo.value = data.to ?? 0;
+
+    lastEventComputed.value = auditLogs.value.length
+      ? formatAuditDate(auditLogs.value[0].created_at)
+      : "—";
+  } catch (error) {
+    console.log(error);
+  } finally {
+    auditLoading.value = false;
+  }
+};
+
+const loadAuditActions = async () => {
+  try {
+    const { data } = await getAuditLogActions();
+    auditActions.value = data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const clearAuditFilters = () => {
+  auditFilters.value = { action: "", date_from: "", date_to: "" };
+  loadAuditLogs(1);
+};
+
+const actionBadgeClass = (action: string) => {
+  const a = action.toLowerCase();
+  if (a.includes("login")) return "bg-green-100 text-green-700";
+  if (a.includes("approved")) return "bg-blue-100 text-blue-700";
+  if (a.includes("rejected") || a.includes("deleted")) return "bg-red-100 text-red-700";
+  if (a.includes("updated") || a.includes("created")) return "bg-amber-100 text-amber-700";
+  return "bg-gray-100 text-gray-700";
+};
+
+const formatAuditDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
 
 const tabs = [
   {
@@ -418,5 +609,8 @@ onMounted(() => {
   loadAdmin();
 
   loadLeaveTypes();
+
+  loadAuditLogs();
+  loadAuditActions();
 });
 </script>

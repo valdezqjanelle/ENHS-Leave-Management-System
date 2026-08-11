@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LeaveType;
+use App\Support\AuditLogger;
 
 class LeaveTypeController extends Controller
 {
@@ -26,6 +27,11 @@ class LeaveTypeController extends Controller
 
         $type = LeaveType::create($request->all());
 
+        AuditLogger::log(
+            'Leave type created',
+            "Created leave type \"{$type->leave_type_name}\""
+        );
+
         return response()->json([
             'message' => 'Leave type created successfully',
             'data' => $type
@@ -44,6 +50,11 @@ class LeaveTypeController extends Controller
 
         $type->update($request->all());
 
+        AuditLogger::log(
+            'Leave type updated',
+            "Updated leave type \"{$type->leave_type_name}\""
+        );
+
         return response()->json([
             'message' => 'Leave type updated successfully',
             'data' => $type
@@ -54,7 +65,13 @@ class LeaveTypeController extends Controller
     public function destroy($id)
     {
         $type = LeaveType::findOrFail($id);
+        $typeName = $type->leave_type_name;
         $type->delete();
+
+        AuditLogger::log(
+            'Leave type deleted',
+            "Deleted leave type \"{$typeName}\""
+        );
 
         return response()->json([
             'message' => 'Leave type deleted successfully'

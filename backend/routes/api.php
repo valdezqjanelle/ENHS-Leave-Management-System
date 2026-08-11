@@ -13,6 +13,7 @@ use App\Http\Controllers\API\AttendanceController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\API\AuditLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,6 +130,10 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/password',
             [AdminController::class, 'updatePassword']
         );
+
+        // AUDIT LOGS
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
+        Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
     });
 
 
