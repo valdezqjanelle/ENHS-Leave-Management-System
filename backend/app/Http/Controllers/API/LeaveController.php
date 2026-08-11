@@ -14,11 +14,23 @@ use App\Models\LeaveType;
 
 class LeaveController extends Controller
 {
+    
     /*
     | EMPLOYEE: SUBMIT LEAVE
     */
     public function store(Request $request)
     {
+         if ($request->hasFile('attachments')) {
+        foreach ($request->file('attachments') as $file) {
+            \Log::info('ATTACHMENT DEBUG', [
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'error' => $file->getError(),
+                'error_message' => $file->getErrorMessage(),
+                'mime' => $file->getMimeType(),
+            ]);
+        }
+    }
         $request->validate([
             'leave_type_id' => 'required|exists:leave_types,leave_type_id',
             'date_filed' => 'required|date',

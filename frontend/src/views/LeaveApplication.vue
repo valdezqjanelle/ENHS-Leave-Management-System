@@ -297,24 +297,29 @@
           >
             Available Leave Credits
           </h3>
+
           <div
-            class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 gap-1 xs:gap-2 sm:gap-4 md:gap-6 lg:gap-6 xl:gap-8 2xl:gap-10 text-xs xs:text-xs sm:text-sm md:text-base lg:text-base xl:text-lg 2xl:text-xl"
+            class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-1 xs:gap-2 sm:gap-4 md:gap-6 lg:gap-6 xl:gap-8 2xl:gap-10 text-xs xs:text-xs sm:text-sm md:text-base lg:text-base xl:text-lg 2xl:text-xl"
           >
             <div>
               <span class="text-gray-600">Sick:</span>
-              <span class="font-medium text-blue-800 ml-1">5 days</span>
+              <span class="font-medium text-blue-800 ml-1">
+                {{ leaveBalance.sick_balance }} days
+              </span>
             </div>
+
             <div>
               <span class="text-gray-600">Vacation:</span>
-              <span class="font-medium text-blue-800 ml-1">10 days</span>
+              <span class="font-medium text-blue-800 ml-1">
+                {{ leaveBalance.vacation_balance }} days
+              </span>
             </div>
+
             <div>
-              <span class="text-gray-600">Personal:</span>
-              <span class="font-medium text-blue-800 ml-1">3 days</span>
-            </div>
-            <div>
-              <span class="text-gray-600">Emergency:</span>
-              <span class="font-medium text-blue-800 ml-1">2 days</span>
+              <span class="text-gray-600">Service Credits:</span>
+              <span class="font-medium text-blue-800 ml-1">
+                {{ leaveBalance.service_credits }} days
+              </span>
             </div>
           </div>
         </div>
@@ -359,12 +364,12 @@
               PDF, DOC, DOCX files up to 10MB
             </p>
             <input
+              ref="fileInput"
               type="file"
               multiple
-              accept=".pdf,.doc,.docx"
+              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               @change="handleFileUpload"
               class="hidden"
-              ref="fileInput"
             />
             <button
               type="button"
@@ -491,11 +496,11 @@
               Close
             </button>
             <button
-@click="viewApplicationStatus"
-class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-6 xl:px-8 2xl:px-10 py-1 xs:py-2 sm:py-2.5 md:py-3 bg-blue-600 text-white rounded-lg"
->
-View Application
-</button>
+              @click="viewApplicationStatus"
+              class="px-2 xs:px-3 sm:px-4 md:px-6 lg:px-6 xl:px-8 2xl:px-10 py-1 xs:py-2 sm:py-2.5 md:py-3 bg-blue-600 text-white rounded-lg"
+            >
+              View Application
+            </button>
           </div>
         </div>
       </div>
@@ -508,7 +513,8 @@ import { ref, computed, onMounted } from "vue";
 import {
   getLeaveTypes,
   submitLeave,
-  getMyLeaves
+  getMyLeaves,
+  getMyLeaveBalance,
 } from "../services/leave";
 import { useRouter } from "vue-router";
 import { Upload, FileText, X, CheckCircle } from "lucide-vue-next";
@@ -571,15 +577,28 @@ const employee = ref({
 
 const isSubmitting = ref(false);
 const leaveTypes = ref<any[]>([]);
+const leaveBalance = ref({
+  vacation_balance: 0,
+  sick_balance: 0,
+  service_credits: 0,
+});
 onMounted(async () => {
   try {
     leaveTypes.value = await getLeaveTypes();
 
     employee.value = await getMyProfile();
+
+    leaveBalance.value = await getMyLeaveBalance();
+
+    console.log(
+      "MY LEAVE BALANCE RAW:",
+      JSON.stringify(leaveBalance.value, null, 2),
+    );
   } catch (error) {
     console.error(error);
   }
 });
+
 const showSuccessModal = ref(false);
 const submittedLeaveId = ref<number | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -604,21 +623,41 @@ const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const files = target.files;
 
-  if (files) {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (file && file.size <= 10 * 1024 * 1024) {
-        // 10MB limit
-        form.value.attachments.push({
-          name: file.name,
-          size: file.size,
-          file: file,
-        });
-      }
-    }
-  }
-};
+  if (!files) return;
 
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    if (!file) continue;
+
+    // Allowed file types
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert(`${file.name} is not a supported file type.`);
+      continue;
+    }
+
+    // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`${file.name} is larger than 10MB.`);
+      continue;
+    }
+
+    form.value.attachments.push({
+      name: file.name,
+      size: file.size,
+      file: file,
+    });
+  }
+
+  // Allow selecting the same file again
+  target.value = "";
+};
 const removeFile = (index: number) => {
   form.value.attachments.splice(index, 1);
 };
@@ -666,44 +705,49 @@ const submitApplication = async () => {
     data.append("commutation", form.value.commutation);
 
     // Attachments
-    form.value.attachments.forEach((file) => {
-      data.append("attachments[]", file.file);
+    // Attachments
+    form.value.attachments.forEach((attachment) => {
+      data.append("attachments[]", attachment.file);
     });
 
     // Submit to API
-const response = await submitLeave(data);
+    const response = await submitLeave(data);
 
-console.log("SUBMIT RESPONSE:", response);
+    console.log("SUBMIT RESPONSE:", response);
 
+    // get the newly created leave application
+    const applications = await getMyLeaves();
 
-// get the newly created leave application
-const applications = await getMyLeaves();
+    const latestLeave = applications[0];
 
-const latestLeave = applications[0];
+    submittedLeaveId.value = latestLeave.leave_id;
 
+    console.log("SUBMITTED LEAVE ID:", submittedLeaveId.value);
 
-submittedLeaveId.value = latestLeave.leave_id;
+    showSuccessModal.value = true;
 
+    resetForm();
+  } catch (error: any) {
+    console.error("SUBMIT APPLICATION ERROR:", error);
 
-console.log(
-  "SUBMITTED LEAVE ID:",
-  submittedLeaveId.value
-);
+    if (error.response) {
+      console.error("STATUS:", error.response.status);
+      console.error("DATA:", error.response.data);
 
-
-showSuccessModal.value = true;
-
-
-resetForm();
-  } catch (error) {
-    console.error(error);
+      alert(
+        error.response.data?.message ||
+          JSON.stringify(error.response.data?.errors) ||
+          "Failed to submit leave application.",
+      );
+    } else {
+      alert("Failed to submit leave application.");
+    }
   } finally {
     isSubmitting.value = false;
   }
 };
 
 const viewApplicationStatus = () => {
-
   if (!submittedLeaveId.value) {
     console.error("No leave ID available");
     return;
@@ -712,10 +756,9 @@ const viewApplicationStatus = () => {
   router.push({
     name: "LeaveApplicationPrint",
     params: {
-      id: submittedLeaveId.value
-    }
+      id: submittedLeaveId.value,
+    },
   });
-
 };
 const selectedLeaveName = computed(() => {
   const leave = leaveTypes.value.find(
@@ -754,7 +797,6 @@ const resetForm = () => {
     declaration: false,
   };
 };
-
 </script>
 <style scoped>
 .input-field {
