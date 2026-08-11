@@ -40,6 +40,9 @@ public function index()
 
             'vacation_balance' =>
                 $employee->leaveBalance?->vacation_balance ?? 0,
+            
+            'service_credits' =>
+                $employee->leaveBalance?->service_credits ?? 0,
 
             'sick_balance' =>
                 $employee->leaveBalance?->sick_balance ?? 0,
@@ -79,6 +82,7 @@ public function index()
         'sick_earned' => 'required|numeric|min:0',
         'vacation_balance' => 'required|numeric|min:0',
         'sick_balance' => 'required|numeric|min:0',
+        'service_credits' => 'required|numeric|min:0',
     ]);
 
     $balance = LeaveBalance::updateOrCreate(
@@ -90,6 +94,7 @@ public function index()
             'sick_earned' => $request->sick_earned,
             'vacation_balance' => $request->vacation_balance,
             'sick_balance' => $request->sick_balance,
+            'service_credits' => $request->service_credits,
             'last_updated' => now()
         ]
     );
@@ -127,6 +132,7 @@ public function index()
         return response()->json([
             'vacation_balance' => 0,
             'sick_balance' => 0,
+            'service_credits' => 0,
             'used_leave' => 0,
             'vacation_earned' => 0,
             'sick_earned' => 0,
@@ -137,6 +143,7 @@ public function index()
     return response()->json([
         'vacation_balance' => $balance->vacation_balance,
         'sick_balance' => $balance->sick_balance,
+        'service_credits' => $balance->service_credits,
         'used_leave' => $balance->used_leave,
         'vacation_earned' => $balance->vacation_earned,
         'sick_earned' => $balance->sick_earned,

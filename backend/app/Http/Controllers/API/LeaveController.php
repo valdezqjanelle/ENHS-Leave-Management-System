@@ -287,6 +287,7 @@ public function updateStatus(Request $request, $id)
 
         // BALANCE DEDUCTION
         'deduct_balance' => 'nullable|boolean',
+        'service_credits_deduct_days' => 'nullable|numeric|min:0',
 'vacation_deduct_days' => 'nullable|numeric|min:0',
 'sick_deduct_days' => 'nullable|numeric|min:0',
     ]);
@@ -396,7 +397,8 @@ public function updateStatus(Request $request, $id)
         $this->deductLeaveBalance(
     $leave,
     $request->vacation_deduct_days ?? 0,
-    $request->sick_deduct_days ?? 0
+    $request->sick_deduct_days ?? 0,
+    $request->service_credits_deduct_days ?? 0
 );
     }
 
@@ -419,7 +421,8 @@ public function updateStatus(Request $request, $id)
 private function deductLeaveBalance(
     $leave,
     $vacationDeductDays,
-    $sickDeductDays
+    $sickDeductDays,
+    $serviceCreditsDeductDays
 ) {
     $balance = LeaveBalance::where(
         'employee_id',
@@ -434,8 +437,12 @@ private function deductLeaveBalance(
 
     $vacationDays = (float) $vacationDeductDays;
     $sickDays = (float) $sickDeductDays;
+    $serviceCreditsDays = (float) $serviceCreditsDeductDays;
 
-    $totalDeduction = $vacationDays + $sickDays;
+    $totalDeduction =
+        $vacationDays +
+        $sickDays +
+        $serviceCreditsDays;
 
     /*
     |--------------------------------------------------------------------------
@@ -481,6 +488,21 @@ private function deductLeaveBalance(
 
     /*
     |--------------------------------------------------------------------------
+    | CHECK SERVICE CREDITS
+    |--------------------------------------------------------------------------
+    */
+
+    $currentServiceCredits =
+        (float) ($balance->service_credits ?? 0);
+
+    if ($serviceCreditsDays > $currentServiceCredits) {
+        throw new \Exception(
+            'Insufficient service credits.'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | DEDUCT VACATION
     |--------------------------------------------------------------------------
     */
@@ -496,6 +518,15 @@ private function deductLeaveBalance(
 
     $balance->sick_balance =
         $currentSickBalance - $sickDays;
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEDUCT SERVICE CREDITS
+    |--------------------------------------------------------------------------
+    */
+
+    $balance->service_credits =
+        $currentServiceCredits - $serviceCreditsDays;
 
     /*
     |--------------------------------------------------------------------------

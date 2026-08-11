@@ -54,6 +54,10 @@
       Select Credit Type
     </option>
 
+    <option value="Service Credits">
+      Service Credits
+    </option>
+
     <option value="Vacation">
       Vacation Leave
     </option>
@@ -170,25 +174,33 @@
 </td>
 
 <td class="px-4 py-3">
+  <span
+    v-if="credit.credit_type === 'Service Credits'"
+    class="text-purple-600 font-semibold"
+  >
+    Service Credits
+  </span>
 
-<span
-v-if="credit.credit_type=='vacation'"
-class="text-blue-600 font-semibold"
->
+  <span
+    v-else-if="credit.credit_type === 'Vacation'"
+    class="text-blue-600 font-semibold"
+  >
+    Vacation
+  </span>
 
-Vacation
+  <span
+    v-else-if="credit.credit_type === 'Sick'"
+    class="text-green-600 font-semibold"
+  >
+    Sick
+  </span>
 
-</span>
-
-<span
-v-else
-class="text-green-600 font-semibold"
->
-
-Sick
-
-</span>
-
+  <span
+    v-else
+    class="text-gray-600 font-semibold"
+  >
+    {{ credit.credit_type }}
+  </span>
 </td>
 
 <td class="px-4 py-3">
@@ -286,7 +298,7 @@ class="text-green-600 font-semibold"
       Apply Leave Credit?
     </h2>
 
-    <p class="text-gray-600 mt-3">
+    <p class="text-gray-900 mt-3">
       Are you sure you want to apply this leave credit?
       This will update the employee's leave balance.
     </p>
@@ -294,26 +306,26 @@ class="text-green-600 font-semibold"
     <!-- Credit Details -->
     <div
       v-if="selectedCredit"
-      class="mt-4 bg-gray-50 rounded-lg p-4 space-y-2 text-sm"
+      class="mt-4 bg-gray-50 rounded-lg p-4 space-y-2 text-sm text-black"
     >
       <div>
-        <span class="font-medium">Employee:</span>
+        <span class="font-medium text-black">Employee:</span>
         {{ selectedCredit.employee.last_name }},
         {{ selectedCredit.employee.first_name }}
       </div>
 
       <div>
-        <span class="font-medium">Credit Type:</span>
+        <span class="font-medium text-black">Credit Type:</span>
         {{ selectedCredit.credit_type }}
       </div>
 
       <div>
-        <span class="font-medium">Activity:</span>
+        <span class="font-medium text-black">Activity:</span>
         {{ selectedCredit.activity_name }}
       </div>
 
       <div>
-        <span class="font-medium">Equivalent Days:</span>
+        <span class="font-medium text-black">Equivalent Days:</span>
         {{ selectedCredit.equivalent_leave_days }}
       </div>
     </div>
@@ -396,6 +408,8 @@ const loadCredits = async () => {
 
 const saveCredit = async () => {
   try {
+    console.log("Sending credit data:", form.value);
+
     await addLeaveCredit(form.value);
 
     alert("Leave credit added successfully!");
@@ -405,14 +419,18 @@ const saveCredit = async () => {
       activity_name: "",
       hours_rendered: "",
       equivalent_leave_days: "",
-      credit_type: ""
+      credit_type: "",
     };
 
     await loadCredits();
+  } catch (error: any) {
+    console.error("STATUS:", error.response?.status);
+    console.error("SERVER RESPONSE:", error.response?.data);
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to save leave credit.");
+    alert(
+      error.response?.data?.message ??
+        JSON.stringify(error.response?.data?.errors ?? "Unable to save leave credit.")
+    );
   }
 };
 

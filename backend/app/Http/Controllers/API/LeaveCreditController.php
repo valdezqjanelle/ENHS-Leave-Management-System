@@ -19,7 +19,7 @@ class LeaveCreditController extends Controller
             'activity_name' => 'required|string',
             'hours_rendered' => 'required|numeric',
             'equivalent_leave_days' => 'required|numeric',
-            'credit_type' => 'required|in:Vacation,Sick',
+            'credit_type' => 'required|in:Vacation,Sick,Service Credits',
           
         ]);
 
@@ -97,25 +97,77 @@ public function apply($id)
             'sick_earned' => 0,
             'vacation_balance' => 0,
             'sick_balance' => 0,
+            'service_credits' => 0,
             'used_leave' => 0,
             'last_updated' => now(),
         ]
     );
 
-    if ($credit->credit_type === 'vacation') {
+    $creditType = strtolower(trim($credit->credit_type));
 
-        $balance->vacation_earned += $credit->equivalent_leave_days;
-        $balance->vacation_balance += $credit->equivalent_leave_days;
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY VACATION CREDIT
+    |--------------------------------------------------------------------------
+    */
 
-    } else {
+    if ($creditType === 'vacation') {
 
-        $balance->sick_earned += $credit->equivalent_leave_days;
-        $balance->sick_balance += $credit->equivalent_leave_days;
+        $balance->vacation_earned +=
+            $credit->equivalent_leave_days;
 
+        $balance->vacation_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY SICK CREDIT
+    |--------------------------------------------------------------------------
+    */
+
+    elseif ($creditType === 'sick') {
+
+        $balance->sick_earned +=
+            $credit->equivalent_leave_days;
+
+        $balance->sick_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY SERVICE CREDITS
+    |--------------------------------------------------------------------------
+    */
+
+    elseif ($creditType === 'service credits') {
+
+        $balance->service_credits =
+            (float) ($balance->service_credits ?? 0)
+            + (float) $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVALID CREDIT TYPE
+    |--------------------------------------------------------------------------
+    */
+
+    else {
+        return response()->json([
+            'message' => 'Invalid credit type.'
+        ], 422);
     }
 
     $balance->last_updated = now();
     $balance->save();
+
+    /*
+    |--------------------------------------------------------------------------
+    | MARK CREDIT AS APPLIED
+    |--------------------------------------------------------------------------
+    */
 
     $credit->status = 'Applied';
     $credit->save();
