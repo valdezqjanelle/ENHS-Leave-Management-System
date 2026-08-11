@@ -43,6 +43,102 @@
         Manage administrator account information and security.
       </p>
 
+      <!-- Admin Profile -->
+
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Administrator Profile
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              First Name
+            </label>
+
+            <input
+              :value="adminProfile.first_name"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Middle Name
+            </label>
+
+            <input
+              :value="adminProfile.middle_name"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Last Name
+            </label>
+
+            <input
+              :value="adminProfile.last_name"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700"> Sex </label>
+
+            <input
+              :value="adminProfile.sex"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Position
+            </label>
+
+            <input
+              :value="adminProfile.position"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Department
+            </label>
+
+            <input
+              :value="adminProfile.department"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Contact Number
+            </label>
+
+            <input
+              :value="adminProfile.contact_number"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-8" />
+
+      <!-- Email -->
+
       <!-- Email -->
 
       <div class="space-y-4">
@@ -366,6 +462,7 @@ import {
   getAdminProfile,
   updateAdminEmail,
   updateAdminPassword,
+  updateAdminProfile,
 } from "@/services/admin";
 import {
   getLeaveTypes,
@@ -484,6 +581,15 @@ const tabs = [
 ];
 
 const adminEmail = ref("");
+const adminProfile = ref({
+  first_name: "",
+  middle_name: "",
+  last_name: "",
+  sex: "",
+  position: "",
+  department: "",
+  contact_number: "",
+});
 
 const password = ref({
   current_password: "",
@@ -491,9 +597,25 @@ const password = ref({
   new_password_confirmation: "",
 });
 const loadAdmin = async () => {
-  const data = await getAdminProfile();
+  try {
+    const data = await getAdminProfile();
 
-  adminEmail.value = data.email;
+    adminEmail.value = data.email;
+
+    if (data.profile) {
+      adminProfile.value = {
+        first_name: data.profile.first_name || "",
+        middle_name: data.profile.middle_name || "",
+        last_name: data.profile.last_name || "",
+        sex: data.profile.sex || "",
+        position: data.profile.position || "",
+        department: data.profile.department || "",
+        contact_number: data.profile.contact_number || "",
+      };
+    }
+  } catch (error) {
+    console.log("Failed to load admin profile:", error);
+  }
 };
 
 const updateEmail = async () => {

@@ -6,6 +6,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\AdminProfile;
 
 class User extends Authenticatable
 {
@@ -36,4 +38,12 @@ class User extends Authenticatable
             'user_id'
         );
     }
+    public function adminProfile(): HasOne
+{
+    return $this->hasOne(
+        AdminProfile::class,
+        'user_id',
+        'user_id'
+    );
+}
 }

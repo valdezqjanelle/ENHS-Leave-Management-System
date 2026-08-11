@@ -119,6 +119,14 @@ Route::middleware('auth:sanctum')->group(function () {
             [AdminController::class, 'profile']
         );
 
+        Route::put(
+            '/admin/profile',
+            [AdminController::class, 'updateProfile']
+        );
+        Route::put(
+            '/admin/profile',
+            [AdminController::class, 'updateProfile']
+        );
 
         Route::put(
             '/admin/email',
