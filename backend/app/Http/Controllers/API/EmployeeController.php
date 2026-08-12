@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\EmployeeRecord;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Support\AuditLogger;
 
 class EmployeeController extends Controller
 {
@@ -45,6 +46,11 @@ class EmployeeController extends Controller
             'employment_status' => $request->employment_status ?? 'active',
             'date_hired' => now(),
         ]);
+
+        AuditLogger::log(
+            'Employee created',
+            "Created employee {$employee->first_name} {$employee->last_name} ({$user->email})"
+        );
 
         return response()->json([
             'message' => 'Employee created successfully',
@@ -96,6 +102,11 @@ public function update(Request $request, $id)
             'email' => $request->email
         ]);
     }
+
+    AuditLogger::log(
+        'Employee updated',
+        "Updated employee {$employee->first_name} {$employee->last_name}"
+    );
 
     return response()->json([
         'message' => 'Employee updated successfully.',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LeaveBalance;
 use App\Models\EmployeeRecord;
+use App\Support\AuditLogger;
 
 class LeaveBalanceController extends Controller
 {
@@ -97,6 +98,11 @@ public function index()
             'service_credits' => $request->service_credits,
             'last_updated' => now()
         ]
+    );
+
+    AuditLogger::log(
+        'Leave balance updated',
+        "Set leave balance for employee #{$employee_id} (vacation: {$balance->vacation_balance}, sick: {$balance->sick_balance})"
     );
 
     return response()->json([

@@ -10,7 +10,7 @@ use App\Models\LeaveAttachment;
 use App\Models\EmployeeRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveType;
-
+use App\Support\AuditLogger;
 
 class LeaveController extends Controller
 {
@@ -253,14 +253,23 @@ class LeaveController extends Controller
     /*
     | ADMIN: VIEW ONE
     */
-    public function show($id)
+    public function downloadPdf($id)
     {
-        return LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
-            ->findOrFail($id);
+        $leave = LeaveApplication::with(['employee', 'leaveType'])->findOrFail($id);
+        $leaveTypes = LeaveType::all();
+
+        $pdf = \Pdf::loadView('pdf.leave-application', [
+            'leave' => $leave,
+            'leaveTypes' => $leaveTypes,
+        ])->setPaper('a4');
+
+        $employeeName = $leave->employee
+            ? "{$leave->employee->first_name}_{$leave->employee->last_name}"
+            : "employee_{$leave->employee_id}";
+
+        $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
+
+        return $pdf->download($filename);
     }
 
 
@@ -414,13 +423,22 @@ public function updateStatus(Request $request, $id)
 );
     }
 
+    $leave->load(['employee', 'leaveType', 'attachments']);
+
+    if ($request->has('final_status') && $newStatus !== $previousStatus) {
+        $employeeName = $leave->employee
+            ? "{$leave->employee->first_name} {$leave->employee->last_name}"
+            : "employee #{$leave->employee_id}";
+
+        AuditLogger::log(
+            'Leave ' . ucfirst($newStatus),
+            "Marked leave #{$leave->leave_id} for {$employeeName} as {$newStatus}"
+        );
+    }
+
     return response()->json([
         'message' => 'Leave updated successfully',
-        'data' => $leave->load([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
+        'data' => $leave
     ]);
 }
 

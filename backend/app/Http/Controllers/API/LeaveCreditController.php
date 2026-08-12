@@ -8,6 +8,7 @@ use App\Models\LeaveCredit;
 use App\Models\LeaveBalance;
 use App\Models\EmployeeRecord;
 use Carbon\Carbon;
+use App\Support\AuditLogger;
 
 class LeaveCreditController extends Controller
 {
@@ -35,7 +36,12 @@ class LeaveCreditController extends Controller
         ]);
 
         // OPTIONAL: auto update leave balance (we will refine later)
-     
+
+
+        AuditLogger::log(
+            'Leave credit added',
+            "Added {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) for employee #{$credit->employee_id} ({$credit->activity_name})"
+        );
 
         return response()->json([
             'message' => 'Leave credit added successfully',
@@ -73,6 +79,11 @@ public function index()
         ]);
 
   
+        AuditLogger::log(
+            'Leave credit updated',
+            "Updated leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
+        );
+
         return response()->json([
             'message' => 'Leave credit updated',
             'data' => $credit
@@ -171,6 +182,11 @@ public function apply($id)
 
     $credit->status = 'Applied';
     $credit->save();
+
+    AuditLogger::log(
+        'Leave credit applied',
+        "Applied {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) to balance for employee #{$credit->employee_id}"
+    );
 
     return response()->json([
         'message' => 'Leave credit applied successfully.',
