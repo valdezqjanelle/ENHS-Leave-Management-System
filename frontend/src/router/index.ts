@@ -13,6 +13,17 @@ const router = createRouter({
     },
 
 
+    // Standalone print route (no dashboard layout wrapper)
+    {
+      path: "/leave-print/:id",
+      name: "LeaveApplicationPrint",
+      component: LeaveApplicationPrint,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+
+
     // Main Layout
     {
       path: "/",
@@ -69,15 +80,6 @@ const router = createRouter({
           },
         },
 
-
-        {
-          path: "/leave-print/:id",
-          name: "LeaveApplicationPrint",
-          component: LeaveApplicationPrint,
-          meta: {
-            requiresAuth: true,
-          },
-        },
 
 
         {

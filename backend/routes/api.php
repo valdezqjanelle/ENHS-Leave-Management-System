@@ -141,6 +141,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // AUDIT LOGS
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
+        Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
         Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
     });
 

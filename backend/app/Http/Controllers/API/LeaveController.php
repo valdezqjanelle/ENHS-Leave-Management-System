@@ -253,14 +253,23 @@ class LeaveController extends Controller
     /*
     | ADMIN: VIEW ONE
     */
-    public function show($id)
+    public function downloadPdf($id)
     {
-        return LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
-            ->findOrFail($id);
+        $leave = LeaveApplication::with(['employee', 'leaveType'])->findOrFail($id);
+        $leaveTypes = LeaveType::all();
+
+        $pdf = \Pdf::loadView('pdf.leave-application', [
+            'leave' => $leave,
+            'leaveTypes' => $leaveTypes,
+        ])->setPaper('a4');
+
+        $employeeName = $leave->employee
+            ? "{$leave->employee->first_name}_{$leave->employee->last_name}"
+            : "employee_{$leave->employee_id}";
+
+        $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
+
+        return $pdf->download($filename);
     }
 
 

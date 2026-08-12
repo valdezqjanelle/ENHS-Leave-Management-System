@@ -1,7 +1,15 @@
 <template>
   <div v-if="leave" class="bg-gray-200 min-h-screen p-8">
-    <!-- PRINT BUTTON -->
-    <div class="flex justify-end mb-4 print:hidden">
+    <!-- PRINT / DOWNLOAD BUTTONS -->
+    <div class="flex justify-end gap-3 mb-4 print:hidden">
+      <button
+        @click="downloadPdf"
+        :disabled="downloadingPdf"
+        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg disabled:opacity-50"
+      >
+        {{ downloadingPdf ? "Downloading..." : "Download PDF" }}
+      </button>
+
       <button
         @click="printForm"
         class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
@@ -486,11 +494,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 
 
-import { getLeave, getLeaveTypes } from "../services/leave";
+import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
 
 const route = useRoute();
 
@@ -510,15 +518,55 @@ const formatDate = (date: string | null) => {
   });
 };
 
+const downloadingPdf = ref(false);
+
+const downloadPdf = async () => {
+  if (!leave.value) return;
+
+  downloadingPdf.value = true;
+
+  try {
+    const blob = await downloadLeavePdf(leave.value.leave_id);
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    const first = leave.value.employee?.first_name ?? "";
+    const last = leave.value.employee?.last_name ?? "";
+    link.download = `Leave_Application_${first}_${last}_${leave.value.leave_id}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Failed to download PDF", error);
+    alert("Failed to download PDF. Please try again.");
+  } finally {
+    downloadingPdf.value = false;
+  }
+};
+
 const printForm = () => {
   window.print();
 };
+
+const originalTitle = document.title;
 
 const loadLeave = async () => {
   try {
     leave.value = await getLeave(Number(route.params.id));
 
     leaveTypes.value = await getLeaveTypes();
+
+    if (leave.value?.employee) {
+      const first = leave.value.employee.first_name ?? "";
+      const last = leave.value.employee.last_name ?? "";
+      const safeName = `${first}_${last}`.replace(/\s+/g, "_");
+
+      document.title = `Leave_Application_${safeName}_${leave.value.leave_id}`;
+    }
   } catch (error) {
     console.error("Failed loading leave", error);
   } finally {
@@ -529,9 +577,16 @@ const loadLeave = async () => {
 onMounted(() => {
   loadLeave();
 });
+
+onBeforeUnmount(() => {
+  document.title = originalTitle;
+});
+
 </script>
 <style scoped>
 #printArea {
+  box-sizing: border-box;
+
   width: 210mm;
 
   min-height: 297mm;
@@ -569,7 +624,7 @@ td {
 @page {
   size: A4;
 
-  margin: 10mm;
+  margin: 0;
 }
 
 @media print {
@@ -582,6 +637,8 @@ td {
   }
 
   #printArea {
+    box-sizing: border-box !important;
+
     width: 210mm !important;
 
     min-height: 297mm !important;
