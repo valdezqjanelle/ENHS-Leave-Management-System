@@ -93,54 +93,100 @@
     </div>
 
     <!-- Filter and Search -->
+    <!-- Filter and Search -->
     <div class="bg-white rounded-lg shadow p-4">
-      <div class="flex flex-col sm:flex-row gap-4">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Search -->
         <div class="flex-1">
           <div class="relative">
             <Search
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-900 w-5 h-5"
             />
+
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search by leave type, date range..."
+              placeholder="Search ID, leave type, status, reason, date..."
               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
-        <div class="flex gap-2">
-          <select
-            v-model="filterStatus"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="on pr">On PR</option>
-          </select>
+        <!-- Status -->
+        <select
+          v-model="filterStatus"
+          class="px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
 
-          <select
-            v-model="filterType"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Types</option>
-            <option value="vacation">Vacation Leave</option>
-            <option value="sick">Sick Leave</option>
-            <option value="maternity">Maternity Leave</option>
-            <option value="paternity">Paternity Leave</option>
-            <option value="personal">Personal Leave</option>
-          </select>
-        </div>
+        <!-- Leave Type -->
+        <select
+          v-model="filterType"
+          class="px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">All Types</option>
+          <option value="vacation">Vacation Leave</option>
+          <option value="sick">Sick Leave</option>
+          <option value="maternity">Maternity Leave</option>
+          <option value="paternity">Paternity Leave</option>
+          <option value="study">Study Leave</option>
+          <option value="special">Special Leave</option>
+          <option value="mandatory">Mandatory/Forced Leave</option>
+        </select>
+
+        <!-- Clear -->
+        <button
+          @click="clearFilters"
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Search result info -->
+      <div
+        v-if="searchQuery || filterStatus || filterType"
+        class="mt-3 text-sm text-gray-500"
+      >
+        {{ filteredApplications.length }}
+        application(s) found
       </div>
     </div>
 
     <!-- Applications List -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-800">Application History</h3>
-      </div>
+  <div
+  class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+>
+  <div>
+    <h3 class="text-lg font-semibold text-gray-800">
+      Application History
+    </h3>
+
+    <p class="text-sm text-gray-500 mt-1">
+      Showing
+      {{ displayedApplications.length }}
+      of
+      {{ filteredApplications.length }}
+      application(s)
+    </p>
+  </div>
+
+  <button
+    v-if="applications.length > 15"
+    @click="showAllApplications = !showAllApplications"
+    class="px-4 py-2 text-sm border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+  >
+    {{
+      showAllApplications
+        ? "Show Recent 15"
+        : `Show All Applications (${filteredApplications.length})`
+    }}
+  </button>
+</div>
 
       <div class="overflow-x-auto">
         <table class="w-full">
@@ -180,7 +226,7 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="application in filteredApplications"
+              v-for="application in displayedApplications"
               :key="application.leave_id"
               class="hover:bg-gray-50"
             >
@@ -385,7 +431,7 @@
         </div>
       </div>
     </div>
-  </div>
+  
 </template>
 
 <script setup lang="ts">
@@ -422,9 +468,11 @@ const router = useRouter();
 const searchQuery = ref("");
 const filterStatus = ref("");
 const filterType = ref("");
+
+const showAllApplications = ref(false);
+
 const application = ref<Application | null>(null);
 
-// Mock data for faculty applications
 const applications = ref<any[]>([]);
 const loading = ref(true);
 
@@ -453,47 +501,95 @@ const stats = computed(() => ({
 }));
 
 const filteredApplications = computed(() => {
-  return applications.value.filter((application) => {
-    const matchesSearch =
-      searchQuery.value === "" ||
-      application.leave_type.leave_type_name
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase()) ||
-      application.leave_id
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase());
+  const search = searchQuery.value.trim().toLowerCase();
 
-    const matchesStatus =
-      filterStatus.value === "" ||
-      application.final_status === filterStatus.value;
-    const matchesType =
-      filterType.value === "" ||
-      application.leave_type.leave_type_name
-        .toLowerCase()
-        .includes(filterType.value.toLowerCase());
+  return applications.value
+    .filter((app) => {
+      const leaveType =
+        app.leave_type?.leave_type_name?.toLowerCase() || "";
 
-    return matchesSearch && matchesStatus && matchesType;
-  });
+      const status =
+        app.final_status?.toLowerCase() || "";
+
+      const leaveId =
+        String(app.leave_id || "").toLowerCase();
+
+      const reason =
+        app.reason?.toLowerCase() || "";
+
+      const dateFiled =
+        app.date_filed?.toLowerCase() || "";
+
+      const startDate =
+        app.start_date?.toLowerCase() || "";
+
+      const endDate =
+        app.end_date?.toLowerCase() || "";
+
+      const vacationLocation =
+        app.vacation_location?.toLowerCase() || "";
+
+      const matchesSearch =
+        search === "" ||
+        leaveId.includes(search) ||
+        leaveType.includes(search) ||
+        status.includes(search) ||
+        reason.includes(search) ||
+        dateFiled.includes(search) ||
+        startDate.includes(search) ||
+        endDate.includes(search) ||
+        vacationLocation.includes(search);
+
+      const matchesStatus =
+        filterStatus.value === "" ||
+        status === filterStatus.value.toLowerCase();
+
+      const matchesType =
+        filterType.value === "" ||
+        leaveType.includes(filterType.value.toLowerCase());
+
+      return matchesSearch && matchesStatus && matchesType;
+    })
+    .sort((a, b) => {
+      return (
+        new Date(b.date_filed).getTime() -
+        new Date(a.date_filed).getTime()
+      );
+    });
 });
+
+const displayedApplications = computed(() => {
+  if (showAllApplications.value) {
+    return filteredApplications.value;
+  }
+
+  return filteredApplications.value.slice(0, 15);
+});
+
+const clearFilters = () => {
+  searchQuery.value = "";
+  filterStatus.value = "";
+  filterType.value = "";
+};
 
 const getStatusClass = (status: string) => {
   switch (status) {
     case "approved":
-      return "bg-green-100 text-green-800"
+      return "bg-green-100 text-green-800";
 
     case "pending":
-      return "bg-yellow-100 text-yellow-800"
+      return "bg-yellow-100 text-yellow-800";
 
     case "rejected":
-      return "bg-red-100 text-red-800"
+      return "bg-red-100 text-red-800";
 
     case "on pr":
-      return "bg-blue-100 text-blue-800"
+      return "bg-blue-100 text-blue-800";
 
     default:
-      return "bg-gray-100 text-gray-800"
+      return "bg-gray-100 text-gray-800";
   }
-}
+};
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-US", {

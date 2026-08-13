@@ -36,6 +36,7 @@
             <th class="px-6 py-3 font-bold">Employee Code</th>
 
             <th class="px-6 py-3 font-bold">Employee</th>
+            <th class="px-6 py-3 font-bold">Created By</th>
 
             <th class="px-6 py-3 font-bold">Email</th>
 
@@ -65,6 +66,9 @@
               {{ employee.last_name }},
               {{ employee.first_name }}
               {{ employee.middle_name }}
+            </td>
+            <td class="px-6 py-4 text-black">
+              {{ employee.created_by?.email || "Unknown" }}
             </td>
 
             <td class="px-6 py-4 text-black">
@@ -763,9 +767,15 @@ interface Employee {
 
   sex: string;
 
+  created_by?: {
+    user_id: number;
+    email: string;
+  };
+
   user: {
     email: string;
   };
+
 }
 
 const employees = ref<Employee[]>([]);

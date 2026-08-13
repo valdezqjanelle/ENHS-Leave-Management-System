@@ -36,6 +36,66 @@
 
       <!-- Applications List -->
       <div class="p-6">
+        <!-- Search and Filters -->
+        <div class="mb-6">
+          <div class="flex flex-col md:flex-row gap-3">
+            <!-- Search -->
+            <div class="flex-1">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search employee, leave type, status, or ID..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              />
+            </div>
+
+            <!-- Leave Type -->
+            <select
+              v-model="filterType"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+            >
+              <option value="">All Leave Types</option>
+              <option value="vacation">Vacation Leave</option>
+              <option value="sick">Sick Leave</option>
+              <option value="maternity">Maternity Leave</option>
+              <option value="paternity">Paternity Leave</option>
+              <option value="study">Study Leave</option>
+              <option value="special">Special Leave</option>
+              <option value="mandatory">Mandatory/Forced Leave</option>
+            </select>
+
+            <!-- Clear -->
+            <button
+              @click="
+                searchQuery = '';
+                filterType = '';
+                activeTab = 'all';
+              "
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          </div>
+          <!-- Show All / Show Less -->
+          <div
+            v-if="filteredApplications.length > 5"
+            class="flex justify-center mt-6"
+          >
+            <button
+              @click="showAllApplications = !showAllApplications"
+              class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+            >
+              {{ showAllApplications ? "Show Less" : "Show All Applications" }}
+            </button>
+          </div>
+
+          <div
+            v-if="searchQuery || filterType"
+            class="mt-2 text-sm text-gray-500"
+          >
+            {{ filteredApplications.length }} application(s) found
+          </div>
+        </div>
         <div v-if="filteredApplications.length === 0" class="text-center py-8">
           <div class="mx-auto h-12 w-12 text-gray-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +117,7 @@
 
         <div v-else class="space-y-4">
           <div
-            v-for="application in filteredApplications"
+            v-for="application in displayedApplications"
             :key="application.leave_id"
             class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
           >
@@ -445,7 +505,10 @@
             <span class="text-gray-600"> Total deduction: </span>
 
             <span class="font-semibold text-gray-900">
-              {{ vacationDeductDays + sickDeductDays + serviceCreditsDeductDays }} day(s)
+              {{
+                vacationDeductDays + sickDeductDays + serviceCreditsDeductDays
+              }}
+              day(s)
             </span>
           </div>
 
@@ -549,14 +612,47 @@ const tabs = [
   { key: "rejected", label: "Rejected", countClass: "bg-red-100 text-red-800" },
 ];
 
+const searchQuery = ref("");
+const filterType = ref("");
+const showAllApplications = ref(false);
+
 const filteredApplications = computed(() => {
-  if (activeTab.value === "all") {
-    return applications.value;
+  const search = searchQuery.value.trim().toLowerCase();
+
+  return applications.value.filter((app) => {
+    const status = app.final_status?.toLowerCase() || "";
+
+    const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
+
+    const employeeName = `
+      ${app.employee?.first_name || ""}
+      ${app.employee?.middle_name || ""}
+      ${app.employee?.last_name || ""}
+    `.toLowerCase();
+
+    const matchesTab = activeTab.value === "all" || status === activeTab.value;
+
+    const matchesSearch =
+      search === "" ||
+      employeeName.includes(search) ||
+      leaveType.includes(search) ||
+      status.includes(search) ||
+      String(app.leave_id).includes(search);
+
+    const matchesType =
+      filterType.value === "" ||
+      leaveType.includes(filterType.value.toLowerCase());
+
+    return matchesTab && matchesSearch && matchesType;
+  });
+});
+
+const displayedApplications = computed(() => {
+  if (showAllApplications.value) {
+    return filteredApplications.value;
   }
 
-  return applications.value.filter(
-    (app) => app.final_status.toLowerCase() === activeTab.value,
-  );
+  return filteredApplications.value.slice(0, 5);
 });
 
 const getTabCount = (tabKey: string) => {
