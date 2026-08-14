@@ -249,9 +249,22 @@ class LeaveController extends Controller
             ->get();
     }
 
+    /*
+| ADMIN: VIEW ONE
+*/
+public function show($id)
+{
+    $leave = LeaveApplication::with([
+        'employee',
+        'leaveType',
+        'attachments'
+    ])->findOrFail($id);
+
+    return response()->json($leave);
+}
 
     /*
-    | ADMIN: VIEW ONE
+    | ADMIN: DOWNLOAD PDF
     */
     public function downloadPdf($id)
     {
