@@ -324,6 +324,23 @@
           </div>
         </div>
 
+        <div
+          v-if="hasInsufficientBalance"
+          class="mt-2 text-lg text-red-600 font-extrabold"
+        >
+          Warning: You only have
+          {{ selectedAvailableBalance }} {{ creditTypeLabel }} credit(s)
+          available, but you are applying for {{ calculateDays() }} day(s). You
+          may still submit the application for approval.
+        </div>
+        <!-- Insufficient Balance Warning -->
+        <p
+          v-if="balanceWarningMessage"
+          class="mt-3 text-sm text-red-600 font-medium"
+        >
+          ⚠️ {{ balanceWarningMessage }}
+        </p>
+
         <!-- Reason for Leave -->
         <div>
           <label
@@ -509,7 +526,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import {
   getLeaveTypes,
   submitLeave,
@@ -582,6 +599,58 @@ const leaveBalance = ref({
   sick_balance: 0,
   service_credits: 0,
 });
+const requiredCreditType = computed(() => {
+  const name = selectedLeaveName.value.toLowerCase();
+
+  if (name.includes("vacation")) {
+    return "vacation";
+  }
+
+  if (name.includes("sick")) {
+    return "sick";
+  }
+
+  return "service";
+});
+
+const selectedAvailableBalance = computed(() => {
+  switch (requiredCreditType.value) {
+    case "vacation":
+      return Number(leaveBalance.value.vacation_balance);
+
+    case "sick":
+      return Number(leaveBalance.value.sick_balance);
+
+    case "service":
+      return Number(leaveBalance.value.service_credits);
+
+    default:
+      return 0;
+  }
+});
+
+const creditTypeLabel = computed(() => {
+  switch (requiredCreditType.value) {
+    case "vacation":
+      return "Vacation Leave";
+
+    case "sick":
+      return "Sick Leave";
+
+    default:
+      return "Service Credits";
+  }
+});
+
+const hasInsufficientBalance = computed(() => {
+  const days = calculateDays();
+
+  if (!form.value.leave_type_id || days <= 0) {
+    return false;
+  }
+
+  return days > selectedAvailableBalance.value;
+});
 onMounted(async () => {
   try {
     leaveTypes.value = await getLeaveTypes();
@@ -601,6 +670,8 @@ onMounted(async () => {
 
 const showSuccessModal = ref(false);
 const submittedLeaveId = ref<number | null>(null);
+const showBalanceWarning = ref(false);
+const balanceWarningMessage = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const minDate = computed(() => {
@@ -668,6 +739,70 @@ const formatFileSize = (bytes: number) => {
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+const checkLeaveBalance = () => {
+  const requestedDays = calculateDays();
+
+  if (!form.value.leave_type_id || requestedDays <= 0) {
+    balanceWarningMessage.value = "";
+    return true;
+  }
+  watch(
+    [
+      () => form.value.leave_type_id,
+      () => form.value.startDate,
+      () => form.value.endDate,
+      () => leaveBalance.value.vacation_balance,
+      () => leaveBalance.value.sick_balance,
+      () => leaveBalance.value.service_credits,
+    ],
+    () => {
+      checkLeaveBalance();
+    },
+  );
+
+  const leaveName = selectedLeaveName.value.toLowerCase();
+
+  let availableBalance = 0;
+  let balanceName = "";
+
+  // Vacation Leave
+  if (leaveName.includes("vacation")) {
+    availableBalance = Number(leaveBalance.value.vacation_balance);
+    balanceName = "Vacation Leave";
+  }
+
+  // Sick Leave
+  else if (leaveName.includes("sick")) {
+    availableBalance = Number(leaveBalance.value.sick_balance);
+    balanceName = "Sick Leave";
+  }
+
+  // Service Credits
+  else if (leaveName.includes("service")) {
+    availableBalance = Number(leaveBalance.value.service_credits);
+    balanceName = "Service Credits";
+  }
+
+  // No balance type to check
+  else {
+    balanceWarningMessage.value = "";
+    return true;
+  }
+
+  if (requestedDays > availableBalance) {
+    balanceWarningMessage.value =
+      `Your requested leave of ${requestedDays} day(s) exceeds your available ` +
+      `${balanceName} balance of ${availableBalance} day(s). ` +
+      `You may still submit this application.`;
+
+    return false;
+  }
+
+  balanceWarningMessage.value = "";
+
+  return true;
 };
 
 const submitApplication = async () => {
