@@ -42,98 +42,188 @@
       <p class="text-gray-500 mb-6">
         Manage administrator account information and security.
       </p>
+<!-- Admin Profile -->
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-800">
+        Administrator Profile
+      </h3>
+      <p class="text-sm text-gray-500">
+        Update your administrator information.
+      </p>
+    </div>
 
-      <!-- Admin Profile -->
+    <!-- Edit button -->
+    <button
+      v-if="!isEditingProfile"
+      @click="startEditProfile"
+      type="button"
+      class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
+    >
+      Edit Profile
+    </button>
 
-      <div class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-          Administrator Profile
-        </h3>
+    <!-- Save / Cancel buttons -->
+    <div v-else class="flex gap-2">
+      <button
+        @click="cancelEditProfile"
+        type="button"
+        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
+      >
+        Cancel
+      </button>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              First Name
-            </label>
+      <button
+        @click="saveAdminProfile"
+        type="button"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+      >
+        Save Changes
+      </button>
+    </div>
+  </div>
 
-            <input
-              :value="adminProfile.first_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Middle Name
-            </label>
+    <!-- First Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        First Name
+      </label>
 
-            <input
-              :value="adminProfile.middle_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+      <input
+        v-model="adminProfile.first_name"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
+    <!-- Middle Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Middle Name
+      </label>
 
-            <input
-              :value="adminProfile.last_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+      <input
+        v-model="adminProfile.middle_name"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700"> Sex </label>
+    <!-- Last Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Last Name
+      </label>
 
-            <input
-              :value="adminProfile.sex"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+      <input
+        v-model="adminProfile.last_name"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Position
-            </label>
+    <!-- Sex -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Sex
+      </label>
 
-            <input
-              :value="adminProfile.position"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+      <select
+        v-model="adminProfile.sex"
+        :disabled="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      >
+        <option value="">Select Sex</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Department
-            </label>
+    <!-- Position -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Position
+      </label>
 
-            <input
-              :value="adminProfile.department"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
+      <input
+        v-model="adminProfile.position"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">
-              Contact Number
-            </label>
+    <!-- Department -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Department
+      </label>
 
-            <input
-              :value="adminProfile.contact_number"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
-          </div>
-        </div>
-      </div>
+      <input
+        v-model="adminProfile.department"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
+
+    <!-- Contact Number -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">
+        Contact Number
+      </label>
+
+      <input
+        v-model="adminProfile.contact_number"
+        type="text"
+        :readonly="!isEditingProfile"
+        :class="[
+          'mt-1 w-full border rounded-lg px-3 py-2',
+          isEditingProfile
+            ? 'text-black bg-white'
+            : 'text-gray-600 bg-gray-100'
+        ]"
+      />
+    </div>
+
+  </div>
+</div>
 
       <hr class="my-8" />
 
@@ -591,6 +681,65 @@ const adminProfile = ref({
   contact_number: "",
 });
 
+const isEditingProfile = ref(false);
+
+const originalAdminProfile = ref({
+  first_name: "",
+  middle_name: "",
+  last_name: "",
+  sex: "",
+  position: "",
+  department: "",
+  contact_number: "",
+});
+
+const startEditProfile = () => {
+  originalAdminProfile.value = {
+    ...adminProfile.value,
+  };
+
+  isEditingProfile.value = true;
+};
+
+const cancelEditProfile = () => {
+  adminProfile.value = {
+    ...originalAdminProfile.value,
+  };
+
+  isEditingProfile.value = false;
+};
+
+const saveAdminProfile = async () => {
+  try {
+    await updateAdminProfile({
+      first_name: adminProfile.value.first_name,
+      middle_name: adminProfile.value.middle_name,
+      last_name: adminProfile.value.last_name,
+      sex: adminProfile.value.sex,
+      position: adminProfile.value.position,
+      department: adminProfile.value.department,
+      contact_number: adminProfile.value.contact_number,
+    });
+
+    // Update original copy after successful save
+    originalAdminProfile.value = {
+      ...adminProfile.value,
+    };
+
+    isEditingProfile.value = false;
+
+    alert("Profile updated successfully.");
+  } catch (error: any) {
+    console.error("Profile update error:", error);
+
+    if (error.response?.data?.message) {
+      alert(error.response.data.message);
+    } else {
+      alert("Failed to update profile.");
+    }
+  }
+};
+
 const password = ref({
   current_password: "",
   new_password: "",
@@ -600,7 +749,7 @@ const loadAdmin = async () => {
   try {
     const data = await getAdminProfile();
 
-    adminEmail.value = data.email;
+    adminEmail.value = data.email || "";
 
     if (data.profile) {
       adminProfile.value = {
@@ -612,9 +761,16 @@ const loadAdmin = async () => {
         department: data.profile.department || "",
         contact_number: data.profile.contact_number || "",
       };
+
+      originalAdminProfile.value = {
+        ...adminProfile.value,
+      };
     }
-  } catch (error) {
-    console.log("Failed to load admin profile:", error);
+  } catch (error: any) {
+    console.error(
+      "Failed to load admin profile:",
+      error.response?.data || error
+    );
   }
 };
 

@@ -430,83 +430,192 @@
       </div>
     </div>
 
-    <!-- About Us Tab -->
-    <div v-if="activeTab === 'about'" class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">About EL System</h2>
-      
-      <div class="prose max-w-none">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">System Information</h3>
-            <div class="space-y-4">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Version Information</h4>
-                <p class="text-sm text-gray-600">EL System v2.1.0</p>
-                <p class="text-sm text-gray-600">Last Updated: January 15, 2024</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">System Features</h4>
-                <ul class="text-sm text-gray-600 space-y-1">
-                  <li>• Online Leave Application</li>
-                  <li>• Attendance Tracking</li>
-                  <li>• Faculty Records Management</li>
-                  <li>• Report Generation</li>
-                  <li>• Multi-level Approval System</li>
-                </ul>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">System Requirements</h4>
-                <ul class="text-sm text-gray-600 space-y-1">
-                  <li>• Modern web browser (Chrome, Firefox, Safari, Edge)</li>
-                  <li>• Internet connection</li>
-                  <li>• Minimum screen resolution: 1024x768</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
-            <div class="space-y-4">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Technical Support</h4>
-                <p class="text-sm text-gray-600">Email: support@elsystem.edu</p>
-                <p class="text-sm text-gray-600">Phone: (123) 456-7890</p>
-                <p class="text-sm text-gray-600">Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">ADAS Office</h4>
-                <p class="text-sm text-gray-600">Email: adas@university.edu</p>
-                <p class="text-sm text-gray-600">Phone: (123) 456-7891</p>
-                <p class="text-sm text-gray-600">Location: Admin Building, Room 201</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Development Team</h4>
-                <p class="text-sm text-gray-600">Lead Developer: John Developer</p>
-                <p class="text-sm text-gray-600">UI/UX Designer: Sarah Designer</p>
-                <p class="text-sm text-gray-600">System Administrator: Mike Admin</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="mt-8 border-t pt-8">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy & Security</h3>
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-blue-800">
-              <strong>Privacy Policy:</strong> EL System is committed to protecting your privacy. 
-              All personal information is stored securely and used only for official university purposes. 
-              We comply with all applicable data protection regulations and maintain strict security protocols 
-              to safeguard your data.
+ <!-- About Us Tab -->
+<div v-if="activeTab === 'about'" class="bg-white rounded-lg shadow p-6">
+  <h2 class="text-xl font-semibold text-gray-800 mb-2">
+    About ENHS Leave System
+  </h2>
+
+  <p class="text-sm text-gray-500 mb-6">
+    Information about the Echague National High School Leave Management System.
+  </p>
+
+  <div class="prose max-w-none">
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- System Information -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+          System Information
+        </h3>
+
+        <div class="space-y-4">
+
+          <!-- About the System -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              About the System
+            </h4>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+              The ENHS Leave System is a web-based Leave Management System
+              developed for Echague National High School. It is designed to
+              help manage employee leave applications, leave records,
+              attendance, leave credits, and related reports in a more
+              organized and efficient manner.
             </p>
           </div>
+
+          <!-- System Features -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              System Features
+            </h4>
+
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• Employee Account Management</li>
+              <li>• Online Leave Application</li>
+              <li>• Leave Application Monitoring</li>
+              <li>• Employee Attendance Records</li>
+              <li>• Leave Credit and Balance Management</li>
+              <li>• Leave Records Management</li>
+              <li>• Report Generation</li>
+              <li>• Dashboard and Summary Information</li>
+              <li>• Audit Trail and Activity Monitoring</li>
+            </ul>
+          </div>
+
+          <!-- System Users -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              System Users
+            </h4>
+
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• Administrator / ADAS</li>
+              <li>• Teaching Employees</li>
+              <li>• Non-Teaching Employees</li>
+            </ul>
+          </div>
+
         </div>
       </div>
+
+
+      <!-- Organization Information -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+          Organization
+        </h3>
+
+        <div class="space-y-4">
+
+          <!-- School -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              Echague National High School
+            </h4>
+
+            <p class="text-sm text-gray-600">
+              The ENHS Leave System is intended to support the school's
+              employee leave and attendance management processes.
+            </p>
+          </div>
+
+          <!-- Purpose -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              Purpose of the System
+            </h4>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+              The system aims to provide a centralized platform for managing
+              employee leave applications, attendance records, leave credits,
+              and reports while reducing manual record-keeping and improving
+              the accessibility and organization of employee information.
+            </p>
+          </div>
+
+          <!-- Development -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 mb-2">
+              System Development
+            </h4>
+
+            <p class="text-sm text-gray-600 leading-relaxed">
+              The ENHS Leave System was developed as an academic capstone
+              project for Echague National High School, with the goal of
+              providing a practical web-based solution for employee leave
+              management.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
     </div>
+
+
+    <!-- System Details -->
+    <div class="mt-8 border-t pt-8">
+
+      <h3 class="text-lg font-medium text-gray-900 mb-4">
+        System Details
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">System Name</p>
+          <p class="font-medium text-gray-900 mt-1">
+            ENHS Leave System
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">System Type</p>
+          <p class="font-medium text-gray-900 mt-1">
+            Web-Based Leave Management System
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Primary Users</p>
+          <p class="font-medium text-gray-900 mt-1">
+            Administrators and Employees
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Privacy and Security -->
+    <div class="mt-8 border-t pt-8">
+
+      <h3 class="text-lg font-medium text-gray-900 mb-4">
+        Privacy & Security
+      </h3>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+
+        <p class="text-sm text-blue-800 leading-relaxed">
+          <strong>Data Privacy:</strong>
+          The ENHS Leave System is designed to protect employee information
+          and restrict access to authorized users. Account credentials,
+          employee records, leave applications, attendance information, and
+          other system data should only be accessed and managed according to
+          the user's assigned role and authorized responsibilities.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
     <!-- Logout Button -->
     <div class="bg-white rounded-lg shadow p-6">

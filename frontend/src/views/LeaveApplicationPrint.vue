@@ -18,9 +18,7 @@
       </button>
     </div>
 
-
     <div id="printArea" class="mx-auto bg-white border border-black text-black">
-
       <div class="text-center border-b-2 border-black py-3">
         <div>Civil Service Form No. 6</div>
 
@@ -261,8 +259,10 @@
               Terminal Leave
             </div>
 
-            <div class="border-b border-black h-7 mt-3">
-              {{ leave.other_purpose || "" }}
+            <div class="mt-8">
+              <div class="font-bold italic"></div>
+
+          
             </div>
           </div>
         </div>
@@ -497,7 +497,6 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 
-
 import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
 
 const route = useRoute();
@@ -581,7 +580,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.title = originalTitle;
 });
-
 </script>
 <style scoped>
 #printArea {

@@ -23,7 +23,7 @@ return new class extends Migration
     $table->string('activity_name');
     $table->decimal('hours_rendered', 8, 2);
     $table->decimal('equivalent_leave_days', 8, 2);
-$table->enum('credit_type', ['Vacation', 'Sick', 'Service']);
+$table->enum('credit_type', ['Vacation', 'Sick', 'Service Credits']);
 
 $table->enum('status', ['Pending', 'Applied'])
       ->default('Pending');

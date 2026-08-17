@@ -9,11 +9,7 @@ use App\Models\AdminProfile;
 
 class AdminController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | GET ADMIN PROFILE
-    |--------------------------------------------------------------------------
-    */
+
     public function profile(Request $request)
     {
         $user = $request->user();
@@ -33,11 +29,6 @@ class AdminController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE ADMIN PROFILE
-    |--------------------------------------------------------------------------
-    */
  public function updateProfile(Request $request)
 {
     $request->validate([
@@ -77,12 +68,6 @@ class AdminController extends Controller
 }
 
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE EMAIL
-    |--------------------------------------------------------------------------
-    */
     public function updateEmail(Request $request)
     {
         $request->validate([
@@ -101,11 +86,6 @@ class AdminController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE PASSWORD
-    |--------------------------------------------------------------------------
-    */
     public function updatePassword(Request $request)
     {
         $request->validate([

@@ -41,11 +41,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE STATUS CHART
-        |--------------------------------------------------------------------------
-        */
 
         $statusChart = [
             "approved" => $approvedLeaves,
@@ -55,11 +50,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE USAGE BY TYPE
-        |--------------------------------------------------------------------------
-        */
+
 
         $leaveByType = LeaveApplication::with('leaveType')
             ->select(
@@ -68,25 +59,18 @@ class DashboardController extends Controller
             )
             ->groupBy('leave_type_id')
             ->get()
-            ->map(function($leave){
+            ->map(function ($leave) {
 
                 return [
                     "name" =>
-                        $leave->leaveType->leave_type_name,
+                    $leave->leaveType->leave_type_name,
 
                     "count" =>
-                        $leave->total
+                    $leave->total
                 ];
-
             });
 
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE SUMMARY BY DEPARTMENT
-        |--------------------------------------------------------------------------
-        */
 
         $leaveByDepartment = LeaveApplication::with('employee')
             ->select(
@@ -95,98 +79,78 @@ class DashboardController extends Controller
             )
             ->groupBy('employee_id')
             ->get()
-            ->groupBy(function($leave){
+            ->groupBy(function ($leave) {
 
                 return $leave->employee->department;
-
             })
-            ->map(function($department, $name){
+            ->map(function ($department, $name) {
 
                 return [
                     "department" => $name,
 
                     "count" =>
-                        $department->sum('total')
+                    $department->sum('total')
                 ];
-
             })
             ->values();
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | RECENT APPLICATIONS
-        |--------------------------------------------------------------------------
-        */
 
         $recentApplications = LeaveApplication::with([
-                'employee',
-                'leaveType'
-            ])
+            'employee',
+            'leaveType'
+        ])
             ->latest()
             ->take(5)
             ->get()
-            ->map(function($leave){
+            ->map(function ($leave) {
 
                 return [
 
                     "employee" =>
-                        $leave->employee->first_name
-                        ." "
-                        .$leave->employee->last_name,
+                    $leave->employee->first_name
+                        . " "
+                        . $leave->employee->last_name,
 
 
                     "leave_type" =>
-                        $leave->leaveType->leave_type_name,
+                    $leave->leaveType->leave_type_name,
 
 
                     "status" =>
-                        $leave->final_status,
+                    $leave->final_status,
 
 
                     "date" =>
-                        $leave->created_at
-                            ->format('M d, Y')
+                    $leave->created_at
+                        ->format('M d, Y')
 
                 ];
-
             });
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | EMPLOYEE CATEGORY
-        |--------------------------------------------------------------------------
-        */
 
         $employeeCategory = EmployeeRecord::select(
-                'employee_category',
-                DB::raw('count(*) as count')
-            )
+            'employee_category',
+            DB::raw('count(*) as count')
+        )
             ->groupBy('employee_category')
             ->get();
 
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE TREND
-        |--------------------------------------------------------------------------
-        */
-
         $leaveTrend = LeaveApplication::select(
 
-                DB::raw(
-                    'MONTH(created_at) as month'
-                ),
+            DB::raw(
+                'MONTH(created_at) as month'
+            ),
 
-                DB::raw(
-                    'count(*) as total'
-                )
-
+            DB::raw(
+                'count(*) as total'
             )
+
+        )
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -199,57 +163,56 @@ class DashboardController extends Controller
             "summary" => [
 
                 "totalEmployees" =>
-                    $totalEmployees,
+                $totalEmployees,
 
                 "totalApplications" =>
-                    $totalApplications,
+                $totalApplications,
 
                 "pendingLeaves" =>
-                    $pendingLeaves,
+                $pendingLeaves,
 
                 "approvedLeaves" =>
-                    $approvedLeaves,
+                $approvedLeaves,
 
                 "disapprovedLeaves" =>
-                    $disapprovedLeaves,
+                $disapprovedLeaves,
 
                 "totalLeaveTypes" =>
-                    $totalLeaveTypes
+                $totalLeaveTypes
 
             ],
 
 
 
             "statusChart" =>
-                $statusChart,
+            $statusChart,
 
 
 
             "leaveByType" =>
-                $leaveByType,
+            $leaveByType,
 
 
 
             "leaveByDepartment" =>
-                $leaveByDepartment,
+            $leaveByDepartment,
 
 
 
             "recentApplications" =>
-                $recentApplications,
+            $recentApplications,
 
 
 
             "employeeCategory" =>
-                $employeeCategory,
+            $employeeCategory,
 
 
 
             "leaveTrend" =>
-                $leaveTrend
+            $leaveTrend
 
 
         ]);
-
     }
 }

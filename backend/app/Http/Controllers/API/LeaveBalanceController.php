@@ -56,11 +56,8 @@ public function index()
 
     return response()->json($balances);
 }
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: VIEW SPECIFIC EMPLOYEE BALANCE
-    |--------------------------------------------------------------------------
-    */
+ //ADMIN: VIEW SPECIFIC EMPLOYEE BALANCE
+
     public function show($employee_id)
     {
         $balance = LeaveBalance::with('employee')
@@ -111,11 +108,7 @@ public function index()
     ]);
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE: VIEW OWN BALANCE
-    |--------------------------------------------------------------------------
-    */
+//EMPLOYEE OWN BALANCE
     public function myBalance(Request $request)
 {
     $employee = EmployeeRecord::where(

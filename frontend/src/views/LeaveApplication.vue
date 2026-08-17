@@ -111,6 +111,7 @@
                 {{ type.leave_type_name }}
               </option>
             </select>
+           
           </div>
 
           <div
@@ -170,42 +171,53 @@
           </div>
 
           <div v-if="selectedLeaveName?.includes('Study')">
-            <label class="block">
+            <label class="block text-black">
               <input type="checkbox" v-model="form.masters_degree" />
 
               Masters Degree
             </label>
 
-            <label class="block mt-2">
+            <label class="block mt-2 text-black">
               <input type="checkbox" v-model="form.board_exam_review" />
 
               Board Examination Review
             </label>
           </div>
 
-          <div
-            v-if="
-              selectedLeaveName?.includes('Special') ||
-              selectedLeaveName?.includes('Mandatory')
-            "
-          >
-            <label>
-              <input type="checkbox" v-model="form.monetization" />
-
-              Monetization
-            </label>
-
-            <label>
-              <input type="checkbox" v-model="form.terminal_leave" />
-
-              Terminal Leave
+          <!-- LEAVE TYPE OTHER PURPOSE -->
+          <div v-if="isOtherLeaveType" class="text-black">
+            <label class="block font-medium mb-2">
+              Other Purpose <span class="text-red-500">*</span>
             </label>
 
             <input
               v-model="form.other_purpose"
-              placeholder="Other purpose"
-              class="w-full border rounded-lg p-2 mt-2"
+              type="text"
+              required
+              placeholder="Please specify the purpose/type of leave"
+              class="w-full border border-gray-300 rounded-lg p-2"
             />
+          </div>
+
+          <!-- OTHER PURPOSE OPTIONS -->
+          <div class="text-black">
+            <label class="block font-medium mb-2">
+              Other Purpose Options
+            </label>
+
+            <label class="block">
+              <input type="checkbox" v-model="form.monetization" class="mr-2" />
+              Monetization of Leave Credits
+            </label>
+
+            <label class="block mt-2">
+              <input
+                type="checkbox"
+                v-model="form.terminal_leave"
+                class="mr-2"
+              />
+              Terminal Leave
+            </label>
           </div>
 
           <div>
@@ -903,6 +915,9 @@ const selectedLeaveName = computed(() => {
   return leave?.leave_type_name ?? "";
 });
 
+const isOtherLeaveType = computed(() => {
+  return selectedLeaveName.value.toLowerCase().includes("other");
+});
 const resetForm = () => {
   form.value = {
     leave_type_id: "",

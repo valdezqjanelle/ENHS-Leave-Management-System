@@ -35,7 +35,7 @@ class LeaveCreditController extends Controller
             'recorded_by' => auth()->user()->user_id,
         ]);
 
-        // OPTIONAL: auto update leave balance (we will refine later)
+     
 
 
         AuditLogger::log(
@@ -116,11 +116,7 @@ public function apply($id)
 
     $creditType = strtolower(trim($credit->credit_type));
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY VACATION CREDIT
-    |--------------------------------------------------------------------------
-    */
+ 
 
     if ($creditType === 'vacation') {
 
@@ -131,11 +127,7 @@ public function apply($id)
             $credit->equivalent_leave_days;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY SICK CREDIT
-    |--------------------------------------------------------------------------
-    */
+
 
     elseif ($creditType === 'sick') {
 
@@ -146,11 +138,7 @@ public function apply($id)
             $credit->equivalent_leave_days;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY SERVICE CREDITS
-    |--------------------------------------------------------------------------
-    */
+  
 
     elseif ($creditType === 'service credits') {
 
@@ -159,11 +147,7 @@ public function apply($id)
             + (float) $credit->equivalent_leave_days;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | INVALID CREDIT TYPE
-    |--------------------------------------------------------------------------
-    */
+
 
     else {
         return response()->json([
@@ -174,11 +158,7 @@ public function apply($id)
     $balance->last_updated = now();
     $balance->save();
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARK CREDIT AS APPLIED
-    |--------------------------------------------------------------------------
-    */
+
 
     $credit->status = 'Applied';
     $credit->save();
