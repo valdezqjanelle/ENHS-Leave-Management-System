@@ -12,41 +12,31 @@ class SystemSettingController extends Controller
     {
         $settings = SystemSetting::all();
 
-        $data = [];
-
-        foreach ($settings as $setting) {
-            $data[$setting->setting_key] = $setting->setting_value;
-        }
-
-        return response()->json($data);
+        return response()->json($settings);
     }
 
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'system_name' => 'nullable|string|max:255',
-            'school_name' => 'nullable|string|max:255',
-            'school_address' => 'nullable|string',
+            'system_name' => 'required|string|max:255',
+            'school_name' => 'required|string|max:255',
+            'system_description' => 'nullable|string',
+            'about_us' => 'nullable|string',
             'contact_email' => 'nullable|email|max:255',
             'contact_number' => 'nullable|string|max:50',
-            'system_description' => 'nullable|string',
-            'maintenance_mode' => 'nullable|boolean',
-            'timezone' => 'nullable|string|max:100',
+            'system_version' => 'nullable|string|max:50',
         ]);
 
         foreach ($validated as $key => $value) {
             SystemSetting::updateOrCreate(
                 ['setting_key' => $key],
-                [
-                    'setting_value' => is_bool($value)
-                        ? ($value ? 'true' : 'false')
-                        : $value
-                ]
+                ['setting_value' => $value ?? '']
             );
         }
 
         return response()->json([
             'message' => 'System settings updated successfully.',
+            'settings' => SystemSetting::all(),
         ]);
     }
 }
