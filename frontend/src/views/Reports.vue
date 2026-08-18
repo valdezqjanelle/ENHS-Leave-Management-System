@@ -1,13 +1,13 @@
 <template>
-  <div class="dashboard-shell p-8 min-h-screen space-y-8">
+  <div class="space-y-6">
     <!-- Header -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow p-6">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 class="text-xl font-semibold text-gray-100">Reports</h2>
-          <p class="text-sm text-gray-400 mt-1">Generate and view various reports</p>
+          <h2 class="text-xl font-semibold text-gray-800">Reports</h2>
+          <p class="text-sm text-gray-600 mt-1">Generate and view various reports</p>
         </div>
-
+        
         <div class="flex gap-2">
           <button
             @click="generateCustomReport"
@@ -20,83 +20,83 @@
     </div>
 
     <!-- Report Type Selection -->
-    <div class="neo-card p-6">
-      <h3 class="text-lg font-semibold text-gray-100 mb-4">Select Report Type</h3>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Report Type</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <button
           v-for="reportType in reportTypes"
           :key="reportType.id"
           @click="selectedReportType = reportType.id"
           :class="[
-            'p-4 rounded-lg border-2 transition-all text-left',
+            'p-4 rounded-lg border-2 transition-all',
             selectedReportType === reportType.id
-              ? 'border-blue-500 bg-blue-500/10'
-              : 'border-gray-700 hover:border-gray-600 bg-white/5'
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-gray-200 hover:border-gray-300'
           ]"
         >
           <component :is="reportType.icon" class="w-8 h-8 mx-auto mb-2" :class="reportType.iconColor" />
-          <h4 class="font-medium text-gray-100 text-center">{{ reportType.name }}</h4>
-          <p class="text-sm text-gray-400 mt-1 text-center">{{ reportType.description }}</p>
+          <h4 class="font-medium text-gray-900">{{ reportType.name }}</h4>
+          <p class="text-sm text-gray-600 mt-1">{{ reportType.description }}</p>
         </button>
       </div>
     </div>
 
     <!-- Date Range Selection -->
-    <div class="neo-card p-6">
-      <h3 class="text-lg font-semibold text-gray-100 mb-4">Date Range</h3>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Date Range</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
           <input
             v-model="dateRange.start"
             type="date"
-            class="w-full px-3 py-2 bg-white/5 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
+        
         <div>
-          <label class="block text-sm font-medium text-gray-400 mb-2">End Date</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
           <input
             v-model="dateRange.end"
             type="date"
-            class="w-full px-3 py-2 bg-white/5 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
+        
         <div>
-          <label class="block text-sm font-medium text-gray-400 mb-2">Quick Select</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Quick Select</label>
           <select
             @change="setQuickDateRange"
-            class="w-full px-3 py-2 bg-white/5 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="" class="text-black">Custom Range</option>
-            <option value="today" class="text-black">Today</option>
-            <option value="week" class="text-black">This Week</option>
-            <option value="month" class="text-black">This Month</option>
-            <option value="quarter" class="text-black">This Quarter</option>
-            <option value="year" class="text-black">This Year</option>
+            <option value="">Custom Range</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
           </select>
         </div>
       </div>
     </div>
 
     <!-- Report Display -->
-    <div class="neo-card overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-700">
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex justify-between items-center">
-          <h3 class="text-lg font-semibold text-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800">
             {{ getCurrentReportName() }}
           </h3>
           <div class="flex gap-2">
             <button
               @click="exportReport"
-              class="px-4 py-2 text-sm bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700"
             >
               Export
             </button>
             <button
               @click="printReport"
-              class="px-4 py-2 text-sm bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700"
             >
               Print
             </button>
@@ -108,14 +108,14 @@
       <div v-if="selectedReportType === 'leave-summary'" class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Leave by Type Chart -->
-          <div class="bg-white/5 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-gray-100 mb-4">Leave by Type</h4>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="text-md font-semibold text-gray-800 mb-4">Leave by Type</h4>
             <canvas ref="leaveTypeChart"></canvas>
           </div>
-
+          
           <!-- Leave by Department Chart -->
-          <div class="bg-white/5 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-gray-100 mb-4">Leave by Department</h4>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="text-md font-semibold text-gray-800 mb-4">Leave by Department</h4>
             <canvas ref="departmentChart"></canvas>
           </div>
         </div>
@@ -123,41 +123,40 @@
         <!-- Summary Table -->
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-white/5">
+            <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Department</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Total Leaves</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Approved</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Pending</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Disapproved</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Leaves</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Approved</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pending</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Disapproved</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-700/60">
-              <tr
-                v-for="dept in leaveSummaryData"
-                :key="dept.department"
-                class="hover:bg-white/5"
-              >
-                <td class="px-6 py-4 text-sm font-medium text-gray-100">
-                  {{ dept.department }}
-                </td>
+            <tbody class="bg-white divide-y divide-gray-200">
+             <tr
+    v-for="dept in leaveSummaryData"
+    :key="dept.department"
+>
+    <td class="px-6 py-4 text-sm font-medium text-gray-900">
+        {{ dept.department }}
+    </td>
 
-                <td class="px-6 py-4 text-gray-300 text-sm">
-                  {{ dept.total }}
-                </td>
+    <td class="px-6 py-4 text-gray-950 text-sm">
+        {{ dept.total }}
+    </td>
 
-                <td class="px-6 py-4 text-sm text-green-400">
-                  {{ dept.approved }}
-                </td>
+    <td class="px-6 py-4 text-sm text-green-600">
+        {{ dept.approved }}
+    </td>
 
-                <td class="px-6 py-4 text-sm text-yellow-400">
-                  {{ dept.pending }}
-                </td>
+    <td class="px-6 py-4 text-sm text-yellow-600">
+        {{ dept.pending }}
+    </td>
 
-                <td class="px-6 py-4 text-sm text-red-400">
-                  {{ dept.disapproved }}
-                </td>
-              </tr>
+    <td class="px-6 py-4 text-sm text-red-600">
+        {{ dept.disapproved }}
+    </td>
+</tr>
             </tbody>
           </table>
         </div>
@@ -166,51 +165,51 @@
       <!-- Attendance Report -->
       <div v-else-if="selectedReportType === 'attendance'" class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div class="bg-green-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-green-400 mb-2">Overall Attendance Rate</h4>
-            <p class="text-3xl font-bold text-green-300">94.5%</p>
-            <p class="text-sm text-green-400/80 mt-1">↑ 2.3% from last month</p>
+          <div class="bg-green-50 rounded-lg p-4">
+            <h4 class="text-md font-semibold text-green-800 mb-2">Overall Attendance Rate</h4>
+            <p class="text-3xl font-bold text-green-900">94.5%</p>
+            <p class="text-sm text-green-600 mt-1">↑ 2.3% from last month</p>
           </div>
-
-          <div class="bg-yellow-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-yellow-400 mb-2">Late Arrivals</h4>
-            <p class="text-3xl font-bold text-yellow-300">127</p>
-            <p class="text-sm text-yellow-400/80 mt-1">↓ 5.1% from last month</p>
+          
+          <div class="bg-yellow-50 rounded-lg p-4">
+            <h4 class="text-md font-semibold text-yellow-800 mb-2">Late Arrivals</h4>
+            <p class="text-3xl font-bold text-yellow-900">127</p>
+            <p class="text-sm text-yellow-600 mt-1">↓ 5.1% from last month</p>
           </div>
-
-          <div class="bg-red-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-red-400 mb-2">Absenteeism Rate</h4>
-            <p class="text-3xl font-bold text-red-300">3.2%</p>
-            <p class="text-sm text-red-400/80 mt-1">↓ 0.8% from last month</p>
+          
+          <div class="bg-red-50 rounded-lg p-4">
+            <h4 class="text-md font-semibold text-red-800 mb-2">Absenteeism Rate</h4>
+            <p class="text-3xl font-bold text-red-900">3.2%</p>
+            <p class="text-sm text-red-600 mt-1">↓ 0.8% from last month</p>
           </div>
         </div>
 
         <!-- Attendance Trend Chart -->
-        <div class="bg-white/5 rounded-lg p-4 mb-6">
-          <h4 class="text-md font-semibold text-gray-100 mb-4">Monthly Attendance Trend</h4>
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+          <h4 class="text-md font-semibold text-gray-800 mb-4">Monthly Attendance Trend</h4>
           <canvas ref="attendanceTrendChart"></canvas>
         </div>
 
         <!-- Department Attendance Table -->
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-white/5">
+            <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Department</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Total Faculty</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Present Days</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Late Days</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Absent Days</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Attendance Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Faculty</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Present Days</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Late Days</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Absent Days</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attendance Rate</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-700/60">
-              <tr v-for="dept in attendanceData" :key="dept.department" class="hover:bg-white/5">
-                <td class="px-6 py-4 text-sm font-medium text-gray-100">{{ dept.department }}</td>
-                <td class="px-6 py-4 text-sm text-gray-300">{{ dept.totalFaculty }}</td>
-                <td class="px-6 py-4 text-sm text-gray-300">{{ dept.presentDays }}</td>
-                <td class="px-6 py-4 text-sm text-gray-300">{{ dept.lateDays }}</td>
-                <td class="px-6 py-4 text-sm text-gray-300">{{ dept.absentDays }}</td>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="dept in attendanceData" :key="dept.department">
+                <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ dept.department }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ dept.totalFaculty }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ dept.presentDays }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ dept.lateDays }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ dept.absentDays }}</td>
                 <td class="px-6 py-4 text-sm">
                   <span class="px-2 py-1 text-xs font-medium rounded-full" :class="getAttendanceRateClass(dept.attendanceRate)">
                     {{ dept.attendanceRate }}%
@@ -222,261 +221,260 @@
         </div>
       </div>
 
-      <div v-else-if="selectedReportType === 'faculty-performance'" class="p-6">
+  <div v-else-if="selectedReportType === 'faculty-performance'" class="p-6">
 
-        <div class="mb-4">
-          <h4 class="text-lg font-semibold text-gray-100">
+    <div class="mb-4">
+        <h4 class="text-lg font-semibold text-gray-800">
             Employee Performance Report
-          </h4>
+        </h4>
 
-          <p class="text-sm text-gray-400">
+        <p class="text-sm text-gray-500">
             Total Employees: {{ totalEmployees }}
-          </p>
-        </div>
+        </p>
+    </div>
 
-        <div class="overflow-x-auto">
+    <div class="overflow-x-auto">
 
-          <table class="w-full">
+        <table class="w-full">
 
-            <thead class="bg-white/5">
+            <thead class="bg-gray-50">
 
-              <tr>
+                <tr>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Employee
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Employee
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Department
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Department
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Position
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Position
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Employment Status
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Employment Status
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Vacation Balance
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Vacation Balance
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Sick Balance
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Sick Balance
+                    </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Used Leave
-                </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Used Leave
+                    </th>
 
-              </tr>
+                </tr>
 
             </thead>
 
-            <tbody class="divide-y divide-gray-700/60">
+            <tbody class="bg-white divide-y divide-gray-200">
 
-              <tr
-                v-for="employee in employeeData"
-                :key="employee.employee_id"
-                class="hover:bg-white/5"
-              >
+                <tr
+                    v-for="employee in employeeData"
+                    :key="employee.employee_id"
+                >
 
-                <td class="px-6 py-4 text-gray-100">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.employee_name }}
+                        {{ employee.employee_name }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.department }}
+                        {{ employee.department }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.position }}
+                        {{ employee.position }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.employment_status }}
+                        {{ employee.employment_status }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.vacation_balance }}
+                        {{ employee.vacation_balance }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.sick_balance }}
+                        {{ employee.sick_balance }}
 
-                </td>
+                    </td>
 
-                <td class="px-6 py-4 text-gray-300">
+                    <td class="px-6 py-4 text-black">
 
-                  {{ employee.used_leave }}
+                        {{ employee.used_leave }}
 
-                </td>
+                    </td>
 
-              </tr>
+                </tr>
 
             </tbody>
 
-          </table>
+        </table>
 
-        </div>
+    </div>
 
-      </div>
+</div>
 
       <!-- Leave Credits Report -->
-      <div v-else-if="selectedReportType === 'leave-credits'" class="p-6">
+     <!-- Leave Credits Report -->
+<div v-else-if="selectedReportType === 'leave-credits'" class="p-6">
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
 
-          <div class="bg-blue-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-blue-400 mb-2">
-              Total Employees
-            </h4>
+    <div class="bg-blue-50 rounded-lg p-4">
+      <h4 class="text-md font-semibold text-blue-800 mb-2">
+        Total Employees
+      </h4>
 
-            <p class="text-2xl font-bold text-blue-300">
-              {{ leaveTotals.employees ?? 0 }}
-            </p>
+      <p class="text-2xl font-bold text-blue-900">
+        {{ leaveTotals.employees ?? 0 }}
+      </p>
 
-            <p class="text-sm text-blue-400/80 mt-1">
-              Employees with leave balances
-            </p>
-          </div>
+      <p class="text-sm text-blue-600 mt-1">
+        Employees with leave balances
+      </p>
+    </div>
 
-          <div class="bg-green-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-green-400 mb-2">
-              Total Vacation Earned
-            </h4>
+    <div class="bg-green-50 rounded-lg p-4">
+      <h4 class="text-md font-semibold text-green-800 mb-2">
+        Total Vacation Earned
+      </h4>
 
-            <p class="text-2xl font-bold text-green-300">
-              {{ leaveTotals.vacation_earned ?? 0 }}
-            </p>
+      <p class="text-2xl font-bold text-green-900">
+        {{ leaveTotals.vacation_earned ?? 0 }}
+      </p>
 
-            <p class="text-sm text-green-400/80 mt-1">
-              Vacation leave credits earned
-            </p>
-          </div>
+      <p class="text-sm text-green-600 mt-1">
+        Vacation leave credits earned
+      </p>
+    </div>
 
-          <div class="bg-yellow-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-yellow-400 mb-2">
-              Total Sick Earned
-            </h4>
+    <div class="bg-yellow-50 rounded-lg p-4">
+      <h4 class="text-md font-semibold text-yellow-800 mb-2">
+        Total Sick Earned
+      </h4>
 
-            <p class="text-2xl font-bold text-yellow-300">
-              {{ leaveTotals.sick_earned ?? 0 }}
-            </p>
+      <p class="text-2xl font-bold text-yellow-900">
+        {{ leaveTotals.sick_earned ?? 0 }}
+      </p>
 
-            <p class="text-sm text-yellow-400/80 mt-1">
-              Sick leave credits earned
-            </p>
-          </div>
+      <p class="text-sm text-yellow-600 mt-1">
+        Sick leave credits earned
+      </p>
+    </div>
 
-          <div class="bg-purple-500/10 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-purple-400 mb-2">
-              Total Used Leave
-            </h4>
+    <div class="bg-purple-50 rounded-lg p-4">
+      <h4 class="text-md font-semibold text-purple-800 mb-2">
+        Total Used Leave
+      </h4>
 
-            <p class="text-2xl font-bold text-purple-300">
-              {{ leaveTotals.used_leave ?? 0 }}
-            </p>
+      <p class="text-2xl font-bold text-purple-900">
+        {{ leaveTotals.used_leave ?? 0 }}
+      </p>
 
-            <p class="text-sm text-purple-400/80 mt-1">
-              Total leave days used
-            </p>
-          </div>
+      <p class="text-sm text-purple-600 mt-1">
+        Total leave days used
+      </p>
+    </div>
 
-        </div>
+  </div>
 
-        <!-- Employee Leave Balances -->
-        <div class="overflow-x-auto">
+  <!-- Employee Leave Balances -->
+  <div class="overflow-x-auto">
 
-          <table class="w-full">
+    <table class="w-full">
 
-            <thead class="bg-white/5">
+      <thead class="bg-gray-50">
 
-              <tr>
+        <tr>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Employee
-                </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Employee
+          </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Department
-                </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Department
+          </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Vacation Balance
-                </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Vacation Balance
+          </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Sick Balance
-                </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Sick Balance
+          </th>
 
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                  Used Leave
-                </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            Used Leave
+          </th>
 
-              </tr>
+        </tr>
 
-            </thead>
+      </thead>
 
-            <tbody class="divide-y divide-gray-700/60">
+      <tbody class="bg-white divide-y divide-gray-200">
 
-              <tr
-                v-for="employee in creditsData"
-                :key="employee.employee_id"
-                class="hover:bg-white/5"
-              >
+        <tr
+          v-for="employee in creditsData"
+          :key="employee.employee_id"
+        >
 
-                <td class="px-6 py-4 text-sm font-medium text-gray-100">
-                  {{ employee.employee_name }}
-                </td>
+          <td class="px-6 py-4 text-sm font-medium text-black">
+            {{ employee.employee_name }}
+          </td>
 
-                <td class="px-6 py-4 text-sm text-gray-300">
-                  {{ employee.department }}
-                </td>
+          <td class="px-6 py-4 text-sm text-black">
+            {{ employee.department }}
+          </td>
 
-                <td class="px-6 py-4 text-sm text-gray-300">
-                  {{ employee.vacation_balance }}
-                </td>
+          <td class="px-6 py-4 text-sm text-black">
+            {{ employee.vacation_balance }}
+          </td>
 
-                <td class="px-6 py-4 text-sm text-gray-300">
-                  {{ employee.sick_balance }}
-                </td>
+          <td class="px-6 py-4 text-sm text-black">
+            {{ employee.sick_balance }}
+          </td>
 
-                <td class="px-6 py-4 text-sm text-gray-300">
-                  {{ employee.used_leave }}
-                </td>
+          <td class="px-6 py-4 text-sm text-black">
+            {{ employee.used_leave }}
+          </td>
 
-              </tr>
+        </tr>
 
-              <tr v-if="creditsData.length === 0">
-                <td
-                  colspan="5"
-                  class="px-6 py-8 text-center text-gray-500"
-                >
-                  No leave credit records found.
-                </td>
-              </tr>
+        <tr v-if="creditsData.length === 0">
+          <td
+            colspan="5"
+            class="px-6 py-8 text-center text-gray-500"
+          >
+            No leave credit records found.
+          </td>
+        </tr>
 
-            </tbody>
+      </tbody>
 
-          </table>
+    </table>
 
-        </div>
+  </div>
 
-      </div>
+</div>
     </div>
   </div>
 </template>
@@ -535,28 +533,28 @@ const reportTypes = [
     name: 'Leave Summary',
     description: 'Comprehensive leave statistics',
     icon: FileText,
-    iconColor: 'text-blue-400'
+    iconColor: 'text-blue-600'
   },
   {
     id: 'attendance',
     name: 'Attendance Report',
     description: 'Employee attendance patterns',
     icon: Users,
-    iconColor: 'text-green-400'
+    iconColor: 'text-green-600'
   },
   {
     id: 'faculty-performance',
     name: 'Employee Performance',
     description: 'Individual performance metrics',
     icon: TrendingUp,
-    iconColor: 'text-purple-400'
+    iconColor: 'text-purple-600'
   },
   {
     id: 'leave-credits',
     name: 'Leave Credits',
     description: 'Credit usage and availability',
     icon: CreditCard,
-    iconColor: 'text-yellow-400'
+    iconColor: 'text-yellow-600'
   }
 ]
 
@@ -642,8 +640,6 @@ function createLeaveCharts() {
 
     })
 
-    const chartColors = ['#ef4444', '#22c55e', '#3b82f6']
-
     leaveTypeInstance = new Chart(leaveTypeChart.value, {
 
         type: 'pie',
@@ -656,28 +652,11 @@ function createLeaveCharts() {
 
                 {
 
-                    data: Object.values(leaveTypeTotals),
-                    backgroundColor: Object.keys(leaveTypeTotals).map(
-                        (_, i) => chartColors[i % chartColors.length]
-                    ),
-                    borderColor: '#111D2E',
-                    borderWidth: 2
+                    data: Object.values(leaveTypeTotals)
 
                 }
 
             ]
-
-        },
-
-        options: {
-
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#cbd5e1'
-                    }
-                }
-            }
 
         }
 
@@ -697,37 +676,11 @@ function createLeaveCharts() {
 
                     label: 'Total Leaves',
 
-                    data: departmentTotals,
-                    backgroundColor: departmentLabels.map(
-                        (_, i) => chartColors[i % chartColors.length]
-                    ),
-                    borderRadius: 6
+                    data: departmentTotals
 
                 }
 
             ]
-
-        },
-
-        options: {
-
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#cbd5e1'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#94a3b8' },
-                    grid: { color: 'rgba(255,255,255,0.05)' }
-                },
-                y: {
-                    ticks: { color: '#94a3b8' },
-                    grid: { color: 'rgba(255,255,255,0.05)' }
-                }
-            }
 
         }
 
@@ -777,9 +730,9 @@ const getCurrentReportName = () => {
 }
 
 const getAttendanceRateClass = (rate: number) => {
-  if (rate >= 95) return 'bg-green-500/10 text-green-400'
-  if (rate >= 90) return 'bg-yellow-500/10 text-yellow-400'
-  return 'bg-red-500/10 text-red-400'
+  if (rate >= 95) return 'bg-green-100 text-green-800'
+  if (rate >= 90) return 'bg-yellow-100 text-yellow-800'
+  return 'bg-red-100 text-red-800'
 }
 
 const setQuickDateRange = (event: Event) => {
@@ -850,37 +803,3 @@ watch(selectedReportType, async (value) => {
 
 })
 </script>
-
-<style scoped>
-.dashboard-shell {
-  background: #080D14;
-}
-
-.neo-card {
-  background: #111D2E;
-  border: 1px solid #1E293B;
-  border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
-}
-
-.stats-card {
-  border-left: 4px solid currentColor;
-  padding: 1.35rem;
-}
-
-.stats-card .p-3 {
-  border-radius: 0.9rem;
-}
-
-.neo-card h3,
-.neo-card p,
-.neo-card span,
-.neo-card button {
-  letter-spacing: -0.01em;
-}
-</style>

@@ -1,25 +1,25 @@
 <template>
-  <div class="max-w-7xl mx-auto space-y-6 text-white">
+  <div class="max-w-7xl mx-auto space-y-6 text-gray-900">
 
     <!-- Header -->
-    <div class="neo-card p-6">
-      <h2 class="text-2xl font-bold text-white">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-bold text-gray-800">
         Leave Credits
       </h2>
 
-      <p class="text-white mt-1">
+      <p class="text-gray-500 mt-1">
         Record earned leave credits for employees.
       </p>
     </div>
 
     <!-- Form -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow p-6">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <!-- Employee -->
         <div>
-          <label class="block text-sm font-medium  text-white  mb-2">
+          <label class="block text-sm font-medium  text-gray-800  mb-2">
             Employee
           </label>
 
@@ -42,16 +42,20 @@
           </select>
         </div>
 <div>
-  <label class="block text-sm font-medium text-white mb-2">
+  <label class="block text-sm font-medium text-gray-800 mb-2">
     Credit Type
   </label>
 
   <select
     v-model="form.credit_type"
-    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black bg-white"
+    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
   >
     <option value="">
       Select Credit Type
+    </option>
+
+    <option value="Service Credits">
+      Service Credits
     </option>
 
     <option value="Vacation">
@@ -66,34 +70,34 @@
 
         <!-- Activity -->
         <div>
-          <label class="block text-sm font-medium  text-white  mb-2">
+          <label class="block text-sm font-medium  text-gray-800  mb-2">
             Activity Name
           </label>
 
          <input
   v-model="form.activity_name"
   type="text"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black placeholder-gray-400 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
   placeholder="Example: Overtime Duty"
 >
         </div>
 
         <!-- Hours -->
         <div>
-          <label class="block text-sm font-medium  text-white  mb-2">
+          <label class="block text-sm font-medium  text-gray-800  mb-2">
             Hours Rendered
           </label>
 
          <input
   v-model="form.hours_rendered"
   type="number"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 >
         </div>
 
         <!-- Leave Days -->
         <div>
-          <label class="block text-sm font-medium  text-white  mb-2">
+          <label class="block text-sm font-medium  text-gray-800  mb-2">
             Equivalent Leave Days
           </label>
 
@@ -101,7 +105,7 @@
   v-model="form.equivalent_leave_days"
   type="number"
   step="0.25"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 >
         </div>
 
@@ -121,10 +125,10 @@
     </div>
 
     <!-- Table -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow">
 
       <div class="px-6 py-4 border-b">
-        <h3 class="text-lg font-semibold text-white">
+        <h3 class="text-lg font-semibold">
           Leave Credit Records
         </h3>
       </div>
@@ -133,7 +137,7 @@
 
         <table class="min-w-full">
 
-    <thead class="bg-white text-black">
+    <thead class="bg-gray-500 text-white">
 
 <tr>
 
@@ -161,7 +165,7 @@
             <tr
   v-for="credit in credits"
   :key="credit.credits_id"
-  class="border-t hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+  class="border-t hover:bg-gray-50"
 >
 
 <td class="px-4 py-3">
@@ -170,25 +174,33 @@
 </td>
 
 <td class="px-4 py-3">
+  <span
+    v-if="credit.credit_type === 'Service Credits'"
+    class="text-purple-600 font-semibold"
+  >
+    Service Credits
+  </span>
 
-<span
-v-if="credit.credit_type=='vacation'"
-class="text-blue-600 font-semibold"
->
+  <span
+    v-else-if="credit.credit_type === 'Vacation'"
+    class="text-blue-600 font-semibold"
+  >
+    Vacation
+  </span>
 
-Vacation
+  <span
+    v-else-if="credit.credit_type === 'Sick'"
+    class="text-green-600 font-semibold"
+  >
+    Sick
+  </span>
 
-</span>
-
-<span
-v-else
-class="text-green-600 font-semibold"
->
-
-Sick
-
-</span>
-
+  <span
+    v-else
+    class="text-gray-600 font-semibold"
+  >
+    {{ credit.credit_type }}
+  </span>
 </td>
 
 <td class="px-4 py-3">
@@ -275,6 +287,67 @@ class="text-green-600 font-semibold"
     </div>
 
   </div>
+  <!-- Apply Credit Confirmation Modal -->
+<div
+  v-if="showApplyModal"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+    
+    <h2 class="text-xl font-semibold text-gray-800">
+      Apply Leave Credit?
+    </h2>
+
+    <p class="text-gray-900 mt-3">
+      Are you sure you want to apply this leave credit?
+      This will update the employee's leave balance.
+    </p>
+
+    <!-- Credit Details -->
+    <div
+      v-if="selectedCredit"
+      class="mt-4 bg-gray-50 rounded-lg p-4 space-y-2 text-sm text-black"
+    >
+      <div>
+        <span class="font-medium text-black">Employee:</span>
+        {{ selectedCredit.employee.last_name }},
+        {{ selectedCredit.employee.first_name }}
+      </div>
+
+      <div>
+        <span class="font-medium text-black">Credit Type:</span>
+        {{ selectedCredit.credit_type }}
+      </div>
+
+      <div>
+        <span class="font-medium text-black">Activity:</span>
+        {{ selectedCredit.activity_name }}
+      </div>
+
+      <div>
+        <span class="font-medium text-black">Equivalent Days:</span>
+        {{ selectedCredit.equivalent_leave_days }}
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        @click="closeApplyModal"
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+      >
+        Cancel
+      </button>
+
+      <button
+        @click="confirmApplyCredit"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Yes, Apply
+      </button>
+    </div>
+
+  </div>
+</div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
@@ -307,6 +380,8 @@ interface LeaveCredit {
 const employees = ref<Employee[]>([]);
 const credits = ref<LeaveCredit[]>([]);
 
+const showApplyModal = ref(false);
+const selectedCredit = ref<LeaveCredit | null>(null);
 const form = ref({
   employee_id: "",
   activity_name: "",
@@ -333,6 +408,8 @@ const loadCredits = async () => {
 
 const saveCredit = async () => {
   try {
+    console.log("Sending credit data:", form.value);
+
     await addLeaveCredit(form.value);
 
     alert("Leave credit added successfully!");
@@ -342,34 +419,55 @@ const saveCredit = async () => {
       activity_name: "",
       hours_rendered: "",
       equivalent_leave_days: "",
-      credit_type: ""
+      credit_type: "",
     };
 
     await loadCredits();
+  } catch (error: any) {
+    console.error("STATUS:", error.response?.status);
+    console.error("SERVER RESPONSE:", error.response?.data);
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to save leave credit.");
+    alert(
+      error.response?.data?.message ??
+        JSON.stringify(error.response?.data?.errors ?? "Unable to save leave credit.")
+    );
   }
 };
 
-const applyCredit = async (id: number) => {
-  try {
+const applyCredit = (id: number) => {
+  const credit = credits.value.find(
+    (credit) => credit.credits_id === id
+  );
 
-    await applyLeaveCredit(id);
+  if (!credit) return;
+
+  selectedCredit.value = credit;
+  showApplyModal.value = true;
+};
+
+const closeApplyModal = () => {
+  showApplyModal.value = false;
+  selectedCredit.value = null;
+};const confirmApplyCredit = async () => {
+  if (!selectedCredit.value) return;
+
+  try {
+    await applyLeaveCredit(selectedCredit.value.credits_id);
 
     alert("Leave credit applied successfully!");
+
+    closeApplyModal();
 
     await loadCredits();
 
   } catch (error) {
-
     console.error(error);
 
     alert("Unable to apply leave credit.");
-
   }
 };
+
+
 
 
 const formatDate = (date: string) => {
@@ -385,37 +483,3 @@ onMounted(() => {
   loadCredits();
 });
 </script>
-
-<style scoped>
-.dashboard-shell {
-  background: #080D14;
-}
-
-.neo-card {
-  background: #111D2E;
-  border: 1px solid #1E293B;
-  border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
-}
-
-.stats-card {
-  border-left: 4px solid currentColor;
-  padding: 1.35rem;
-}
-
-.stats-card .p-3 {
-  border-radius: 0.9rem;
-}
-
-.neo-card h3,
-.neo-card p,
-.neo-card span,
-.neo-card button {
-  letter-spacing: -0.01em;
-}
-</style>

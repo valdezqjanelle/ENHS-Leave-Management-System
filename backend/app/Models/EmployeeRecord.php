@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\LeaveBalance;
+use App\Models\User;
 
 class EmployeeRecord extends Model
 {
@@ -11,6 +12,7 @@ class EmployeeRecord extends Model
 
     protected $fillable = [
         'user_id',
+        'created_by',
         'employee_code',
         'first_name',
         'middle_name',
@@ -30,6 +32,11 @@ class EmployeeRecord extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
+
+    public function createdBy()
+{
+    return $this->belongsTo(User::class, 'created_by', 'user_id');
+}
 
     public function leaveApplications()
 {

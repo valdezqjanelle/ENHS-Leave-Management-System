@@ -13,6 +13,7 @@ use App\Http\Controllers\API\AttendanceController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
+use App\Http\Controllers\API\AuditLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,9 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:employee')->group(function () {
-        // Dashboard
-        Route::get('/employee/dashboard', [DashboardController::class, 'employeeDashboard']);
-
         Route::get('/my-profile', [EmployeeController::class, 'myProfile']);
         // Settings/Profile
         Route::get('/profile', [EmployeeController::class, 'myProfile']);
@@ -76,7 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::middleware('role:admin')->group(function () {
 
-        Route::get('/admin/dashboard', [DashboardController::class, 'index']);
+        Route::get('admin/dashboard', [DashboardController::class, 'index']);
         // Employee management
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::get('/employees', [EmployeeController::class, 'index']);
@@ -121,6 +119,14 @@ Route::middleware('auth:sanctum')->group(function () {
             [AdminController::class, 'profile']
         );
 
+        Route::put(
+            '/admin/profile',
+            [AdminController::class, 'updateProfile']
+        );
+        Route::put(
+            '/admin/profile',
+            [AdminController::class, 'updateProfile']
+        );
 
         Route::put(
             '/admin/email',
@@ -132,6 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/password',
             [AdminController::class, 'updatePassword']
         );
+
+        // AUDIT LOGS
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
+        Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
+        Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
     });
 
 

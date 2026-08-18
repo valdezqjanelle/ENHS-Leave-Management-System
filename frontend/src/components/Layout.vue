@@ -1,9 +1,9 @@
 <template>
-  <div class="app-shell">
+  <div class="flex h-screen w-screen bg-gray-100 overflow-hidden">
     <!-- Mobile Menu Toggle -->
     <button
       @click="sidebarOpen = !sidebarOpen"
-      class="mobile-toggle lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl"
+      class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg"
     >
       <Menu v-if="!sidebarOpen" class="w-5 h-5 text-gray-600" />
       <X v-else class="w-5 h-5 text-gray-600" />
@@ -18,13 +18,13 @@
 
     <!-- Sidebar -->
     <aside
-      class="sidebar fixed lg:relative h-full w-64 z-40 transition-transform duration-300"
+      class="fixed lg:relative h-full w-64 bg-[#000033] shadow-lg z-40 transition-transform duration-300"
       :class="
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       "
     >
       <div class="p-6">
-        <h1 class="text-2xl font-bold text-blue-600">E-LMS</h1>
+        <h1 class="text-2xl font-bold text-blue-600">ELS</h1>
         <p class="text-white-600">System</p>
       </div>
 
@@ -103,7 +103,9 @@
           Records
         </router-link>
 
-        <router-link to="/reports" class="nav-item">
+        <router-link 
+        v-if="currentUser.role === 'admin'"
+        to="/reports" class="nav-item">
           <BarChart class="icon" />
           Reports
         </router-link>
@@ -132,10 +134,12 @@
     </aside>
 
     <!-- MAIN -->
-    <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
+    <div class="flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
-      <header class="topbar flex items-center justify-between px-6 py-4">
-        <h2 class="text-blue-600 font-bold text-xl tracking-tight">{{ pageTitle }}</h2>
+      <header
+        class="bg-white border-b shadow-sm flex items-center justify-between px-6 py-4"
+      >
+        <h2 class="text-blue-600 font-bold text-xl">{{ pageTitle }}</h2>
 
         <div class="flex items-center gap-4">
           <!-- Search -->
@@ -143,19 +147,32 @@
             <Search class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              class="search-input pl-9 pr-3 py-2 rounded-xl text-sm"
+              class="pl-9 pr-3 py-2 border rounded-lg text-sm"
               placeholder="Search..."
             />
           </div>
 
-          
+          <!-- Bell -->
+          <div class="relative">
+            <Bell class="w-5 h-5 text-gray-600" />
+            <span
+              class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+            ></span>
+          </div>
 
-          
+          <!-- User -->
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center"
+            >
+              {{ currentUser.name.charAt(0) }}
+            </div>
+          </div>
         </div>
       </header>
 
       <!-- CONTENT -->
-      <main class="content-panel flex-1 overflow-auto p-6 w-full">
+      <main class="flex-1 overflow-auto p-6 w-full">
         <router-view />
       </main>
     </div>
@@ -232,74 +249,12 @@ const logout = async () => {
 </script>
 
 <style scoped>
-.app-shell {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background: #010307;
-}
-
-.sidebar {
-  background: #0B1628;
-  box-shadow: 0 0 0 1px rgba(12, 29, 75, 0.15);
-}
-
-.main-shell {
-  background: #080D14;
-}
-
-.topbar {
-  background: #0B1628;
-  border-bottom: 1px solid #080D14;
-  box-shadow: 0 1px 0 rgba(148, 163, 184, 0.08);
-}
-
-.content-panel {
-  background: #000000;
-}
-
-.mobile-toggle,
-.search-input,
-.bell-wrap,
-.user-pill {
-  background: #ffffff;
-  border: 1px solid #e7edf7;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-}
-
 .nav-item {
-  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium transition-all duration-200;
-  margin: 0.3rem 0;
-  letter-spacing: 0.01em;
-}
-
-.nav-item:hover {
-  background: rgba(147, 197, 253, 0.12);
-  color: #ffffff;
-  transform: translateX(2px);
-}
-
-.nav-item.router-link-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(96, 165, 250, 0.09));
-  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
-  color: #ffffff;
+  @apply flex items-center gap-3 px-4 py-3 rounded-lg text-white hover:bg-blue-50 hover:text-black transition;
 }
 
 .icon {
   width: 18px;
   height: 18px;
-}
-
-.search-input {
-  border: 1px solid #dfeaf7;
-  background: #f9fbff;
-  color: #1f2937;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: rgba(59, 130, 246, 0.55);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 </style>

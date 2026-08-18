@@ -8,6 +8,7 @@ use App\Models\LeaveCredit;
 use App\Models\LeaveBalance;
 use App\Models\EmployeeRecord;
 use Carbon\Carbon;
+use App\Support\AuditLogger;
 
 class LeaveCreditController extends Controller
 {
@@ -19,7 +20,7 @@ class LeaveCreditController extends Controller
             'activity_name' => 'required|string',
             'hours_rendered' => 'required|numeric',
             'equivalent_leave_days' => 'required|numeric',
-            'credit_type' => 'required|in:Vacation,Sick',
+            'credit_type' => 'required|in:Vacation,Sick,Service Credits',
           
         ]);
 
@@ -35,7 +36,12 @@ class LeaveCreditController extends Controller
         ]);
 
         // OPTIONAL: auto update leave balance (we will refine later)
-     
+
+
+        AuditLogger::log(
+            'Leave credit added',
+            "Added {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) for employee #{$credit->employee_id} ({$credit->activity_name})"
+        );
 
         return response()->json([
             'message' => 'Leave credit added successfully',
@@ -73,6 +79,11 @@ public function index()
         ]);
 
   
+        AuditLogger::log(
+            'Leave credit updated',
+            "Updated leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
+        );
+
         return response()->json([
             'message' => 'Leave credit updated',
             'data' => $credit
@@ -97,28 +108,85 @@ public function apply($id)
             'sick_earned' => 0,
             'vacation_balance' => 0,
             'sick_balance' => 0,
+            'service_credits' => 0,
             'used_leave' => 0,
             'last_updated' => now(),
         ]
     );
 
-    if ($credit->credit_type === 'vacation') {
+    $creditType = strtolower(trim($credit->credit_type));
 
-        $balance->vacation_earned += $credit->equivalent_leave_days;
-        $balance->vacation_balance += $credit->equivalent_leave_days;
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY VACATION CREDIT
+    |--------------------------------------------------------------------------
+    */
 
-    } else {
+    if ($creditType === 'vacation') {
 
-        $balance->sick_earned += $credit->equivalent_leave_days;
-        $balance->sick_balance += $credit->equivalent_leave_days;
+        $balance->vacation_earned +=
+            $credit->equivalent_leave_days;
 
+        $balance->vacation_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY SICK CREDIT
+    |--------------------------------------------------------------------------
+    */
+
+    elseif ($creditType === 'sick') {
+
+        $balance->sick_earned +=
+            $credit->equivalent_leave_days;
+
+        $balance->sick_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY SERVICE CREDITS
+    |--------------------------------------------------------------------------
+    */
+
+    elseif ($creditType === 'service credits') {
+
+        $balance->service_credits =
+            (float) ($balance->service_credits ?? 0)
+            + (float) $credit->equivalent_leave_days;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVALID CREDIT TYPE
+    |--------------------------------------------------------------------------
+    */
+
+    else {
+        return response()->json([
+            'message' => 'Invalid credit type.'
+        ], 422);
     }
 
     $balance->last_updated = now();
     $balance->save();
 
+    /*
+    |--------------------------------------------------------------------------
+    | MARK CREDIT AS APPLIED
+    |--------------------------------------------------------------------------
+    */
+
     $credit->status = 'Applied';
     $credit->save();
+
+    AuditLogger::log(
+        'Leave credit applied',
+        "Applied {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) to balance for employee #{$credit->employee_id}"
+    );
 
     return response()->json([
         'message' => 'Leave credit applied successfully.',

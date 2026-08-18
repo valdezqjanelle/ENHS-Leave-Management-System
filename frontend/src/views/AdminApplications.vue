@@ -1,11 +1,11 @@
 <template>
   <div class="max-w-7xl mx-auto p-4">
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-white">
+        <h2 class="text-xl font-semibold text-gray-800">
           Submitted Leave Applications
         </h2>
-        <p class="text-sm text-white mt-1">
+        <p class="text-sm text-gray-600 mt-1">
           Review and manage faculty leave applications
         </p>
       </div>
@@ -21,7 +21,7 @@
               'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
               activeTab === tab.key
                 ? 'bg-blue-100 text-blue-700'
-                : 'text-white hover:text-gray-700 hover:bg-gray-100',
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
             ]"
           >
             {{ tab.label }}
@@ -36,8 +36,68 @@
 
       <!-- Applications List -->
       <div class="p-6">
+        <!-- Search and Filters -->
+        <div class="mb-6">
+          <div class="flex flex-col md:flex-row gap-3">
+            <!-- Search -->
+            <div class="flex-1">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search employee, leave type, status, or ID..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              />
+            </div>
+
+            <!-- Leave Type -->
+            <select
+              v-model="filterType"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+            >
+              <option value="">All Leave Types</option>
+              <option value="vacation">Vacation Leave</option>
+              <option value="sick">Sick Leave</option>
+              <option value="maternity">Maternity Leave</option>
+              <option value="paternity">Paternity Leave</option>
+              <option value="study">Study Leave</option>
+              <option value="special">Special Leave</option>
+              <option value="mandatory">Mandatory/Forced Leave</option>
+            </select>
+
+            <!-- Clear -->
+            <button
+              @click="
+                searchQuery = '';
+                filterType = '';
+                activeTab = 'all';
+              "
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          </div>
+          <!-- Show All / Show Less -->
+          <div
+            v-if="filteredApplications.length > 5"
+            class="flex justify-center mt-6"
+          >
+            <button
+              @click="showAllApplications = !showAllApplications"
+              class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+            >
+              {{ showAllApplications ? "Show Less" : "Show All Applications" }}
+            </button>
+          </div>
+
+          <div
+            v-if="searchQuery || filterType"
+            class="mt-2 text-sm text-gray-500"
+          >
+            {{ filteredApplications.length }} application(s) found
+          </div>
+        </div>
         <div v-if="filteredApplications.length === 0" class="text-center py-8">
-          <div class="mx-auto h-12 w-12 text-white">
+          <div class="mx-auto h-12 w-12 text-gray-400">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -47,24 +107,24 @@
               ></path>
             </svg>
           </div>
-          <h3 class="mt-2 text-sm font-medium text-white">
+          <h3 class="mt-2 text-sm font-medium text-gray-900">
             No applications found
           </h3>
-          <p class="mt-1 text-sm text-white">
+          <p class="mt-1 text-sm text-gray-500">
             No leave applications have been submitted yet.
           </p>
         </div>
 
         <div v-else class="space-y-4">
           <div
-            v-for="application in filteredApplications"
+            v-for="application in displayedApplications"
             :key="application.leave_id"
             class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center space-x-3">
-                  <h3 class="text-lg font-medium text-white">
+                  <h3 class="text-lg font-medium text-gray-900">
                     {{ application.employee.last_name }},
                     {{ application.employee.first_name
                     }}{{ application.employee.middle_name }}
@@ -80,7 +140,7 @@
                 </div>
 
                 <div
-                  class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-whte"
+                  class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600"
                 >
                   <div>
                     <span class="font-medium">Office:</span>
@@ -111,14 +171,14 @@
                   "
                   class="mt-3"
                 >
-                  <span class="text-sm font-medium text-white"
+                  <span class="text-sm font-medium text-gray-700"
                     >Attachments:</span
                   >
                   <div class="flex flex-wrap gap-2 mt-1">
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-white rounded"
+                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
                     >
                       <svg
                         class="w-3 h-3 mr-1"
@@ -154,7 +214,7 @@
                 </button>
                 <button
                   v-if="application.final_status?.toLowerCase() === 'pending'"
-                  @click="updateStatus(application.leave_id, 'approved')"
+                  @click="openApprovalModal(application)"
                   class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Approve
@@ -183,12 +243,12 @@
         class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto"
       >
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-medium text-white">
+          <h3 class="text-xl font-medium text-gray-900">
             Leave Application Details
           </h3>
           <button
             @click="showDetailModal = false"
-            class="text-gray-400 hover:text-white"
+            class="text-gray-400 hover:text-gray-600"
           >
             <svg
               class="w-6 h-6"
@@ -314,7 +374,7 @@
             </button>
             <button
               v-if="selectedApplication.final_status === 'Pending'"
-              @click="updateStatus(selectedApplication.leave_id, 'approved')"
+              @click="openApprovalModal(selectedApplication)"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Approve
@@ -328,6 +388,158 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+  <!-- Approval / Deduction Modal -->
+  <div
+    v-if="showApprovalModal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]"
+  >
+    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6">
+      <h3 class="text-lg font-semibold text-gray-900">
+        Approve Leave Application
+      </h3>
+
+      <p class="text-sm text-gray-600 mt-2">
+        This leave application is for
+        <strong>{{ approvalApplication?.number_of_days }}</strong>
+        day(s).
+      </p>
+
+      <!-- Deduct? -->
+      <div class="mt-5">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Deduct leave balance?
+        </label>
+
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 text-black">
+            <input type="radio" value="yes" v-model="deductBalance" />
+            <span>Yes</span>
+          </label>
+
+          <label class="flex items-center gap-2 text-black">
+            <input type="radio" value="no" v-model="deductBalance" />
+            <span>No</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Deduction Options -->
+      <div v-if="deductBalance === 'yes'" class="mt-5 border-t pt-4">
+        <h4 class="text-sm font-semibold text-gray-800 mb-3">
+          Leave Balance Deduction
+        </h4>
+
+        <!-- Service Credits -->
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Service Credits Days to Deduct
+          </label>
+
+          <input
+            v-model.number="serviceCreditsDeductDays"
+            type="number"
+            min="0"
+            :max="approvalApplication?.number_of_days"
+            step="0.5"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+          />
+
+          <p class="text-xs text-gray-500 mt-1">
+            Enter the number of days to deduct from Service Credits.
+          </p>
+        </div>
+        <!-- Vacation Leave -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Vacation Leave Days to Deduct
+          </label>
+
+          <input
+            v-model.number="vacationDeductDays"
+            type="number"
+            min="0"
+            :max="approvalApplication?.number_of_days"
+            step="0.5"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+          />
+
+          <p class="text-xs text-gray-500 mt-1">
+            Enter the number of days to deduct from Vacation Leave.
+          </p>
+        </div>
+
+        <!-- Sick Leave -->
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Sick Leave Days to Deduct
+          </label>
+
+          <input
+            v-model.number="sickDeductDays"
+            type="number"
+            min="0"
+            :max="approvalApplication?.number_of_days"
+            step="0.5"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+          />
+
+          <p class="text-xs text-gray-500 mt-1">
+            Enter the number of days to deduct from Sick Leave.
+          </p>
+        </div>
+
+        <!-- Total -->
+        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600"> Days applied: </span>
+
+            <span class="font-medium text-gray-900">
+              {{ approvalApplication?.number_of_days ?? 0 }} day(s)
+            </span>
+          </div>
+
+          <div class="flex justify-between text-sm mt-1">
+            <span class="text-gray-600"> Total deduction: </span>
+
+            <span class="font-semibold text-gray-900">
+              {{
+                vacationDeductDays + sickDeductDays + serviceCreditsDeductDays
+              }}
+              day(s)
+            </span>
+          </div>
+
+          <p
+            v-if="
+              approvalApplication &&
+              vacationDeductDays + sickDeductDays >
+                approvalApplication.number_of_days
+            "
+            class="text-sm text-red-600 mt-2"
+          >
+            Total deduction cannot exceed the number of days applied.
+          </p>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          @click="showApprovalModal = false"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+
+        <button
+          @click="confirmApproval"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          Confirm Approval
+        </button>
       </div>
     </div>
   </div>
@@ -372,6 +584,15 @@ const activeTab = ref("all");
 const showDetailModal = ref(false);
 const selectedApplication = ref<LeaveApplication | null>(null);
 
+const showApprovalModal = ref(false);
+
+const approvalApplication = ref<LeaveApplication | null>(null);
+
+const deductBalance = ref<"yes" | "no">("yes");
+
+const vacationDeductDays = ref(0);
+const sickDeductDays = ref(0);
+const serviceCreditsDeductDays = ref(0);
 const tabs = [
   {
     key: "all",
@@ -391,14 +612,47 @@ const tabs = [
   { key: "rejected", label: "Rejected", countClass: "bg-red-100 text-red-800" },
 ];
 
+const searchQuery = ref("");
+const filterType = ref("");
+const showAllApplications = ref(false);
+
 const filteredApplications = computed(() => {
-  if (activeTab.value === "all") {
-    return applications.value;
+  const search = searchQuery.value.trim().toLowerCase();
+
+  return applications.value.filter((app) => {
+    const status = app.final_status?.toLowerCase() || "";
+
+    const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
+
+    const employeeName = `
+      ${app.employee?.first_name || ""}
+      ${app.employee?.middle_name || ""}
+      ${app.employee?.last_name || ""}
+    `.toLowerCase();
+
+    const matchesTab = activeTab.value === "all" || status === activeTab.value;
+
+    const matchesSearch =
+      search === "" ||
+      employeeName.includes(search) ||
+      leaveType.includes(search) ||
+      status.includes(search) ||
+      String(app.leave_id).includes(search);
+
+    const matchesType =
+      filterType.value === "" ||
+      leaveType.includes(filterType.value.toLowerCase());
+
+    return matchesTab && matchesSearch && matchesType;
+  });
+});
+
+const displayedApplications = computed(() => {
+  if (showAllApplications.value) {
+    return filteredApplications.value;
   }
 
-  return applications.value.filter(
-    (app) => app.final_status.toLowerCase() === activeTab.value,
-  );
+  return filteredApplications.value.slice(0, 5);
 });
 
 const getTabCount = (tabKey: string) => {
@@ -453,15 +707,31 @@ const viewApplication = (application: LeaveApplication) => {
 };
 
 const downloadApplication = (application: LeaveApplication) => {
-
   router.push(`/leave-print/${application.leave_id}`);
-
 };
-    
+
+const openApprovalModal = (application: LeaveApplication) => {
+  approvalApplication.value = application;
+
+  deductBalance.value = "yes";
+
+  serviceCreditsDeductDays.value = 0;
+
+  vacationDeductDays.value = 0;
+  sickDeductDays.value = application.number_of_days;
+
+  showApprovalModal.value = true;
+};
 
 const updateStatus = async (
   leaveId: number,
   status: "approved" | "rejected",
+  deductionData: {
+    deduct_balance?: boolean;
+    service_credits_deduct_days?: number;
+    vacation_deduct_days?: number;
+    sick_deduct_days?: number;
+  } = {},
 ) => {
   try {
     const token = localStorage.getItem("token");
@@ -470,6 +740,8 @@ const updateStatus = async (
       `http://127.0.0.1:8000/api/leave-applications/${leaveId}`,
       {
         final_status: status,
+
+        ...deductionData,
       },
       {
         headers: {
@@ -479,11 +751,57 @@ const updateStatus = async (
     );
 
     showDetailModal.value = false;
+    showApprovalModal.value = false;
 
     await loadApplications();
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+
+    alert(
+      error.response?.data?.message ?? "Failed to update leave application.",
+    );
   }
+};
+
+const confirmApproval = async () => {
+  if (!approvalApplication.value) {
+    return;
+  }
+
+  const application = approvalApplication.value;
+
+  if (deductBalance.value === "yes") {
+    const serviceCreditsDays = Number(serviceCreditsDeductDays.value) || 0;
+    const vacationDays = Number(vacationDeductDays.value) || 0;
+    const sickDays = Number(sickDeductDays.value) || 0;
+
+    const totalDeduction = vacationDays + sickDays + serviceCreditsDays;
+
+    if (totalDeduction <= 0) {
+      alert("Please enter at least one day to deduct.");
+      return;
+    }
+
+    if (totalDeduction > application.number_of_days) {
+      alert(
+        "The total deduction cannot be greater than the number of days applied.",
+      );
+      return;
+    }
+
+    await updateStatus(application.leave_id, "approved", {
+      deduct_balance: true,
+      service_credits_deduct_days: serviceCreditsDays,
+      vacation_deduct_days: vacationDays,
+      sick_deduct_days: sickDays,
+    });
+
+    return;
+  }
+
+  await updateStatus(application.leave_id, "approved", {
+    deduct_balance: false,
+  });
 };
 
 const loadApplications = async () => {
@@ -509,37 +827,3 @@ onMounted(() => {
   loadApplications();
 });
 </script>
-
-<style scoped>
-.dashboard-shell {
-  background: #080D14;
-}
-
-.neo-card {
-  background: #111D2E;
-  border: 1px solid #1E293B;
-  border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
-}
-
-.stats-card {
-  border-left: 4px solid currentColor;
-  padding: 1.35rem;
-}
-
-.stats-card .p-3 {
-  border-radius: 0.9rem;
-}
-
-.neo-card h3,
-.neo-card p,
-.neo-card span,
-.neo-card button {
-  letter-spacing: -0.01em;
-}
-</style>

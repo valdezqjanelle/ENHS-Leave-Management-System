@@ -1,12 +1,12 @@
 <template>
-  <div class="dashboard-shell max-w-7xl mx-auto space-y-6">
+  <div class="max-w-7xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow p-6">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl font-bold text-white">Employee Management</h2>
+          <h2 class="text-2xl font-bold text-gray-800">Employee Management</h2>
 
-          <p class="text-white mt-1">Create and manage employee accounts.</p>
+          <p class="text-gray-500 mt-1">Create and manage employee accounts.</p>
         </div>
 
         <button
@@ -19,23 +19,24 @@
     </div>
 
     <!-- Search -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow p-5">
       <input
         v-model="search"
         type="text"
         placeholder="Search employee..."
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
     </div>
 
     <!-- Employee Table -->
-    <div class="neo-card p-6">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
       <table class="min-w-full">
         <thead class="bg-gray-100">
           <tr class="text-left text-black font-semibold">
             <th class="px-6 py-3 font-bold">Employee Code</th>
 
             <th class="px-6 py-3 font-bold">Employee</th>
+            <th class="px-6 py-3 font-bold">Created By</th>
 
             <th class="px-6 py-3 font-bold">Email</th>
 
@@ -55,35 +56,38 @@
           <tr
             v-for="employee in filteredEmployees"
             :key="employee.employee_id"
-            class="border-t hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+            class="border-t hover:bg-yellow-50"
           >
-            <td class="px-6 py-4 text-white font-semibold">
+            <td class="px-6 py-4 text-black font-semibold">
               {{ employee.employee_code }}
             </td>
 
-            <td class="px-6 py-4 text-white font-medium">
+            <td class="px-6 py-4 text-black font-medium">
               {{ employee.last_name }},
               {{ employee.first_name }}
               {{ employee.middle_name }}
             </td>
+            <td class="px-6 py-4 text-black">
+              {{ employee.created_by?.email || "Unknown" }}
+            </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-black">
               {{ employee.user.email }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-black">
               {{ employee.department }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-black">
               {{ employee.position }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-black">
               {{ employee.employee_category }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-black">
               <span
                 class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"
               >
@@ -111,7 +115,7 @@
           <!-- Empty State -->
 
           <tr v-if="filteredEmployees.length === 0">
-            <td colspan="8" class="text-center py-10 text-white">
+            <td colspan="8" class="text-center py-10 text-gray-500">
               No employees found.
             </td>
           </tr>
@@ -296,7 +300,7 @@
       <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
         <button
           @click="showCreateModal = false"
-          class="px-5 py-2 rounded-lg border"
+          class="px-5 py-2 rounded-lg border text-black"
         >
           Cancel
         </button>
@@ -763,9 +767,15 @@ interface Employee {
 
   sex: string;
 
+  created_by?: {
+    user_id: number;
+    email: string;
+  };
+
   user: {
     email: string;
   };
+
 }
 
 const employees = ref<Employee[]>([]);
@@ -932,38 +942,3 @@ onMounted(() => {
   loadEmployees();
 });
 </script>
-
-
-<style scoped>
-.dashboard-shell {
-  background: #080D14;
-}
-
-.neo-card {
-  background: #111D2E;
-  border: 1px solid #1E293B;
-  border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
-}
-
-.stats-card {
-  border-left: 4px solid currentColor;
-  padding: 1.35rem;
-}
-
-.stats-card .p-3 {
-  border-radius: 0.9rem;
-}
-
-.neo-card h3,
-.neo-card p,
-.neo-card span,
-.neo-card button {
-  letter-spacing: -0.01em;
-}
-</style>

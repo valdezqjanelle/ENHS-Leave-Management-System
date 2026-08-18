@@ -12,12 +12,20 @@ export const getLeaveTypes = async () => {
 // SUBMIT LEAVE (Employee)
 // =======================
 export const submitLeave = async (data: FormData) => {
-    const response = await api.post(
-        "/leave-applications",
-        data
-    );
+  try {
+    const response = await api.post("/leave-applications", data);
 
     return response.data;
+  } catch (error: any) {
+    console.log("UPLOAD ERROR STATUS:", error.response?.status);
+    console.log(
+      "UPLOAD ERROR DATA:",
+      JSON.stringify(error.response?.data, null, 2)
+    );
+    console.log("UPLOAD ERROR:", error);
+
+    throw error;
+  }
 };
 
 // =======================
@@ -39,4 +47,22 @@ export const getMyLeave = async (id: number) => {
 export const getLeave = async (id: number) => {
   const { data } = await api.get(`/leave-applications/${id}`);
   return data;
+};
+
+// =======================
+// MY LEAVE BALANCE
+// =======================
+export const getMyLeaveBalance = async () => {
+  const { data } = await api.get("/my-leave-balance");
+  return data;
+};
+
+// =======================
+// DDOWNLOAD LEAVE APPLICATION PDF
+// =======================
+export const downloadLeavePdf = async (id: number) => {
+  const response = await api.get(`/leave-applications/${id}/pdf`, {
+    responseType: "blob",
+  });
+  return response.data;
 };
