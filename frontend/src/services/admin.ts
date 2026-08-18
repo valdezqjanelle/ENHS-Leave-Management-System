@@ -15,24 +15,6 @@ export const getAdminProfile = async () => {
   return response.data;
 };
 
-// Update admin profile
-export const updateAdminProfile = async (data: {
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  sex: string;
-  position: string;
-  department: string;
-  contact_number: string;
-}) => {
-  const response = await axios.put(
-    `${API}/admin/profile`,
-    data,
-    authHeader()
-  );
-
-  return response.data;
-};
 // Update email
 export const updateAdminEmail = async (email: string) => {
   const response = await axios.put(

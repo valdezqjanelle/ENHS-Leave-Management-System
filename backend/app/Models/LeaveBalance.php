@@ -16,7 +16,6 @@ class LeaveBalance extends Model
         'sick_earned',
         'vacation_balance',
         'sick_balance',
-        'service_credits',
         'used_leave',
         'last_updated'
     ];

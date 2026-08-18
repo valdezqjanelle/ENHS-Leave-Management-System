@@ -13,13 +13,20 @@ use App\Http\Controllers\API\AttendanceController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
-use App\Http\Controllers\API\AuditLogController;
 
-
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
 
 Route::post('/login', [AuthController::class, 'login']);
 
-
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED ROUTES
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -28,8 +35,17 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | EMPLOYEE ROUTES
+    |--------------------------------------------------------------------------
+    */
     Route::middleware('role:employee')->group(function () {
+        // Dashboard
+        Route::get('/employee/dashboard', [DashboardController::class, 'employeeDashboard']);
+
         Route::get('/my-profile', [EmployeeController::class, 'myProfile']);
+        // Settings/Profile
         Route::get('/profile', [EmployeeController::class, 'myProfile']);
         Route::put('/profile', [EmployeeController::class, 'updateProfile']);
 
@@ -39,20 +55,28 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::put('/profile/phone', [EmployeeController::class, 'updatePhone']);
 
+        // Submit leave
         Route::post('/leave-applications', [LeaveController::class, 'store']);
 
+        // View own leaves
         Route::get('/my-leave-applications', [LeaveController::class, 'myLeaves']);
 
+        // View single own leave
         Route::get('/my-leave-applications/{id}', [LeaveController::class, 'myLeave']);
+        // View own balance
         Route::get('/my-leave-balance', [LeaveBalanceController::class, 'myBalance']);
         Route::get('/my-attendance', [AttendanceController::class, 'myAttendance']);
         Route::get('/my-attendance/{id}', [AttendanceController::class, 'myAttendanceRecord']);
     });
 
-    
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN ROUTES
+    |--------------------------------------------------------------------------
+    */
     Route::middleware('role:admin')->group(function () {
 
-        Route::get('admin/dashboard', [DashboardController::class, 'index']);
+        Route::get('/admin/dashboard', [DashboardController::class, 'index']);
         // Employee management
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::get('/employees', [EmployeeController::class, 'index']);
@@ -97,11 +121,6 @@ Route::middleware('auth:sanctum')->group(function () {
             [AdminController::class, 'profile']
         );
 
-        Route::put(
-            '/admin/profile',
-            [AdminController::class, 'updateProfile']
-        );
-   
 
         Route::put(
             '/admin/email',
@@ -113,11 +132,6 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/password',
             [AdminController::class, 'updatePassword']
         );
-
-        // AUDIT LOGS
-        Route::get('/audit-logs', [AuditLogController::class, 'index']);
-        Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
-        Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
     });
 
 

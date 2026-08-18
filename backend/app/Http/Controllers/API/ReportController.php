@@ -155,7 +155,11 @@ class ReportController extends Controller
         ]);
     }
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE LEAVE REPORT (PDF)
+    |--------------------------------------------------------------------------
+    */
     public function generateLeaveReport(Request $request)
     {
         $leaves = LeaveApplication::with(['employee', 'leaveType'])
@@ -253,6 +257,11 @@ class ReportController extends Controller
         ]);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE ATTENDANCE REPORT (PDF)
+    |--------------------------------------------------------------------------
+    */
     public function generateAttendanceReport(Request $request)
     {
         $attendance = AttendanceRecord::with('employee')->get();
@@ -279,7 +288,11 @@ class ReportController extends Controller
         ]);
     }
 
-
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD REPORT
+    |--------------------------------------------------------------------------
+    */
     public function download($id)
     {
         $report = Report::findOrFail($id);

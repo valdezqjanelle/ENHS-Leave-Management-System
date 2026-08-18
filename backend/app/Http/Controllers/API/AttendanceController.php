@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 use App\Models\AttendanceRecord;
 use App\Models\EmployeeRecord;
-use App\Support\AuditLogger;
 
 class AttendanceController extends Controller
 {
@@ -34,11 +33,6 @@ class AttendanceController extends Controller
             'status' => $request->status,
 
         ]);
-
-        AuditLogger::log(
-            'Attendance recorded',
-            "Recorded attendance for employee #{$attendance->employee_id} on {$attendance->attendance_date} ({$attendance->status})"
-        );
 
         return response()->json([
             'message' => 'Attendance recorded successfully',
@@ -85,11 +79,6 @@ class AttendanceController extends Controller
             'status' => $request->status ?? $attendance->status,
 
         ]);
-
-        AuditLogger::log(
-            'Attendance updated',
-            "Updated attendance #{$attendance->attendance_id} for employee #{$attendance->employee_id}"
-        );
 
         return response()->json([
             'message' => 'Attendance updated successfully',

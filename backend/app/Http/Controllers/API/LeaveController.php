@@ -10,25 +10,14 @@ use App\Models\LeaveAttachment;
 use App\Models\EmployeeRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveType;
-use App\Support\AuditLogger;
 
 class LeaveController extends Controller
 {
-
-    //EMPLOYEE: SUBMIT LEAVE
+    /*
+    | EMPLOYEE: SUBMIT LEAVE
+    */
     public function store(Request $request)
     {
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                \Log::info('ATTACHMENT DEBUG', [
-                    'name' => $file->getClientOriginalName(),
-                    'size' => $file->getSize(),
-                    'error' => $file->getError(),
-                    'error_message' => $file->getErrorMessage(),
-                    'mime' => $file->getMimeType(),
-                ]);
-            }
-        }
         $request->validate([
             'leave_type_id' => 'required|exists:leave_types,leave_type_id',
             'date_filed' => 'required|date',
@@ -57,16 +46,13 @@ class LeaveController extends Controller
             'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
         ]);
 
-        $employee = EmployeeRecord::where(
-            'user_id',
-            $request->user()->user_id
-        )->first();
+        $employee = EmployeeRecord::where('user_id', $request->user()->user_id)->first();
 
         if (!$employee) {
-            return response()->json([
-                'message' => 'Employee record not found'
-            ], 404);
+            return response()->json(['message' => 'Employee record not found'], 404);
         }
+
+        $balance = LeaveBalance::where('employee_id', $employee->employee_id)->first();
 
         $leaveType = LeaveType::findOrFail($request->leave_type_id);
 
@@ -79,7 +65,6 @@ class LeaveController extends Controller
             strtolower($leaveType->leave_type_name),
             'sick'
         );
-
         $leave = LeaveApplication::create([
             'employee_id' => $employee->employee_id,
             'leave_type_id' => $request->leave_type_id,
@@ -114,30 +99,37 @@ class LeaveController extends Controller
             // CERTIFICATION
             'certification_as_of' => $request->certification_as_of,
 
+            'vacation_total_earned' => $isVacation
+                ? $balance?->vacation_balance
+                : null,
 
-            'vacation_total_earned' => null,
             'vacation_less_application' => $isVacation
                 ? $request->number_of_days
                 : null,
-            'vacation_balance' => null,
 
-            'sick_total_earned' => null,
+            'vacation_balance' => $isVacation
+                ? ($balance?->vacation_balance - $request->number_of_days)
+                : null,
+
+            'sick_total_earned' => $isSick
+                ? $balance?->sick_balance
+                : null,
+
             'sick_less_application' => $isSick
                 ? $request->number_of_days
                 : null,
-            'sick_balance' => null,
 
-            // DEFAULT STATUS
+            'sick_balance' => $isSick
+                ? ($balance?->sick_balance - $request->number_of_days)
+                : null,
+
             'recommendation_status' => 'pending',
             'final_status' => 'pending',
         ]);
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store(
-                    'leave_attachments',
-                    'public'
-                );
+                $path = $file->store('leave_attachments', 'public');
 
                 LeaveAttachment::create([
                     'leave_id' => $leave->leave_id,
@@ -149,109 +141,70 @@ class LeaveController extends Controller
 
         return response()->json([
             'message' => 'Leave application submitted successfully',
-            'data' => $leave->load([
-                'employee',
-                'leaveType',
-                'attachments'
-            ])
+            'data' => $leave->load(['employee', 'leaveType', 'attachments'])
         ], 201);
     }
 
-
+    /*
+    | EMPLOYEE: VIEW OWN LEAVES
+    */
     public function myLeaves(Request $request)
     {
-        $employee = EmployeeRecord::where(
-            'user_id',
-            $request->user()->user_id
-        )->first();
+        $employee = EmployeeRecord::where('user_id', $request->user()->user_id)->first();
 
         if (!$employee) {
-            return response()->json([
-                'message' => 'Employee record not found'
-            ], 404);
+            return response()->json(['message' => 'Employee record not found'], 404);
         }
 
-        return LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
+        return LeaveApplication::with(['employee', 'leaveType', 'attachments'])
             ->where('employee_id', $employee->employee_id)
             ->oldest()
             ->get();
     }
 
-
+    /*
+    | EMPLOYEE: VIEW SINGLE
+    */
     public function myLeave($id, Request $request)
     {
-        $employee = EmployeeRecord::where(
-            'user_id',
-            $request->user()->user_id
-        )->first();
+        $employee = EmployeeRecord::where('user_id', $request->user()->user_id)->first();
 
         if (!$employee) {
-            return response()->json([
-                'message' => 'Employee record not found'
-            ], 404);
+            return response()->json(['message' => 'Employee record not found'], 404);
         }
 
-        return LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
+        return LeaveApplication::with(['employee', 'leaveType', 'attachments'])
             ->where('employee_id', $employee->employee_id)
             ->where('leave_id', $id)
             ->firstOrFail();
     }
 
-
+    /*
+    | ADMIN: VIEW ALL
+    */
     public function index()
     {
-        return LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
+        return LeaveApplication::with(['employee', 'leaveType', 'attachments'])
             ->latest()
             ->get();
     }
 
-
+    /*
+    | ADMIN: VIEW ONE
+    */
     public function show($id)
     {
-        $leave = LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])->findOrFail($id);
-
-        return response()->json($leave);
+        return LeaveApplication::with(['employee', 'leaveType', 'attachments'])
+            ->findOrFail($id);
     }
 
-    public function downloadPdf($id)
-    {
-        $leave = LeaveApplication::with(['employee', 'leaveType'])->findOrFail($id);
-        $leaveTypes = LeaveType::all();
-
-        $pdf = \Pdf::loadView('pdf.leave-application', [
-            'leave' => $leave,
-            'leaveTypes' => $leaveTypes,
-        ])->setPaper('a4');
-
-        $employeeName = $leave->employee
-            ? "{$leave->employee->first_name}_{$leave->employee->last_name}"
-            : "employee_{$leave->employee_id}";
-
-        $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
-
-        return $pdf->download($filename);
-    }
-
-
+    /*
+    | ADMIN: UPDATE STATUS
+    */
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
+
             // Certification
             'certification_as_of' => 'nullable|date',
 
@@ -273,224 +226,108 @@ class LeaveController extends Controller
             'other_approval' => 'nullable|string',
 
             // Final
-            'final_status' => 'nullable|in:pending,approved,rejected',
+            'final_status' => 'nullable|string',
             'disapproval_reason' => 'nullable|string',
             'admin_remarks' => 'nullable|string',
-
-            // BALANCE DEDUCTION
-            'deduct_balance' => 'nullable|boolean',
-            'service_credits_deduct_days' => 'nullable|numeric|min:0',
-            'vacation_deduct_days' => 'nullable|numeric|min:0',
-            'sick_deduct_days' => 'nullable|numeric|min:0',
         ]);
 
         $leave = LeaveApplication::findOrFail($id);
 
-        $previousStatus = strtolower($leave->final_status);
+        $previousStatus = $leave->final_status;
 
+        $leave->update([
 
+            // Certification
+            'certification_as_of' => $request->certification_as_of,
 
-        $updateData = [];
+            'vacation_total_earned' => $request->vacation_total_earned,
+            'vacation_less_application' => $request->vacation_less_application,
+            'vacation_balance' => $request->vacation_balance,
 
-        if ($request->has('certification_as_of')) {
-            $updateData['certification_as_of'] =
-                $request->certification_as_of;
-        }
+            'sick_total_earned' => $request->sick_total_earned,
+            'sick_less_application' => $request->sick_less_application,
+            'sick_balance' => $request->sick_balance,
 
-        if ($request->has('vacation_total_earned')) {
-            $updateData['vacation_total_earned'] =
-                $request->vacation_total_earned;
-        }
+            // Recommendation
+            'recommendation_status' =>
+            $request->recommendation_status ?? $leave->recommendation_status,
 
-        if ($request->has('vacation_less_application')) {
-            $updateData['vacation_less_application'] =
-                $request->vacation_less_application;
-        }
+            'recommendation_reason' =>
+            $request->recommendation_reason,
 
-        if ($request->has('vacation_balance')) {
-            $updateData['vacation_balance'] =
-                $request->vacation_balance;
-        }
+            // Approval
+            'days_with_pay' =>
+            $request->days_with_pay,
 
-        if ($request->has('sick_total_earned')) {
-            $updateData['sick_total_earned'] =
-                $request->sick_total_earned;
-        }
+            'days_without_pay' =>
+            $request->days_without_pay,
 
-        if ($request->has('sick_less_application')) {
-            $updateData['sick_less_application'] =
-                $request->sick_less_application;
-        }
+            'other_approval' =>
+            $request->other_approval,
 
-        if ($request->has('sick_balance')) {
-            $updateData['sick_balance'] =
-                $request->sick_balance;
-        }
+            // Final
+            'final_status' =>
+            $request->final_status ?? $leave->final_status,
 
-        if ($request->has('recommendation_status')) {
-            $updateData['recommendation_status'] =
-                $request->recommendation_status;
-        }
+            'disapproval_reason' =>
+            $request->disapproval_reason,
 
-        if ($request->has('recommendation_reason')) {
-            $updateData['recommendation_reason'] =
-                $request->recommendation_reason;
-        }
-
-        if ($request->has('days_with_pay')) {
-            $updateData['days_with_pay'] =
-                $request->days_with_pay;
-        }
-
-        if ($request->has('days_without_pay')) {
-            $updateData['days_without_pay'] =
-                $request->days_without_pay;
-        }
-
-        if ($request->has('other_approval')) {
-            $updateData['other_approval'] =
-                $request->other_approval;
-        }
-
-        if ($request->has('final_status')) {
-            $updateData['final_status'] =
-                strtolower($request->final_status);
-        }
-
-        if ($request->has('disapproval_reason')) {
-            $updateData['disapproval_reason'] =
-                $request->disapproval_reason;
-        }
-
-        if ($request->has('admin_remarks')) {
-            $updateData['admin_remarks'] =
-                $request->admin_remarks;
-        }
-
-        $leave->update($updateData);
-
-
-
-        $newStatus = strtolower($leave->final_status);
+            'admin_remarks' =>
+            $request->admin_remarks,
+        ]);
 
         if (
             $previousStatus !== 'approved' &&
-            $newStatus === 'approved' &&
-            $request->boolean('deduct_balance')
+            $leave->final_status === 'approved'
         ) {
-            $this->deductLeaveBalance(
-                $leave,
-                $request->vacation_deduct_days ?? 0,
-                $request->sick_deduct_days ?? 0,
-                $request->service_credits_deduct_days ?? 0
-            );
-        }
-
-        $leave->load(['employee', 'leaveType', 'attachments']);
-
-        if ($request->has('final_status') && $newStatus !== $previousStatus) {
-            $employeeName = $leave->employee
-                ? "{$leave->employee->first_name} {$leave->employee->last_name}"
-                : "employee #{$leave->employee_id}";
-
-            AuditLogger::log(
-                'Leave ' . ucfirst($newStatus),
-                "Marked leave #{$leave->leave_id} for {$employeeName} as {$newStatus}"
-            );
+            $this->deductLeaveBalance($leave);
         }
 
         return response()->json([
             'message' => 'Leave updated successfully',
-            'data' => $leave
+            'data' => $leave->load([
+                'employee',
+                'leaveType',
+                'attachments'
+            ])
         ]);
     }
 
-
-
-    private function deductLeaveBalance(
-        $leave,
-        $vacationDeductDays,
-        $sickDeductDays,
-        $serviceCreditsDeductDays
-    ) {
+    private function deductLeaveBalance($leave)
+    {
         $balance = LeaveBalance::where(
             'employee_id',
             $leave->employee_id
         )->first();
 
         if (!$balance) {
-            throw new \Exception(
-                'Leave balance record not found.'
-            );
+            return;
         }
 
-        $vacationDays = (float) $vacationDeductDays;
-        $sickDays = (float) $sickDeductDays;
-        $serviceCreditsDays = (float) $serviceCreditsDeductDays;
+        $days = (int) $leave->number_of_days;
 
-        $totalDeduction =
-            $vacationDays +
-            $sickDays +
-            $serviceCreditsDays;
+        $leaveName = strtolower(
+            $leave->leaveType->leave_type_name
+        );
 
+        if (str_contains($leaveName, 'vacation')) {
 
+            $balance->vacation_balance -= $days;
 
-        if ($totalDeduction > (float) $leave->number_of_days) {
-            throw new \Exception(
-                'Total deduction cannot be greater than the number of days applied.'
-            );
+            if ($balance->vacation_balance < 0) {
+                $balance->vacation_balance = 0;
+            }
+        } elseif (str_contains($leaveName, 'sick')) {
+
+            $balance->sick_balance -= $days;
+
+            if ($balance->sick_balance < 0) {
+                $balance->sick_balance = 0;
+            }
         }
-
-
-
-        $currentVacationBalance =
-            (float) $balance->vacation_balance;
-
-        if ($vacationDays > $currentVacationBalance) {
-            throw new \Exception(
-                'Insufficient vacation leave balance.'
-            );
-        }
-
-
-        $currentSickBalance =
-            (float) $balance->sick_balance;
-
-        if ($sickDays > $currentSickBalance) {
-            throw new \Exception(
-                'Insufficient sick leave balance.'
-            );
-        }
-
-        $currentServiceCredits =
-            (float) ($balance->service_credits ?? 0);
-
-        if ($serviceCreditsDays > $currentServiceCredits) {
-            throw new \Exception(
-                'Insufficient service credits.'
-            );
-        }
-
-
-
-        $balance->vacation_balance =
-            $currentVacationBalance - $vacationDays;
-
-
-
-        $balance->sick_balance =
-            $currentSickBalance - $sickDays;
-
-  
-
-        $balance->service_credits =
-            $currentServiceCredits - $serviceCreditsDays;
-
-
 
         $balance->used_leave =
-            (float) ($balance->used_leave ?? 0)
-            + $totalDeduction;
+            ($balance->used_leave ?? 0) + $days;
 
         $balance->last_updated = now();
 
