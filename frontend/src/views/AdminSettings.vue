@@ -42,94 +42,180 @@
       <p class="text-gray-500 mb-6">
         Manage administrator account information and security.
       </p>
-
       <!-- Admin Profile -->
-
       <div class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-          Administrator Profile
-        </h3>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">
+              Administrator Profile
+            </h3>
+            <p class="text-sm text-gray-500">
+              Update your administrator information.
+            </p>
+          </div>
+
+          <!-- Edit button -->
+          <button
+            v-if="!isEditingProfile"
+            @click="startEditProfile"
+            type="button"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
+          >
+            Edit Profile
+          </button>
+
+          <!-- Save / Cancel buttons -->
+          <div v-else class="flex gap-2">
+            <button
+              @click="cancelEditProfile"
+              type="button"
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100"
+            >
+              Cancel
+            </button>
+
+            <button
+              @click="saveAdminProfile"
+              type="button"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- First Name -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               First Name
             </label>
 
             <input
-              :value="adminProfile.first_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.first_name"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
 
+          <!-- Middle Name -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               Middle Name
             </label>
 
             <input
-              :value="adminProfile.middle_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.middle_name"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
 
+          <!-- Last Name -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               Last Name
             </label>
 
             <input
-              :value="adminProfile.last_name"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.last_name"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
 
+          <!-- Sex -->
           <div>
             <label class="block text-sm font-medium text-gray-700"> Sex </label>
 
-            <input
-              :value="adminProfile.sex"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
-            />
+            <select
+              v-model="adminProfile.sex"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
+            >
+              <option value="">Select Sex</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
           </div>
 
+          <!-- Position -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               Position
             </label>
 
             <input
-              :value="adminProfile.position"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.position"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
 
+          <!-- Department -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               Department
             </label>
 
             <input
-              :value="adminProfile.department"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.department"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
 
+          <!-- Contact Number -->
           <div>
             <label class="block text-sm font-medium text-gray-700">
               Contact Number
             </label>
 
             <input
-              :value="adminProfile.contact_number"
-              readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 text-gray-600 bg-gray-100"
+              v-model="adminProfile.contact_number"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile
+                  ? 'text-black bg-white'
+                  : 'text-gray-600 bg-gray-100',
+              ]"
             />
           </div>
         </div>
@@ -201,93 +287,484 @@
 
     <!-- Leave Settings -->
 
-    <!-- Leave Settings -->
-
     <div v-if="activeTab === 'leave'" class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Leave Settings</h2>
+      <h2 class="text-xl font-semibold text-gray-800">Leave Settings</h2>
 
-      <p class="text-gray-500 mb-6">
-        Manage available leave types and requirements.
+      <p class="text-gray-500 mt-1 mb-6">
+        Manage leave types, requirements, and rules for employees.
       </p>
 
-      <button
-        @click="openAddLeaveModal"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg"
-      >
-        + Add Leave Type
-      </button>
+      <!-- Leave Types -->
 
-      <div class="space-y-4">
+      <div class="border rounded-xl p-5">
         <div
-          v-for="leave in leaveTypes"
-          :key="leave.id"
-          class="flex justify-between items-center border rounded-xl p-4"
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"
         >
           <div>
-            <h3 class="font-semibold text-gray-800">
-              {{ leave.leave_type_name }}
-            </h3>
+            <h3 class="text-lg font-semibold text-gray-800">Leave Types</h3>
 
             <p class="text-sm text-gray-500">
-              {{ leave.description }}
+              Manage the types of leave available in the system.
             </p>
           </div>
 
-          <div class="flex gap-2">
-            <button
-              @click="openEditLeaveModal(leave)"
-              class="px-4 py-2 bg-yellow-500 text-white rounded-lg"
-            >
-              Edit
-            </button>
+          <button
+            @click="openAddLeaveModal"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          >
+            + Add Leave Type
+          </button>
+        </div>
 
-            <button
-              @click="removeLeaveType(leave.leave_type_id)"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg"
-            >
-              Delete
-            </button>
+        <div
+          v-if="leaveTypes.length === 0"
+          class="text-center py-8 text-gray-400"
+        >
+          No leave types configured yet.
+        </div>
+
+        <div v-else class="space-y-3">
+          <div
+            v-for="leave in leaveTypes"
+            :key="leave.leave_type_id"
+            class="border rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
+            <div>
+              <h4 class="font-semibold text-gray-800">
+                {{ leave.leave_type_name }}
+              </h4>
+
+              <p class="text-sm text-gray-500 mt-1">
+                {{ leave.description || "No description provided." }}
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                @click="openEditLeaveModal(leave)"
+                class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
+              >
+                Edit
+              </button>
+
+              <button
+                @click="removeLeaveType(leave.leave_type_id)"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                Delete
+              </button>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Leave Rules -->
+
+      <div class="border rounded-xl p-5 mt-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Leave Rules</h3>
+
+            <p class="text-sm text-gray-500">
+              Configure general rules and requirements that employees should
+              follow when filing leave.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- Advance Filing -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Minimum Filing Notice
+            </label>
+
+            <div class="flex items-center gap-3">
+              <input
+                v-model="leaveRules.minimum_notice_days"
+                type="number"
+                min="0"
+                class="w-full border rounded-lg px-3 py-2 text-black"
+              />
+
+              <span class="text-sm text-gray-500 whitespace-nowrap">
+                day(s) before leave
+              </span>
+            </div>
+
+            <p class="text-xs text-gray-400 mt-1">
+              Number of days an employee should file leave in advance.
+            </p>
+          </div>
+
+          <!-- Supporting Documents -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Supporting Documents
+            </label>
+
+            <select
+              v-model="leaveRules.require_documents"
+              class="w-full border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="false">Not Required</option>
+
+              <option :value="true">Required</option>
+            </select>
+
+            <p class="text-xs text-gray-400 mt-1">
+              Determines whether employees must provide supporting documents.
+            </p>
+          </div>
+
+          <!-- Maximum Consecutive Days -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Maximum Consecutive Leave Days
+            </label>
+
+            <input
+              v-model="leaveRules.max_consecutive_days"
+              type="number"
+              min="0"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Example: 10"
+            />
+
+            <p class="text-xs text-gray-400 mt-1">
+              Maximum number of consecutive days allowed per application.
+            </p>
+          </div>
+
+          <!-- General Rule -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              General Leave Policy
+            </label>
+
+            <textarea
+              v-model="leaveRules.general_policy"
+              rows="3"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter general leave filing rules or instructions..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-5">
+          <button
+            @click="saveLeaveRules"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+          >
+            Save Leave Rules
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Leave Credit Settings -->
-
-    <div v-if="activeTab === 'credits'" class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800">Leave Credit Settings</h2>
-
-      <p class="text-gray-500 mt-2">
-        Configure leave allocation and credit computation.
-      </p>
-    </div>
-
-    <!-- Approval Settings -->
-
     <div v-if="activeTab === 'approval'" class="bg-white rounded-xl shadow p-6">
       <h2 class="text-xl font-semibold text-gray-800">Approval Settings</h2>
 
-      <p class="text-gray-500 mt-2">Configure leave approval workflow.</p>
+      <p class="text-gray-500 mt-1 mb-6">
+        Configure the review, endorsement, and approval workflow for leave
+        applications.
+      </p>
+
+      <div class="border rounded-xl p-5">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-gray-800">
+            Leave Approval Workflow
+          </h3>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Manage the internal review and endorsement process for leave
+            applications.
+          </p>
+        </div>
+
+        <div class="space-y-5">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-medium text-gray-800">Admin Review</h4>
+
+              <p class="text-sm text-gray-500">
+                Require Admin Personnel to review submitted leave applications.
+              </p>
+            </div>
+
+            <select
+              v-model="approvalSettings.require_admin_review"
+              class="border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="true">Required</option>
+              <option :value="false">Not Required</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-medium text-gray-800">Principal Endorsement</h4>
+
+              <p class="text-sm text-gray-500">
+                Require School Principal endorsement before the application is
+                prepared for external submission.
+              </p>
+            </div>
+
+            <select
+              v-model="approvalSettings.require_principal_endorsement"
+              class="border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="true">Required</option>
+              <option :value="false">Not Required</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-medium text-gray-800">Admin Remarks</h4>
+
+              <p class="text-sm text-gray-500">
+                Allow Admin Personnel to provide remarks during application
+                review.
+              </p>
+            </div>
+
+            <select
+              v-model="approvalSettings.allow_admin_remarks"
+              class="border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="true">Allowed</option>
+              <option :value="false">Not Allowed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-xl p-5 mt-6">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-gray-800">
+            Division Office Result
+          </h3>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Configure how official Division Office results are recorded and
+            processed in the system.
+          </p>
+        </div>
+
+        <div class="space-y-5">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-medium text-gray-800">
+                Automatically Update Application Status
+              </h4>
+
+              <p class="text-sm text-gray-500">
+                Update the application status when an official Division Office
+                result is recorded.
+              </p>
+            </div>
+
+            <select
+              v-model="approvalSettings.auto_update_status"
+              class="border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="true">Enabled</option>
+              <option :value="false">Disabled</option>
+            </select>
+          </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-medium text-gray-800">
+                Automatically Update Leave Balance
+              </h4>
+
+              <p class="text-sm text-gray-500">
+                Update the employee's leave balance based on the official
+                Division Office approved leave days.
+              </p>
+            </div>
+
+            <select
+              v-model="approvalSettings.auto_update_balance"
+              class="border rounded-lg px-3 py-2 text-black bg-white"
+            >
+              <option :value="true">Enabled</option>
+              <option :value="false">Disabled</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-6">
+        <button
+          @click="saveApprovalSettings"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+        >
+          Save Approval Settings
+        </button>
+      </div>
     </div>
+
+    <!-- System Settings -->
 
     <!-- System Settings -->
 
     <div v-if="activeTab === 'system'" class="bg-white rounded-xl shadow p-6">
       <h2 class="text-xl font-semibold text-gray-800">System Settings</h2>
 
-      <p class="text-gray-500 mt-2">
-        Manage system information and configuration.
+      <p class="text-gray-500 mt-1 mb-6">
+        Manage general system information and configuration.
       </p>
+
+      <!-- System Information -->
+
+      <div class="border rounded-xl p-5">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-gray-800">
+            System Information
+          </h3>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Configure the basic information displayed throughout the system.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- System Name -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              System Name
+            </label>
+
+            <input
+              v-model="systemSettings.system_name"
+              type="text"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter system name"
+            />
+          </div>
+
+          <!-- School Name -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              School Name
+            </label>
+
+            <input
+              v-model="systemSettings.school_name"
+              type="text"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter school name"
+            />
+          </div>
+
+          <!-- System Version -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              System Version
+            </label>
+
+            <input
+              v-model="systemSettings.system_version"
+              type="text"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Example: 1.0.0"
+            />
+          </div>
+
+          <!-- Contact Email -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Contact Email
+            </label>
+
+            <input
+              v-model="systemSettings.contact_email"
+              type="email"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter contact email"
+            />
+          </div>
+
+          <!-- Contact Number -->
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Contact Number
+            </label>
+
+            <input
+              v-model="systemSettings.contact_number"
+              type="text"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter contact number"
+            />
+          </div>
+
+          <!-- System Description -->
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              System Description
+            </label>
+
+            <textarea
+              v-model="systemSettings.system_description"
+              rows="3"
+              class="w-full border rounded-lg px-3 py-2 text-black"
+              placeholder="Enter a short description of the system..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Us -->
+
+      <div class="border rounded-xl p-5 mt-6">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-gray-800">About Us</h3>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Information about the leave management system that may be displayed
+            to employees.
+          </p>
+        </div>
+
+        <textarea
+          v-model="systemSettings.about_us"
+          rows="5"
+          class="w-full border rounded-lg px-3 py-2 text-black"
+          placeholder="Enter information about the system..."
+        ></textarea>
+      </div>
+
+      <!-- Save -->
+
+      <div class="flex justify-end mt-6">
+        <button
+          @click="saveSystemSettings"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+        >
+          Save System Settings
+        </button>
+      </div>
     </div>
 
-    <!-- Backup -->
+    <div v-if="activeTab === 'audit'" class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-800">Audit Logs</h2>
 
-    <div v-if="activeTab === 'backup'" class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800">Backup & Maintenance</h2>
-
-      <p class="text-gray-500 mt-2">
-        Audit trail of admin and login activity.
-      </p>
+      <p class="text-gray-500 mt-2">Audit trail of admin and login activity.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div class="bg-gray-50 rounded-lg p-4">
@@ -297,12 +774,16 @@
 
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm text-gray-500">Showing</p>
-          <p class="text-2xl font-semibold text-gray-800">{{ auditLogs.length }}</p>
+          <p class="text-2xl font-semibold text-gray-800">
+            {{ auditLogs.length }}
+          </p>
         </div>
 
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-sm text-gray-500">Last event</p>
-          <p class="text-2xl font-semibold text-gray-800">{{ lastEventComputed }}</p>
+          <p class="text-2xl font-semibold text-gray-800">
+            {{ lastEventComputed }}
+          </p>
         </div>
       </div>
 
@@ -331,7 +812,11 @@
         />
 
         <button
-          v-if="auditFilters.action || auditFilters.date_from || auditFilters.date_to"
+          v-if="
+            auditFilters.action ||
+            auditFilters.date_from ||
+            auditFilters.date_to
+          "
           @click="clearAuditFilters"
           class="text-sm text-blue-600 hover:underline"
         >
@@ -343,24 +828,38 @@
         <table class="min-w-full text-sm">
           <thead class="bg-gray-50">
             <tr>
-              <th class="text-left px-4 py-3 font-medium text-gray-500">User</th>
-              <th class="text-left px-4 py-3 font-medium text-gray-500">Action</th>
-              <th class="text-left px-4 py-3 font-medium text-gray-500">Description</th>
-              <th class="text-left px-4 py-3 font-medium text-gray-500">Date</th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">
+                User
+              </th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">
+                Action
+              </th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">
+                Description
+              </th>
+              <th class="text-left px-4 py-3 font-medium text-gray-500">
+                Date
+              </th>
             </tr>
           </thead>
 
           <tbody>
             <tr v-if="auditLoading">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-400">Loading...</td>
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                Loading...
+              </td>
             </tr>
 
             <tr v-else-if="auditLogs.length === 0">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-400">No audit log entries yet.</td>
+              <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                No audit log entries yet.
+              </td>
             </tr>
 
             <tr v-for="log in auditLogs" :key="log.log_id" class="border-t">
-              <td class="px-4 py-3 text-gray-800">{{ log.user?.email ?? "Unknown user" }}</td>
+              <td class="px-4 py-3 text-gray-800">
+                {{ log.user?.email ?? "Unknown user" }}
+              </td>
 
               <td class="px-4 py-3">
                 <span
@@ -373,7 +872,9 @@
 
               <td class="px-4 py-3 text-gray-600">{{ log.description }}</td>
 
-              <td class="px-4 py-3 text-gray-500 whitespace-nowrap">{{ formatAuditDate(log.created_at) }}</td>
+              <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
+                {{ formatAuditDate(log.created_at) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -403,53 +904,242 @@
         </div>
       </div>
     </div>
-    <!-- Leave Type Modal -->
+  </div>
 
-    <div
-      v-if="isLeaveModalOpen"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-5">
-          {{ isEditMode ? "Edit Leave Type" : "Add Leave Type" }}
-        </h2>
+  <!-- Backup & Recovery -->
 
-        <div class="space-y-4">
-          <div>
-            <label class="text-sm text-gray-700"> Leave Type Name </label>
+  <div v-if="activeTab === 'backup'" class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-800">Backup & Recovery</h2>
 
-            <input
-              v-model="leaveForm.leave_type_name"
-              class="w-full border rounded-lg px-3 py-2 text-black"
-            />
-          </div>
+    <p class="text-gray-500 mt-1 mb-6">
+      Create, manage, and recover system database backups.
+    </p>
 
-          <div>
-            <label class="text-sm text-gray-700"> Description </label>
+    <!-- Database Backup -->
 
-            <textarea
-              v-model="leaveForm.description"
-              rows="3"
-              class="w-full border rounded-lg px-3 py-2 text-black"
-            ></textarea>
-          </div>
+    <div class="border rounded-xl p-5">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      >
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800">Database Backup</h3>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Create a digital backup copy of the system database.
+          </p>
         </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            @click="isLeaveModalOpen = false"
-            class="px-4 py-2 text-black border border-gray-600 rounded-lg"
-          >
-            Cancel
-          </button>
+        <button
+          @click="createBackup"
+          :disabled="backupLoading"
+          class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+        >
+          {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
+        </button>
+      </div>
 
-          <button
-            @click="saveLeaveType"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
-            Save
-          </button>
+      <!-- Last Backup -->
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Last Backup</p>
+
+          <p class="text-lg font-semibold text-gray-800 mt-1">
+            {{ lastBackup.date || "No backup yet" }}
+          </p>
         </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Backup Type</p>
+
+          <p class="text-lg font-semibold text-gray-800 mt-1">
+            {{ lastBackup.type || "—" }}
+          </p>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-sm text-gray-500">Status</p>
+
+          <p
+            class="text-lg font-semibold mt-1"
+            :class="
+              lastBackup.status === 'Successful'
+                ? 'text-green-600'
+                : 'text-gray-800'
+            "
+          >
+            {{ lastBackup.status || "—" }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backup Methods -->
+
+    <div class="border rounded-xl p-5 mt-6">
+      <div class="mb-5">
+        <h3 class="text-lg font-semibold text-gray-800">Backup Methods</h3>
+
+        <p class="text-sm text-gray-500 mt-1">
+          Recommended methods for protecting important system data.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Printed -->
+
+        <div class="border rounded-lg p-4">
+          <h4 class="font-semibold text-gray-800">Printed Backup</h4>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Important reports such as leave, attendance, and employee reports
+            may be printed and stored as physical records.
+          </p>
+        </div>
+
+        <!-- External -->
+
+        <div class="border rounded-lg p-4">
+          <h4 class="font-semibold text-gray-800">Digital / External Backup</h4>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Downloaded database backups may be copied to USB drives, external
+            hard drives, or other secure storage devices.
+          </p>
+        </div>
+
+        <!-- Cloud -->
+
+        <div class="border rounded-lg p-4">
+          <h4 class="font-semibold text-gray-800">Cloud Backup</h4>
+
+          <p class="text-sm text-gray-500 mt-1">
+            Database backup files may be uploaded to an authorized cloud storage
+            service for an additional backup copy.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recovery -->
+
+    <div class="border rounded-xl p-5 mt-6">
+      <div class="mb-5">
+        <h3 class="text-lg font-semibold text-gray-800">
+          Recovery / Failover Method
+        </h3>
+
+        <p class="text-sm text-gray-500 mt-1">
+          Procedure for recovering the system when the primary database becomes
+          unavailable.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <span
+            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold"
+          >
+            1
+          </span>
+
+          <span class="text-gray-700"> Identify the database failure. </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span
+            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold"
+          >
+            2
+          </span>
+
+          <span class="text-gray-700">
+            Locate the latest valid database backup.
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span
+            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold"
+          >
+            3
+          </span>
+
+          <span class="text-gray-700">
+            Restore the database from the backup.
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span
+            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold"
+          >
+            4
+          </span>
+
+          <span class="text-gray-700">
+            Verify restored records and resume system operation.
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-5 bg-green-50 border border-green-200 rounded-lg p-4">
+        <p class="text-sm font-medium text-green-700">Recovery Status: Ready</p>
+
+        <p class="text-sm text-green-600 mt-1">
+          The latest available database backup can be used for recovery when
+          necessary.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Type Modal -->
+
+  <div
+    v-if="isLeaveModalOpen"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+  >
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-5">
+        {{ isEditMode ? "Edit Leave Type" : "Add Leave Type" }}
+      </h2>
+
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-gray-700"> Leave Type Name </label>
+
+          <input
+            v-model="leaveForm.leave_type_name"
+            class="w-full border rounded-lg px-3 py-2 text-black"
+          />
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-700"> Description </label>
+
+          <textarea
+            v-model="leaveForm.description"
+            rows="3"
+            class="w-full border rounded-lg px-3 py-2 text-black"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          @click="isLeaveModalOpen = false"
+          class="px-4 py-2 text-black border border-gray-600 rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+          @click="saveLeaveType"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Save
+        </button>
       </div>
     </div>
   </div>
@@ -471,6 +1161,20 @@ import {
   deleteLeaveType,
 } from "@/services/leaveType";
 import { getAuditLogs, getAuditLogActions } from "@/services/auditLog";
+import {
+  getLeaveSettings,
+  updateLeaveSettings,
+} from "@/services/leaveSettings";
+
+import {
+  getApprovalSettings,
+  updateApprovalSettings,
+} from "@/services/approvalSettings";
+
+import {
+  getSystemSettings,
+  updateSystemSettings,
+} from "@/services/systemSettings";
 
 const activeTab = ref("account");
 
@@ -533,8 +1237,10 @@ const actionBadgeClass = (action: string) => {
   const a = action.toLowerCase();
   if (a.includes("login")) return "bg-green-100 text-green-700";
   if (a.includes("approved")) return "bg-blue-100 text-blue-700";
-  if (a.includes("rejected") || a.includes("deleted")) return "bg-red-100 text-red-700";
-  if (a.includes("updated") || a.includes("created")) return "bg-amber-100 text-amber-700";
+  if (a.includes("rejected") || a.includes("deleted"))
+    return "bg-red-100 text-red-700";
+  if (a.includes("updated") || a.includes("created"))
+    return "bg-amber-100 text-amber-700";
   return "bg-gray-100 text-gray-700";
 };
 
@@ -572,6 +1278,11 @@ const tabs = [
   {
     id: "system",
     name: "System Settings",
+  },
+
+  {
+    id: "audit",
+    name: "Audit Logs",
   },
 
   {
@@ -613,8 +1324,11 @@ const loadAdmin = async () => {
         contact_number: data.profile.contact_number || "",
       };
     }
-  } catch (error) {
-    console.log("Failed to load admin profile:", error);
+  } catch (error: any) {
+    console.error(
+      "Failed to load admin profile:",
+      error.response?.data || error,
+    );
   }
 };
 
@@ -642,6 +1356,46 @@ const updatePassword = async () => {
   }
 };
 
+const leaveRules = ref({
+  minimum_notice_days: 0,
+  require_documents: false,
+  max_consecutive_days: 0,
+  general_policy: "",
+});
+
+const loadLeaveRules = async () => {
+  try {
+    const data = await getLeaveSettings();
+
+    leaveRules.value = {
+      minimum_notice_days: data.minimum_notice_days ?? 0,
+      require_documents: data.require_documents ?? false,
+      max_consecutive_days: data.max_consecutive_days ?? 0,
+      general_policy: data.general_policy ?? "",
+    };
+  } catch (error) {
+    console.error("Failed to load leave rules:", error);
+  }
+};
+
+const saveLeaveRules = async () => {
+  try {
+    await updateLeaveSettings({
+      minimum_notice_days: Number(leaveRules.value.minimum_notice_days),
+      require_documents: Boolean(leaveRules.value.require_documents),
+      max_consecutive_days: Number(leaveRules.value.max_consecutive_days),
+      general_policy: leaveRules.value.general_policy,
+    });
+
+    alert("Leave rules saved successfully.");
+
+    await loadLeaveRules();
+  } catch (error: any) {
+    console.error("Failed to save leave rules:", error.response?.data || error);
+
+    alert(error.response?.data?.message || "Failed to save leave rules.");
+  }
+};
 const leaveTypes = ref<any[]>([]);
 
 const loadLeaveTypes = async () => {
@@ -727,11 +1481,125 @@ const saveLeaveType = async () => {
   }
 };
 
+const approvalSettings = ref({
+  require_admin_review: true,
+  require_principal_endorsement: true,
+  allow_admin_remarks: true,
+  auto_update_status: true,
+  auto_update_balance: true,
+});
+
+const loadApprovalSettings = async () => {
+  try {
+    const data = await getApprovalSettings();
+
+    approvalSettings.value = {
+      require_admin_review: data.require_admin_review ?? true,
+      require_principal_endorsement: data.require_principal_endorsement ?? true,
+      allow_admin_remarks: data.allow_admin_remarks ?? true,
+      auto_update_status: data.auto_update_status ?? true,
+      auto_update_balance: data.auto_update_balance ?? true,
+    };
+  } catch (error) {
+    console.error("Failed to load approval settings:", error);
+  }
+};
+
+const saveApprovalSettings = async () => {
+  try {
+    await updateApprovalSettings({
+      require_admin_review: Boolean(
+        approvalSettings.value.require_admin_review,
+      ),
+      require_principal_endorsement: Boolean(
+        approvalSettings.value.require_principal_endorsement,
+      ),
+      allow_admin_remarks: Boolean(approvalSettings.value.allow_admin_remarks),
+      auto_update_status: Boolean(approvalSettings.value.auto_update_status),
+      auto_update_balance: Boolean(approvalSettings.value.auto_update_balance),
+    });
+
+    alert("Approval settings saved successfully.");
+
+    await loadApprovalSettings();
+  } catch (error: any) {
+    console.error(
+      "Failed to save approval settings:",
+      error.response?.data || error,
+    );
+
+    alert(error.response?.data?.message || "Failed to save approval settings.");
+  }
+};
+
+const systemSettings = ref({
+  system_name: "",
+  school_name: "",
+  system_description: "",
+  about_us: "",
+  contact_email: "",
+  contact_number: "",
+  system_version: "",
+});
+
+const loadSystemSettings = async () => {
+  try {
+    const data = await getSystemSettings();
+
+    const settings: Record<string, string> = {};
+
+    data.forEach((setting: any) => {
+      settings[setting.setting_key] = setting.setting_value;
+    });
+
+    systemSettings.value = {
+      system_name: settings.system_name || "",
+      school_name: settings.school_name || "",
+      system_description: settings.system_description || "",
+      about_us: settings.about_us || "",
+      contact_email: settings.contact_email || "",
+      contact_number: settings.contact_number || "",
+      system_version: settings.system_version || "",
+    };
+  } catch (error) {
+    console.error("Failed to load system settings:", error);
+  }
+};
+const saveSystemSettings = async () => {
+  try {
+    await updateSystemSettings(systemSettings.value);
+
+    alert("System settings saved successfully.");
+
+    await loadSystemSettings();
+  } catch (error: any) {
+    console.error(
+      "Failed to save system settings:",
+      error.response?.data || error,
+    );
+
+    alert(error.response?.data?.message || "Failed to save system settings.");
+  }
+};
+
+const backupLoading = ref(false);
+
+const lastBackup = ref({
+  date: "",
+  type: "",
+  status: "",
+});
+
+const createBackup = async () => {
+  alert("Database backup functionality will be connected next.");
+};
+
 onMounted(() => {
   loadAdmin();
-
   loadLeaveTypes();
-
+  loadLeaveRules();
+  loadApprovalSettings();
+  loadSystemSettings();
   loadAuditLogs();
   loadAuditActions();
 });

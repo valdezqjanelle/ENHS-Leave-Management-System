@@ -14,20 +14,15 @@ use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\DashboardController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AuditLogController;
+use App\Http\Controllers\API\LeaveSettingController;
+use App\Http\Controllers\ApprovalSettingController;
+use App\Http\Controllers\API\SystemSettingController;
 
-/*
-|--------------------------------------------------------------------------
-| AUTH
-|--------------------------------------------------------------------------
-*/
 
 Route::post('/login', [AuthController::class, 'login']);
 
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES
-|--------------------------------------------------------------------------
-*/
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -36,11 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE ROUTES
-    |--------------------------------------------------------------------------
-    */
+    Route::get('/leave-settings', [LeaveSettingController::class, 'index']);
+    Route::get('/approval-settings', [ApprovalSettingController::class, 'index']);
+    Route::get('/system-settings', [SystemSettingController::class, 'index']);
+
     Route::middleware('role:employee')->group(function () {
         Route::get('/my-profile', [EmployeeController::class, 'myProfile']);
         // Settings/Profile
@@ -67,11 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/my-attendance/{id}', [AttendanceController::class, 'myAttendanceRecord']);
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN ROUTES
-    |--------------------------------------------------------------------------
-    */
+
     Route::middleware('role:admin')->group(function () {
 
         Route::get('admin/dashboard', [DashboardController::class, 'index']);
@@ -123,16 +113,12 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/profile',
             [AdminController::class, 'updateProfile']
         );
-        Route::put(
-            '/admin/profile',
-            [AdminController::class, 'updateProfile']
-        );
+
 
         Route::put(
             '/admin/email',
             [AdminController::class, 'updateEmail']
         );
-
 
         Route::put(
             '/admin/password',
@@ -143,6 +129,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/audit-logs', [AuditLogController::class, 'index']);
         Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
         Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
+
+        // LEAVE SETTINGS
+        Route::put('/leave-settings', [LeaveSettingController::class, 'update']);
+        Route::put('/approval-settings', [ApprovalSettingController::class, 'update']);
+        Route::put('/system-settings', [SystemSettingController::class, 'update']);
     });
 
 
