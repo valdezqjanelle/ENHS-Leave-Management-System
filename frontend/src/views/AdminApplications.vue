@@ -1,11 +1,11 @@
 <template>
-  <div class="max-w-7xl mx-auto p-4">
-    <div class="bg-white rounded-lg shadow">
+  <div class="max-w-7xl mx-auto p-4 dashboard-shell">
+    <div class="bg-white rounded-lg shadow neo-card">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-gray-800">
+        <h2 class="text-xl font-semibold text-white">
           Submitted Leave Applications
         </h2>
-        <p class="text-sm text-gray-600 mt-1">
+        <p class="text-sm text-white mt-1">
           Review and manage faculty leave applications
         </p>
       </div>
@@ -21,7 +21,7 @@
               'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
               activeTab === tab.key
                 ? 'bg-blue-100 text-blue-700'
-                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
+                : 'text-white hover:text-gray-700 hover:bg-gray-100',
             ]"
           >
             {{ tab.label }}
@@ -45,7 +45,7 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search employee, leave type, status, or ID..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
             </div>
 
@@ -71,7 +71,7 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              class="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50"
             >
               Clear
             </button>
@@ -97,7 +97,7 @@
           </div>
         </div>
         <div v-if="filteredApplications.length === 0" class="text-center py-8">
-          <div class="mx-auto h-12 w-12 text-gray-400">
+          <div class="mx-auto h-12 w-12 text-white">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -107,10 +107,10 @@
               ></path>
             </svg>
           </div>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">
+          <h3 class="mt-2 text-sm font-medium text-white">
             No applications found
           </h3>
-          <p class="mt-1 text-sm text-gray-500">
+          <p class="mt-1 text-sm text-white">
             No leave applications have been submitted yet.
           </p>
         </div>
@@ -119,12 +119,12 @@
           <div
             v-for="application in displayedApplications"
             :key="application.leave_id"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <div class="flex items-center space-x-3">
-                  <h3 class="text-lg font-medium text-gray-900">
+                  <h3 class="text-lg font-medium text-white">
                     {{ application.employee.last_name }},
                     {{ application.employee.first_name
                     }}{{ application.employee.middle_name }}
@@ -140,7 +140,7 @@
                 </div>
 
                 <div
-                  class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600"
+                  class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-white"
                 >
                   <div>
                     <span class="font-medium">Office:</span>
@@ -171,14 +171,14 @@
                   "
                   class="mt-3"
                 >
-                  <span class="text-sm font-medium text-gray-700"
+                  <span class="text-sm font-medium text-white"
                     >Attachments:</span
                   >
                   <div class="flex flex-wrap gap-2 mt-1">
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
+                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-white rounded"
                     >
                       <svg
                         class="w-3 h-3 mr-1"
@@ -240,15 +240,15 @@
       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
     >
       <div
-        class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto"
+        class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto neo-card"
       >
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-medium text-gray-900">
+          <h3 class="text-xl font-medium text-white">
             Leave Application Details
           </h3>
           <button
             @click="showDetailModal = false"
-            class="text-gray-400 hover:text-gray-600"
+            class="text-white hover:text-gray-600"
           >
             <svg
               class="w-6 h-6"
@@ -396,12 +396,12 @@
     v-if="showApprovalModal"
     class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]"
   >
-    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6">
-      <h3 class="text-lg font-semibold text-gray-900">
+    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 neo-card">
+      <h3 class="text-lg font-semibold text-white">
         Approve Leave Application
       </h3>
 
-      <p class="text-sm text-gray-600 mt-2">
+      <p class="text-sm text-white mt-2">
         This leave application is for
         <strong>{{ approvalApplication?.number_of_days }}</strong>
         day(s).
@@ -409,17 +409,17 @@
 
       <!-- Deduct? -->
       <div class="mt-5">
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium text-white mb-2">
           Deduct leave balance?
         </label>
 
         <div class="flex gap-4">
-          <label class="flex items-center gap-2 text-black">
+          <label class="flex items-center gap-2 text-white">
             <input type="radio" value="yes" v-model="deductBalance" />
             <span>Yes</span>
           </label>
 
-          <label class="flex items-center gap-2 text-black">
+          <label class="flex items-center gap-2 text-white">
             <input type="radio" value="no" v-model="deductBalance" />
             <span>No</span>
           </label>
@@ -428,13 +428,13 @@
 
       <!-- Deduction Options -->
       <div v-if="deductBalance === 'yes'" class="mt-5 border-t pt-4">
-        <h4 class="text-sm font-semibold text-gray-800 mb-3">
+        <h4 class="text-sm font-semibold text-white mb-3">
           Leave Balance Deduction
         </h4>
 
         <!-- Service Credits -->
         <div class="mt-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-white mb-2">
             Service Credits Days to Deduct
           </label>
 
@@ -447,13 +447,13 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
           />
 
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Service Credits.
           </p>
         </div>
         <!-- Vacation Leave -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-white mb-2">
             Vacation Leave Days to Deduct
           </label>
 
@@ -466,14 +466,14 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
           />
 
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Vacation Leave.
           </p>
         </div>
 
         <!-- Sick Leave -->
         <div class="mt-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-white mb-2">
             Sick Leave Days to Deduct
           </label>
 
@@ -486,7 +486,7 @@
             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
           />
 
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Sick Leave.
           </p>
         </div>
@@ -494,17 +494,17 @@
         <!-- Total -->
         <div class="mt-4 p-3 bg-gray-50 rounded-lg">
           <div class="flex justify-between text-sm">
-            <span class="text-gray-600"> Days applied: </span>
+            <span class="text-white"> Days applied: </span>
 
-            <span class="font-medium text-gray-900">
+            <span class="font-medium text-white">
               {{ approvalApplication?.number_of_days ?? 0 }} day(s)
             </span>
           </div>
 
           <div class="flex justify-between text-sm mt-1">
-            <span class="text-gray-600"> Total deduction: </span>
+            <span class="text-white"> Total deduction: </span>
 
-            <span class="font-semibold text-gray-900">
+            <span class="font-semibold text-white">
               {{
                 vacationDeductDays + sickDeductDays + serviceCreditsDeductDays
               }}
@@ -529,7 +529,7 @@
       <div class="flex justify-end gap-3 mt-6">
         <button
           @click="showApprovalModal = false"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+          class="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-gray-300"
         >
           Cancel
         </button>
@@ -827,3 +827,37 @@ onMounted(() => {
   loadApplications();
 });
 </script>
+
+<style scoped>
+.dashboard-shell {
+  background: #080D14;
+}
+
+.neo-card {
+  background: #111D2E;
+  border: 1px solid #1E293B;
+  border-radius: 1.4rem;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neo-card:hover {
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.stats-card {
+  border-left: 4px solid currentColor;
+  padding: 1.35rem;
+}
+
+.stats-card .p-3 {
+  border-radius: 0.9rem;
+}
+
+.neo-card h3,
+.neo-card p,
+.neo-card span,
+.neo-card button {
+  letter-spacing: -0.01em;
+}
+</style>

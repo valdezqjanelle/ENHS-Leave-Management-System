@@ -1,169 +1,328 @@
 <template>
-  <div
-    class="w-screen h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4"
-  >
-    <div class="w-full max-w-md">
+  <div class="fixed inset-0 overflow-auto">
+
+    <!-- Background -->
+    <div
+      class="fixed inset-0 bg-cover bg-center bg-no-repeat"
+      style="background-image: url('/background.jpg');"
+    ></div>
+
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-black/20"></div>
+
+    <!-- Main Content -->
+    <div
+      class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8"
+    >
+
       <!-- Header -->
       <div class="text-center mb-6">
-        <div
-          class="mx-auto h-14 w-14 bg-blue-600 rounded-full flex items-center justify-center"
+
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-white drop-shadow-md"
         >
-          <span class="text-white text-2xl font-bold">ELS</span>
-        </div>
+          Echague National High School
+        </h2>
 
-        <h2 class="mt-4 text-3xl font-extrabold text-blue-600">ELS System</h2>
+        <p class="mt-2 text-base text-white font-medium drop-shadow">
+          Leave Management System
+        </p>
 
-        <p class="mt-2 text-sm text-gray-600">Leave Management System</p>
       </div>
 
-      <!-- Login Card -->
-      <div class="bg-white rounded-xl shadow-lg p-8">
-        <form class="space-y-6" @submit.prevent="handleLogin">
+
+      <!-- Glass Login Card -->
+      <div
+        class="w-full max-w-md rounded-2xl
+               bg-white/15 backdrop-blur-s
+               border border-white/40
+               shadow-2xl
+               p-5"
+      >
+
+        <form
+          class="space-y-6"
+          @submit.prevent="handleLogin"
+        >
+
+          <!-- Email -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">
+
+            <label class="block text-sm font-semibold text-gray-900">
               Email Address
             </label>
 
-            <div class="mt-1 relative">
+            <div class="mt-2 relative">
+
               <input
                 v-model="loginForm.email"
                 type="email"
                 required
                 placeholder="Enter your email"
-                class="w-full pl-10 pr-3 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full pl-10 pr-3 py-3
+                       text-gray-900
+                       bg-white/50
+                       backdrop-blur-md
+                       border border-white/50
+                       rounded-xl
+                       placeholder-gray-600
+                       focus:bg-white/70
+                       focus:ring-2
+                       focus:ring-blue-500
+                       focus:outline-none
+                       transition"
               />
 
-              <Mail class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <Mail
+                class="absolute left-3 top-3.5 w-5 h-5 text-gray-600"
+              />
+
             </div>
+
           </div>
 
+
+          <!-- Password -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">
+
+            <label class="block text-sm font-semibold text-gray-900">
               Password
             </label>
 
-            <div class="mt-1 relative">
+            <div class="mt-2 relative">
+
               <input
                 v-model="loginForm.password"
                 :type="showPassword ? 'text' : 'password'"
                 required
                 placeholder="Enter your password"
-                class="w-full pl-10 pr-10 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                class="w-full pl-10 pr-10 py-3
+                       text-gray-900
+                       bg-white/50
+                       backdrop-blur-md
+                       border border-white/50
+                       rounded-xl
+                       placeholder-gray-600
+                       focus:bg-white/70
+                       focus:ring-2
+                       focus:ring-blue-500
+                       focus:outline-none
+                       transition"
               />
 
-              <Lock class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <Lock
+                class="absolute left-3 top-3.5 w-5 h-5 text-gray-600"
+              />
 
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute right-3 top-2.5"
+                class="absolute right-3 top-3.5"
               >
-                <Eye v-if="showPassword" class="w-4 h-4 text-gray-400" />
-                <EyeOff v-else class="w-4 h-4 text-gray-400" />
+
+                <Eye
+                  v-if="showPassword"
+                  class="w-5 h-5 text-gray-600 hover:text-blue-600"
+                />
+
+                <EyeOff
+                  v-else
+                  class="w-5 h-5 text-gray-600 hover:text-blue-600"
+                />
+
               </button>
+
             </div>
+
           </div>
+
 
           <!-- Remember + Forgot -->
           <div class="flex items-center justify-between text-sm">
-            <label class="flex items-center gap-2">
+
+            <label class="flex items-center gap-2 text-gray-900">
+
               <input
                 v-model="loginForm.rememberMe"
                 type="checkbox"
-                class="text-blue-600"
+                class="w-4 h-4 text-blue-600 rounded"
               />
-              Remember me
+
+              <span>
+                Remember me
+              </span>
+
             </label>
 
-            <a href="#" class="text-blue-600 hover:text-blue-500">
+            <a
+              href="#"
+              class="font-medium text-white hover:text-blue-900"
+            >
               Forgot password?
             </a>
+
           </div>
+
 
           <!-- Error -->
           <div
             v-if="errorMessage"
-            class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3"
+            class="bg-red-100/70
+                   border border-red-300
+                   text-red-700
+                   text-sm
+                   rounded-xl
+                   p-3
+                   backdrop-blur-md"
           >
             {{ errorMessage }}
           </div>
+
 
           <!-- Login Button -->
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            class="w-full
+                   bg-blue-600/90
+                   text-white
+                   font-semibold
+                   py-3
+                   rounded-xl
+                   shadow-lg
+                   hover:bg-blue-700
+                   hover:shadow-xl
+                   transition
+                   disabled:opacity-50"
           >
-            <span v-if="!isLoading"> Sign in </span>
 
-            <span v-else> Signing in... </span>
+            <span v-if="!isLoading">
+              Sign in
+            </span>
+
+            <span v-else>
+              Signing in...
+            </span>
+
           </button>
+
         </form>
+
       </div>
+
 
       <!-- Footer -->
-      <div class="text-center text-sm text-gray-600 mt-6">
-        <p>© 2026 ELS System. All rights reserved.</p>
+      <div
+        class="text-center text-sm text-white mt-6 drop-shadow"
+      >
 
-        <div class="mt-2 space-x-4">
-          <a href="#" class="hover:text-gray-900"> Privacy Policy </a>
+        <p>
+          © 2026 E-LMS System. All rights reserved.
+        </p>
 
-          <a href="#" class="hover:text-gray-900"> Terms of Service </a>
+        <div class="mt-2 flex justify-center gap-4">
 
-          <a href="#" class="hover:text-gray-900"> Contact Support </a>
+          <a
+            href="#"
+            class="hover:text-blue-700 transition"
+          >
+            Privacy Policy
+          </a>
+
+          <a
+            href="#"
+            class="hover:text-blue-700 transition"
+          >
+            Terms of Service
+          </a>
+
+          <a
+            href="#"
+            class="hover:text-blue-700 transition"
+          >
+            Contact Support
+          </a>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { login } from "@/services/auth";
-import { Mail, Lock, Eye, EyeOff } from "lucide-vue-next";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { login } from '@/services/auth'
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff
+} from 'lucide-vue-next'
 
-const router = useRouter();
+const router = useRouter()
 
-const showPassword = ref(false);
-const isLoading = ref(false);
-const errorMessage = ref("");
+const showPassword = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const loginForm = ref({
-  email: "",
-  password: "",
-  rememberMe: false,
-});
+  email: '',
+  password: '',
+  rememberMe: false
+})
 
 const handleLogin = async () => {
-  isLoading.value = true;
-  errorMessage.value = "";
+
+  isLoading.value = true
+  errorMessage.value = ''
 
   try {
-    const data = await login(loginForm.value.email, loginForm.value.password);
+
+    const data = await login(
+      loginForm.value.email,
+      loginForm.value.password
+    )
 
     // Save token
-    localStorage.setItem("token", data.token);
+    localStorage.setItem('token', data.token)
 
     // Save logged-in user
-    localStorage.setItem("user", JSON.stringify(data.user));
+    localStorage.setItem(
+      'user',
+      JSON.stringify(data.user)
+    )
 
     // Redirect based on role
-    if (data.user.role === "admin") {
-      router.push("/dashboard");
-    } else if (data.user.role === "employee") {
-      router.push("/dashboard");
+    if (data.user.role === 'admin') {
+      router.push('/dashboard')
+    } else if (data.user.role === 'employee') {
+      router.push('/dashboard')
     } else {
-      errorMessage.value = "Unknown user role.";
+      errorMessage.value = 'Unknown user role.'
     }
+
   } catch (error: any) {
+
     if (error.response?.status === 401) {
-      errorMessage.value = "Invalid email or password.";
+
+      errorMessage.value = 'Invalid email or password.'
+
     } else {
-      errorMessage.value = "Unable to connect to the server.";
+
+      errorMessage.value =
+        'Unable to connect to the server.'
+
     }
+
   } finally {
-    isLoading.value = false;
+
+    isLoading.value = false
+
   }
-};
+
+}
 </script>

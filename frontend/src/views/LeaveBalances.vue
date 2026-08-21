@@ -1,198 +1,201 @@
 <template>
-  <div class="max-w-7xl mx-auto space-y-6">
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-2xl font-bold text-gray-800">Leave Balances</h2>
-      <p class="text-gray-500 mt-1">
-        View and manage employee leave balances.
-      </p>
-    </div>
+  <div class="dashboard-shell p-8 min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-6">
 
-    <!-- Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden">
-      <table class="min-w-full">
-        <thead class="bg-gray-100">
-          <tr class="text-left text-gray-700">
-            <th class="px-6 py-3">Employee</th>
-            <th class="px-6 py-3">Service Credits</th>
-            <th class="px-6 py-3">Vacation Balance</th>
-            <th class="px-6 py-3">Sick Balance</th>
-            <th class="px-6 py-3">Total Available</th>
-            <th class="px-6 py-3">Used Leave</th>
-            <th class="px-6 py-3">Action</th>
-          </tr>
-        </thead>
+      <!-- Header -->
+      <div class="neo-card p-6">
+        <h2 class="text-2xl font-bold text-white">Leave Balances</h2>
+        <p class="text-gray-400 mt-1">
+          View and manage employee leave balances.
+        </p>
+      </div>
 
-        <tbody>
-          <tr
-            v-for="balance in balances"
-            :key="balance.balance_id"
-            class="border-t hover:bg-gray-50"
-          >
-            <!-- Employee -->
-            <td class="px-6 py-4 font-medium text-gray-900">
-              {{ balance.employee.last_name }},
-              {{ balance.employee.first_name }}
-            </td>
+      <!-- Table -->
+      <div class="neo-card overflow-hidden">
+        <table class="min-w-full">
+          <thead class="bg-[#0B1420]">
+            <tr class="text-left text-white">
+              <th class="px-6 py-3">Employee</th>
+              <th class="px-6 py-3">Service Credits</th>
+              <th class="px-6 py-3">Vacation Balance</th>
+              <th class="px-6 py-3">Sick Balance</th>
+              <th class="px-6 py-3">Total Available</th>
+              <th class="px-6 py-3">Used Leave</th>
+              <th class="px-6 py-3">Action</th>
+            </tr>
+          </thead>
 
-            <!-- Service Credits -->
-            <td class="px-6 py-4">
-              <span :class="balanceColor(balance.service_credits)">
-                {{ balance.service_credits }}
-              </span>
-            </td>
+          <tbody>
+            <tr
+              v-for="balance in balances"
+              :key="balance.balance_id"
+              class="border-t border-slate-800 hover:bg-white/5 transition"
+            >
+              <!-- Employee -->
+              <td class="px-6 py-4 font-medium text-white">
+                {{ balance.employee.last_name }},
+                {{ balance.employee.first_name }}
+              </td>
 
-            <!-- Vacation Balance -->
-            <td class="px-6 py-4">
-              <span :class="balanceColor(balance.vacation_balance)">
-                {{ balance.vacation_balance }}
-              </span>
-            </td>
+              <!-- Service Credits -->
+              <td class="px-6 py-4">
+                <span :class="balanceColor(balance.service_credits)">
+                  {{ balance.service_credits }}
+                </span>
+              </td>
 
-            <!-- Sick Balance -->
-            <td class="px-6 py-4">
-              <span :class="balanceColor(balance.sick_balance)">
-                {{ balance.sick_balance }}
-              </span>
-            </td>
+              <!-- Vacation Balance -->
+              <td class="px-6 py-4">
+                <span :class="balanceColor(balance.vacation_balance)">
+                  {{ balance.vacation_balance }}
+                </span>
+              </td>
 
-            <!-- Total Available -->
-            <td class="px-6 py-4 font-semibold text-blue-700">
-              {{ totalBalance(balance) }}
-            </td>
+              <!-- Sick Balance -->
+              <td class="px-6 py-4">
+                <span :class="balanceColor(balance.sick_balance)">
+                  {{ balance.sick_balance }}
+                </span>
+              </td>
 
-            <!-- Used Leave -->
-            <td class="px-6 py-4 text-black font-semibold">
-              {{ balance.used_leave }}
-            </td>
+              <!-- Total Available -->
+              <td class="px-6 py-4 font-semibold text-blue-400">
+                {{ totalBalance(balance) }}
+              </td>
 
-            <!-- Action -->
-            <td class="px-6 py-4">
-              <button
-                @click="openModal(balance)"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-              >
-                Edit Balance
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <!-- Used Leave -->
+              <td class="px-6 py-4 text-white font-semibold">
+                {{ balance.used_leave }}
+              </td>
 
-    <!-- EDIT MODAL -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
-        <h3 class="text-xl font-bold text-gray-900 mb-5">
-          Edit Leave Balance
-        </h3>
+              <!-- Action -->
+              <td class="px-6 py-4">
+                <button
+                  @click="openModal(balance)"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+                >
+                  Edit Balance
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <!-- Employee -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Employee
-          </label>
+      <!-- EDIT MODAL -->
+      <div
+        v-if="showModal"
+        class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+      >
+        <div class="neo-card p-6 w-full max-w-lg">
+          <h3 class="text-xl font-bold text-white mb-5">
+            Edit Leave Balance
+          </h3>
 
-          <input
-            disabled
-            :value="
-              selectedBalance.employee.last_name +
-              ', ' +
-              selectedBalance.employee.first_name
-            "
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-900"
-          />
-        </div>
+          <!-- Employee -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Employee
+            </label>
 
-        <!-- Service Credits -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Service Credits
-          </label>
+            <input
+              disabled
+              :value="
+                selectedBalance.employee.last_name +
+                ', ' +
+                selectedBalance.employee.first_name
+              "
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 bg-[#0B1420] text-gray-400"
+            />
+          </div>
 
-          <input
-            v-model="selectedBalance.service_credits"
-            type="number"
-            step="0.25"
-            min="0"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <!-- Service Credits -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Service Credits
+            </label>
 
-        <!-- Vacation Earned -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Vacation Earned
-          </label>
+            <input
+              v-model="selectedBalance.service_credits"
+              type="number"
+              step="0.25"
+              min="0"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <input
-            v-model="selectedBalance.vacation_earned"
-            type="number"
-            step="0.25"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <!-- Vacation Earned -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Vacation Earned
+            </label>
 
-        <!-- Sick Earned -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Sick Earned
-          </label>
+            <input
+              v-model="selectedBalance.vacation_earned"
+              type="number"
+              step="0.25"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <input
-            v-model="selectedBalance.sick_earned"
-            type="number"
-            step="0.25"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <!-- Sick Earned -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Sick Earned
+            </label>
 
-        <!-- Vacation Balance -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Vacation Balance
-          </label>
+            <input
+              v-model="selectedBalance.sick_earned"
+              type="number"
+              step="0.25"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <input
-            v-model="selectedBalance.vacation_balance"
-            type="number"
-            step="0.25"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <!-- Vacation Balance -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Vacation Balance
+            </label>
 
-        <!-- Sick Balance -->
-        <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            Sick Balance
-          </label>
+            <input
+              v-model="selectedBalance.vacation_balance"
+              type="number"
+              step="0.25"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <input
-            v-model="selectedBalance.sick_balance"
-            type="number"
-            step="0.25"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <!-- Sick Balance -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">
+              Sick Balance
+            </label>
 
-        <!-- Buttons -->
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            @click="showModal = false"
-            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-900 rounded-lg"
-          >
-            Cancel
-          </button>
+            <input
+              v-model="selectedBalance.sick_balance"
+              type="number"
+              step="0.25"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-          <button
-            @click="updateBalance"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-          >
-            Save
-          </button>
+          <!-- Buttons -->
+          <div class="flex justify-end gap-3 mt-6">
+            <button
+              @click="showModal = false"
+              class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              @click="updateBalance"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -299,17 +302,51 @@ const balanceColor = (value: number | string) => {
   const amount = Number(value);
 
   if (amount <= 0) {
-    return "text-red-600 font-bold";
+    return "text-red-400 font-bold";
   }
 
   if (amount <= 5) {
-    return "text-yellow-600 font-bold";
+    return "text-yellow-400 font-bold";
   }
 
-  return "text-green-600 font-bold";
+  return "text-green-400 font-bold";
 };
 
 onMounted(() => {
   loadBalances();
 });
 </script>
+
+<style scoped>
+.dashboard-shell {
+  background: #080D14;
+}
+
+.neo-card {
+  background: #111D2E;
+  border: 1px solid #1E293B;
+  border-radius: 1.4rem;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neo-card:hover {
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.stats-card {
+  border-left: 4px solid currentColor;
+  padding: 1.35rem;
+}
+
+.stats-card .p-3 {
+  border-radius: 0.9rem;
+}
+
+.neo-card h3,
+.neo-card p,
+.neo-card span,
+.neo-card button {
+  letter-spacing: -0.01em;
+}
+</style>
