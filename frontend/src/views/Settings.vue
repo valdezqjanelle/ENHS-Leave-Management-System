@@ -1,9 +1,9 @@
 <template>
-  <div class="space-y-6">
+  <div class="settings-shell p-8 min-h-screen space-y-6">
     <!-- Settings Navigation -->
-    <div class="bg-white rounded-lg shadow">
-      <div class="border-b border-gray-900/10 px-6 py-4">
-        <nav class="flex -mb-px">
+    <div class="neo-card">
+      <div class="border-b border-[#1e293b] px-6 py-4">
+        <nav class="flex -mb-px flex-wrap">
           <button
             v-for="tab in settingsTabs"
             :key="tab.id"
@@ -11,8 +11,8 @@
             :class="[
               'py-4 px-6 text-sm font-medium border-b-2 transition-colors',
               activeTab === tab.id
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-400 text-blue-400'
+                : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-[#334155]'
             ]"
           >
             <component :is="tab.icon" class="w-4 h-4 mr-2 inline" />
@@ -23,9 +23,9 @@
     </div>
 
     <!-- Employee Profile Tab -->
-    <div v-if="activeTab === 'profile'" class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">Employee Profile</h2>
-      
+    <div v-if="activeTab === 'profile'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-white mb-6">Employee Profile</h2>
+
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Profile Picture -->
         <div class="lg:col-span-1">
@@ -33,49 +33,49 @@
             <div class="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center text-white text-4xl font-semibold mx-auto mb-4">
               {{ userProfile.first_name.charAt(0) }}
             </div>
-            <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500">
               Change Photo
             </button>
           </div>
         </div>
-        
+
         <!-- Profile Information -->
         <div class="lg:col-span-2">
           <form @submit.prevent="updateProfile" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
                 <input
                   v-model="userProfile.name"
                   type="text"
-                  class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Employee ID</label>
                 <input
                   v-model="userProfile.employeeId"
                   type="text"
                   disabled
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                  class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500"
                 />
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Position</label>
                 <input
                   v-model="userProfile.position"
                   type="text"
-                  class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Department</label>
                 <select
                   v-model="userProfile.department"
-                  class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Computer Science">Computer Science</option>
                   <option value="Mathematics">Mathematics</option>
@@ -83,14 +83,12 @@
                   <option value="Science">Science</option>
                 </select>
               </div>
-              
-              
-              
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Gender</label>
                 <select
                   v-model="userProfile.gender"
-                  class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -98,13 +96,11 @@
                 </select>
               </div>
             </div>
-            
-        
-            
+
             <div class="flex justify-end">
               <button
                 type="submit"
-                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
               >
                 Save Changes
               </button>
@@ -115,45 +111,45 @@
     </div>
 
     <!-- Account Settings Tab -->
-    <div v-if="activeTab === 'account'" class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">Account Settings</h2>
-      
+    <div v-if="activeTab === 'account'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-white mb-6">Account Settings</h2>
+
       <div class="space-y-6">
         <!-- Email Settings -->
         <div>
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Email Settings</h3>
+          <h3 class="text-lg font-medium text-white mb-4">Email Settings</h3>
           <form @submit.prevent="updateEmail" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Current Email</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Current Email</label>
               <input
                 v-model="accountSettings.email.current"
                 type="email"
                 disabled
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">New Email</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">New Email</label>
               <input
                 v-model="accountSettings.email.new"
                 type="email"
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Email</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Confirm New Email</label>
               <input
                 v-model="accountSettings.email.confirm"
                 type="email"
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
             >
               Update Email
             </button>
@@ -161,91 +157,90 @@
         </div>
 
         <!-- Password Settings -->
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Password Settings</h3>
+        <div class="border-t border-[#1e293b] pt-6">
+          <h3 class="text-lg font-medium text-white mb-4">Password Settings</h3>
           <form @submit.prevent="updatePassword" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-black mb-1">Current Password</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Current Password</label>
               <div class="relative">
+                <input
+                  v-model="accountSettings.password.current"
+                  :type="showCurrentPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
 
-<input
-  v-model="accountSettings.password.current"
-  :type="showCurrentPassword ? 'text' : 'password'"
-  class="w-full px-3 py-2 pr-10 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
+                <button
+                  type="button"
+                  @click="showCurrentPassword = !showCurrentPassword"
+                  class="absolute right-3 top-2.5"
+                >
+                  <Eye
+                    v-if="showCurrentPassword"
+                    class="w-4 h-4 text-gray-500"
+                  />
 
-<button
-  type="button"
-  @click="showCurrentPassword = !showCurrentPassword"
-  class="absolute right-3 top-2.5"
->
-  <Eye
-    v-if="showCurrentPassword"
-    class="w-4 h-4 text-gray-400"
-  />
-
-  <EyeOff
-    v-else
-    class="w-4 h-4 text-gray-400"
-  />
-</button>
-
-</div>
+                  <EyeOff
+                    v-else
+                    class="w-4 h-4 text-gray-500"
+                  />
+                </button>
+              </div>
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-              <input
-                v-model="accountSettings.password.new"
-              :type="showNewPassword ? 'text' : 'password'"
+              <label class="block text-sm font-medium text-gray-400 mb-1">New Password</label>
+              <div class="relative">
+                <input
+                  v-model="accountSettings.password.new"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  @click="showNewPassword = !showNewPassword"
+                  class="absolute right-3 top-2.5"
+                >
+                  <Eye
+                    v-if="showNewPassword"
+                    class="w-4 h-4 text-gray-500"
+                  />
 
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-  type="button"
-  @click="showNewPassword = !showNewPassword"
-  class="absolute right-3 top-2.5"
->
-  <Eye
-    v-if="showNewPassword"
-    class="w-4 h-4 text-gray-400"
-  />
-
-  <EyeOff
-    v-else
-    class="w-4 h-4 text-gray-400"
-  />
-</button>
+                  <EyeOff
+                    v-else
+                    class="w-4 h-4 text-gray-500"
+                  />
+                </button>
+              </div>
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-              <input
-                v-model="accountSettings.password.confirm"
-                type="password"
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-  type="button"
-  @click="showConfirmPassword = !showConfirmPassword"
-  class="absolute right-3 top-2.5"
->
-  <Eye
-    v-if="showConfirmPassword"
-    class="w-4 h-4 text-gray-400"
-  />
+              <label class="block text-sm font-medium text-gray-400 mb-1">Confirm New Password</label>
+              <div class="relative">
+                <input
+                  v-model="accountSettings.password.confirm"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                  class="absolute right-3 top-2.5"
+                >
+                  <Eye
+                    v-if="showConfirmPassword"
+                    class="w-4 h-4 text-gray-500"
+                  />
 
-  <EyeOff
-    v-else
-    class="w-4 h-4 text-gray-400"
-  />
-</button>
-              
-              
+                  <EyeOff
+                    v-else
+                    class="w-4 h-4 text-gray-500"
+                  />
+                </button>
+              </div>
             </div>
-            
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p class="text-sm text-blue-800">
+
+            <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+              <p class="text-sm text-blue-300">
                 <strong>Password Requirements:</strong><br>
                 • At least 8 characters long<br>
                 • Contains uppercase and lowercase letters<br>
@@ -253,10 +248,10 @@
                 • Contains at least one special character
               </p>
             </div>
-            
+
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
             >
               Update Password
             </button>
@@ -264,31 +259,31 @@
         </div>
 
         <!-- Phone Settings -->
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Phone Settings</h3>
+        <div class="border-t border-[#1e293b] pt-6">
+          <h3 class="text-lg font-medium text-white mb-4">Phone Settings</h3>
           <form @submit.prevent="updatePhone" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Current Phone Number</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Current Phone Number</label>
               <input
                 v-model="accountSettings.phone.current"
                 type="tel"
                 disabled
-                class="w-full px-3 py-2  border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">New Phone Number</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">New Phone Number</label>
               <input
                 v-model="accountSettings.phone.new"
                 type="tel"
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            
+
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
             >
               Update Phone
             </button>
@@ -296,44 +291,42 @@
         </div>
 
         <!-- Position Settings -->
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Position Settings</h3>
+        <div class="border-t border-[#1e293b] pt-6">
+          <h3 class="text-lg font-medium text-white mb-4">Position Settings</h3>
           <form @submit.prevent="updatePosition" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Current Position</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Current Position</label>
               <input
                 v-model="accountSettings.position.current"
                 type="text"
                 disabled
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500"
               />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">New Position</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">New Position</label>
               <input
                 v-model="accountSettings.position.new"
                 type="text"
                 disabled
-                class="w-full px-3 py-2 text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                
-            </input>
+                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            
+
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Change</label>
+              <label class="block text-sm font-medium text-gray-400 mb-1">Reason for Change</label>
               <textarea
                 v-model="accountSettings.position.reason"
                 rows="3"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Please provide reason for position change"
               ></textarea>
             </div>
-            
+
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
             >
               Request Position Change
             </button>
@@ -342,182 +335,509 @@
       </div>
     </div>
 
-    <!-- Help Desk Tab -->
-    <div v-if="activeTab === 'help'" class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">Help Desk</h2>
-      
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- FAQ Section -->
-        <div>
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Frequently Asked Questions</h3>
-          <div class="space-y-4">
-            <div v-for="faq in faqs" :key="faq.id" class="border border-gray-200 rounded-lg">
-              <button
-                @click="toggleFAQ(faq.id)"
-                class="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-gray-50"
-              >
-                <span class="font-medium text-gray-900">{{ faq.question }}</span>
-                <ChevronDown
-                  :class="['w-4 h-4 transition-transform', expandedFAQ === faq.id ? 'rotate-180' : '']"
-                />
-              </button>
-              <div v-if="expandedFAQ === faq.id" class="px-4 py-3 border-t border-gray-200">
-                <p class="text-gray-600">{{ faq.answer }}</p>
-              </div>
-            </div>
-          </div>
+    <!-- Leave Rules Tab -->
+    <div
+      v-if="activeTab === 'leave-rules'"
+      class="neo-card p-6"
+    >
+      <h2 class="text-xl font-semibold text-white mb-2">
+        Leave Rules
+      </h2>
+
+      <p class="text-gray-400 mb-6">
+        View the leave rules configured by the administrator.
+      </p>
+
+      <!-- Loading -->
+      <div
+        v-if="leaveRulesLoading"
+        class="text-center py-8 text-gray-400"
+      >
+        Loading leave rules...
+      </div>
+
+      <!-- Rules -->
+      <div v-else class="space-y-4">
+
+        <!-- Minimum Filing Notice -->
+        <div class="border border-[#1e293b] rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-white">
+            Minimum Filing Notice
+          </h3>
+
+          <p class="text-sm text-gray-400 mt-2">
+            Employees should file their leave at least
+            <strong class="text-white">
+              {{ leaveRules.minimum_notice_days }} day(s)
+            </strong>
+            before the intended leave date.
+          </p>
         </div>
 
-        <!-- Support Ticket -->
-        <div>
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Submit Support Ticket</h3>
-          <form @submit.prevent="submitTicket" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type</label>
-              <select
-                v-model="ticket.type"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select Issue Type</option>
-                <option value="technical">Technical Issue</option>
-                <option value="account">Account Problem</option>
-                <option value="leave">Leave Application Issue</option>
-                <option value="attendance">Attendance Issue</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-              <input
-                v-model="ticket.subject"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea
-                v-model="ticket.description"
-                rows="4"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Please describe your issue in detail"
-              ></textarea>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-              <select
-                v-model="ticket.priority"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-            
-            <button
-              type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Submit Ticket
-            </button>
-          </form>
+        <!-- Supporting Documents -->
+        <div class="border border-[#1e293b] rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-white">
+            Supporting Documents
+          </h3>
+
+          <p class="text-sm text-gray-400 mt-2">
+            Supporting documents are
+            <strong class="text-white">
+              {{ leaveRules.require_documents ? 'required' : 'not required' }}
+            </strong>
+            when filing leave.
+          </p>
         </div>
+
+        <!-- Maximum Consecutive Days -->
+        <div class="border border-[#1e293b] rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-white">
+            Maximum Consecutive Leave Days
+          </h3>
+
+          <p class="text-sm text-gray-400 mt-2">
+            Employees may file up to
+            <strong class="text-white">
+              {{ leaveRules.max_consecutive_days }} day(s)
+            </strong>
+            of consecutive leave per application.
+          </p>
+        </div>
+
+        <!-- General Policy -->
+        <div class="border border-[#1e293b] rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-white">
+            General Leave Policy
+          </h3>
+
+          <p class="text-sm text-gray-400 mt-2 whitespace-pre-line">
+            {{ leaveRules.general_policy || 'No general leave policy has been provided.' }}
+          </p>
+        </div>
+
       </div>
     </div>
 
-    <!-- About Us Tab -->
-    <div v-if="activeTab === 'about'" class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-6">About EL System</h2>
-      
-      <div class="prose max-w-none">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">System Information</h3>
-            <div class="space-y-4">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Version Information</h4>
-                <p class="text-sm text-gray-600">EL System v2.1.0</p>
-                <p class="text-sm text-gray-600">Last Updated: January 15, 2024</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">System Features</h4>
-                <ul class="text-sm text-gray-600 space-y-1">
-                  <li>• Online Leave Application</li>
-                  <li>• Attendance Tracking</li>
-                  <li>• Faculty Records Management</li>
-                  <li>• Report Generation</li>
-                  <li>• Multi-level Approval System</li>
-                </ul>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">System Requirements</h4>
-                <ul class="text-sm text-gray-600 space-y-1">
-                  <li>• Modern web browser (Chrome, Firefox, Safari, Edge)</li>
-                  <li>• Internet connection</li>
-                  <li>• Minimum screen resolution: 1024x768</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
-            <div class="space-y-4">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Technical Support</h4>
-                <p class="text-sm text-gray-600">Email: support@elsystem.edu</p>
-                <p class="text-sm text-gray-600">Phone: (123) 456-7890</p>
-                <p class="text-sm text-gray-600">Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">ADAS Office</h4>
-                <p class="text-sm text-gray-600">Email: adas@university.edu</p>
-                <p class="text-sm text-gray-600">Phone: (123) 456-7891</p>
-                <p class="text-sm text-gray-600">Location: Admin Building, Room 201</p>
-              </div>
-              
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h4 class="font-medium text-gray-900 mb-2">Development Team</h4>
-                <p class="text-sm text-gray-600">Lead Developer: John Developer</p>
-                <p class="text-sm text-gray-600">UI/UX Designer: Sarah Designer</p>
-                <p class="text-sm text-gray-600">System Administrator: Mike Admin</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="mt-8 border-t pt-8">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy & Security</h3>
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-blue-800">
-              <strong>Privacy Policy:</strong> EL System is committed to protecting your privacy. 
-              All personal information is stored securely and used only for official university purposes. 
-              We comply with all applicable data protection regulations and maintain strict security protocols 
-              to safeguard your data.
+    <!-- Help Desk Tab -->
+    <div v-if="activeTab === 'help'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-white mb-2">
+        Help & Frequently Asked Questions
+      </h2>
+
+      <p class="text-gray-400 mb-6">
+        Find answers to common questions about using the ENHS Leave System.
+      </p>
+
+      <div class="space-y-4">
+        <div
+          v-for="faq in faqs"
+          :key="faq.id"
+          class="border border-[#1e293b] rounded-lg"
+        >
+          <button
+            @click="toggleFAQ(faq.id)"
+            class="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-[#0d1520]"
+          >
+            <span class="font-medium text-white">
+              {{ faq.question }}
+            </span>
+
+            <ChevronDown
+              :class="[
+                'w-4 h-4 transition-transform text-gray-400',
+                expandedFAQ === faq.id ? 'rotate-180' : ''
+              ]"
+            />
+          </button>
+
+          <div
+            v-if="expandedFAQ === faq.id"
+            class="px-4 py-3 border-t border-[#1e293b]"
+          >
+            <p class="text-gray-400">
+              {{ faq.answer }}
             </p>
           </div>
         </div>
       </div>
     </div>
 
+
+    <!-- About Us Tab -->
+    <div
+      v-if="activeTab === 'about'"
+      class="neo-card overflow-hidden"
+    >
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-8 text-white">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center">
+            <Info class="w-7 h-7" />
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold">
+              ENHS Leave System
+            </h2>
+
+            <p class="text-blue-100 mt-1 text-sm">
+              Echague National High School Leave Management System
+            </p>
+          </div>
+        </div>
+
+        <p class="mt-5 max-w-3xl text-sm leading-6 text-blue-50">
+          A web-based system designed to help Echague National High School
+          manage employee leave applications, attendance records, leave credits,
+          and related employee information in a more organized and efficient way.
+        </p>
+      </div>
+
+
+      <!-- Main Content -->
+      <div class="p-8">
+
+        <!-- About the System -->
+        <section class="mb-10">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+              <Info class="w-5 h-5" />
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-white">
+                About the System
+              </h3>
+
+              <p class="text-sm text-gray-400">
+                Overview of the ENHS Leave System
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-[#0d1520] border border-[#1e293b] rounded-xl p-5">
+            <p class="text-sm text-gray-400 leading-7">
+              The ENHS Leave System is a web-based Leave Management System
+              developed for Echague National High School. It provides a
+              centralized platform for managing employee leave applications,
+              leave records, attendance, leave credits, and reports.
+              The system is intended to reduce manual record-keeping,
+              improve information organization, and make employee leave
+              management more accessible and efficient.
+            </p>
+          </div>
+        </section>
+
+
+        <!-- Features -->
+        <section class="mb-10">
+          <div class="mb-5">
+            <h3 class="text-lg font-semibold text-white">
+              System Features
+            </h3>
+
+            <p class="text-sm text-gray-400 mt-1">
+              Main functions available in the ENHS Leave System
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Feature -->
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <User class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Employee Account Management
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  Manage employee accounts and authorized access to the system.
+                </p>
+              </div>
+            </div>
+
+
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <FileText class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Online Leave Application
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  Submit and monitor leave applications through the system.
+                </p>
+              </div>
+            </div>
+
+
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <FileText class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Leave Credit Management
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  View and manage employee leave credits and balances.
+                </p>
+              </div>
+            </div>
+
+
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <FileText class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Attendance Records
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  Maintain and access employee attendance information.
+                </p>
+              </div>
+            </div>
+
+
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <FileText class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Reports
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  Generate organized reports based on available system records.
+                </p>
+              </div>
+            </div>
+
+
+            <div class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition">
+              <div class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                <Settings class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h4 class="font-semibold text-white">
+                  Activity Monitoring
+                </h4>
+
+                <p class="text-sm text-gray-400 mt-1 leading-6">
+                  Monitor relevant system activities and records for accountability.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- Organization + Users -->
+        <section class="mb-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Organization -->
+            <div class="border border-[#1e293b] rounded-xl p-6">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                  <Info class="w-5 h-5" />
+                </div>
+
+                <div>
+                  <h3 class="font-semibold text-white">
+                    Organization
+                  </h3>
+
+                  <p class="text-sm text-gray-400">
+                    Intended school environment
+                  </p>
+                </div>
+              </div>
+
+              <h4 class="font-medium text-white">
+                Echague National High School
+              </h4>
+
+              <p class="text-sm text-gray-400 leading-6 mt-2">
+                The system is intended to support the school's employee
+                leave and attendance management processes by providing
+                a centralized and organized digital platform.
+              </p>
+            </div>
+
+
+            <!-- System Users -->
+            <div class="border border-[#1e293b] rounded-xl p-6">
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center">
+                  <User class="w-5 h-5" />
+                </div>
+
+                <div>
+                  <h3 class="font-semibold text-white">
+                    System Users
+                  </h3>
+
+                  <p class="text-sm text-gray-400">
+                    Authorized users of the system
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="text-sm text-gray-300">
+                    Administrator / ADAS
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="text-sm text-gray-300">
+                    Teaching Employees
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="text-sm text-gray-300">
+                    Non-Teaching Employees
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- Purpose -->
+        <section class="mb-10">
+          <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-white mb-2">
+              Purpose of the System
+            </h3>
+
+            <p class="text-sm text-gray-300 leading-7">
+              The ENHS Leave System aims to provide a centralized platform
+              for managing employee leave applications, attendance records,
+              leave credits, and reports. By organizing these processes
+              digitally, the system helps reduce manual record-keeping
+              and improves the accessibility, accuracy, and organization
+              of employee information.
+            </p>
+          </div>
+        </section>
+
+
+        <!-- System Details -->
+        <section class="mb-10">
+          <h3 class="text-lg font-semibold text-white mb-1">
+            System Details
+          </h3>
+
+          <p class="text-sm text-gray-400 mb-5">
+            Basic information about the system
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div class="border border-[#1e293b] rounded-xl p-5">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                System Name
+              </p>
+
+              <p class="font-semibold text-white mt-2">
+                ENHS Leave System
+              </p>
+            </div>
+
+            <div class="border border-[#1e293b] rounded-xl p-5">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                System Type
+              </p>
+
+              <p class="font-semibold text-white mt-2">
+                Web-Based Leave Management System
+              </p>
+            </div>
+
+            <div class="border border-[#1e293b] rounded-xl p-5">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Primary Users
+              </p>
+
+              <p class="font-semibold text-white mt-2">
+                Administrators and Employees
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- Privacy & Security -->
+        <section>
+          <div class="border border-blue-500/20 bg-blue-500/10 rounded-xl p-6">
+
+            <div class="flex items-start gap-4">
+
+              <div class="w-10 h-10 shrink-0 bg-[#111d2e] text-blue-400 rounded-lg flex items-center justify-center">
+                <Settings class="w-5 h-5" />
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white">
+                  Privacy & Security
+                </h3>
+
+                <p class="text-sm text-gray-300 leading-7 mt-2">
+                  The ENHS Leave System is designed to protect employee
+                  information and restrict access to authorized users.
+                  Account credentials, employee records, leave applications,
+                  attendance information, and other system data should only
+                  be accessed and managed according to the user's assigned
+                  role and authorized responsibilities.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
     <!-- Logout Button -->
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="neo-card p-6">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-medium text-gray-900">Sign Out</h3>
-          <p class="text-sm text-gray-600 mt-1">Sign out of your account and return to login page</p>
+          <h3 class="text-lg font-medium text-white">Sign Out</h3>
+          <p class="text-sm text-gray-400 mt-1">Sign out of your account and return to login page</p>
         </div>
         <button
           @click="logout"
-          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
         >
           Logout
         </button>
@@ -538,6 +858,7 @@ import {
   HelpCircle,
   Info,
   ChevronDown,
+  FileText,
   Eye,
   EyeOff
 } from 'lucide-vue-next'
@@ -548,6 +869,8 @@ import {
   updatePassword as updatePasswordAPI,
   updatePhone as updatePhoneAPI
 } from '@/services/employee'
+
+import { getLeaveSettings } from '@/services/leaveSettings'
 
 const loadProfile = async()=>{
 
@@ -602,6 +925,7 @@ const activeTab = ref('profile')
 const settingsTabs = [
   { id: 'profile', name: 'Employee Profile', icon: User },
   { id: 'account', name: 'Account', icon: Settings },
+  { id: 'leave-rules', name: 'Leave Rules', icon: FileText },
   { id: 'help', name: 'Help Desk', icon: HelpCircle },
   { id: 'about', name: 'About Us', icon: Info }
 ]
@@ -641,6 +965,34 @@ const accountSettings = ref({
     reason: ''
   }
 })
+const leaveRules = ref({
+  minimum_notice_days: 0,
+  require_documents: false,
+  max_consecutive_days: 0,
+  general_policy: ''
+})
+
+const leaveRulesLoading = ref(false)
+
+const loadLeaveRules = async () => {
+  leaveRulesLoading.value = true
+
+  try {
+    const data = await getLeaveSettings()
+
+    leaveRules.value = {
+      minimum_notice_days: data.minimum_notice_days ?? 0,
+      require_documents: data.require_documents ?? false,
+      max_consecutive_days: data.max_consecutive_days ?? 0,
+      general_policy: data.general_policy ?? ''
+    }
+
+  } catch (error) {
+    console.log('Failed to load leave rules:', error)
+  } finally {
+    leaveRulesLoading.value = false
+  }
+}
 
 const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
@@ -648,6 +1000,7 @@ const showConfirmPassword = ref(false)
 
 onMounted(()=>{
     loadProfile()
+    loadLeaveRules()
 })
 
 const expandedFAQ = ref<number | null>(null)
@@ -656,31 +1009,24 @@ const faqs = [
   {
     id: 1,
     question: 'How do I apply for leave?',
-    answer: 'Navigate to the Leave Application page from the sidebar menu. Fill out the form with your leave details, attach any required documents, and submit it for ADAS approval.'
+    answer: 'Navigate to the Leave Application page from the sidebar menu. Fill out the form with your leave details, attach any required documents, and submit the application for review.'
   },
   {
     id: 2,
     question: 'What is the leave approval process?',
-    answer: 'Leave applications go through a multi-step approval process: Faculty submits → ADAS reviews → Principal approves → ADAS processes → Division final approval.'
+    answer: 'After an employee submits a leave application, it is reviewed and processed by the designated approving personnel according to the school’s leave approval procedure.'
   },
   {
     id: 3,
     question: 'How many leave credits do I have?',
-    answer: 'You can view your available leave credits on your Dashboard or in the Faculty Records section. Credits vary by type (sick, vacation, personal, etc.).'
+    answer: 'You can check your available leave credits by going to the Records page from the sidebar menu. Your leave credits and related leave records are displayed there.'
   },
   {
     id: 4,
     question: 'How do I check my attendance record?',
-    answer: 'Go to the Attendance page from the sidebar menu. You can view your daily attendance, monthly summaries, and annual attendance records.'
+    answer: 'Go to the Attendance page from the sidebar menu to view your attendance records and attendance information.'
   }
 ]
-
-const ticket = ref({
-  type: '',
-  subject: '',
-  description: '',
-  priority: 'medium'
-})
 
 const toggleFAQ = (id: number) => {
   expandedFAQ.value = expandedFAQ.value === id ? null : id
@@ -807,11 +1153,43 @@ alert("Phone update failed")
 
 
 
-const submitTicket = () => {
-  console.log('Submit support ticket:', ticket.value)
-}
+
 
 const logout = () => {
   router.push('/login')
 }
 </script>
+
+<style scoped>
+.settings-shell {
+  background: #080d14;
+}
+
+.neo-card {
+  background: #111d2e;
+  border: 1px solid #1e293b;
+  border-radius: 1.4rem;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neo-card:hover {
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.stats-card {
+  border-left: 4px solid currentColor;
+  padding: 1.35rem;
+}
+
+.stats-card .p-3 {
+  border-radius: 0.9rem;
+}
+
+.neo-card h3,
+.neo-card p,
+.neo-card span,
+.neo-card button {
+  letter-spacing: -0.01em;
+}
+</style>
