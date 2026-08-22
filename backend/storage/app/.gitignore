@@ -1,4 +1,6 @@
 *
 !private/
 !public/
+!pdf-templates/
+!pdf-templates/**
 !.gitignore
