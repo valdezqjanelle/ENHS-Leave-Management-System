@@ -394,7 +394,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
-import { getLeave, getLeaveTypes } from "../services/leave";
+import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
 
 const route = useRoute();
 
@@ -466,8 +466,39 @@ const downloadPdf = async () => {
   }
 };
 
-const printForm = () => {
-  window.print();
+const printingPdf = ref(false);
+
+const printForm = async () => {
+  if (!leave.value) return;
+
+  printingPdf.value = true;
+
+  try {
+    const blob = await downloadLeavePdf(leave.value.leave_id);
+    const url = window.URL.createObjectURL(blob);
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.right = "0";
+    iframe.style.bottom = "0";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+  setTimeout(() => {
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+  }, 300);
+};
+  } catch (error) {
+    console.error("Failed to print PDF", error);
+    alert("Failed to print PDF. Please try again.");
+  } finally {
+    printingPdf.value = false;
+  }
 };
 
 const loadLeave = async () => {

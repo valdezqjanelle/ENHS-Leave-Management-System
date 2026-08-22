@@ -12,6 +12,8 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveType;
 use App\Support\AuditLogger;
 
+use setasign\Fpdi\Tcpdf\Fpdi;
+
 class LeaveController extends Controller
 {
     
@@ -263,28 +265,163 @@ public function show($id)
     return response()->json($leave);
 }
 
-    /*
-    | ADMIN: DOWNLOAD PDF
-    */
-    public function downloadPdf($id)
-    {
-        $leave = LeaveApplication::with(['employee', 'leaveType'])->findOrFail($id);
-        $leaveTypes = LeaveType::all();
+/*
+| ADMIN: DOWNLOAD PDF
+*/
+public function downloadPdf($id)
+{
+    $leave = LeaveApplication::with(['employee', 'leaveType'])->findOrFail($id);
+    $coords = config('cs_form_6_coordinates');
 
-        $pdf = \Pdf::loadView('pdf.leave-application', [
-            'leave' => $leave,
-            'leaveTypes' => $leaveTypes,
-        ])->setPaper('a4');
+    $templatePath = storage_path('app/pdf-templates/cs-form-6.pdf');
 
-        $employeeName = $leave->employee
-            ? "{$leave->employee->first_name}_{$leave->employee->last_name}"
-            : "employee_{$leave->employee_id}";
+    $pdf = new Fpdi('P', 'pt', 'A4');
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->AddPage();
+    $templateId = $pdf->setSourceFile($templatePath);
+    $tpl = $pdf->importPage(1);
+    $pdf->useTemplate($tpl, 0, 0, 595.3, 841.9);
 
-        $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetFont('helvetica', '', 9);
 
-        return $pdf->download($filename);
+    $text = function ($key, $value) use ($pdf, $coords) {
+        if (!$value || !isset($coords[$key])) return;
+        $pdf->SetFont('helvetica', '', 9);
+        $pdf->SetXY($coords[$key]['x'], $coords[$key]['y'] - 9);
+        $pdf->Cell(0, 9, $value, 0, 0, 'L');
+    };
+
+    $check = function ($key) use ($pdf, $coords) {
+        if (!isset($coords[$key])) return;
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->SetXY($coords[$key]['x'] + 0.5, $coords[$key]['y'] - 9);
+        $pdf->Cell(0, 9, "\u{2713}", 0, 0, 'L');
+        $pdf->SetFont('helvetica', '', 9);
+    };
+
+    $wrapLines = function ($text, $maxWidth) use ($pdf) {
+    $pdf->SetFont('helvetica', '', 9);
+    $words = explode(' ', $text);
+    $lines = [];
+    $current = '';
+    foreach ($words as $word) {
+        $test = $current === '' ? $word : $current . ' ' . $word;
+        if ($pdf->GetStringWidth($test) > $maxWidth && $current !== '') {
+            $lines[] = $current;
+            $current = $word;
+        } else {
+            $current = $test;
+        }
+    }
+    if ($current !== '') $lines[] = $current;
+    return $lines;
+};
+
+    $employee = $leave->employee;
+    $text('office_department', $employee->department ?? '');
+    $text('last_name', $employee->last_name ?? '');
+    $text('first_name', $employee->first_name ?? '');
+    $text('middle_name', $employee->middle_name ?? '');
+    $text('date_of_filing', optional($leave->date_filed)->format('m/d/Y'));
+    $text('position', $employee->position ?? '');
+    $text('salary', $employee->salary ? number_format($employee->salary, 2) : '');
+
+    $typeCheckboxMap = [
+        'vacation'          => 'chk_vacation',
+        'mandatory_forced'  => 'chk_mandatory_forced',
+        'sick'              => 'chk_sick',
+        'maternity'         => 'chk_maternity',
+        'paternity'         => 'chk_paternity',
+        'special_privilege' => 'chk_special_privilege',
+        'solo_parent'       => 'chk_solo_parent',
+        'study'             => 'chk_study',
+        'vawc'              => 'chk_vawc',
+        'rehabilitation'    => 'chk_rehabilitation',
+        'special_women'     => 'chk_special_women',
+        'special_emergency' => 'chk_special_emergency',
+        'adoption'          => 'chk_adoption',
+    ];
+    $code = $leave->leaveType->code ?? null;
+    if ($code && isset($typeCheckboxMap[$code])) {
+        $check($typeCheckboxMap[$code]);
+    } elseif ($leave->leaveType->leave_type_name === 'Others') {
+        $text('others_specify', $leave->other_purpose ?? '');
     }
 
+    if ($leave->vacation_location_type === 'within_philippines') {
+        $check('chk_within_philippines');
+        $text('within_philippines_text', $leave->vacation_location ?? '');
+    } elseif ($leave->vacation_location_type === 'abroad') {
+        $check('chk_abroad');
+        $text('abroad_text', $leave->vacation_location ?? '');
+    }
+
+    if ($leave->sick_type === 'in_hospital') {
+        $check('chk_in_hospital');
+        $text('in_hospital_illness', $leave->illness ?? '');
+    } elseif ($leave->sick_type === 'out_patient') {
+        $check('chk_out_patient');
+        $text('out_patient_illness', $leave->illness ?? '');
+    }
+
+    if ($leave->masters_degree) $check('chk_completion_masters');
+    if ($leave->board_exam_review) $check('chk_bar_board_exam');
+    if ($leave->monetization) $check('chk_monetization');
+    if ($leave->terminal_leave) $check('chk_terminal_leave');
+
+    $text('working_days_applied', (string) $leave->number_of_days);
+    $inclusiveDates = optional($leave->start_date)->format('M d, Y') . ' - ' . optional($leave->end_date)->format('M d, Y');
+    $text('inclusive_dates', $inclusiveDates);
+
+    if ($leave->commutation === 'requested') {
+        $check('chk_commutation_requested');
+    } elseif ($leave->commutation === 'not requested') {
+        $check('chk_commutation_not_requested');
+    }
+
+    $text('certification_as_of', optional($leave->certification_as_of)->format('m/d/Y'));
+    $text('vl_total_earned', $leave->vacation_total_earned !== null ? number_format($leave->vacation_total_earned, 2) : '');
+    $text('sl_total_earned', $leave->sick_total_earned !== null ? number_format($leave->sick_total_earned, 2) : '');
+    $text('vl_less_this_application', $leave->vacation_less_application !== null ? number_format($leave->vacation_less_application, 2) : '');
+    $text('sl_less_this_application', $leave->sick_less_application !== null ? number_format($leave->sick_less_application, 2) : '');
+    $text('vl_balance', $leave->vacation_balance !== null ? number_format($leave->vacation_balance, 2) : '');
+    $text('sl_balance', $leave->sick_balance !== null ? number_format($leave->sick_balance, 2) : '');
+
+    if ($leave->recommendation_status === 'approved') {
+        $check('chk_for_approval');
+    } elseif ($leave->recommendation_status === 'disapproved') {
+        $check('chk_for_disapproval');
+        $lines = $wrapLines($leave->recommendation_reason ?? '', 195);
+        $lineKeys = ['disapproval_reason_line', 'disapproval_reason_l2', 'disapproval_reason_l3', 'disapproval_reason_l4'];
+        foreach ($lineKeys as $i => $lk) {
+            if (isset($lines[$i])) $text($lk, $lines[$i]);
+        }
+    }
+
+    if ($leave->final_status === 'approved') {
+        $text('approved_days_with_pay', $leave->days_with_pay !== null ? (string) $leave->days_with_pay : '');
+        $text('approved_days_without_pay', $leave->days_without_pay !== null ? (string) $leave->days_without_pay : '');
+        $text('approved_days_others', $leave->other_approval ?? '');
+    } elseif ($leave->final_status === 'disapproved') {
+        $lines = $wrapLines($leave->disapproval_reason ?? '', 195);
+        $lineKeys = ['disapproved_reason_l1', 'disapproved_reason_l2', 'disapproved_reason_l3'];
+        foreach ($lineKeys as $i => $lk) {
+            if (isset($lines[$i])) $text($lk, $lines[$i]);
+        }
+    }
+
+    $employeeName = $employee
+        ? "{$employee->last_name}_{$employee->first_name}"
+        : "employee_{$leave->employee_id}";
+    $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
+
+    return response($pdf->Output($filename, 'S'), 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+    ]);
+}
 
    /*
 |--------------------------------------------------------------------------
