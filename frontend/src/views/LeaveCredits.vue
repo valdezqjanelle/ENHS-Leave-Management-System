@@ -1,354 +1,328 @@
 <template>
-  <div class="max-w-7xl mx-auto space-y-6 text-gray-900">
+  <div class="dashboard-shell p-8 min-h-screen">
+    <div class="max-w-7xl mx-auto space-y-6">
 
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-2xl font-bold text-gray-800">
-        Leave Credits
-      </h2>
+      <!-- Header -->
+      <div class="neo-card p-6">
+        <h2 class="text-2xl font-bold text-white">
+          Leave Credits
+        </h2>
 
-      <p class="text-gray-500 mt-1">
-        Record earned leave credits for employees.
-      </p>
-    </div>
+        <p class="text-gray-400 mt-1">
+          Record earned leave credits for employees.
+        </p>
+      </div>
 
-    <!-- Form -->
-    <div class="bg-white rounded-lg shadow p-6">
+      <!-- Form -->
+      <div class="neo-card p-6">
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- Employee -->
-        <div>
-          <label class="block text-sm font-medium  text-gray-800  mb-2">
-            Employee
-          </label>
+          <!-- Employee -->
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
+              Employee
+            </label>
 
-          <select
-  v-model="form.employee_id"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
->
-            <option value="">
-              Select Employee
-            </option>
-
-            <option
-              v-for="employee in employees"
-              :key="employee.employee_id"
-              :value="employee.employee_id"
+            <select
+              v-model="form.employee_id"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              {{ employee.last_name }}, {{ employee.first_name }}
-            </option>
+              <option value="">
+                Select Employee
+              </option>
 
-          </select>
+              <option
+                v-for="employee in employees"
+                :key="employee.employee_id"
+                :value="employee.employee_id"
+              >
+                {{ employee.last_name }}, {{ employee.first_name }}
+              </option>
+
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
+              Credit Type
+            </label>
+
+            <select
+              v-model="form.credit_type"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">
+                Select Credit Type
+              </option>
+
+              <option value="Service Credits">
+                Service Credits
+              </option>
+
+              <option value="Vacation">
+                Vacation Leave
+              </option>
+
+              <option value="Sick">
+                Sick Leave
+              </option>
+            </select>
+          </div>
+
+          <!-- Activity -->
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
+              Activity Name
+            </label>
+
+            <input
+              v-model="form.activity_name"
+              type="text"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-gray-500 bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Example: Overtime Duty"
+            >
+          </div>
+
+          <!-- Hours -->
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
+              Hours Rendered
+            </label>
+
+            <input
+              v-model="form.hours_rendered"
+              type="number"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+          </div>
+
+          <!-- Leave Days -->
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
+              Equivalent Leave Days
+            </label>
+
+            <input
+              v-model="form.equivalent_leave_days"
+              type="number"
+              step="0.25"
+              class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+          </div>
+
         </div>
-<div>
-  <label class="block text-sm font-medium text-gray-800 mb-2">
-    Credit Type
-  </label>
 
-  <select
-    v-model="form.credit_type"
-    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white"
-  >
-    <option value="">
-      Select Credit Type
-    </option>
+        <div class="mt-6">
 
-    <option value="Service Credits">
-      Service Credits
-    </option>
+          <button
+            @click="saveCredit"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition"
+          >
+            Save Credit
+          </button>
 
-    <option value="Vacation">
-      Vacation Leave
-    </option>
-
-    <option value="Sick">
-      Sick Leave
-    </option>
-  </select>
-</div>
-
-        <!-- Activity -->
-        <div>
-          <label class="block text-sm font-medium  text-gray-800  mb-2">
-            Activity Name
-          </label>
-
-         <input
-  v-model="form.activity_name"
-  type="text"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 placeholder-gray-400 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-  placeholder="Example: Overtime Duty"
->
-        </div>
-
-        <!-- Hours -->
-        <div>
-          <label class="block text-sm font-medium  text-gray-800  mb-2">
-            Hours Rendered
-          </label>
-
-         <input
-  v-model="form.hours_rendered"
-  type="number"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
->
-        </div>
-
-        <!-- Leave Days -->
-        <div>
-          <label class="block text-sm font-medium  text-gray-800  mb-2">
-            Equivalent Leave Days
-          </label>
-
-        <input
-  v-model="form.equivalent_leave_days"
-  type="number"
-  step="0.25"
-  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
->
         </div>
 
       </div>
 
-      <div class="mt-6">
+      <!-- Table -->
+      <div class="neo-card">
 
-        <button
-          @click="saveCredit"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-        >
-          Save Credit
-        </button>
+        <div class="px-6 py-4 border-b border-slate-800">
+          <h3 class="text-lg font-semibold text-white">
+            Leave Credit Records
+          </h3>
+        </div>
 
-      </div>
+        <div class="overflow-x-auto">
 
-    </div>
+          <table class="min-w-full">
 
-    <!-- Table -->
-    <div class="bg-white rounded-lg shadow">
+            <thead class="bg-[#0B1420] text-white">
 
-      <div class="px-6 py-4 border-b">
-        <h3 class="text-lg font-semibold">
-          Leave Credit Records
-        </h3>
-      </div>
+              <tr>
+                <th class="px-4 py-3 text-left">Employee</th>
+                <th class="px-4 py-3 text-left">Credit Type</th>
+                <th class="px-4 py-3 text-left">Activity</th>
+                <th class="px-4 py-3 text-left">Hours</th>
+                <th class="px-4 py-3 text-left">Leave Days</th>
+                <th class="px-4 py-3 text-left">Status</th>
+                <th class="px-4 py-3 text-left">Date</th>
+                <th class="px-4 py-3 text-center">Action</th>
+              </tr>
+            </thead>
 
-      <div class="overflow-x-auto">
+            <tbody>
 
-        <table class="min-w-full">
+              <tr
+                v-for="credit in credits"
+                :key="credit.credits_id"
+                class="border-t border-slate-800 hover:bg-white/5 transition"
+              >
 
-    <thead class="bg-gray-500 text-white">
+                <td class="px-4 py-3 text-white">
+                  {{ credit.employee.last_name }},
+                  {{ credit.employee.first_name }}
+                </td>
 
-<tr>
+                <td class="px-4 py-3">
+                  <span
+                    v-if="credit.credit_type === 'Service Credits'"
+                    class="text-purple-400 font-semibold"
+                  >
+                    Service Credits
+                  </span>
 
-<th class="px-4 py-3 text-left">Employee</th>
+                  <span
+                    v-else-if="credit.credit_type === 'Vacation'"
+                    class="text-blue-400 font-semibold"
+                  >
+                    Vacation
+                  </span>
 
-<th class="px-4 py-3 text-left">Credit Type</th>
+                  <span
+                    v-else-if="credit.credit_type === 'Sick'"
+                    class="text-green-400 font-semibold"
+                  >
+                    Sick
+                  </span>
 
-<th class="px-4 py-3 text-left">Activity</th>
+                  <span
+                    v-else
+                    class="text-gray-400 font-semibold"
+                  >
+                    {{ credit.credit_type }}
+                  </span>
+                </td>
 
-<th class="px-4 py-3 text-left">Hours</th>
+                <td class="px-4 py-3 text-white">
+                  {{ credit.activity_name }}
+                </td>
 
-<th class="px-4 py-3 text-left">Leave Days</th>
+                <td class="px-4 py-3 text-white">
+                  {{ credit.hours_rendered }}
+                </td>
 
-<th class="px-4 py-3 text-left">Status</th>
+                <td class="px-4 py-3 text-white">
+                  {{ credit.equivalent_leave_days }}
+                </td>
 
-<th class="px-4 py-3 text-left">Date</th>
+                <td class="px-4 py-3">
+                  <span
+                    v-if="credit.status=='Pending'"
+                    class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-xs"
+                  >
+                    Pending
+                  </span>
 
-<th class="px-4 py-3 text-center">Action</th>
+                  <span
+                    v-else
+                    class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs"
+                  >
+                    Applied
+                  </span>
+                </td>
 
-</tr>
-</thead>
+                <td class="px-4 py-3 text-white">
+                  {{ formatDate(credit.date_recorded) }}
+                </td>
 
-          <tbody>
+                <td class="px-4 py-3 text-center">
 
-            <tr
-  v-for="credit in credits"
-  :key="credit.credits_id"
-  class="border-t hover:bg-gray-50"
->
+                  <button
+                    v-if="credit.status=='Pending'"
+                    @click="applyCredit(credit.credits_id)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+                  >
+                    Apply Credit
+                  </button>
 
-<td class="px-4 py-3">
-{{ credit.employee.last_name }},
-{{ credit.employee.first_name }}
-</td>
+                  <span
+                    v-else
+                    class="text-green-400 font-semibold"
+                  >
+                    ✔ Applied
+                  </span>
 
-<td class="px-4 py-3">
-  <span
-    v-if="credit.credit_type === 'Service Credits'"
-    class="text-purple-600 font-semibold"
-  >
-    Service Credits
-  </span>
+                </td>
 
-  <span
-    v-else-if="credit.credit_type === 'Vacation'"
-    class="text-blue-600 font-semibold"
-  >
-    Vacation
-  </span>
+              </tr>
 
-  <span
-    v-else-if="credit.credit_type === 'Sick'"
-    class="text-green-600 font-semibold"
-  >
-    Sick
-  </span>
+            </tbody>
 
-  <span
-    v-else
-    class="text-gray-600 font-semibold"
-  >
-    {{ credit.credit_type }}
-  </span>
-</td>
+          </table>
 
-<td class="px-4 py-3">
-
-{{ credit.activity_name }}
-
-</td>
-
-<td class="px-4 py-3">
-
-{{ credit.hours_rendered }}
-
-</td>
-
-<td class="px-4 py-3">
-
-{{ credit.equivalent_leave_days }}
-
-</td>
-
-<td class="px-4 py-3">
-
-<span
-v-if="credit.status=='Pending'"
-class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs"
->
-
-Pending
-
-</span>
-
-<span
-v-else
-class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"
->
-
-Applied
-
-</span>
-
-</td>
-
-<td class="px-4 py-3">
-
-{{ formatDate(credit.date_recorded) }}
-
-</td>
-
-<td class="px-4 py-3 text-center">
-
-<button
-
-v-if="credit.status=='Pending'"
-
-@click="applyCredit(credit.credits_id)"
-
-class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-
->
-
-Apply Credit
-
-</button>
-
-<span
-v-else
-class="text-green-600 font-semibold"
->
-
-✔ Applied
-
-</span>
-
-</td>
-
-</tr>
-
-          </tbody>
-
-        </table>
+        </div>
 
       </div>
 
     </div>
 
-  </div>
-  <!-- Apply Credit Confirmation Modal -->
-<div
-  v-if="showApplyModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-    
-    <h2 class="text-xl font-semibold text-gray-800">
-      Apply Leave Credit?
-    </h2>
-
-    <p class="text-gray-900 mt-3">
-      Are you sure you want to apply this leave credit?
-      This will update the employee's leave balance.
-    </p>
-
-    <!-- Credit Details -->
+    <!-- Apply Credit Confirmation Modal -->
     <div
-      v-if="selectedCredit"
-      class="mt-4 bg-gray-50 rounded-lg p-4 space-y-2 text-sm text-black"
+      v-if="showApplyModal"
+      class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
     >
-      <div>
-        <span class="font-medium text-black">Employee:</span>
-        {{ selectedCredit.employee.last_name }},
-        {{ selectedCredit.employee.first_name }}
-      </div>
+      <div class="neo-card w-full max-w-md p-6">
 
-      <div>
-        <span class="font-medium text-black">Credit Type:</span>
-        {{ selectedCredit.credit_type }}
-      </div>
+        <h2 class="text-xl font-semibold text-white">
+          Apply Leave Credit?
+        </h2>
 
-      <div>
-        <span class="font-medium text-black">Activity:</span>
-        {{ selectedCredit.activity_name }}
-      </div>
+        <p class="text-gray-300 mt-3">
+          Are you sure you want to apply this leave credit?
+          This will update the employee's leave balance.
+        </p>
 
-      <div>
-        <span class="font-medium text-black">Equivalent Days:</span>
-        {{ selectedCredit.equivalent_leave_days }}
+        <!-- Credit Details -->
+        <div
+          v-if="selectedCredit"
+          class="mt-4 bg-[#0B1420] border border-slate-800 rounded-lg p-4 space-y-2 text-sm text-white"
+        >
+          <div>
+            <span class="font-medium text-gray-400">Employee:</span>
+            {{ selectedCredit.employee.last_name }},
+            {{ selectedCredit.employee.first_name }}
+          </div>
+
+          <div>
+            <span class="font-medium text-gray-400">Credit Type:</span>
+            {{ selectedCredit.credit_type }}
+          </div>
+
+          <div>
+            <span class="font-medium text-gray-400">Activity:</span>
+            {{ selectedCredit.activity_name }}
+          </div>
+
+          <div>
+            <span class="font-medium text-gray-400">Equivalent Days:</span>
+            {{ selectedCredit.equivalent_leave_days }}
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            @click="closeApplyModal"
+            class="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            @click="confirmApplyCredit"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Yes, Apply
+          </button>
+        </div>
+
       </div>
     </div>
-
-    <div class="flex justify-end gap-3 mt-6">
-      <button
-        @click="closeApplyModal"
-        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-      >
-        Cancel
-      </button>
-
-      <button
-        @click="confirmApplyCredit"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        Yes, Apply
-      </button>
-    </div>
-
   </div>
-</div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
@@ -448,7 +422,9 @@ const applyCredit = (id: number) => {
 const closeApplyModal = () => {
   showApplyModal.value = false;
   selectedCredit.value = null;
-};const confirmApplyCredit = async () => {
+};
+
+const confirmApplyCredit = async () => {
   if (!selectedCredit.value) return;
 
   try {
@@ -467,9 +443,6 @@ const closeApplyModal = () => {
   }
 };
 
-
-
-
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -483,3 +456,37 @@ onMounted(() => {
   loadCredits();
 });
 </script>
+
+<style scoped>
+.dashboard-shell {
+  background: #080D14;
+}
+
+.neo-card {
+  background: #111D2E;
+  border: 1px solid #1E293B;
+  border-radius: 1.4rem;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neo-card:hover {
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.stats-card {
+  border-left: 4px solid currentColor;
+  padding: 1.35rem;
+}
+
+.stats-card .p-3 {
+  border-radius: 0.9rem;
+}
+
+.neo-card h3,
+.neo-card p,
+.neo-card span,
+.neo-card button {
+  letter-spacing: -0.01em;
+}
+</style>
