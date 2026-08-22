@@ -469,10 +469,11 @@
       class="neo-card overflow-hidden"
     >
       <!-- Header -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-8 text-white">
-        <div class="flex items-center gap-4">
-          <div class="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center">
-            <Info class="w-7 h-7" />
+      <div class="neo-card p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-white">Settings</h2>
+            <p class="text-sm text-gray-400 mt-1">Generate and view various reports</p>
           </div>
 
           <div>
