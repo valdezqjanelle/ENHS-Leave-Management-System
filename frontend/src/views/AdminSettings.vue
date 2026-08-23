@@ -291,69 +291,9 @@
         Manage leave types, requirements, and rules for employees.
       </p>
 
-      <!-- Leave Types -->
 
-      <div class="inner-card p-5">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5"
-        >
-          <div>
-            <h3 class="text-lg font-semibold text-white">Leave Types</h3>
-
-            <p class="text-sm text-gray-400">
-              Manage the types of leave available in the system.
-            </p>
-          </div>
-
-          <button
-            @click="openAddLeaveModal"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-          >
-            + Add Leave Type
-          </button>
-        </div>
-
-        <div
-          v-if="leaveTypes.length === 0"
-          class="text-center py-8 text-gray-500"
-        >
-          No leave types configured yet.
-        </div>
-
-        <div v-else class="space-y-3">
-          <div
-            v-for="leave in leaveTypes"
-            :key="leave.leave_type_id"
-            class="border border-[#1e293b] rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          >
-            <div>
-              <h4 class="font-semibold text-white">
-                {{ leave.leave_type_name }}
-              </h4>
-
-              <p class="text-sm text-gray-400 mt-1">
-                {{ leave.description || "No description provided." }}
-              </p>
-            </div>
-
-            <div class="flex gap-2">
-              <button
-                @click="openEditLeaveModal(leave)"
-                class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg"
-              >
-                Edit
-              </button>
-
-              <button
-                @click="removeLeaveType(leave.leave_type_id)"
-                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      
+      
 
       <!-- Leave Rules -->
 

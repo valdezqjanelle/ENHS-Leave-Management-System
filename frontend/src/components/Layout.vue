@@ -138,15 +138,7 @@
         <h2 class="text-blue-600 font-bold text-xl tracking-tight">{{ pageTitle }}</h2>
 
         <div class="flex items-center gap-4">
-          <!-- Search -->
-          <div class="relative">
-            <Search class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              class="search-input pl-9 pr-3 py-2 rounded-xl text-sm"
-              placeholder="Search..."
-            />
-          </div>
+          
 
           
 
@@ -206,6 +198,7 @@ const pageTitle = computed(() => {
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
+    "/admin-settings": "Settings",
 
     "/attendance": "Attendance",
     "/my-applications": "My Applications",

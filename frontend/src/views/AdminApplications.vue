@@ -1,10 +1,13 @@
 <template>
   <div class="max-w-7xl mx-auto p-4 dashboard-shell">
     <div class="bg-white rounded-lg shadow neo-card">
+
+      <!-- Header -->
       <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-xl font-semibold text-white">
           Submitted Leave Applications
         </h2>
+
         <p class="text-sm text-white mt-1">
           Review and manage faculty leave applications
         </p>
@@ -13,6 +16,7 @@
       <!-- Filter Tabs -->
       <div class="px-6 py-3 border-b border-gray-200">
         <div class="flex space-x-4">
+
           <button
             v-for="tab in tabs"
             :key="tab.key"
@@ -25,34 +29,42 @@
             ]"
           >
             {{ tab.label }}
+
             <span
-              :class="['ml-2 px-2 py-1 text-xs rounded-full', tab.countClass]"
+              :class="[
+                'ml-2 px-2 py-1 text-xs rounded-full',
+                tab.countClass
+              ]"
             >
               {{ getTabCount(tab.key) }}
             </span>
           </button>
+
         </div>
       </div>
 
       <!-- Applications List -->
       <div class="p-6">
+
         <!-- Search and Filters -->
         <div class="mb-6">
+
           <div class="flex flex-col md:flex-row gap-3">
+
             <!-- Search -->
             <div class="flex-1">
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search employee, leave type, status, or ID..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
               />
             </div>
 
             <!-- Leave Type -->
             <select
               v-model="filterType"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
             >
               <option value="">All Leave Types</option>
               <option value="vacation">Vacation Leave</option>
@@ -61,7 +73,9 @@
               <option value="paternity">Paternity Leave</option>
               <option value="study">Study Leave</option>
               <option value="special">Special Leave</option>
-              <option value="mandatory">Mandatory/Forced Leave</option>
+              <option value="mandatory">
+                Mandatory/Forced Leave
+              </option>
             </select>
 
             <!-- Clear -->
@@ -71,64 +85,76 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50"
+              class="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 hover:text-gray-800 transition"
             >
               Clear
             </button>
-          </div>
-          <!-- Show All / Show Less -->
-          <div
-            v-if="filteredApplications.length > 5"
-            class="flex justify-center mt-6"
-          >
-            <button
-              @click="showAllApplications = !showAllApplications"
-              class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-            >
-              {{ showAllApplications ? "Show Less" : "Show All Applications" }}
-            </button>
+
           </div>
 
+          <!-- Search Result Count -->
           <div
             v-if="searchQuery || filterType"
-            class="mt-2 text-sm text-gray-500"
+            class="mt-2 text-sm text-gray-400"
           >
             {{ filteredApplications.length }} application(s) found
           </div>
+
         </div>
-        <div v-if="filteredApplications.length === 0" class="text-center py-8">
+
+        <!-- No Applications -->
+        <div
+          v-if="filteredApplications.length === 0"
+          class="text-center py-8"
+        >
           <div class="mx-auto h-12 w-12 text-white">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            <svg
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              ></path>
+              />
             </svg>
+
           </div>
+
           <h3 class="mt-2 text-sm font-medium text-white">
             No applications found
           </h3>
+
           <p class="mt-1 text-sm text-white">
             No leave applications have been submitted yet.
           </p>
         </div>
 
+        <!-- Applications -->
         <div v-else class="space-y-4">
+
           <div
             v-for="application in displayedApplications"
             :key="application.leave_id"
             class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card"
           >
+
             <div class="flex items-start justify-between">
+
+              <!-- Application Information -->
               <div class="flex-1">
+
                 <div class="flex items-center space-x-3">
+
                   <h3 class="text-lg font-medium text-white">
                     {{ application.employee.last_name }},
-                    {{ application.employee.first_name
-                    }}{{ application.employee.middle_name }}
+                    {{ application.employee.first_name }}
+                    {{ application.employee.middle_name }}
                   </h3>
+
                   <span
                     :class="[
                       'px-2 py-1 text-xs font-medium rounded-full',
@@ -137,33 +163,57 @@
                   >
                     {{ application.final_status }}
                   </span>
+
                 </div>
 
+                <!-- Application Details -->
                 <div
                   class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-white"
                 >
+
                   <div>
-                    <span class="font-medium">Office:</span>
+                    <span class="font-medium">
+                      Office:
+                    </span>
+
                     {{ application.employee.department }}
                   </div>
+
                   <div>
-                    <span class="font-medium">Position:</span>
+                    <span class="font-medium">
+                      Position:
+                    </span>
+
                     {{ application.employee.position }}
                   </div>
+
                   <div>
-                    <span class="font-medium">Date Filed:</span>
+                    <span class="font-medium">
+                      Date Filed:
+                    </span>
+
                     {{ formatDate(application.date_filed) }}
                   </div>
+
                   <div>
-                    <span class="font-medium">Leave Type:</span>
+                    <span class="font-medium">
+                      Leave Type:
+                    </span>
+
                     {{ getLeaveType(application.leave_type) }}
                   </div>
+
                   <div>
-                    <span class="font-medium">Days Applied:</span>
+                    <span class="font-medium">
+                      Days Applied:
+                    </span>
+
                     {{ application.number_of_days }}
                   </div>
+
                 </div>
 
+                <!-- Attachments -->
                 <div
                   v-if="
                     application.attachments &&
@@ -171,15 +221,19 @@
                   "
                   class="mt-3"
                 >
-                  <span class="text-sm font-medium text-white"
-                    >Attachments:</span
-                  >
+
+                  <span class="text-sm font-medium text-white">
+                    Attachments:
+                  </span>
+
                   <div class="flex flex-wrap gap-2 mt-1">
+
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-white rounded"
+                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
                     >
+
                       <svg
                         class="w-3 h-3 mr-1"
                         fill="none"
@@ -191,65 +245,167 @@
                           stroke-linejoin="round"
                           stroke-width="2"
                           d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                        ></path>
+                        />
                       </svg>
+
                       {{ attachment.name }}
+
                     </span>
+
                   </div>
+
                 </div>
+
               </div>
 
+              <!-- Action Buttons -->
               <div class="flex flex-col space-y-2 ml-4">
+
                 <button
                   @click="viewApplication(application)"
-                  class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 >
                   View Details
                 </button>
+
                 <button
                   @click="downloadApplication(application)"
-                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition"
                 >
                   Download PDF
                 </button>
+
                 <button
-                  v-if="application.final_status?.toLowerCase() === 'pending'"
+                  v-if="
+                    application.final_status?.toLowerCase() === 'pending'
+                  "
                   @click="openApprovalModal(application)"
-                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition"
                 >
                   Approve
                 </button>
 
                 <button
-                  v-if="application.final_status?.toLowerCase() === 'pending'"
-                  @click="updateStatus(application.leave_id, 'rejected')"
-                  class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                  v-if="
+                    application.final_status?.toLowerCase() === 'pending'
+                  "
+                  @click="
+                    updateStatus(
+                      application.leave_id,
+                      'rejected'
+                    )
+                  "
+                  class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
                 >
                   Reject
                 </button>
+
               </div>
+
             </div>
+
           </div>
+
+          <!-- Pagination -->
+          <div
+            v-if="filteredApplications.length > 0"
+            class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-slate-700"
+          >
+
+            <!-- Pagination Information -->
+            <div class="text-sm text-gray-400">
+              Showing
+              <span class="font-medium text-white">
+                {{ paginationStart }}
+              </span>
+
+              -
+
+              <span class="font-medium text-white">
+                {{ paginationEnd }}
+              </span>
+
+              of
+
+              <span class="font-medium text-white">
+                {{ filteredApplications.length }}
+              </span>
+
+              applications
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="flex items-center gap-2">
+
+              <!-- Previous -->
+              <button
+                @click="previousPage"
+                :disabled="currentPage === 1"
+                class="px-3 py-2 text-sm rounded-lg border transition"
+                :class="
+                  currentPage === 1
+                    ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
+                    : 'text-white bg-slate-800 border-slate-700 hover:bg-slate-700'
+                "
+              >
+                &lt;
+              </button>
+
+              <!-- Page Number -->
+              <span
+                class="min-w-[40px] text-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
+              >
+                {{ currentPage }}
+              </span>
+
+              <!-- Next -->
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-2 text-sm rounded-lg border transition"
+                :class="
+                  currentPage === totalPages
+                    ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
+                    : 'text-white bg-slate-800 border-slate-700 hover:bg-slate-700'
+                "
+              >
+                &gt;
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
+
     </div>
 
-    <!-- Application Detail Modal -->
+    <!-- ====================================================== -->
+    <!-- APPLICATION DETAIL MODAL -->
+    <!-- ====================================================== -->
+
     <div
       v-if="showDetailModal"
       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
     >
+
       <div
         class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto neo-card"
       >
+
         <div class="flex justify-between items-center mb-4">
+
           <h3 class="text-xl font-medium text-white">
             Leave Application Details
           </h3>
+
           <button
             @click="showDetailModal = false"
             class="text-white hover:text-gray-600"
           >
+
             <svg
               class="w-6 h-6"
               fill="none"
@@ -261,80 +417,123 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M6 18L18 6M6 6l12 12"
-              ></path>
+              />
             </svg>
+
           </button>
+
         </div>
 
-        <div v-if="selectedApplication" class="space-y-6">
+        <div
+          v-if="selectedApplication"
+          class="space-y-6"
+        >
+
           <!-- Applicant Information -->
           <div class="border border-gray-300 p-4">
-            <h4 class="text-sm font-bold mb-3">Applicant Information</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+
+            <h4 class="text-sm font-bold mb-3 text-white">
+              Applicant Information
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
+
               <div>
                 <strong>Office:</strong>
                 {{ selectedApplication.employee.department }}
               </div>
+
               <div>
                 <strong>Name:</strong>
+
                 {{ selectedApplication.employee.employee_last_name }},
                 {{ selectedApplication.employee.employee_first_name }}
                 {{ selectedApplication.employee.employee_middle_name }}
               </div>
+
               <div>
                 <strong>Date of Filing:</strong>
                 {{ formatDate(selectedApplication.date_filed) }}
               </div>
+
               <div>
                 <strong>Position:</strong>
                 {{ selectedApplication.employee.position }}
               </div>
+
               <div>
                 <strong>Salary:</strong>
                 {{ selectedApplication.employee.salary }}
               </div>
+
               <div>
                 <strong>Status:</strong>
+
                 <span
-                  :class="getStatusClass(selectedApplication.final_status)"
-                  >{{ selectedApplication.final_status }}</span
+                  :class="
+                    getStatusClass(
+                      selectedApplication.final_status
+                    )
+                  "
                 >
+                  {{ selectedApplication.final_status }}
+                </span>
+
               </div>
+
             </div>
+
           </div>
 
           <!-- Leave Details -->
           <div class="border border-gray-300 p-4">
-            <h4 class="text-sm font-bold mb-3">Leave Details</h4>
-            <div class="space-y-2 text-sm">
+
+            <h4 class="text-sm font-bold mb-3 text-white">
+              Leave Details
+            </h4>
+
+            <div class="space-y-2 text-sm text-white">
+
               <div>
                 <strong>Type of Leave:</strong>
                 {{ getLeaveType(selectedApplication.leave_type) }}
               </div>
+
               <div>
                 <strong>Number of Days:</strong>
                 {{ selectedApplication.number_of_days }}
               </div>
+
               <div>
                 <strong>Inclusive Dates:</strong>
+
                 {{ formatDate(selectedApplication.start_date) }}
+
                 -
+
                 {{ formatDate(selectedApplication.end_date) }}
               </div>
+
               <div>
                 <strong>Commutation:</strong>
+
                 {{
                   selectedApplication.commutation
                     ? "Requested"
                     : "Not Requested"
                 }}
               </div>
+
               <div>
                 <strong>Applicant Signature:</strong>
+
                 {{ selectedApplication.employee.employee_first_name }}
                 {{ selectedApplication.employee.employee_last_name }}
+
               </div>
+
             </div>
+
           </div>
 
           <!-- Attachments -->
@@ -345,95 +544,167 @@
             "
             class="border border-gray-300 p-4"
           >
-            <h4 class="text-sm font-bold mb-3">Supporting Documents</h4>
+
+            <h4 class="text-sm font-bold mb-3 text-white">
+              Supporting Documents
+            </h4>
+
             <div class="space-y-2">
+
               <div
                 v-for="(attachment, index) in selectedApplication.attachments"
                 :key="index"
                 class="flex items-center justify-between p-2 bg-gray-50 rounded"
               >
-                <span class="text-sm"
-                  >{{ attachment.name }} ({{
-                    formatFileSize(attachment.size)
-                  }})</span
+
+                <span class="text-sm text-gray-800">
+                  {{ attachment.name }}
+
+                  ({{ formatFileSize(attachment.size) }})
+                </span>
+
+                <button
+                  class="text-blue-600 hover:text-blue-800 text-sm"
                 >
-                <button class="text-blue-600 hover:text-blue-800 text-sm">
                   Download
                 </button>
+
               </div>
+
             </div>
+
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex justify-end space-x-3 pt-4 border-t">
+          <div
+            class="flex justify-end space-x-3 pt-4 border-t"
+          >
+
             <button
               @click="downloadApplication(selectedApplication)"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Download PDF
             </button>
+
             <button
-              v-if="selectedApplication.final_status === 'Pending'"
-              @click="openApprovalModal(selectedApplication)"
+              v-if="
+                selectedApplication.final_status?.toLowerCase() ===
+                'pending'
+              "
+              @click="
+                openApprovalModal(selectedApplication)
+              "
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
               Approve
             </button>
+
             <button
-              v-if="selectedApplication.final_status === 'Pending'"
-              @click="updateStatus(selectedApplication.leave_id, 'rejected')"
+              v-if="
+                selectedApplication.final_status?.toLowerCase() ===
+                'pending'
+              "
+              @click="
+                updateStatus(
+                  selectedApplication.leave_id,
+                  'rejected'
+                )
+              "
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
               Reject
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   </div>
-  <!-- Approval / Deduction Modal -->
+
+  <!-- ====================================================== -->
+  <!-- APPROVAL / DEDUCTION MODAL -->
+  <!-- ====================================================== -->
+
   <div
     v-if="showApprovalModal"
     class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]"
   >
-    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 neo-card">
+
+    <div
+      class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 neo-card"
+    >
+
       <h3 class="text-lg font-semibold text-white">
         Approve Leave Application
       </h3>
 
       <p class="text-sm text-white mt-2">
+
         This leave application is for
-        <strong>{{ approvalApplication?.number_of_days }}</strong>
+
+        <strong>
+          {{ approvalApplication?.number_of_days }}
+        </strong>
+
         day(s).
+
       </p>
 
-      <!-- Deduct? -->
+      <!-- Deduct Balance -->
       <div class="mt-5">
+
         <label class="block text-sm font-medium text-white mb-2">
           Deduct leave balance?
         </label>
 
         <div class="flex gap-4">
+
           <label class="flex items-center gap-2 text-white">
-            <input type="radio" value="yes" v-model="deductBalance" />
+
+            <input
+              type="radio"
+              value="yes"
+              v-model="deductBalance"
+            />
+
             <span>Yes</span>
+
           </label>
 
           <label class="flex items-center gap-2 text-white">
-            <input type="radio" value="no" v-model="deductBalance" />
+
+            <input
+              type="radio"
+              value="no"
+              v-model="deductBalance"
+            />
+
             <span>No</span>
+
           </label>
+
         </div>
+
       </div>
 
       <!-- Deduction Options -->
-      <div v-if="deductBalance === 'yes'" class="mt-5 border-t pt-4">
+      <div
+        v-if="deductBalance === 'yes'"
+        class="mt-5 border-t pt-4"
+      >
+
         <h4 class="text-sm font-semibold text-white mb-3">
           Leave Balance Deduction
         </h4>
 
         <!-- Service Credits -->
         <div class="mt-4">
+
           <label class="block text-sm font-medium text-white mb-2">
             Service Credits Days to Deduct
           </label>
@@ -450,9 +721,12 @@
           <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Service Credits.
           </p>
+
         </div>
+
         <!-- Vacation Leave -->
-        <div>
+        <div class="mt-4">
+
           <label class="block text-sm font-medium text-white mb-2">
             Vacation Leave Days to Deduct
           </label>
@@ -469,10 +743,12 @@
           <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Vacation Leave.
           </p>
+
         </div>
 
         <!-- Sick Leave -->
         <div class="mt-4">
+
           <label class="block text-sm font-medium text-white mb-2">
             Sick Leave Days to Deduct
           </label>
@@ -489,47 +765,68 @@
           <p class="text-xs text-white mt-1">
             Enter the number of days to deduct from Sick Leave.
           </p>
+
         </div>
 
         <!-- Total -->
         <div class="mt-4 p-3 bg-gray-50 rounded-lg">
-          <div class="flex justify-between text-sm">
-            <span class="text-white"> Days applied: </span>
 
-            <span class="font-medium text-white">
-              {{ approvalApplication?.number_of_days ?? 0 }} day(s)
+          <div class="flex justify-between text-sm">
+
+            <span class="text-gray-800">
+              Days applied:
             </span>
+
+            <span class="font-medium text-gray-800">
+              {{ approvalApplication?.number_of_days ?? 0 }}
+              day(s)
+            </span>
+
           </div>
 
           <div class="flex justify-between text-sm mt-1">
-            <span class="text-white"> Total deduction: </span>
 
-            <span class="font-semibold text-white">
-              {{
-                vacationDeductDays + sickDeductDays + serviceCreditsDeductDays
-              }}
-              day(s)
+            <span class="text-gray-800">
+              Total deduction:
             </span>
+
+            <span class="font-semibold text-gray-800">
+
+              {{
+                vacationDeductDays +
+                sickDeductDays +
+                serviceCreditsDeductDays
+              }}
+
+              day(s)
+
+            </span>
+
           </div>
 
           <p
             v-if="
               approvalApplication &&
-              vacationDeductDays + sickDeductDays >
+              vacationDeductDays +
+                sickDeductDays +
+                serviceCreditsDeductDays >
                 approvalApplication.number_of_days
             "
             class="text-sm text-red-600 mt-2"
           >
             Total deduction cannot exceed the number of days applied.
           </p>
+
         </div>
+
       </div>
 
       <!-- Buttons -->
       <div class="flex justify-end gap-3 mt-6">
+
         <button
           @click="showApprovalModal = false"
-          class="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-gray-300"
+          class="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-800"
         >
           Cancel
         </button>
@@ -540,17 +837,25 @@
         >
           Confirm Approval
         </button>
+
       </div>
+
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+} from "vue";
+
 import { useRouter } from "vue-router";
+
 import axios from "axios";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 
 interface Attachment {
   name: string;
@@ -562,9 +867,11 @@ interface LeaveApplication {
   leave_id: number;
   employee_id: number;
   leave_type_id: number;
+
   date_filed: string;
   start_date: string;
   end_date: string;
+
   number_of_days: number;
 
   commutation: string;
@@ -579,270 +886,683 @@ interface LeaveApplication {
 }
 
 const router = useRouter();
+
+/* =========================================================
+   APPLICATION DATA
+========================================================= */
+
 const applications = ref<LeaveApplication[]>([]);
+
 const activeTab = ref("all");
+
+const searchQuery = ref("");
+
+const filterType = ref("");
+
+/* =========================================================
+   MODALS
+========================================================= */
+
 const showDetailModal = ref(false);
-const selectedApplication = ref<LeaveApplication | null>(null);
+
+const selectedApplication =
+  ref<LeaveApplication | null>(null);
 
 const showApprovalModal = ref(false);
 
-const approvalApplication = ref<LeaveApplication | null>(null);
+const approvalApplication =
+  ref<LeaveApplication | null>(null);
 
-const deductBalance = ref<"yes" | "no">("yes");
+/* =========================================================
+   APPROVAL / DEDUCTION
+========================================================= */
+
+const deductBalance =
+  ref<"yes" | "no">("yes");
 
 const vacationDeductDays = ref(0);
+
 const sickDeductDays = ref(0);
+
 const serviceCreditsDeductDays = ref(0);
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+const currentPage = ref(1);
+
+const itemsPerPage = 5;
+
+/* =========================================================
+   TABS
+========================================================= */
+
 const tabs = [
   {
     key: "all",
     label: "All Applications",
-    countClass: "bg-gray-100 text-gray-800",
+    countClass:
+      "bg-gray-100 text-gray-800",
   },
+
   {
     key: "pending",
     label: "Pending",
-    countClass: "bg-yellow-100 text-yellow-800",
+    countClass:
+      "bg-yellow-100 text-yellow-800",
   },
+
   {
     key: "approved",
     label: "Approved",
-    countClass: "bg-green-100 text-green-800",
+    countClass:
+      "bg-green-100 text-green-800",
   },
-  { key: "rejected", label: "Rejected", countClass: "bg-red-100 text-red-800" },
+
+  {
+    key: "rejected",
+    label: "Rejected",
+    countClass:
+      "bg-red-100 text-red-800",
+  },
 ];
 
-const searchQuery = ref("");
-const filterType = ref("");
-const showAllApplications = ref(false);
+/* =========================================================
+   FILTERED APPLICATIONS
+========================================================= */
 
 const filteredApplications = computed(() => {
-  const search = searchQuery.value.trim().toLowerCase();
 
-  return applications.value.filter((app) => {
-    const status = app.final_status?.toLowerCase() || "";
+  const search =
+    searchQuery.value
+      .trim()
+      .toLowerCase();
 
-    const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
+  return applications.value.filter(
+    (app) => {
 
-    const employeeName = `
-      ${app.employee?.first_name || ""}
-      ${app.employee?.middle_name || ""}
-      ${app.employee?.last_name || ""}
-    `.toLowerCase();
+      const status =
+        app.final_status
+          ?.toLowerCase() || "";
 
-    const matchesTab = activeTab.value === "all" || status === activeTab.value;
+      const leaveType =
+        app.leave_type
+          ?.leave_type_name
+          ?.toLowerCase() || "";
 
-    const matchesSearch =
-      search === "" ||
-      employeeName.includes(search) ||
-      leaveType.includes(search) ||
-      status.includes(search) ||
-      String(app.leave_id).includes(search);
+      const employeeName = `
+        ${app.employee?.first_name || ""}
+        ${app.employee?.middle_name || ""}
+        ${app.employee?.last_name || ""}
+      `.toLowerCase();
 
-    const matchesType =
-      filterType.value === "" ||
-      leaveType.includes(filterType.value.toLowerCase());
+      const matchesTab =
+        activeTab.value === "all" ||
+        status === activeTab.value;
 
-    return matchesTab && matchesSearch && matchesType;
-  });
+      const matchesSearch =
+        search === "" ||
+        employeeName.includes(search) ||
+        leaveType.includes(search) ||
+        status.includes(search) ||
+        String(app.leave_id).includes(search);
+
+      const matchesType =
+        filterType.value === "" ||
+        leaveType.includes(
+          filterType.value.toLowerCase()
+        );
+
+      return (
+        matchesTab &&
+        matchesSearch &&
+        matchesType
+      );
+    }
+  );
 });
+
+/* =========================================================
+   TOTAL PAGES
+========================================================= */
+
+const totalPages = computed(() => {
+
+  return Math.max(
+    1,
+    Math.ceil(
+      filteredApplications.value.length /
+        itemsPerPage
+    )
+  );
+
+});
+
+/* =========================================================
+   DISPLAYED APPLICATIONS
+========================================================= */
 
 const displayedApplications = computed(() => {
-  if (showAllApplications.value) {
-    return filteredApplications.value;
-  }
 
-  return filteredApplications.value.slice(0, 5);
+  const start =
+    (currentPage.value - 1) *
+    itemsPerPage;
+
+  const end =
+    start + itemsPerPage;
+
+  return filteredApplications.value.slice(
+    start,
+    end
+  );
+
 });
 
-const getTabCount = (tabKey: string) => {
+/* =========================================================
+   PAGINATION START
+========================================================= */
+
+const paginationStart = computed(() => {
+
+  if (
+    filteredApplications.value.length === 0
+  ) {
+    return 0;
+  }
+
+  return (
+    (currentPage.value - 1) *
+      itemsPerPage +
+    1
+  );
+
+});
+
+/* =========================================================
+   PAGINATION END
+========================================================= */
+
+const paginationEnd = computed(() => {
+
+  return Math.min(
+    currentPage.value *
+      itemsPerPage,
+
+    filteredApplications.value.length
+  );
+
+});
+
+/* =========================================================
+   NEXT PAGE
+========================================================= */
+
+const nextPage = () => {
+
+  if (
+    currentPage.value <
+    totalPages.value
+  ) {
+
+    currentPage.value++;
+
+  }
+
+};
+
+/* =========================================================
+   PREVIOUS PAGE
+========================================================= */
+
+const previousPage = () => {
+
+  if (currentPage.value > 1) {
+
+    currentPage.value--;
+
+  }
+
+};
+
+/* =========================================================
+   RESET PAGINATION WHEN FILTERING
+========================================================= */
+
+watch(
+  [
+    searchQuery,
+    filterType,
+    activeTab,
+  ],
+
+  () => {
+
+    currentPage.value = 1;
+
+  }
+);
+
+/* =========================================================
+   TAB COUNT
+========================================================= */
+
+const getTabCount = (
+  tabKey: string
+) => {
+
   if (tabKey === "all") {
+
     return applications.value.length;
+
   }
 
   return applications.value.filter(
-    (app) => app.final_status.toLowerCase() === tabKey,
+    (app) =>
+      app.final_status
+        ?.toLowerCase() === tabKey
   ).length;
+
 };
 
-const getStatusClass = (status: string) => {
-  switch (status.toLowerCase()) {
+/* =========================================================
+   STATUS CLASS
+========================================================= */
+
+const getStatusClass = (
+  status: string
+) => {
+
+  switch (
+    status?.toLowerCase()
+  ) {
+
     case "pending":
+
       return "bg-yellow-100 text-yellow-800";
 
     case "approved":
+
       return "bg-green-100 text-green-800";
 
     case "rejected":
+
       return "bg-red-100 text-red-800";
 
     default:
+
       return "bg-gray-100 text-gray-800";
+
   }
+
 };
 
-const getLeaveType = (leaveType: any) => {
-  return leaveType?.leave_type_name ?? "Not specified";
+/* =========================================================
+   LEAVE TYPE
+========================================================= */
+
+const getLeaveType = (
+  leaveType: any
+) => {
+
+  return (
+    leaveType?.leave_type_name ??
+    "Not specified"
+  );
+
 };
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+/* =========================================================
+   DATE FORMAT
+========================================================= */
+
+const formatDate = (
+  dateString: string
+) => {
+
+  const date =
+    new Date(dateString);
+
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
+
 };
 
-const formatFileSize = (bytes: number) => {
-  if (bytes === 0) return "0 Bytes";
+/* =========================================================
+   FILE SIZE
+========================================================= */
+
+const formatFileSize = (
+  bytes: number
+) => {
+
+  if (bytes === 0) {
+    return "0 Bytes";
+  }
+
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+
+  const sizes = [
+    "Bytes",
+    "KB",
+    "MB",
+    "GB",
+  ];
+
+  const i = Math.floor(
+    Math.log(bytes) /
+      Math.log(k)
+  );
+
+  return (
+    parseFloat(
+      (
+        bytes /
+        Math.pow(k, i)
+      ).toFixed(2)
+    ) +
+    " " +
+    sizes[i]
+  );
+
 };
 
-const viewApplication = (application: LeaveApplication) => {
-  router.push(`/leave-print/${application.leave_id}`);
+/* =========================================================
+   VIEW APPLICATION
+========================================================= */
+
+const viewApplication = (
+  application: LeaveApplication
+) => {
+
+  router.push(
+    `/leave-print/${application.leave_id}`
+  );
+
 };
 
-const downloadApplication = (application: LeaveApplication) => {
-  router.push(`/leave-print/${application.leave_id}`);
+/* =========================================================
+   DOWNLOAD APPLICATION
+========================================================= */
+
+const downloadApplication = (
+  application: LeaveApplication
+) => {
+
+  router.push(
+    `/leave-print/${application.leave_id}`
+  );
+
 };
 
-const openApprovalModal = (application: LeaveApplication) => {
-  approvalApplication.value = application;
+/* =========================================================
+   OPEN APPROVAL MODAL
+========================================================= */
+
+const openApprovalModal = (
+  application: LeaveApplication
+) => {
+
+  approvalApplication.value =
+    application;
 
   deductBalance.value = "yes";
 
   serviceCreditsDeductDays.value = 0;
 
   vacationDeductDays.value = 0;
-  sickDeductDays.value = application.number_of_days;
+
+  sickDeductDays.value =
+    application.number_of_days;
 
   showApprovalModal.value = true;
+
 };
+
+/* =========================================================
+   UPDATE STATUS
+========================================================= */
 
 const updateStatus = async (
   leaveId: number,
-  status: "approved" | "rejected",
+  status:
+    | "approved"
+    | "rejected",
+
   deductionData: {
     deduct_balance?: boolean;
+
     service_credits_deduct_days?: number;
+
     vacation_deduct_days?: number;
+
     sick_deduct_days?: number;
-  } = {},
+  } = {}
 ) => {
+
   try {
-    const token = localStorage.getItem("token");
+
+    const token =
+      localStorage.getItem(
+        "token"
+      );
 
     await axios.put(
+
       `http://127.0.0.1:8000/api/leave-applications/${leaveId}`,
+
       {
         final_status: status,
 
         ...deductionData,
       },
+
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization:
+            `Bearer ${token}`,
         },
-      },
+      }
     );
 
-    showDetailModal.value = false;
-    showApprovalModal.value = false;
+    showDetailModal.value =
+      false;
+
+    showApprovalModal.value =
+      false;
 
     await loadApplications();
+
   } catch (error: any) {
+
     console.error(error);
 
     alert(
-      error.response?.data?.message ?? "Failed to update leave application.",
+      error.response?.data?.message ??
+        "Failed to update leave application."
     );
+
   }
+
 };
+
+/* =========================================================
+   CONFIRM APPROVAL
+========================================================= */
 
 const confirmApproval = async () => {
-  if (!approvalApplication.value) {
+
+  if (
+    !approvalApplication.value
+  ) {
+
     return;
+
   }
 
-  const application = approvalApplication.value;
+  const application =
+    approvalApplication.value;
 
-  if (deductBalance.value === "yes") {
-    const serviceCreditsDays = Number(serviceCreditsDeductDays.value) || 0;
-    const vacationDays = Number(vacationDeductDays.value) || 0;
-    const sickDays = Number(sickDeductDays.value) || 0;
+  if (
+    deductBalance.value === "yes"
+  ) {
 
-    const totalDeduction = vacationDays + sickDays + serviceCreditsDays;
+    const serviceCreditsDays =
+      Number(
+        serviceCreditsDeductDays.value
+      ) || 0;
+
+    const vacationDays =
+      Number(
+        vacationDeductDays.value
+      ) || 0;
+
+    const sickDays =
+      Number(
+        sickDeductDays.value
+      ) || 0;
+
+    const totalDeduction =
+      vacationDays +
+      sickDays +
+      serviceCreditsDays;
 
     if (totalDeduction <= 0) {
-      alert("Please enter at least one day to deduct.");
-      return;
-    }
 
-    if (totalDeduction > application.number_of_days) {
       alert(
-        "The total deduction cannot be greater than the number of days applied.",
+        "Please enter at least one day to deduct."
       );
+
       return;
+
     }
 
-    await updateStatus(application.leave_id, "approved", {
-      deduct_balance: true,
-      service_credits_deduct_days: serviceCreditsDays,
-      vacation_deduct_days: vacationDays,
-      sick_deduct_days: sickDays,
-    });
+    if (
+      totalDeduction >
+      application.number_of_days
+    ) {
 
-    return;
-  }
+      alert(
+        "The total deduction cannot be greater than the number of days applied."
+      );
 
-  await updateStatus(application.leave_id, "approved", {
-    deduct_balance: false,
-  });
-};
+      return;
 
-const loadApplications = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    }
 
-    const response = await axios.get(
-      "http://127.0.0.1:8000/api/leave-applications",
+    await updateStatus(
+      application.leave_id,
+      "approved",
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+        deduct_balance: true,
+
+        service_credits_deduct_days:
+          serviceCreditsDays,
+
+        vacation_deduct_days:
+          vacationDays,
+
+        sick_deduct_days:
+          sickDays,
+      }
     );
 
-    applications.value = response.data;
-  } catch (error) {
-    console.error("Failed to load applications", error);
+    return;
+
   }
+
+  await updateStatus(
+    application.leave_id,
+    "approved",
+    {
+      deduct_balance: false,
+    }
+  );
+
 };
 
+/* =========================================================
+   LOAD APPLICATIONS
+========================================================= */
+
+const loadApplications = async () => {
+
+  try {
+
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
+    const response =
+      await axios.get(
+        "http://127.0.0.1:8000/api/leave-applications",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+    applications.value =
+      response.data;
+
+    /*
+     * Reset to page 1 after
+     * refreshing the data.
+     */
+    currentPage.value = 1;
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load applications",
+      error
+    );
+
+  }
+
+};
+
+/* =========================================================
+   ON MOUNTED
+========================================================= */
+
 onMounted(() => {
+
   loadApplications();
+
 });
 </script>
 
 <style scoped>
 .dashboard-shell {
   background: #080D14;
+  min-height: 100vh;
 }
 
 .neo-card {
   background: #111D2E;
   border: 1px solid #1E293B;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.04);
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 14px 26px rgba(15, 23, 42, 0.06);
 }
 
 .stats-card {
@@ -859,5 +1579,13 @@ onMounted(() => {
 .neo-card span,
 .neo-card button {
   letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+button:disabled {
+  pointer-events: none;
 }
 </style>
