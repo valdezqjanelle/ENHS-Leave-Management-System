@@ -96,9 +96,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -115,9 +113,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -134,9 +130,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -150,9 +144,7 @@
               :disabled="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             >
               <option value="">Select Sex</option>
@@ -173,9 +165,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -192,9 +182,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -211,9 +199,7 @@
               :readonly="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile
-                  ? 'field-editable'
-                  : 'field-readonly',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             />
           </div>
@@ -290,10 +276,6 @@
       <p class="text-gray-400 mt-1 mb-6">
         Manage leave types, requirements, and rules for employees.
       </p>
-
-
-      
-      
 
       <!-- Leave Rules -->
 
@@ -562,9 +544,7 @@
 
       <div class="inner-card p-5">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
-            System Information
-          </h3>
+          <h3 class="text-lg font-semibold text-white">System Information</h3>
 
           <p class="text-sm text-gray-400 mt-1">
             Configure the basic information displayed throughout the system.
@@ -910,6 +890,15 @@
             </p>
           </div>
         </div>
+        <div class="flex justify-end mt-5">
+          <button
+            @click="downloadLatestBackup"
+            :disabled="!lastBackup.id"
+            class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+          >
+            Download Latest Backup
+          </button>
+        </div>
       </div>
 
       <!-- Backup Methods -->
@@ -952,8 +941,8 @@
             <h4 class="font-semibold text-white">Cloud Backup</h4>
 
             <p class="text-sm text-gray-400 mt-1">
-              Database backup files may be uploaded to an authorized cloud storage
-              service for an additional backup copy.
+              Database backup files may be uploaded to an authorized cloud
+              storage service for an additional backup copy.
             </p>
           </div>
         </div>
@@ -968,8 +957,8 @@
           </h3>
 
           <p class="text-sm text-gray-400 mt-1">
-            Procedure for recovering the system when the primary database becomes
-            unavailable.
+            Procedure for recovering the system when the primary database
+            becomes unavailable.
           </p>
         </div>
 
@@ -1021,8 +1010,12 @@
           </div>
         </div>
 
-        <div class="mt-5 bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-          <p class="text-sm font-medium text-green-400">Recovery Status: Ready</p>
+        <div
+          class="mt-5 bg-green-500/10 border border-green-500/30 rounded-lg p-4"
+        >
+          <p class="text-sm font-medium text-green-400">
+            Recovery Status: Ready
+          </p>
 
           <p class="text-sm text-green-500/80 mt-1">
             The latest available database backup can be used for recovery when
@@ -1114,6 +1107,12 @@ import {
   getSystemSettings,
   updateSystemSettings,
 } from "@/services/systemSettings";
+
+import {
+  createDatabaseBackup,
+  getBackups,
+  downloadBackup,
+} from "@/services/backup";
 
 const activeTab = ref("account");
 
@@ -1560,14 +1559,145 @@ const saveSystemSettings = async () => {
 const backupLoading = ref(false);
 
 const lastBackup = ref({
+  id: null as number | null,
+  file_name: "",
   date: "",
   type: "",
   status: "",
 });
 
-const createBackup = async () => {
-  alert("Database backup functionality will be connected next.");
+const loadBackups = async () => {
+  try {
+    const response = await getBackups();
+
+    console.log("BACKUPS RESPONSE:", response);
+
+    const backups = response.data?.data ?? response.data ?? [];
+
+    if (Array.isArray(backups) && backups.length > 0) {
+      const latestBackup = backups[0];
+
+      lastBackup.value = {
+        id: latestBackup.backup_id ?? latestBackup.id ?? null,
+        file_name: latestBackup.file_name ?? "",
+        date: latestBackup.created_at
+          ? formatBackupDate(latestBackup.created_at)
+          : "—",
+        type: latestBackup.backup_type || "Full Database",
+        status: latestBackup.status || "—",
+      };
+    } else {
+      lastBackup.value = {
+        id: null,
+        file_name: "",
+        date: "",
+        type: "",
+        status: "",
+      };
+    }
+  } catch (error: any) {
+    console.error(
+      "Failed to load backups:",
+      error.response?.data || error
+    );
+  }
 };
+
+const createBackup = async () => {
+  if (backupLoading.value) return;
+
+  backupLoading.value = true;
+
+  try {
+    const response = await createDatabaseBackup();
+
+    console.log("CREATE BACKUP RESPONSE:", response);
+
+    const backup = response.data?.data ?? response.data;
+
+    if (backup) {
+      lastBackup.value = {
+        id: backup.backup_id ?? backup.id ?? null,
+        file_name: backup.file_name ?? "",
+        date: backup.created_at
+          ? formatBackupDate(backup.created_at)
+          : new Date().toLocaleString(),
+        type: backup.backup_type || "Full Database",
+        status: backup.status || "Successful",
+      };
+    }
+
+    alert("Database backup created successfully.");
+
+    await loadBackups();
+  } catch (error: any) {
+    console.error(
+      "Failed to create database backup:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "Failed to create database backup."
+    );
+  } finally {
+    backupLoading.value = false;
+  }
+};
+
+const formatBackupDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const downloadLatestBackup = async () => {
+  if (!lastBackup.value.id) {
+    alert("No backup available to download.");
+    return;
+  }
+
+  try {
+    const response = await downloadBackup(lastBackup.value.id);
+
+    const blob = new Blob([response.data], {
+      type: "application/octet-stream",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+
+    link.download =
+      lastBackup.value.file_name ||
+      `els_database_backup_${lastBackup.value.id}.sql`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    console.error(
+      "Failed to download backup:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "Failed to download backup."
+    );
+  }
+};
+
 
 onMounted(() => {
   loadAdmin();
@@ -1577,6 +1707,7 @@ onMounted(() => {
   loadSystemSettings();
   loadAuditLogs();
   loadAuditActions();
+  loadBackups();
 });
 </script>
 
@@ -1590,7 +1721,9 @@ onMounted(() => {
   border: 1px solid #1e293b;
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .neo-card:hover {
