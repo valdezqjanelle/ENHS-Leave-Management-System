@@ -1,24 +1,29 @@
 <template>
   <div class="dashboard-shell max-w-7xl mx-auto space-y-6">
-    <!-- Header -->
+
+    <!-- ================= HEADER ================= -->
     <div class="neo-card p-6">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-2xl font-bold text-white">Employee Management</h2>
+          <h2 class="text-2xl font-bold text-white">
+            Employee Management
+          </h2>
 
-          <p class="text-white mt-1">Create and manage employee accounts.</p>
+          <p class="text-white mt-1">
+            Create and manage employee accounts.
+          </p>
         </div>
 
         <button
           @click="showCreateModal = true"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
         >
           + Create Employee
         </button>
       </div>
     </div>
 
-    <!-- Search -->
+    <!-- ================= SEARCH ================= -->
     <div class="neo-card p-6">
       <input
         v-model="search"
@@ -28,62 +33,83 @@
       />
     </div>
 
-    <!-- Employee Table -->
-    <div class="neo-card p-6">
+    <!-- ================= EMPLOYEE TABLE ================= -->
+    <div class="neo-card p-6 overflow-x-auto">
       <table class="min-w-full">
+
         <thead class="bg-gray-100">
           <tr class="text-left text-black font-semibold">
-            <th class="px-6 py-3 font-bold">Employee Code</th>
 
-            <th class="px-6 py-3 font-bold">Employee</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Employee Code
+            </th>
 
-            <th class="px-6 py-3 font-bold">Email</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Employee
+            </th>
 
-            <th class="px-6 py-3 font-bold">Department</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Email
+            </th>
 
-            <th class="px-6 py-3 font-extrabold">Position</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Department
+            </th>
 
-            <th class="px-6 py-3 font-bold">Category</th>
+            <th class="px-6 py-3 font-extrabold whitespace-nowrap">
+              Position
+            </th>
 
-            <th class="px-6 py-3 font-bold">Status</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Category
+            </th>
 
-            <th class="px-6 py-3 font-bold text-center">Action</th>
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Status
+            </th>
+
+            <th class="px-6 py-3 font-bold text-center whitespace-nowrap">
+              Action
+            </th>
+
           </tr>
         </thead>
 
         <tbody>
+
           <tr
             v-for="employee in filteredEmployees"
             :key="employee.employee_id"
-            class="border-t hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+            class="border-t hover:bg-gray-800 transition-colors duration-200"
           >
-            <td class="px-6 py-4 text-white font-semibold">
+
+            <td class="px-6 py-4 text-white font-semibold whitespace-nowrap">
               {{ employee.employee_code }}
             </td>
 
-            <td class="px-6 py-4 text-white font-medium">
+            <td class="px-6 py-4 text-white font-medium whitespace-nowrap">
               {{ employee.last_name }},
               {{ employee.first_name }}
               {{ employee.middle_name }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-white whitespace-nowrap">
               {{ employee.user.email }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-white whitespace-nowrap">
               {{ employee.department }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-white whitespace-nowrap">
               {{ employee.position }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-white whitespace-nowrap">
               {{ employee.employee_category }}
             </td>
 
-            <td class="px-6 py-4 text-white">
+            <td class="px-6 py-4 text-white whitespace-nowrap">
               <span
                 class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"
               >
@@ -91,62 +117,92 @@
               </span>
             </td>
 
-            <td class="px-6 py-4 text-center">
-              <button
-                @click="viewEmployee(employee)"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            <!-- ================= ACTION BUTTONS ================= -->
+            <td class="px-6 py-4">
+              <div
+                class="flex items-center justify-center gap-2 whitespace-nowrap"
               >
-                View
-              </button>
 
-              <button
-                @click="editEmployee(employee)"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded ml-2"
-              >
-                Edit
-              </button>
+                <button
+                  @click="viewEmployee(employee)"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  View
+                </button>
+
+                <button
+                  @click="editEmployee(employee)"
+                  class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Edit
+                </button>
+
+              </div>
             </td>
+
           </tr>
 
-          <!-- Empty State -->
-
+          <!-- ================= EMPTY STATE ================= -->
           <tr v-if="filteredEmployees.length === 0">
-            <td colspan="8" class="text-center py-10 text-white">
+            <td
+              colspan="8"
+              class="text-center py-10 text-white"
+            >
               No employees found.
             </td>
           </tr>
+
         </tbody>
+
       </table>
     </div>
   </div>
-  <!-- ================= CREATE EMPLOYEE MODAL ================= -->
+
+
+  <!-- ========================================================= -->
+  <!-- CREATE EMPLOYEE MODAL -->
+  <!-- ========================================================= -->
 
   <div
     v-if="showCreateModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
+
     <div
       class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden"
     >
+
       <!-- Header -->
-
       <div class="bg-blue-600 text-white px-6 py-4">
-        <h3 class="text-xl font-semibold">Create Employee</h3>
 
-        <p class="text-blue-100 text-sm">Fill in the employee information.</p>
+        <h3 class="text-xl font-semibold">
+          Create Employee
+        </h3>
+
+        <p class="text-blue-100 text-sm">
+          Fill in the employee information.
+        </p>
+
       </div>
 
+
       <!-- Body -->
-
       <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-        <!-- Account -->
 
+        <!-- Account Information -->
         <div>
-          <h4 class="font-semibold text-gray-700 mb-4">Account Information</h4>
+
+          <h4 class="font-semibold text-gray-700 mb-4">
+            Account Information
+          </h4>
 
           <div class="grid grid-cols-1">
+
             <div>
-              <label class="block mb-2 text-sm text-gray-800 font-medium">
+
+              <label
+                class="block mb-2 text-sm text-gray-800 font-medium"
+              >
                 Email
               </label>
 
@@ -156,16 +212,23 @@
                 class="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500"
                 placeholder="employee@email.com"
               />
+
             </div>
+
           </div>
+
         </div>
 
-        <!-- Personal -->
 
+        <!-- Personal Information -->
         <div>
-          <h4 class="font-semibold text-gray-800 mb-4">Personal Information</h4>
+
+          <h4 class="font-semibold text-gray-800 mb-4">
+            Personal Information
+          </h4>
 
           <div class="grid md:grid-cols-2 gap-4">
+
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 First Name
@@ -176,6 +239,7 @@
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
             </div>
+
 
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
@@ -188,6 +252,7 @@
               />
             </div>
 
+
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Last Name
@@ -199,6 +264,7 @@
               />
             </div>
 
+
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Sex
@@ -208,13 +274,23 @@
                 v-model="form.sex"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               >
-                <option value="">Select</option>
 
-                <option value="Male">Male</option>
+                <option value="">
+                  Select
+                </option>
 
-                <option value="Female">Female</option>
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
               </select>
+
             </div>
+
 
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
@@ -226,17 +302,21 @@
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
             </div>
+
           </div>
+
         </div>
 
-        <!-- Employment -->
 
+        <!-- Employment Information -->
         <div>
+
           <h4 class="font-semibold text-gray-800 mb-4">
             Employment Information
           </h4>
 
           <div class="grid md:grid-cols-2 gap-4">
+
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Department
@@ -247,6 +327,7 @@
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
             </div>
+
 
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
@@ -259,6 +340,7 @@
               />
             </div>
 
+
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Employee Category
@@ -268,13 +350,23 @@
                 v-model="form.employee_category"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               >
-                <option value="">Select</option>
 
-                <option value="Teaching">Teaching</option>
+                <option value="">
+                  Select
+                </option>
 
-                <option value="Non-Teaching">Non-Teaching</option>
+                <option value="Teaching">
+                  Teaching
+                </option>
+
+                <option value="Non-Teaching">
+                  Non-Teaching
+                </option>
+
               </select>
+
             </div>
+
 
             <div>
               <label class="block mb-2 text-sm text-gray-800 font-medium">
@@ -287,13 +379,17 @@
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
             </div>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- Footer -->
 
+      <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
+
         <button
           @click="showCreateModal = false"
           class="px-5 py-2 rounded-lg border"
@@ -307,39 +403,58 @@
         >
           Create Employee
         </button>
+
       </div>
+
     </div>
+
   </div>
 
-  <!-- ================= EMPLOYEE CREATED ================= -->
+
+  <!-- ========================================================= -->
+  <!-- EMPLOYEE CREATED CREDENTIALS MODAL -->
+  <!-- ========================================================= -->
 
   <div
     v-if="showCredentialsModal"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
   >
+
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md">
+
       <div class="bg-green-600 text-white p-5">
-        <h3 class="text-xl font-bold">Employee Created Successfully</h3>
+
+        <h3 class="text-xl font-bold">
+          Employee Created Successfully
+        </h3>
+
       </div>
 
+
       <div class="p-6 space-y-4">
-        <div>
-          <p class="text-gray-900 text-sm">
-            Give these login credentials to the employee.
-          </p>
-        </div>
+
+        <p class="text-gray-900 text-sm">
+          Give these login credentials to the employee.
+        </p>
+
 
         <div>
-          <label class="text-sm text-black font-semibold"> Email </label>
+
+          <label class="text-sm text-black font-semibold">
+            Email
+          </label>
 
           <div
             class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1"
           >
             {{ generatedCredentials.email }}
           </div>
+
         </div>
 
+
         <div>
+
           <label class="text-sm text-black font-semibold">
             Temporary Password
           </label>
@@ -349,214 +464,373 @@
           >
             {{ generatedCredentials.password }}
           </div>
+
         </div>
 
+
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+
           <p class="text-sm text-yellow-800">
             Keep these credentials safe. The employee will use them to log in.
           </p>
+
         </div>
+
       </div>
 
+
       <div class="bg-gray-100 p-4 flex justify-end">
+
         <button
           @click="showCredentialsModal = false"
           class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
         >
           Close
         </button>
+
       </div>
+
     </div>
+
   </div>
 
-  <!-- ================= VIEW EMPLOYEE MODAL ================= -->
+
+  <!-- ========================================================= -->
+  <!-- VIEW EMPLOYEE MODAL -->
+  <!-- ========================================================= -->
 
   <div
     v-if="showViewModal && selectedEmployee"
     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
   >
+
     <div
       class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-4 overflow-hidden"
     >
-      <!-- Header -->
 
+      <!-- Header -->
       <div
         class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center"
       >
+
         <div>
-          <h2 class="text-2xl font-bold">Employee Profile</h2>
+
+          <h2 class="text-2xl font-bold">
+            Employee Profile
+          </h2>
 
           <p class="text-blue-100 text-sm">
             Employee information and employment details
           </p>
+
         </div>
 
-        <button @click="showViewModal = false" class="text-white text-3xl">
+        <button
+          @click="showViewModal = false"
+          class="text-white text-3xl"
+        >
           &times;
         </button>
+
       </div>
 
+
       <!-- Body -->
-
       <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- LEFT -->
 
+        <!-- LEFT -->
         <div class="space-y-6">
+
           <div>
+
             <h3 class="font-semibold text-blue-600 border-b pb-2">
               Account Information
             </h3>
 
             <div class="mt-4 space-y-3 text-black">
+
               <div>
-                <span class="font-medium">Employee Code:</span><br />
+
+                <span class="font-medium">
+                  Employee Code:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.employee_code }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Email:</span><br />
+
+                <span class="font-medium">
+                  Email:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.user.email }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Role:</span><br />
+
+                <span class="font-medium">
+                  Role:
+                </span>
+
+                <br />
+
                 Employee
+
               </div>
 
+
               <div>
-                <span class="font-medium">Employment Status:</span><br />
+
+                <span class="font-medium">
+                  Employment Status:
+                </span>
+
+                <br />
 
                 <span
                   class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
                 >
                   {{ selectedEmployee.employment_status }}
                 </span>
+
               </div>
+
 
               <div>
-                <span class="font-medium">Date Hired:</span><br />
+
+                <span class="font-medium">
+                  Date Hired:
+                </span>
+
+                <br />
+
                 {{ formatDate(selectedEmployee.date_hired) }}
+
               </div>
+
             </div>
+
           </div>
+
         </div>
 
-        <!-- RIGHT -->
 
+        <!-- RIGHT -->
         <div class="space-y-6">
+
           <div>
+
             <h3 class="font-semibold text-blue-600 border-b pb-2">
               Personal Information
             </h3>
 
             <div class="mt-4 space-y-3 text-black">
+
               <div>
-                <span class="font-medium">First Name:</span><br />
+
+                <span class="font-medium">
+                  First Name:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.first_name }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Middle Name:</span><br />
+
+                <span class="font-medium">
+                  Middle Name:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.middle_name || "-" }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Last Name:</span><br />
+
+                <span class="font-medium">
+                  Last Name:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.last_name }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Sex:</span><br />
+
+                <span class="font-medium">
+                  Sex:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.sex }}
+
               </div>
 
+
               <div>
-                <span class="font-medium">Contact Number:</span><br />
+
+                <span class="font-medium">
+                  Contact Number:
+                </span>
+
+                <br />
+
                 {{ selectedEmployee.contact_number || "-" }}
+
               </div>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- Employment -->
 
+      <!-- Employment -->
       <div class="px-6 pb-6">
+
         <h3 class="font-semibold text-blue-600 border-b pb-2">
           Employment Information
         </h3>
 
         <div class="grid md:grid-cols-4 gap-5 mt-5 text-black">
+
           <div>
-            <span class="font-medium"> Department </span>
+
+            <span class="font-medium">
+              Department
+            </span>
 
             <p class="mt-1">
               {{ selectedEmployee.department }}
             </p>
+
           </div>
 
+
           <div>
-            <span class="font-medium"> Position </span>
+
+            <span class="font-medium">
+              Position
+            </span>
 
             <p class="mt-1">
               {{ selectedEmployee.position }}
             </p>
+
           </div>
 
+
           <div>
-            <span class="font-medium"> Category </span>
+
+            <span class="font-medium">
+              Category
+            </span>
 
             <p class="mt-1">
               {{ selectedEmployee.employee_category }}
             </p>
+
           </div>
 
+
           <div>
-            <span class="font-medium"> Salary </span>
+
+            <span class="font-medium">
+              Salary
+            </span>
 
             <p class="mt-1">
               ₱{{ Number(selectedEmployee.salary || 0).toLocaleString() }}
             </p>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- Footer -->
 
+      <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end">
+
         <button
           @click="showViewModal = false"
           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
         >
           Close
         </button>
+
       </div>
+
     </div>
+
   </div>
-  <!-- ================= EDIT EMPLOYEE ================= -->
+
+
+  <!-- ========================================================= -->
+  <!-- EDIT EMPLOYEE MODAL -->
+  <!-- ========================================================= -->
 
   <div
     v-if="showEditModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
+
     <div
       class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden"
     >
+
       <!-- Header -->
       <div class="bg-yellow-500 text-white px-6 py-4">
-        <h3 class="text-xl font-semibold">Edit Employee</h3>
 
-        <p class="text-yellow-100 text-sm">Update employee information.</p>
+        <h3 class="text-xl font-semibold">
+          Edit Employee
+        </h3>
+
+        <p class="text-yellow-100 text-sm">
+          Update employee information.
+        </p>
+
       </div>
+
 
       <!-- Body -->
       <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+
         <!-- Account -->
         <div>
-          <h4 class="font-semibold text-gray-700 mb-4">Account Information</h4>
+
+          <h4 class="font-semibold text-gray-700 mb-4">
+            Account Information
+          </h4>
 
           <div class="grid grid-cols-1">
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Email
               </label>
@@ -566,16 +840,25 @@
                 type="email"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-yellow-500"
               />
+
             </div>
+
           </div>
+
         </div>
+
 
         <!-- Personal -->
         <div>
-          <h4 class="font-semibold text-gray-700 mb-4">Personal Information</h4>
+
+          <h4 class="font-semibold text-gray-700 mb-4">
+            Personal Information
+          </h4>
 
           <div class="grid md:grid-cols-2 gap-4">
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 First Name
               </label>
@@ -584,9 +867,12 @@
                 v-model="editForm.first_name"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Middle Name
               </label>
@@ -595,9 +881,12 @@
                 v-model="editForm.middle_name"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Last Name
               </label>
@@ -606,9 +895,12 @@
                 v-model="editForm.last_name"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Sex
               </label>
@@ -617,13 +909,22 @@
                 v-model="editForm.sex"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               >
-                <option value="Male">Male</option>
 
-                <option value="Female">Female</option>
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
               </select>
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Contact Number
               </label>
@@ -632,18 +933,25 @@
                 v-model="editForm.contact_number"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
+
           </div>
+
         </div>
+
 
         <!-- Employment -->
         <div>
+
           <h4 class="font-semibold text-gray-700 mb-4">
             Employment Information
           </h4>
 
           <div class="grid md:grid-cols-2 gap-4">
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Department
               </label>
@@ -652,9 +960,12 @@
                 v-model="editForm.department"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Position
               </label>
@@ -663,9 +974,12 @@
                 v-model="editForm.position"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Employee Category
               </label>
@@ -674,13 +988,22 @@
                 v-model="editForm.employee_category"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               >
-                <option value="Teaching">Teaching</option>
 
-                <option value="Non-Teaching">Non-Teaching</option>
+                <option value="Teaching">
+                  Teaching
+                </option>
+
+                <option value="Non-Teaching">
+                  Non-Teaching
+                </option>
+
               </select>
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Salary
               </label>
@@ -690,9 +1013,12 @@
                 type="number"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               />
+
             </div>
 
+
             <div>
+
               <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Employment Status
               </label>
@@ -701,17 +1027,29 @@
                 v-model="editForm.employment_status"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800"
               >
-                <option value="active">Active</option>
 
-                <option value="inactive">Inactive</option>
+                <option value="active">
+                  Active
+                </option>
+
+                <option value="inactive">
+                  Inactive
+                </option>
+
               </select>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
+
 
       <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
+
         <button
           @click="showEditModal = false"
           class="px-5 py-2 rounded-lg border"
@@ -725,11 +1063,18 @@
         >
           Save Changes
         </button>
+
       </div>
+
     </div>
+
   </div>
+
 </template>
+
+
 <script setup lang="ts">
+
 import { ref, computed, onMounted } from "vue";
 
 import {
@@ -738,7 +1083,13 @@ import {
   updateEmployee as updateEmployeeAPI,
 } from "@/services/employee";
 
+
+/* ========================================================= */
+/* INTERFACE */
+/* ========================================================= */
+
 interface Employee {
+
   employee_id: number;
 
   employee_code: string;
@@ -763,10 +1114,18 @@ interface Employee {
 
   sex: string;
 
+  date_hired?: string;
+
   user: {
     email: string;
   };
+
 }
+
+
+/* ========================================================= */
+/* STATE */
+/* ========================================================= */
 
 const employees = ref<Employee[]>([]);
 
@@ -776,194 +1135,405 @@ const showCreateModal = ref(false);
 
 const showViewModal = ref(false);
 
-const selectedEmployee = ref<any>(null);
-
-const form = ref({
-  email: "",
-
-  first_name: "",
-
-  middle_name: "",
-
-  last_name: "",
-
-  sex: "",
-
-  department: "",
-
-  position: "",
-
-  employee_category: "",
-
-  salary: "",
-
-  contact_number: "",
-});
-const formatDate = (date: string) => {
-  if (!date) return "-";
-
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+const showEditModal = ref(false);
 
 const showCredentialsModal = ref(false);
 
-const generatedCredentials = ref({
+const selectedEmployee = ref<Employee | null>(null);
+
+
+/* ========================================================= */
+/* CREATE FORM */
+/* ========================================================= */
+
+const form = ref({
+
   email: "",
-  password: "",
+
+  first_name: "",
+
+  middle_name: "",
+
+  last_name: "",
+
+  sex: "",
+
+  department: "",
+
+  position: "",
+
+  employee_category: "",
+
+  salary: "",
+
+  contact_number: "",
+
 });
 
-const viewEmployee = (employee: any) => {
+
+/* ========================================================= */
+/* GENERATED CREDENTIALS */
+/* ========================================================= */
+
+const generatedCredentials = ref({
+
+  email: "",
+
+  password: "",
+
+});
+
+
+/* ========================================================= */
+/* EDIT FORM */
+/* ========================================================= */
+
+const editForm = ref({
+
+  employee_id: 0,
+
+  email: "",
+
+  first_name: "",
+
+  middle_name: "",
+
+  last_name: "",
+
+  sex: "",
+
+  department: "",
+
+  position: "",
+
+  employee_category: "",
+
+  salary: "",
+
+  contact_number: "",
+
+  employment_status: "",
+
+});
+
+
+/* ========================================================= */
+/* FORMAT DATE */
+/* ========================================================= */
+
+const formatDate = (date: string) => {
+
+  if (!date) return "-";
+
+  return new Date(date).toLocaleDateString("en-US", {
+
+    year: "numeric",
+
+    month: "long",
+
+    day: "numeric",
+
+  });
+
+};
+
+
+/* ========================================================= */
+/* VIEW EMPLOYEE */
+/* ========================================================= */
+
+const viewEmployee = (employee: Employee) => {
+
   selectedEmployee.value = employee;
 
   showViewModal.value = true;
+
 };
+
+
+/* ========================================================= */
+/* SEARCH / FILTER */
+/* ========================================================= */
+
 const filteredEmployees = computed(() => {
+
+  const keyword = search.value.toLowerCase().trim();
+
+  if (!keyword) {
+
+    return employees.value;
+
+  }
+
   return employees.value.filter((employee) => {
-    const keyword = search.value.toLowerCase();
+
+    const firstName =
+      employee.first_name?.toLowerCase() || "";
+
+    const lastName =
+      employee.last_name?.toLowerCase() || "";
+
+    const employeeCode =
+      employee.employee_code?.toLowerCase() || "";
+
+    const email =
+      employee.user?.email?.toLowerCase() || "";
+
+    const department =
+      employee.department?.toLowerCase() || "";
+
+    const position =
+      employee.position?.toLowerCase() || "";
 
     return (
-      employee.first_name.toLowerCase().includes(keyword) ||
-      employee.last_name.toLowerCase().includes(keyword) ||
-      employee.employee_code.toLowerCase().includes(keyword) ||
-      employee.user.email.toLowerCase().includes(keyword)
+      firstName.includes(keyword) ||
+      lastName.includes(keyword) ||
+      employeeCode.includes(keyword) ||
+      email.includes(keyword) ||
+      department.includes(keyword) ||
+      position.includes(keyword)
     );
+
   });
+
 });
 
-const showEditModal = ref(false);
 
-const editForm = ref({
-  employee_id: 0,
-  email: "",
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  sex: "",
-  department: "",
-  position: "",
-  employee_category: "",
-  salary: "",
-  contact_number: "",
-  employment_status: "",
-});
+/* ========================================================= */
+/* EDIT EMPLOYEE */
+/* ========================================================= */
 
-const editEmployee = (employee: any) => {
+const editEmployee = (employee: Employee) => {
+
   editForm.value = {
+
     employee_id: Number(employee.employee_id),
+
     email: employee.user?.email || "",
-    first_name: employee.first_name,
-    middle_name: employee.middle_name,
-    last_name: employee.last_name,
-    sex: employee.sex,
-    department: employee.department,
-    position: employee.position,
-    employee_category: employee.employee_category,
-    salary: employee.salary,
-    contact_number: employee.contact_number,
-    employment_status: employee.employment_status,
+
+    first_name: employee.first_name || "",
+
+    middle_name: employee.middle_name || "",
+
+    last_name: employee.last_name || "",
+
+    sex: employee.sex || "",
+
+    department: employee.department || "",
+
+    position: employee.position || "",
+
+    employee_category: employee.employee_category || "",
+
+    salary: employee.salary as any,
+
+    contact_number: employee.contact_number || "",
+
+    employment_status: employee.employment_status || "",
+
   };
 
   showEditModal.value = true;
+
 };
 
+
+/* ========================================================= */
+/* UPDATE EMPLOYEE */
+/* ========================================================= */
+
 const updateEmployee = async () => {
+
   try {
-    await updateEmployeeAPI(editForm.value.employee_id, editForm.value);
+
+    await updateEmployeeAPI(
+      editForm.value.employee_id,
+      editForm.value
+    );
 
     alert("Employee updated successfully!");
 
     showEditModal.value = false;
 
     await loadEmployees();
+
   } catch (error) {
+
     console.error(error);
 
     alert("Unable to update employee.");
+
   }
+
 };
+
+
+/* ========================================================= */
+/* LOAD EMPLOYEES */
+/* ========================================================= */
+
 const loadEmployees = async () => {
+
   try {
+
     employees.value = await getEmployees();
 
-    console.log(employees.value);
+    console.log("Employees:", employees.value);
+
   } catch (error) {
-    console.error(error);
+
+    console.error("Failed to load employees:", error);
+
   }
+
 };
 
+
+/* ========================================================= */
+/* CREATE EMPLOYEE */
+/* ========================================================= */
+
 const saveEmployee = async () => {
+
   try {
+
     const response = await createEmployeeAPI(form.value);
 
     generatedCredentials.value = {
-      email: response.email,
-      password: response.password,
-    };
 
-    showCredentialsModal.value = true;
+      email: response.email,
+
+      password: response.password,
+
+    };
 
     showCreateModal.value = false;
 
+    showCredentialsModal.value = true;
+
     await loadEmployees();
 
+
+    /* Reset form */
+
     form.value = {
+
       email: "",
+
       first_name: "",
+
       middle_name: "",
+
       last_name: "",
+
       sex: "",
+
       department: "",
+
       position: "",
+
       employee_category: "",
+
       salary: "",
+
       contact_number: "",
+
     };
+
   } catch (error) {
+
     console.error(error);
+
     alert("Unable to create employee.");
+
   }
+
 };
 
+
+/* ========================================================= */
+/* INITIAL LOAD */
+/* ========================================================= */
+
 onMounted(() => {
+
   loadEmployees();
+
 });
+
 </script>
 
 
 <style scoped>
+
 .dashboard-shell {
+
   background: #080D14;
+
+  min-height: 100vh;
+
+  padding: 1.5rem;
+
 }
+
 
 .neo-card {
+
   background: #111D2E;
+
   border: 1px solid #1E293B;
+
   border-radius: 1.4rem;
+
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
 }
+
 
 .neo-card:hover {
+
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+
 }
+
 
 .stats-card {
+
   border-left: 4px solid currentColor;
+
   padding: 1.35rem;
+
 }
 
+
 .stats-card .p-3 {
+
   border-radius: 0.9rem;
+
 }
+
 
 .neo-card h3,
 .neo-card p,
 .neo-card span,
 .neo-card button {
+
   letter-spacing: -0.01em;
+
 }
+
+
+/* Keep action buttons beside each other */
+
+td:last-child {
+
+  white-space: nowrap;
+
+}
+
+
 </style>

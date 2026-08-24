@@ -17,6 +17,7 @@ use App\Http\Controllers\API\AuditLogController;
 use App\Http\Controllers\API\LeaveSettingController;
 use App\Http\Controllers\ApprovalSettingController;
 use App\Http\Controllers\API\SystemSettingController;
+use App\Http\Controllers\API\BackupController;
 
 
 /*
@@ -117,6 +118,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/leave-applications/{id}', [LeaveController::class, 'updateStatus']);
         Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
 
+        Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
+
 
         // Leave Credits
         Route::post('/leave-credits', [LeaveCreditController::class, 'store']);
@@ -164,6 +167,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/leave-settings', [LeaveSettingController::class, 'update']);
         Route::put('/approval-settings', [ApprovalSettingController::class, 'update']);
         Route::put('/system-settings', [SystemSettingController::class, 'update']);
+
+        // Backups
+        Route::post('/backups', [BackupController::class, 'create']);
+        Route::get('/backups', [BackupController::class, 'index']);
+        Route::get('/backups/{id}/download', [BackupController::class, 'download']);
     });
 
 
