@@ -29,6 +29,11 @@ class BackupController extends Controller
 
             $tables = Schema::getTables();
 
+            $excludedTables = [
+                'personal_access_tokens',
+                'sessions',
+            ];
+
             $backupData = [
                 'system' => [
                     'name' => 'ENHS Leave Management System',
@@ -42,6 +47,7 @@ class BackupController extends Controller
                 $tableName = $tableInfo['name'];
 
                 if (
+                    in_array($tableName, $excludedTables) ||
                     str_starts_with($tableName, 'pg_') ||
                     str_starts_with($tableName, 'sql_') ||
                     $tableName === 'spatial_ref_sys'
@@ -52,7 +58,7 @@ class BackupController extends Controller
                 try {
                     $backupData['tables'][$tableName] = DB::table($tableName)
                         ->get()
-                        ->map(fn($row) => (array) $row)
+                        ->map(fn ($row) => (array) $row)
                         ->toArray();
                 } catch (Throwable $e) {
                     continue;
@@ -116,7 +122,7 @@ class BackupController extends Controller
 
             if (!Storage::disk('local')->exists($backup->file_path)) {
                 return response()->json([
-                    'message' => 'Backup file not found.'
+                    'message' => 'Backup file not found.',
                 ], 404);
             }
 
@@ -127,6 +133,98 @@ class BackupController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'message' => 'Failed to download backup.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function restore(Request $request)
+    {
+        try {
+            $request->validate([
+                'backup_file' => 'required|file|mimes:json|max:51200',
+            ]);
+
+            $file = $request->file('backup_file');
+
+            $contents = file_get_contents($file->getRealPath());
+
+            $backupData = json_decode($contents, true);
+
+            if (
+                json_last_error() !== JSON_ERROR_NONE ||
+                !isset($backupData['tables']) ||
+                !is_array($backupData['tables'])
+            ) {
+                return response()->json([
+                    'message' => 'Invalid backup file format.',
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            try {
+                $tables = $backupData['tables'];
+
+                $excludedTables = [
+                    'personal_access_tokens',
+                    'sessions',
+                ];
+
+                $existingTables = array_keys($tables);
+
+                $tableOrder = [];
+
+                foreach ($existingTables as $tableName) {
+                    if (
+                        in_array($tableName, $excludedTables) ||
+                        str_starts_with($tableName, 'pg_') ||
+                        str_starts_with($tableName, 'sql_') ||
+                        $tableName === 'spatial_ref_sys'
+                    ) {
+                        continue;
+                    }
+
+                    if (!Schema::hasTable($tableName)) {
+                        continue;
+                    }
+
+                    $tableOrder[] = $tableName;
+                }
+
+                DB::statement('SET session_replication_role = replica');
+
+                foreach ($tableOrder as $tableName) {
+                    DB::table($tableName)->delete();
+                }
+
+                foreach ($tableOrder as $tableName) {
+                    $rows = $tables[$tableName];
+
+                    if (!empty($rows)) {
+                        foreach (array_chunk($rows, 100) as $chunk) {
+                            DB::table($tableName)->insert($chunk);
+                        }
+                    }
+                }
+
+                DB::statement('SET session_replication_role = origin');
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Database restored successfully.',
+                ]);
+            } catch (Throwable $e) {
+                DB::statement('SET session_replication_role = origin');
+
+                DB::rollBack();
+
+                throw $e;
+            }
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => 'Failed to restore database.',
                 'error' => $e->getMessage(),
             ], 500);
         }

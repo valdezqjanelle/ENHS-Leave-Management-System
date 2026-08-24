@@ -172,6 +172,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/backups', [BackupController::class, 'create']);
         Route::get('/backups', [BackupController::class, 'index']);
         Route::get('/backups/{id}/download', [BackupController::class, 'download']);
+        Route::post('/backups/restore', [BackupController::class, 'restore']);
     });
 
 

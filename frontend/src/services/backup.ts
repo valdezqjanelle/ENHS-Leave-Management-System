@@ -13,3 +13,11 @@ export const downloadBackup = (id: number) => {
     responseType: "blob",
   });
 };
+
+export const restoreDatabaseBackup = (file: File) => {
+  const formData = new FormData();
+
+  formData.append("backup_file", file);
+
+  return api.post("/backups/restore", formData);
+};

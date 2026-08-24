@@ -1010,18 +1010,49 @@
           </div>
         </div>
 
-        <div
-          class="mt-5 bg-green-500/10 border border-green-500/30 rounded-lg p-4"
-        >
-          <p class="text-sm font-medium text-green-400">
-            Recovery Status: Ready
-          </p>
+        <div class="mt-5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+  <p class="text-sm font-medium text-yellow-400">
+    Restore Database
+  </p>
 
-          <p class="text-sm text-green-500/80 mt-1">
-            The latest available database backup can be used for recovery when
-            necessary.
-          </p>
-        </div>
+  <p class="text-sm text-yellow-500/80 mt-1 mb-4">
+    Select a previously downloaded JSON database backup file to restore the
+    system data.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input
+      ref="restoreFileInput"
+      type="file"
+      accept=".json,application/json"
+      @change="handleRestoreFile"
+      class="hidden"
+    />
+
+    <button
+      @click="restoreFileInput?.click()"
+      :disabled="restoreLoading"
+      class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+    >
+      {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
+    </button>
+  </div>
+
+  <p
+    v-if="selectedRestoreFile"
+    class="text-sm text-gray-400 mt-3"
+  >
+    Selected file:
+    <span class="text-white">
+      {{ selectedRestoreFile.name }}
+    </span>
+  </p>
+
+  <p class="text-xs text-red-400 mt-3">
+    Warning: Restoring a backup will replace the current database records
+    with the records contained in the selected backup.
+  </p>
+</div>
       </div>
     </div>
 
@@ -1112,6 +1143,7 @@ import {
   createDatabaseBackup,
   getBackups,
   downloadBackup,
+  restoreDatabaseBackup
 } from "@/services/backup";
 
 const activeTab = ref("account");
@@ -1557,6 +1589,11 @@ const saveSystemSettings = async () => {
 };
 
 const backupLoading = ref(false);
+const restoreLoading = ref(false);
+
+const selectedRestoreFile = ref<File | null>(null);
+
+const restoreFileInput = ref<HTMLInputElement | null>(null);
 
 const lastBackup = ref({
   id: null as number | null,
@@ -1697,6 +1734,82 @@ const downloadLatestBackup = async () => {
     );
   }
 };
+
+const handleRestoreFile = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+
+  if (!input.files || input.files.length === 0) {
+    return;
+  }
+
+const file = input.files.item(0);
+
+if (!file) {
+  return;
+}
+
+  // Make sure the file is JSON
+  if (
+    file.type !== "application/json" &&
+    !file.name.toLowerCase().endsWith(".json")
+  ) {
+    alert("Please select a valid JSON backup file.");
+
+    input.value = "";
+
+    return;
+  }
+
+  selectedRestoreFile.value = file;
+
+  const confirmed = confirm(
+    `Are you sure you want to restore "${file.name}"?\n\n` +
+      "This will replace the current database records with the records from this backup."
+  );
+
+  if (!confirmed) {
+    selectedRestoreFile.value = null;
+    input.value = "";
+
+    return;
+  }
+
+  restoreLoading.value = true;
+
+  try {
+    const response = await restoreDatabaseBackup(file);
+
+    console.log("RESTORE RESPONSE:", response);
+
+    alert(
+      response.data?.message ||
+        "Database restored successfully."
+    );
+
+    selectedRestoreFile.value = null;
+
+    // Reload backup information
+    await loadBackups();
+
+    // Reset file input so the same file can be selected again
+    input.value = "";
+ } catch (error: any) {
+  console.error("FULL RESTORE ERROR:", error);
+  console.error("STATUS:", error.response?.status);
+  console.error("DATA:", error.response?.data);
+
+  alert(
+    "RESTORE FAILED\n\n" +
+    JSON.stringify(error.response?.data, null, 2)
+  );
+
+  input.value = "";
+
+  } finally {
+    restoreLoading.value = false;
+  }
+};
+
 
 
 onMounted(() => {
