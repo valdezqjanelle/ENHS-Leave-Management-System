@@ -3,6 +3,16 @@
     <!-- ========================================= -->
     <!-- PRINT BUTTON -->
     <!-- ========================================= -->
+ <div class="flex justify-end gap-3 mb-4 print:hidden">
+
+   <button
+  @click="goBack"
+  class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+>
+  Back
+</button>
+ </div>
+    
 
     <div class="flex justify-end gap-3 mb-4 print:hidden">
       <button
@@ -722,6 +732,8 @@ import { ref, computed, onMounted } from "vue";
 
 import { useRoute } from "vue-router";
 
+import { useRouter } from "vue-router";
+
 import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
 
 import api from "../services/api";
@@ -731,6 +743,8 @@ import api from "../services/api";
 ========================================= */
 
 const route = useRoute();
+
+const router = useRouter();
 
 /* =========================================
    STATE
@@ -743,6 +757,10 @@ const leaveTypes = ref<any[]>([]);
 const loading = ref(true);
 
 const printingPdf = ref(false);
+
+const goBack = () => {
+  router.push("/admin-applications");
+};
 
 
 /* =========================================
