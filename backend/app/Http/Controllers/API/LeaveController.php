@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\LeaveApplication;
 use App\Models\LeaveAttachment;
@@ -284,6 +285,23 @@ public function show($id)
 
         return $pdf->download($filename);
     }
+
+    public function downloadAttachment($leave_id, $attachment_id)
+{
+    $attachment = LeaveAttachment::where('leave_id', $leave_id)
+        ->where('attachment_id', $attachment_id)
+        ->firstOrFail();
+
+    if (!Storage::disk('public')->exists($attachment->file_path)) {
+        return response()->json([
+            'message' => 'Attachment file not found.'
+        ], 404);
+    }
+
+    $path = Storage::disk('public')->path($attachment->file_path);
+
+    return response()->file($path);
+}
 
 
    /*

@@ -117,6 +117,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/leave-applications/{id}', [LeaveController::class, 'updateStatus']);
         Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
 
+        Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
+
 
         // Leave Credits
         Route::post('/leave-credits', [LeaveCreditController::class, 'store']);
