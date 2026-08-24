@@ -1422,22 +1422,24 @@ const formatDate = (
 };
 
 
-/* =========================================
-   ATTACHMENT URL
-========================================= */
+const getAttachmentUrl = (attachment: any) => {
+  if (attachment.file_url) {
+    return attachment.file_url;
+  }
 
-const getAttachmentUrl = (
-  attachment: any
-) => {
+  if (attachment.url) {
+    return attachment.url;
+  }
 
-  return (
-    attachment.file_url ||
-    attachment.url ||
-    attachment.download_url ||
-    attachment.file_path ||
-    ""
-  );
+  if (attachment.download_url) {
+    return attachment.download_url;
+  }
 
+  if (attachment.file_path) {
+    return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
+  }
+
+  return "";
 };
 
 
@@ -1483,30 +1485,13 @@ const isPdf = (
 };
 
 
-/* =========================================
-   CHECK IMAGE
-========================================= */
-
-const isImage = (
-  attachment: any
-) => {
-
-  const name =
-    getAttachmentName(
-      attachment
-    );
-
+const isImage = (attachment: any) => {
+  const name = getAttachmentName(attachment);
 
   return (
-    attachment.file_type?.startsWith(
-      "image/"
-    ) ||
-
-    /\.(jpg|jpeg|png|gif|webp)$/i.test(
-      name
-    )
+    attachment.file_type?.startsWith("image/") ||
+    /\.(jpg|jpeg|png|gif|webp)$/i.test(name)
   );
-
 };
 
 
