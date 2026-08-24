@@ -11,7 +11,8 @@ class LeaveType extends Model
 
     protected $fillable = [
         'leave_type_name',
-        'description',
+        'code',
+        'legal_basis',
     ];
 
     public $timestamps = true;
