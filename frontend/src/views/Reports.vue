@@ -1594,9 +1594,141 @@ const generateCustomReport = () => {
 
 const exportReport = () => {
 
-  console.log(
-    'Export report'
+  let data: any[] = []
+  let filename = 'report.csv'
+
+  switch (selectedReportType.value) {
+
+    case 'leave-summary':
+
+      data = leaveSummaryData.value.map((item: any) => ({
+        Department: item.department ?? '',
+        'Total Leaves': item.total ?? 0,
+        Approved: item.approved ?? 0,
+        Pending: item.pending ?? 0,
+        Disapproved: item.disapproved ?? 0
+      }))
+
+      filename = 'leave-summary-report.csv'
+
+      break
+
+
+    case 'leave-credits':
+
+      data = creditsData.value.map((employee: any) => ({
+        Employee: employee.employee_name ?? '',
+        Department: employee.department ?? '',
+        'Vacation Balance': employee.vacation_balance ?? 0,
+        'Sick Balance': employee.sick_balance ?? 0,
+        'Used Leave': employee.used_leave ?? 0
+      }))
+
+      filename = 'leave-credits-report.csv'
+
+      break
+
+
+    case 'faculty-performance':
+
+      data = employeeData.value.map((employee: any) => ({
+        Employee: employee.employee_name ?? '',
+        Department: employee.department ?? '',
+        Position: employee.position ?? '',
+        'Employment Status': employee.employment_status ?? '',
+        'Vacation Balance': employee.vacation_balance ?? 0,
+        'Sick Balance': employee.sick_balance ?? 0,
+        'Used Leave': employee.used_leave ?? 0
+      }))
+
+      filename = 'employee-performance-report.csv'
+
+      break
+
+
+    case 'attendance':
+
+      data = attendanceData.map((dept: any) => ({
+        Department: dept.department ?? '',
+        'Total Faculty': dept.totalFaculty ?? 0,
+        'Present Days': dept.presentDays ?? 0,
+        'Late Days': dept.lateDays ?? 0,
+        'Absent Days': dept.absentDays ?? 0,
+        'Attendance Rate': `${dept.attendanceRate ?? 0}%`
+      }))
+
+      filename = 'attendance-report.csv'
+
+      break
+  }
+
+
+  // Check if there is data to export
+  if (data.length === 0) {
+
+    alert('No data available to export.')
+
+    return
+
+  }
+
+
+  // Get column headers
+  const headers = Object.keys(data[0])
+
+
+  // Convert data to CSV
+  const csvRows = [
+
+    headers.join(','),
+
+    ...data.map((row) =>
+      headers
+        .map((header) => {
+
+          const value = row[header] ?? ''
+
+          // Escape quotes and commas
+          return `"${String(value).replace(/"/g, '""')}"`
+
+        })
+        .join(',')
+    )
+
+  ]
+
+
+  const csvContent =
+    '\uFEFF' + csvRows.join('\n')
+
+
+  // Create downloadable file
+  const blob = new Blob(
+    [csvContent],
+    {
+      type: 'text/csv;charset=utf-8;'
+    }
   )
+
+
+  const url =
+    URL.createObjectURL(blob)
+
+
+  const link =
+    document.createElement('a')
+
+
+  link.href = url
+  link.download = filename
+
+  document.body.appendChild(link)
+
+  link.click()
+
+  document.body.removeChild(link)
+
+  URL.revokeObjectURL(url)
 
 }
 
