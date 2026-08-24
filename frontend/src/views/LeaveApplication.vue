@@ -472,7 +472,7 @@
             <input
               type="file"
               multiple
-              accept=".pdf,.doc,.docx"
+              accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
               @change="handleFileUpload"
               class="hidden"
               ref="fileInput"
