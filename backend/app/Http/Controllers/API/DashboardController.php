@@ -486,7 +486,7 @@ class DashboardController extends Controller
                     $employee->department,
 
                 "position" =>
-                    $employee->position
+                    $employee->positionInfo->name ?? '',
 
             ],
 

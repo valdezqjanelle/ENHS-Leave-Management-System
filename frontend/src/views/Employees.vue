@@ -1,5 +1,6 @@
 <template>
-  <div class="dashboard-shell max-w-7xl mx-auto space-y-6">
+  <div>
+    <div class="dashboard-shell max-w-7xl mx-auto space-y-6">
 
     <!-- ================= HEADER ================= -->
     <div class="neo-card p-6">
@@ -14,10 +15,8 @@
           </p>
         </div>
 
-        <button
-          @click="showCreateModal = true"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
-        >
+        <button @click="showCreateModal = true"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition">
           + Create Employee
         </button>
       </div>
@@ -25,12 +24,8 @@
 
     <!-- ================= SEARCH ================= -->
     <div class="neo-card p-6">
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Search employee..."
-        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-      />
+      <input v-model="search" type="text" placeholder="Search employee..."
+        class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black" />
     </div>
 
     <!-- ================= EMPLOYEE TABLE ================= -->
@@ -81,11 +76,8 @@
 
         <tbody>
 
-          <tr
-            v-for="employee in filteredEmployees"
-            :key="employee.employee_id"
-            class="border-t hover:bg-gray-800 transition-colors duration-200"
-          >
+          <tr v-for="employee in filteredEmployees" :key="employee.employee_id"
+            class="border-t hover:bg-gray-800 transition-colors duration-200">
 
             <td class="px-6 py-4 text-white font-semibold whitespace-nowrap">
               {{ employee.employee_code }}
@@ -104,9 +96,8 @@
             <td class="px-6 py-4 text-white whitespace-nowrap">
               {{ employee.department }}
             </td>
-
             <td class="px-6 py-4 text-white whitespace-nowrap">
-              {{ employee.position }}
+              {{ employee.position?.name || "-" }}
             </td>
 
             <td class="px-6 py-4 text-white whitespace-nowrap">
@@ -114,9 +105,7 @@
             </td>
 
             <td class="px-6 py-4 text-white whitespace-nowrap">
-              <span
-                class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"
-              >
+              <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
                 {{ employee.employment_status }}
               </span>
             </td>
@@ -127,21 +116,15 @@
 
             <!-- ================= ACTION BUTTONS ================= -->
             <td class="px-6 py-4">
-              <div
-                class="flex items-center justify-center gap-2 whitespace-nowrap"
-              >
+              <div class="flex items-center justify-center gap-2 whitespace-nowrap">
 
-                <button
-                  @click="viewEmployee(employee)"
-                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                >
+                <button @click="viewEmployee(employee)"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
                   View
                 </button>
 
-                <button
-                  @click="editEmployee(employee)"
-                  class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                >
+                <button @click="editEmployee(employee)"
+                  class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200">
                   Edit
                 </button>
 
@@ -152,10 +135,7 @@
 
           <!-- ================= EMPTY STATE ================= -->
           <tr v-if="filteredEmployees.length === 0">
-            <td
-              colspan="8"
-              class="text-center py-10 text-white"
-            >
+            <td colspan="8" class="text-center py-10 text-white">
               No employees found.
             </td>
           </tr>
@@ -164,21 +144,16 @@
 
       </table>
     </div>
-  </div>
+    </div>
 
 
   <!-- ========================================================= -->
   <!-- CREATE EMPLOYEE MODAL -->
   <!-- ========================================================= -->
 
-  <div
-    v-if="showCreateModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-  >
+  <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
-    <div
-      class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden"
-    >
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
 
       <!-- Header -->
       <div class="bg-blue-600 text-white px-6 py-4">
@@ -208,18 +183,13 @@
 
             <div>
 
-              <label
-                class="block mb-2 text-sm text-gray-800 font-medium"
-              >
+              <label class="block mb-2 text-sm text-gray-800 font-medium">
                 Email
               </label>
 
-              <input
-                v-model="form.email"
-                type="email"
+              <input v-model="form.email" type="email"
                 class="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500"
-                placeholder="employee@email.com"
-              />
+                placeholder="employee@email.com" />
 
             </div>
 
@@ -242,10 +212,7 @@
                 First Name
               </label>
 
-              <input
-                v-model="form.first_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.first_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
 
@@ -254,10 +221,7 @@
                 Middle Name
               </label>
 
-              <input
-                v-model="form.middle_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.middle_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
 
@@ -266,10 +230,7 @@
                 Last Name
               </label>
 
-              <input
-                v-model="form.last_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.last_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
 
@@ -278,10 +239,7 @@
                 Sex
               </label>
 
-              <select
-                v-model="form.sex"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              >
+              <select v-model="form.sex" class="w-full border rounded-lg px-3 py-2 text-gray-800">
 
                 <option value="">
                   Select
@@ -305,10 +263,7 @@
                 Contact Number
               </label>
 
-              <input
-                v-model="form.contact_number"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.contact_number" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
           </div>
@@ -330,10 +285,7 @@
                 Department
               </label>
 
-              <input
-                v-model="form.department"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.department" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
 
@@ -342,10 +294,12 @@
                 Position
               </label>
 
-              <input
-                v-model="form.position"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <select v-model="form.position_id" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                <option :value="null">Select</option>
+                <option v-for="pos in positions" :key="pos.id" :value="pos.id">
+                  {{ pos.name }}
+                </option>
+              </select>
             </div>
 
 
@@ -354,10 +308,7 @@
                 Employee Category
               </label>
 
-              <select
-                v-model="form.employee_category"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              >
+              <select v-model="form.employee_category" class="w-full border rounded-lg px-3 py-2 text-gray-800">
 
                 <option value="">
                   Select
@@ -381,11 +332,7 @@
                 Salary
               </label>
 
-              <input
-                v-model="form.salary"
-                type="number"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="form.salary" type="number" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
             </div>
 
           </div>
@@ -398,17 +345,11 @@
       <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
 
-        <button
-          @click="showCreateModal = false"
-          class="px-5 py-2 rounded-lg border"
-        >
+        <button @click="showCreateModal = false" class="px-5 py-2 rounded-lg border">
           Cancel
         </button>
 
-        <button
-          @click="saveEmployee"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-        >
+        <button @click="saveEmployee" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
           Create Employee
         </button>
 
@@ -423,10 +364,7 @@
   <!-- EMPLOYEE CREATED CREDENTIALS MODAL -->
   <!-- ========================================================= -->
 
-  <div
-    v-if="showCredentialsModal"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-  >
+  <div v-if="showCredentialsModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md">
 
@@ -452,9 +390,7 @@
             Email
           </label>
 
-          <div
-            class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1"
-          >
+          <div class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1">
             {{ generatedCredentials.email }}
           </div>
 
@@ -467,9 +403,7 @@
             Temporary Password
           </label>
 
-          <div
-            class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 font-mono"
-          >
+          <div class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 font-mono">
             {{ generatedCredentials.password }}
           </div>
 
@@ -489,10 +423,8 @@
 
       <div class="bg-gray-100 p-4 flex justify-end">
 
-        <button
-          @click="showCredentialsModal = false"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
-        >
+        <button @click="showCredentialsModal = false"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
           Close
         </button>
 
@@ -507,19 +439,12 @@
   <!-- VIEW EMPLOYEE MODAL -->
   <!-- ========================================================= -->
 
-  <div
-    v-if="showViewModal && selectedEmployee"
-    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-  >
+  <div v-if="showViewModal && selectedEmployee" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 
-    <div
-      class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-4 overflow-hidden"
-    >
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-4 overflow-hidden">
 
       <!-- Header -->
-      <div
-        class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center"
-      >
+      <div class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center">
 
         <div>
 
@@ -533,10 +458,7 @@
 
         </div>
 
-        <button
-          @click="showViewModal = false"
-          class="text-white text-3xl"
-        >
+        <button @click="showViewModal = false" class="text-white text-3xl">
           &times;
         </button>
 
@@ -604,9 +526,7 @@
 
                 <br />
 
-                <span
-                  class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-                >
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                   {{ selectedEmployee.employment_status }}
                 </span>
 
@@ -745,7 +665,7 @@
             </span>
 
             <p class="mt-1">
-              {{ selectedEmployee.position }}
+              {{ selectedEmployee.position?.name || "-" }}
             </p>
 
           </div>
@@ -784,10 +704,7 @@
       <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end">
 
-        <button
-          @click="showViewModal = false"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-        >
+        <button @click="showViewModal = false" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
           Close
         </button>
 
@@ -802,14 +719,9 @@
   <!-- EDIT EMPLOYEE MODAL -->
   <!-- ========================================================= -->
 
-  <div
-    v-if="showEditModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-  >
+  <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
-    <div
-      class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden"
-    >
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
 
       <!-- Header -->
       <div class="bg-yellow-500 text-white px-6 py-4">
@@ -843,11 +755,8 @@
                 Email
               </label>
 
-              <input
-                v-model="editForm.email"
-                type="email"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-yellow-500"
-              />
+              <input v-model="editForm.email" type="email"
+                class="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-yellow-500" />
 
             </div>
 
@@ -871,10 +780,7 @@
                 First Name
               </label>
 
-              <input
-                v-model="editForm.first_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.first_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -885,10 +791,7 @@
                 Middle Name
               </label>
 
-              <input
-                v-model="editForm.middle_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.middle_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -899,10 +802,7 @@
                 Last Name
               </label>
 
-              <input
-                v-model="editForm.last_name"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.last_name" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -913,10 +813,7 @@
                 Sex
               </label>
 
-              <select
-                v-model="editForm.sex"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              >
+              <select v-model="editForm.sex" class="w-full border rounded-lg px-3 py-2 text-gray-800">
 
                 <option value="Male">
                   Male
@@ -937,10 +834,7 @@
                 Contact Number
               </label>
 
-              <input
-                v-model="editForm.contact_number"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.contact_number" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -964,10 +858,7 @@
                 Department
               </label>
 
-              <input
-                v-model="editForm.department"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.department" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -978,10 +869,12 @@
                 Position
               </label>
 
-              <input
-                v-model="editForm.position"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <select v-model="editForm.position_id" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                <option :value="null">Select</option>
+                <option v-for="pos in positions" :key="pos.id" :value="pos.id">
+                  {{ pos.name }}
+                </option>
+              </select>
 
             </div>
 
@@ -992,10 +885,7 @@
                 Employee Category
               </label>
 
-              <select
-                v-model="editForm.employee_category"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              >
+              <select v-model="editForm.employee_category" class="w-full border rounded-lg px-3 py-2 text-gray-800">
 
                 <option value="Teaching">
                   Teaching
@@ -1016,11 +906,7 @@
                 Salary
               </label>
 
-              <input
-                v-model="editForm.salary"
-                type="number"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              />
+              <input v-model="editForm.salary" type="number" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
 
             </div>
 
@@ -1031,10 +917,7 @@
                 Employment Status
               </label>
 
-              <select
-                v-model="editForm.employment_status"
-                class="w-full border rounded-lg px-3 py-2 text-gray-800"
-              >
+              <select v-model="editForm.employment_status" class="w-full border rounded-lg px-3 py-2 text-gray-800">
 
                 <option value="active">
                   Active
@@ -1058,17 +941,11 @@
       <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3">
 
-        <button
-          @click="showEditModal = false"
-          class="px-5 py-2 rounded-lg border"
-        >
+        <button @click="showEditModal = false" class="px-5 py-2 rounded-lg border">
           Cancel
         </button>
 
-        <button
-          @click="updateEmployee"
-          class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg"
-        >
+        <button @click="updateEmployee" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg">
           Save Changes
         </button>
 
@@ -1078,19 +955,20 @@
 
   </div>
 
+  </div>
 </template>
 
 
 <script setup lang="ts">
 
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch  } from "vue";
 
 import {
   getEmployees,
   createEmployee as createEmployeeAPI,
   updateEmployee as updateEmployeeAPI,
-} from "@/services/employee";
-
+  getPositions,
+} from "../services/employee";
 
 /* ========================================================= */
 /* INTERFACE */
@@ -1110,7 +988,15 @@ interface Employee {
 
   department: string;
 
-  position: string;
+  position_id: number;
+
+  position?: {
+    id: number;
+    code: string;
+    name: string;
+    type: string;
+    salary_grade: string | null;
+  } | null;
 
   employee_category: string;
 
@@ -1154,6 +1040,21 @@ const showCredentialsModal = ref(false);
 
 const selectedEmployee = ref<Employee | null>(null);
 
+const positions = ref<{ id: number; name: string; type: string }[]>([]);
+
+const loadPositions = async () => {
+  try {
+    positions.value = await getPositions();
+  } catch (error) {
+    console.error("Failed to load positions:", error);
+  }
+};
+
+const mapPositionTypeToCategory = (type: string) => {
+  if (type === "Non-Teaching") return "Non-Teaching";
+  return "Teaching"; // covers "Teaching" and "School Head"
+};
+
 
 /* ========================================================= */
 /* CREATE FORM */
@@ -1173,7 +1074,7 @@ const form = ref({
 
   department: "",
 
-  position: "",
+  position_id: null as number | null,
 
   employee_category: "",
 
@@ -1183,6 +1084,12 @@ const form = ref({
 
 });
 
+watch(() => form.value.position_id, (newId) => {
+  const selected = positions.value.find((p) => p.id === newId);
+  if (selected) {
+    form.value.employee_category = mapPositionTypeToCategory(selected.type);
+  }
+});
 
 /* ========================================================= */
 /* GENERATED CREDENTIALS */
@@ -1217,7 +1124,7 @@ const editForm = ref({
 
   department: "",
 
-  position: "",
+  position_id: null as number | null,
 
   employee_category: "",
 
@@ -1229,12 +1136,19 @@ const editForm = ref({
 
 });
 
+watch(() => editForm.value.position_id, (newId) => {
+  const selected = positions.value.find((p) => p.id === newId);
+  if (selected) {
+    editForm.value.employee_category = mapPositionTypeToCategory(selected.type);
+  }
+});
+
 
 /* ========================================================= */
 /* FORMAT DATE */
 /* ========================================================= */
 
-const formatDate = (date: string) => {
+const formatDate = (date?: string) => {
 
   if (!date) return "-";
 
@@ -1296,7 +1210,7 @@ const filteredEmployees = computed(() => {
       employee.department?.toLowerCase() || "";
 
     const position =
-      employee.position?.toLowerCase() || "";
+      employee.position?.name?.toLowerCase() || "";
 
     return (
       firstName.includes(keyword) ||
@@ -1334,7 +1248,7 @@ const editEmployee = (employee: Employee) => {
 
     department: employee.department || "",
 
-    position: employee.position || "",
+    position_id: employee.position_id || null,
 
     employee_category: employee.employee_category || "",
 
@@ -1443,7 +1357,7 @@ const saveEmployee = async () => {
 
       department: "",
 
-      position: "",
+      position_id: null,
 
       employee_category: "",
 
@@ -1472,13 +1386,14 @@ onMounted(() => {
 
   loadEmployees();
 
+  loadPositions();
+
 });
 
 </script>
 
 
 <style scoped>
-
 .dashboard-shell {
 
   background: #080D14;
@@ -1547,6 +1462,4 @@ td:last-child {
   white-space: nowrap;
 
 }
-
-
 </style>
