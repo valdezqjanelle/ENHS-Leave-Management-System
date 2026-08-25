@@ -120,11 +120,11 @@
 
           <div class="ml-5">
             <h3 class="text-sm text-slate-400">
-              Rejected
+              Disapproved
             </h3>
 
             <p class="text-2xl font-semibold text-white mt-1">
-              {{ stats.rejected }}
+              {{ stats.disapproved }}
             </p>
           </div>
 
@@ -182,8 +182,8 @@
               Approved
             </option>
 
-            <option value="rejected">
-              Rejected
+            <option value="disapproved">
+              Disapproved
             </option>
           </select>
 
@@ -680,9 +680,9 @@
               </div>
 
 
-              <!-- Rejected -->
+              <!-- Disapproved -->
               <div
-                v-if="application.final_status === 'rejected'"
+                v-if="application.final_status === 'disapproved'"
                 class="flex items-start"
               >
 
@@ -693,7 +693,7 @@
                 <div>
 
                   <p class="text-sm font-medium text-white">
-                    Application Rejected
+                    Application Disapproved
                   </p>
 
                   <p class="text-xs text-slate-500 mt-1">
@@ -767,7 +767,7 @@ interface Application {
   final_status:
     | "pending"
     | "approved"
-    | "rejected"
+    | "disapproved"
     | "on pr";
 
   attachments?: Array<{
@@ -846,10 +846,10 @@ const stats = computed(() => ({
         app.final_status === "pending"
     ).length,
 
-  rejected:
+  disapproved:
     applications.value.filter(
       (app) =>
-        app.final_status === "rejected"
+        app.final_status === "disapproved"
     ).length,
 
 }));
@@ -948,8 +948,8 @@ const getStatusClass = (
     case "pending":
       return "status-pending";
 
-    case "rejected":
-      return "status-rejected";
+    case "disapproved":
+      return "status-disapproved";
 
     case "on pr":
       return "status-pr";
@@ -1193,7 +1193,7 @@ const exportApplications = () => {
 }
 
 
-.status-rejected {
+.status-disapproved {
   background: rgba(239, 68, 68, 0.12);
 
   color: #f87171;

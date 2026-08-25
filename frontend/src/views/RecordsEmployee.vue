@@ -43,6 +43,13 @@
     <!-- Leave Balance -->
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+       <div class="neo-card stats-card border-blue-500 p-5">
+        <h4 class="text-gray-400 text-sm">Service Credits</h4>
+
+        <p class="text-3xl font-bold text-blue-400 mt-2">
+          {{ leaveBalance.service_credits }}
+        </p>
+      </div>
       <div class="neo-card stats-card border-blue-500 p-5">
         <h4 class="text-gray-400 text-sm">Vacation Leave</h4>
 
@@ -288,9 +295,11 @@ interface LeaveApplication {
 
 const recentLeaves = ref<LeaveApplication[]>([]);
 const leaveBalance = ref({
+  
   vacation_balance: 0,
   sick_balance: 0,
   used_leave: 0,
+  service_credits: 0,
   last_updated: "",
 });
 

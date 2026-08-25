@@ -292,7 +292,7 @@
                   @click="
                     updateStatus(
                       application.leave_id,
-                      'rejected'
+                      'disapproved'
                     )
                   "
                   class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
@@ -608,7 +608,7 @@
               @click="
                 updateStatus(
                   selectedApplication.leave_id,
-                  'rejected'
+                  'disapproved'
                 )
               "
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -961,8 +961,8 @@ const tabs = [
   },
 
   {
-    key: "rejected",
-    label: "Rejected",
+    key: "disapproved",
+    label: "Disapproved",
     countClass:
       "bg-red-100 text-red-800",
   },
@@ -1185,7 +1185,7 @@ const getStatusClass = (
 
       return "bg-green-100 text-green-800";
 
-    case "rejected":
+    case "disapproved":
 
       return "bg-red-100 text-red-800";
 
@@ -1333,7 +1333,7 @@ const updateStatus = async (
   leaveId: number,
   status:
     | "approved"
-    | "rejected",
+    | "disapproved",
 
   deductionData: {
     deduct_balance?: boolean;

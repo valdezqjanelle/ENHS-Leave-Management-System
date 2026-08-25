@@ -377,6 +377,8 @@
             Available Leave Credits
           </h3>
 
+          <div
+
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
             <div class="credit-item">
@@ -385,7 +387,7 @@
               </span>
 
               <span class="font-semibold text-blue-300">
-                5 days
+                {{ leaveBalance.sick_balance }} Days
               </span>
             </div>
 
@@ -395,29 +397,20 @@
               </span>
 
               <span class="font-semibold text-blue-300">
-                10 days
+                {{ leaveBalance.vacation_balance }} Days
               </span>
             </div>
 
             <div class="credit-item">
               <span class="text-slate-400">
-                Personal:
+                Service Credits:
               </span>
 
               <span class="font-semibold text-blue-300">
-                3 days
+                {{ leaveBalance.service_credits }} Days
               </span>
             </div>
 
-            <div class="credit-item">
-              <span class="text-slate-400">
-                Emergency:
-              </span>
-
-              <span class="font-semibold text-blue-300">
-                2 days
-              </span>
-            </div>
 
           </div>
         </div>
@@ -660,6 +653,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 import {
   getLeaveTypes,
@@ -744,6 +738,27 @@ const isSubmitting = ref(false);
 
 const leaveTypes = ref<any[]>([]);
 
+const leaveBalance = ref({
+  vacation_balance: 0,
+  sick_balance: 0,
+  used_leave: 0,
+  service_credits: 0,
+});
+
+const loadLeaveBalance = async () => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.get(
+    "http://127.0.0.1:8000/api/my-leave-balance",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  leaveBalance.value = response.data;
+};
 
 onMounted(async () => {
   try {
@@ -751,6 +766,7 @@ onMounted(async () => {
 
     employee.value = await getMyProfile();
 
+    await loadLeaveBalance();
   } catch (error) {
     console.error(error);
   }
