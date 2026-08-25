@@ -19,13 +19,18 @@ class EmployeeRecord extends Model
         'last_name',
         'sex',
         'department',
-        'position',
+        'position_id',
         'employee_category',
         'salary',
         'contact_number',
         'employment_status',
         'date_hired'
     ];
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
 
     // Relationship to User
     public function user()
@@ -34,24 +39,24 @@ class EmployeeRecord extends Model
     }
 
     public function createdBy()
-{
+    {
     return $this->belongsTo(User::class, 'created_by', 'user_id');
-}
+    }
 
     public function leaveApplications()
-{
+    {
     return $this->hasMany(
         LeaveApplication::class,
         'employee_id',
         'employee_id'
     );
-}
+    }
 
-public function leaveBalance()
-{
+    public function leaveBalance()
+    {
     return $this->hasOne(
         LeaveBalance::class,
         'employee_id'
     );
-}
+    }
 }

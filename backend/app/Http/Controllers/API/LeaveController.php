@@ -326,7 +326,7 @@ public function downloadPdf($id)
     $text('first_name', $employee->first_name ?? '');
     $text('middle_name', $employee->middle_name ?? '');
     $text('date_of_filing', optional($leave->date_filed)->format('m/d/Y'));
-    $text('position', $employee->position ?? '');
+    $text('position', $employee->position->name ?? '');
     $text('salary', $employee->salary ? number_format($employee->salary, 2) : '');
 
     $typeCheckboxMap = [

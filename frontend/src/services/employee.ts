@@ -17,6 +17,16 @@ export const getEmployees = async () => {
   return response.data;
 };
 
+// Get all positions (for dropdown)
+export const getPositions = async () => {
+  const response = await axios.get(
+    `${API}/positions`,
+    authHeader()
+  );
+
+  return response.data;
+};
+
 // Create employee
 export const createEmployee = async (data: any) => {
   const response = await axios.post(

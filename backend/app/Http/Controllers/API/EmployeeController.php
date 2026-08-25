@@ -20,7 +20,7 @@ class EmployeeController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'department' => 'required|string',
-            'position' => 'required|string'
+            'position_id' => 'required|exists:positions,id'
         ]);
 
         $plainPassword = Str::random(8);
@@ -40,7 +40,7 @@ class EmployeeController extends Controller
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-            'position' => $request->position,
+            'position_id' => $request->position_id,
             'employee_category' => $request->employee_category,
             'salary' => $request->salary,
             'contact_number' => $request->contact_number,
@@ -63,12 +63,20 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employees = EmployeeRecord::with(['user', 'createdBy'])
+        $employees = EmployeeRecord::with(['user', 'createdBy', 'position'])
             ->latest()
             ->get();
 
         return response()->json($employees);
     }
+
+    public function listPositions()
+{
+    return response()->json(
+        \App\Models\Position::orderBy('name')->get()
+    );
+}
+
     // UPDATE EMPLOYEE
     public function update(Request $request, $id)
     {
@@ -76,7 +84,7 @@ class EmployeeController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'department' => 'required|string',
-            'position' => 'required|string'
+            'position_id' => 'required|exists:positions,id'
         ]);
 
         $employee = EmployeeRecord::findOrFail($id);
@@ -88,7 +96,7 @@ class EmployeeController extends Controller
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-            'position' => $request->position,
+            'position_id' => $request->position_id,
             'employee_category' => $request->employee_category,
             'salary' => $request->salary,
             'contact_number' => $request->contact_number,
@@ -138,7 +146,8 @@ class EmployeeController extends Controller
 
             'sex' => $employee->sex,
             'department' => $employee->department,
-            'position' => $employee->position,
+            'position_id' => $employee->position_id,
+            'position' => $employee->position->name ?? null,
             'employee_category' => $employee->employee_category,
 
             'salary' => $employee->salary,
@@ -165,9 +174,8 @@ class EmployeeController extends Controller
             'last_name' => 'required|string',
             'sex' => 'required|string',
             'department' => 'required|string',
-            'position' => 'required|string',
+            'position_id' => 'required|exists:positions,id',
         ]);
-
 
         $employee->update([
             'first_name' => $request->first_name,
@@ -175,8 +183,13 @@ class EmployeeController extends Controller
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-            'position' => $request->position,
+            'position_id' => $request->position_id,
         ]);
+
+    AuditLogger::log(
+        'Profile updated',
+        "Updated profile for employee {$employee->first_name} {$employee->last_name}"
+    );
 
 
         return response()->json([

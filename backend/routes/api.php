@@ -110,6 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/employees', [EmployeeController::class, 'store']);
         Route::get('/employees', [EmployeeController::class, 'index']);
         Route::put('/employees/{id}', [EmployeeController::class, 'update']);
+        Route::get('/positions', [EmployeeController::class, 'listPositions']);
 
 
         // Leave Management

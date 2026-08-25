@@ -222,7 +222,7 @@ class ReportController extends Controller
 
                 'department' => $employee->department,
 
-                'position' => $employee->position,
+                'position' => $employee->positionInfo->name ?? '',
                 'employment_status' => $employee->employment_status,
 
                 'approved' => $approved,
