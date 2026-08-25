@@ -31,11 +31,20 @@ export const addLeaveCredit = async (data: any) => {
   return response.data;
 };
 
+interface ApplyLeaveCreditPayload {
+  credits_id: number;
+  leave_type: string;
+  days: number;
+  split: boolean;
+  vacation_days: number;
+  sick_days: number;
+}
+
 // Apply leave credit
-export const applyLeaveCredit = async (id: number) => {
+export const applyLeaveCredit = async (data: ApplyLeaveCreditPayload) => {
   const response = await axios.post(
-    `${API}/leave-credits/${id}/apply`,
-    {},
+    `${API}/leave-credits/${data.credits_id}/apply`,
+    data,
     authHeader()
   );
 

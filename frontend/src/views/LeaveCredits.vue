@@ -259,7 +259,7 @@
 
     </div>
 
-    <!-- Apply Credit Confirmation Modal -->
+    <!-- Apply Credit Modal -->
     <div
       v-if="showApplyModal"
       class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
@@ -267,12 +267,12 @@
       <div class="neo-card w-full max-w-md p-6">
 
         <h2 class="text-xl font-semibold text-white">
-          Apply Leave Credit?
+          Apply Leave Credit
         </h2>
 
         <p class="text-gray-300 mt-3">
-          Are you sure you want to apply this leave credit?
-          This will update the employee's leave balance.
+          Choose where this credit should be applied. This will update the
+          employee's leave balance.
         </p>
 
         <!-- Credit Details -->
@@ -300,6 +300,113 @@
             <span class="font-medium text-gray-400">Equivalent Days:</span>
             {{ selectedCredit.equivalent_leave_days }}
           </div>
+
+          <div>
+            <span class="font-medium text-gray-400">Available Credit:</span>
+            {{ availableCreditDays.toFixed(2) }} days
+          </div>
+        </div>
+
+        <div v-if="selectedCredit" class="mt-4 space-y-4 text-sm text-white">
+          <template v-if="selectedCredit.credit_type === 'Service Credits'">
+            <div>
+              <label class="block font-medium text-white mb-2">Apply To</label>
+              <select
+                v-model="applyForm.leave_type"
+                @change="handleApplyTypeChange"
+                :disabled="applyForm.split"
+                class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-60"
+              >
+                <option value="Service Credits">Service Credits</option>
+                <option value="Vacation">Vacation Leave</option>
+                <option value="Sick">Sick Leave</option>
+              </select>
+            </div>
+
+            <label
+              v-if="applyForm.leave_type !== 'Service Credits'"
+              class="flex items-center gap-2 text-white"
+            >
+              <input
+                v-model="applyForm.split"
+                type="checkbox"
+                class="rounded border-slate-700 bg-[#0B1420] text-blue-600 focus:ring-blue-500"
+              >
+              Split Application
+            </label>
+
+            <div v-if="!applyForm.split">
+              <label class="block font-medium text-white mb-2">Days to Apply</label>
+              <input
+                v-model.number="applyForm.days"
+                type="number"
+                min="0"
+                step="0.25"
+                class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+            </div>
+
+            <div v-else class="space-y-3">
+              <div>
+                <label class="block font-medium text-white mb-2">Vacation Leave Allocation</label>
+                <input
+                  v-model.number="applyForm.vacation_days"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+              </div>
+
+              <div>
+                <label class="block font-medium text-white mb-2">Sick Leave Allocation</label>
+                <input
+                  v-model.number="applyForm.sick_days"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+              </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 space-y-1">
+              <div class="flex justify-between">
+                <span class="text-gray-400">Total Applied:</span>
+                <span>{{ totalApplied.toFixed(2) }} days</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Remaining:</span>
+                <span>{{ remainingCredit.toFixed(2) }} days</span>
+              </div>
+            </div>
+          </template>
+
+          <template v-else>
+            <div>
+              <label class="block font-medium text-white mb-2">Apply To</label>
+              <input
+                :value="selectedCredit.credit_type === 'Vacation' ? 'Vacation Leave' : 'Sick Leave'"
+                type="text"
+                readonly
+                class="w-full border border-slate-700 rounded-lg px-3 py-2 text-gray-400 bg-[#0B1420]"
+              >
+            </div>
+
+            <div>
+              <label class="block font-medium text-white mb-2">Days to Apply</label>
+              <input
+                :value="selectedCredit.equivalent_leave_days"
+                type="number"
+                readonly
+                class="w-full border border-slate-700 rounded-lg px-3 py-2 text-gray-400 bg-[#0B1420]"
+              >
+            </div>
+          </template>
+
+          <p v-if="validationMessage" class="text-red-400" role="alert">
+            {{ validationMessage }}
+          </p>
         </div>
 
         <div class="flex justify-end gap-3 mt-6">
@@ -314,7 +421,7 @@
             @click="confirmApplyCredit"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Yes, Apply
+            Apply Credit
           </button>
         </div>
 
@@ -324,7 +431,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 import {
   getEmployees,
@@ -356,6 +463,14 @@ const credits = ref<LeaveCredit[]>([]);
 
 const showApplyModal = ref(false);
 const selectedCredit = ref<LeaveCredit | null>(null);
+const applyForm = ref({
+  leave_type: "Vacation",
+  days: 0,
+  split: false,
+  vacation_days: 0,
+  sick_days: 0
+});
+const validationMessage = ref("");
 const form = ref({
   employee_id: "",
   activity_name: "",
@@ -363,6 +478,42 @@ const form = ref({
   equivalent_leave_days: "",
   credit_type: ""
 });
+
+const resetApplyForm = () => {
+  applyForm.value = {
+    leave_type: "Vacation",
+    days: 0,
+    split: false,
+    vacation_days: 0,
+    sick_days: 0
+  };
+  validationMessage.value = "";
+};
+
+const handleApplyTypeChange = () => {
+  if (applyForm.value.leave_type === "Service Credits") {
+    applyForm.value.split = false;
+  }
+};
+
+const availableCreditDays = computed(() =>
+  Number(selectedCredit.value?.equivalent_leave_days ?? 0)
+);
+
+const totalApplied = computed(() => {
+  if (!selectedCredit.value) return 0;
+  if (selectedCredit.value.credit_type !== "Service Credits") {
+    return availableCreditDays.value;
+  }
+
+  return applyForm.value.split
+    ? Number(applyForm.value.vacation_days || 0) + Number(applyForm.value.sick_days || 0)
+    : Number(applyForm.value.days || 0);
+});
+
+const remainingCredit = computed(() =>
+  availableCreditDays.value - totalApplied.value
+);
 
 const loadEmployees = async () => {
   try {
@@ -416,19 +567,43 @@ const applyCredit = (id: number) => {
   if (!credit) return;
 
   selectedCredit.value = credit;
+  resetApplyForm();
+  if (credit.credit_type === "Vacation" || credit.credit_type === "Sick") {
+    applyForm.value.leave_type = credit.credit_type;
+    applyForm.value.days = credit.equivalent_leave_days;
+  }
   showApplyModal.value = true;
 };
 
 const closeApplyModal = () => {
   showApplyModal.value = false;
   selectedCredit.value = null;
+  resetApplyForm();
 };
 
 const confirmApplyCredit = async () => {
   if (!selectedCredit.value) return;
 
+  const total = totalApplied.value;
+  if (!Number.isFinite(total) || total <= 0) {
+    validationMessage.value = "Total applied days must be greater than 0.";
+    return;
+  }
+
+  if (total > availableCreditDays.value) {
+    validationMessage.value = "Total applied days cannot exceed the available credit.";
+    return;
+  }
+
   try {
-    await applyLeaveCredit(selectedCredit.value.credits_id);
+    await applyLeaveCredit({
+      credits_id: selectedCredit.value.credits_id,
+      leave_type: applyForm.value.leave_type,
+      days: applyForm.value.split ? total : applyForm.value.days,
+      split: applyForm.value.split,
+      vacation_days: applyForm.value.vacation_days,
+      sick_days: applyForm.value.sick_days
+    });
 
     alert("Leave credit applied successfully!");
 

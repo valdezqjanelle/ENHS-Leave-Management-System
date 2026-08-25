@@ -90,7 +90,7 @@ public function index()
         ]);
     }
 
-public function apply($id)
+public function apply(Request $request, $id)
 {
     $credit = LeaveCredit::findOrFail($id);
 
@@ -100,6 +100,14 @@ public function apply($id)
             'message' => 'Leave credit has already been applied.'
         ], 400);
     }
+
+    $request->validate([
+        'leave_type' => 'nullable|in:Vacation,Sick,Service Credits',
+        'days' => 'nullable|numeric|min:0',
+        'split' => 'nullable|boolean',
+        'vacation_days' => 'nullable|numeric|min:0',
+        'sick_days' => 'nullable|numeric|min:0',
+    ]);
 
     $balance = LeaveBalance::firstOrCreate(
         ['employee_id' => $credit->employee_id],
@@ -115,6 +123,29 @@ public function apply($id)
     );
 
     $creditType = strtolower(trim($credit->credit_type));
+    $availableDays = (float) $credit->equivalent_leave_days;
+    $isServiceCredit = $creditType === 'service credits' || $creditType === 'service';
+    $split = $request->boolean('split');
+    $days = (float) ($request->input('days') ?? $availableDays);
+    $targetType = $request->input('leave_type');
+    $vacationDays = $split
+        ? (float) ($request->input('vacation_days') ?? 0)
+        : ($targetType === 'Vacation' ? $days : 0);
+    $sickDays = $split
+        ? (float) ($request->input('sick_days') ?? 0)
+        : ($targetType === 'Sick' ? $days : 0);
+    $appliedDays = $split ? $vacationDays + $sickDays : $days;
+    $serviceDays = $isServiceCredit
+        ? ($split || $targetType !== 'Service Credits'
+            ? max(0, $availableDays - $vacationDays - $sickDays)
+            : min($days, $availableDays))
+        : 0;
+
+    if ($isServiceCredit && ($appliedDays <= 0 || $appliedDays > $availableDays)) {
+        return response()->json([
+            'message' => 'Applied allocation cannot exceed the available service credit.'
+        ], 422);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -152,11 +183,21 @@ public function apply($id)
     |--------------------------------------------------------------------------
     */
 
-    elseif ($creditType === 'service credits') {
+    elseif ($isServiceCredit) {
 
         $balance->service_credits =
             (float) ($balance->service_credits ?? 0)
-            + (float) $credit->equivalent_leave_days;
+            + $serviceDays;
+
+        if ($vacationDays > 0) {
+            $balance->vacation_earned += $vacationDays;
+            $balance->vacation_balance += $vacationDays;
+        }
+
+        if ($sickDays > 0) {
+            $balance->sick_earned += $sickDays;
+            $balance->sick_balance += $sickDays;
+        }
     }
 
     /*

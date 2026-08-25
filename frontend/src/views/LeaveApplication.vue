@@ -377,9 +377,9 @@
             Available Leave Credits
           </h3>
 
-          <div
+          
 
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
             <div class="credit-item">
               <span class="text-slate-400">
@@ -410,7 +410,7 @@
                 {{ leaveBalance.service_credits }} Days
               </span>
             </div>
-
+            
 
           </div>
         </div>
@@ -527,6 +527,51 @@
           </div>
 
         </div>
+
+        <!-- =============================== -->
+<!-- APPLICANT SIGNATURE -->
+<!-- =============================== -->
+<div class="form-section">
+  <label class="form-label">
+    Applicant Signature
+    <span class="text-red-400">*</span>
+  </label>
+
+  <p class="text-xs text-slate-400 mb-3">
+    Please draw your signature in the box below.
+  </p>
+
+  <div class="signature-box">
+    <canvas
+      ref="signatureCanvas"
+      class="signature-canvas"
+    ></canvas>
+  </div>
+
+  <div class="flex items-center justify-between mt-3">
+    <span
+      v-if="signatureData"
+      class="text-xs text-green-400"
+    >
+      ✓ Signature provided
+    </span>
+
+    <span
+      v-else
+      class="text-xs text-slate-500"
+    >
+      Sign using your mouse, trackpad, touchscreen, or stylus.
+    </span>
+
+    <button
+      type="button"
+      @click="clearSignature"
+      class="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm"
+    >
+      Clear Signature
+    </button>
+  </div>
+</div>
 
 
         <!-- =============================== -->
@@ -652,9 +697,15 @@
 
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick
+} from "vue";
 import axios from "axios";
-
+import SignaturePad from "signature_pad";
 import {
   getLeaveTypes,
   submitLeave,
@@ -671,6 +722,7 @@ import {
 } from "lucide-vue-next";
 
 import { getMyProfile } from "../services/employee";
+
 
 
 interface Attachment {
@@ -763,27 +815,133 @@ const loadLeaveBalance = async () => {
 onMounted(async () => {
   try {
     leaveTypes.value = await getLeaveTypes();
-
     employee.value = await getMyProfile();
-
     await loadLeaveBalance();
+    await initializeSignaturePad();
+
+    window.addEventListener(
+      "resize",
+      handleSignatureResize
+    );
   } catch (error) {
     console.error(error);
   }
 });
+onBeforeUnmount(() => {
+  window.removeEventListener(
+    "resize",
+    handleSignatureResize
+  );
 
+  signaturePad.value?.off();
+  signaturePad.value = null;
+});
 
 const showSuccessModal = ref(false);
 
 const submittedLeaveId = ref<number | null>(null);
 
 const fileInput = ref<HTMLInputElement | null>(null);
+const signatureCanvas = ref<HTMLCanvasElement | null>(null);
+const signaturePad = ref<SignaturePad | null>(null);
+const signatureData = ref<string | null>(null);
+const handleSignatureResize = () => {
+  resizeSignatureCanvas();
+};
+
+const resizeSignatureCanvas = () => {
+  const canvas = signatureCanvas.value;
+  const pad = signaturePad.value;
+
+  if (!canvas || !pad) {
+    return;
+  }
+
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  const width = canvas.offsetWidth;
+  const height = canvas.offsetHeight;
+
+  if (width === 0 || height === 0) {
+    return;
+  }
+
+  const existingSignature = pad.isEmpty()
+    ? null
+    : pad.toData();
+
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+
+  const context = canvas.getContext("2d");
+
+  if (context) {
+    context.scale(ratio, ratio);
+  }
+
+  pad.clear();
+
+  if (existingSignature) {
+    pad.fromData(existingSignature);
+  }
+};
+
+const initializeSignaturePad = async () => {
+  await nextTick();
+
+  const canvas = signatureCanvas.value;
+
+  if (!canvas) {
+    console.error("Signature canvas not found.");
+    return;
+  }
+
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  const width = canvas.offsetWidth;
+  const height = canvas.offsetHeight;
+
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+
+  const context = canvas.getContext("2d");
+
+  if (context) {
+    context.scale(ratio, ratio);
+  }
+
+  signaturePad.value = new SignaturePad(canvas, {
+    backgroundColor: "rgb(15, 26, 42)",
+    penColor: "rgb(248, 250, 252)",
+    minWidth: 0.8,
+    maxWidth: 2.2,
+  });
+
+  signaturePad.value.addEventListener("endStroke", () => {
+    if (
+      signaturePad.value &&
+      !signaturePad.value.isEmpty()
+    ) {
+      signatureData.value =
+        signaturePad.value.toDataURL("image/png");
+    }
+  });
+};
+
+const clearSignature = () => {
+  signaturePad.value?.clear();
+  signatureData.value = null;
+};
 
 
 const minDate = computed(() => {
   const today = new Date();
 
-  return today.toISOString().split("T")[0];
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 });
 
 
@@ -793,18 +951,19 @@ const calculateDays = () => {
   }
 
   const start = new Date(form.value.startDate);
-
   const end = new Date(form.value.endDate);
 
-  const diffTime =
-    Math.abs(end.getTime() - start.getTime());
+  if (end < start) {
+    return 0;
+  }
 
-  const diffDays =
+  const diffTime = end.getTime() - start.getTime();
+
+  return (
     Math.ceil(
       diffTime / (1000 * 60 * 60 * 24)
-    ) + 1;
-
-  return diffDays;
+    ) + 1
+  );
 };
 
 
@@ -878,11 +1037,20 @@ const formatFileSize = (bytes: number) => {
 
 
 const submitApplication = async () => {
+  if (
+    !signaturePad.value ||
+    signaturePad.value.isEmpty()
+  ) {
+    alert("Please provide your signature before submitting.");
+    return;
+  }
+
+  signatureData.value =
+    signaturePad.value.toDataURL("image/png");
 
   isSubmitting.value = true;
 
   try {
-
     const data = new FormData();
 
     data.append(
@@ -915,9 +1083,13 @@ const submitApplication = async () => {
       form.value.reason
     );
 
+    // Applicant Signature
+    data.append(
+      "applicants_signature",
+      signatureData.value
+    );
 
     // Additional Leave Details
-
     data.append(
       "vacation_location_type",
       form.value.vacation_location_type
@@ -940,30 +1112,22 @@ const submitApplication = async () => {
 
     data.append(
       "masters_degree",
-      form.value.masters_degree
-        ? "1"
-        : "0"
+      form.value.masters_degree ? "1" : "0"
     );
 
     data.append(
       "board_exam_review",
-      form.value.board_exam_review
-        ? "1"
-        : "0"
+      form.value.board_exam_review ? "1" : "0"
     );
 
     data.append(
       "monetization",
-      form.value.monetization
-        ? "1"
-        : "0"
+      form.value.monetization ? "1" : "0"
     );
 
     data.append(
       "terminal_leave",
-      form.value.terminal_leave
-        ? "1"
-        : "0"
+      form.value.terminal_leave ? "1" : "0"
     );
 
     data.append(
@@ -976,64 +1140,53 @@ const submitApplication = async () => {
       form.value.commutation
     );
 
-
     // Attachments
-
     form.value.attachments.forEach((file) => {
-
       data.append(
         "attachments[]",
         file.file
       );
-
     });
 
+    const response = await submitLeave(data);
 
-    // Submit to API
+    console.log("SUBMIT RESPONSE:", response);
 
-    const response =
-      await submitLeave(data);
+    const applications = await getMyLeaves();
 
-    console.log(
-      "SUBMIT RESPONSE:",
-      response
-    );
+    const latestLeave = applications[0];
 
-
-    // Get the newly created leave application
-
-    const applications =
-      await getMyLeaves();
-
-    const latestLeave =
-      applications[0];
-
+    if (!latestLeave) {
+      throw new Error(
+        "Leave application was submitted but could not be retrieved."
+      );
+    }
 
     submittedLeaveId.value =
       latestLeave.leave_id;
-
 
     console.log(
       "SUBMITTED LEAVE ID:",
       submittedLeaveId.value
     );
 
-
     showSuccessModal.value = true;
-
 
     resetForm();
 
   } catch (error) {
+    console.error(
+      "SUBMIT LEAVE ERROR:",
+      error
+    );
 
-    console.error(error);
+    alert(
+      "Failed to submit leave application. Please try again."
+    );
 
   } finally {
-
     isSubmitting.value = false;
-
   }
-
 };
 
 
@@ -1104,6 +1257,7 @@ const resetForm = () => {
     declaration: false,
 
   };
+  clearSignature();
 
 };
 
@@ -1393,6 +1547,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     grid-template-columns: 1fr;
   }
 
+}
+
+.signature-box {
+  width: 100%;
+  height: 180px;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  background: #0f1a2a;
+  overflow: hidden;
+}
+
+.signature-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
 }
 
 </style>
