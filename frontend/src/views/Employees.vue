@@ -68,6 +68,10 @@
               Status
             </th>
 
+            <th class="px-6 py-3 font-bold whitespace-nowrap">
+              Created By
+            </th>
+
             <th class="px-6 py-3 font-bold text-center whitespace-nowrap">
               Action
             </th>
@@ -115,6 +119,10 @@
               >
                 {{ employee.employment_status }}
               </span>
+            </td>
+
+            <td class="px-6 py-4 text-white whitespace-nowrap">
+              {{ employee.created_by?.email || "-" }}
             </td>
 
             <!-- ================= ACTION BUTTONS ================= -->
@@ -1119,6 +1127,11 @@ interface Employee {
   user: {
     email: string;
   };
+
+  created_by?: {
+    user_id: number;
+    email: string;
+   } | null;
 
 }
 
