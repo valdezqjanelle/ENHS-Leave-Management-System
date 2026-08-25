@@ -80,6 +80,7 @@ return [
     'inclusive_dates'          => ['x' => 90, 'y' => 510],
     'chk_commutation_not_requested' => ['x' => 325,  'y' => 480],
     'chk_commutation_requested'     => ['x' => 325, 'y' => 494],
+    'applicant_signature'      => ['x' => 350, 'y' => 520],
 
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 574],

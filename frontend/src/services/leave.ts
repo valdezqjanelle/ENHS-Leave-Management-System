@@ -60,9 +60,13 @@ export const getMyLeaveBalance = async () => {
 // =======================
 // DDOWNLOAD LEAVE APPLICATION PDF
 // =======================
-export const downloadLeavePdf = async (id: number) => {
-  const response = await api.get(`/leave-applications/${id}/pdf`, {
-    responseType: "blob",
-  });
+export const downloadLeavePdf = async (leaveId: number) => {
+  const response = await api.get(
+    `/leave-applications/${leaveId}/pdf`,
+    {
+      responseType: "blob",
+    }
+  );
+
   return response.data;
 };

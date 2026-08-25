@@ -45,6 +45,7 @@ class LeaveApplication extends Model
 
         // REASON
         'reason',
+        'applicants_signature',
 
         // CERTIFICATION
         'certification_as_of',

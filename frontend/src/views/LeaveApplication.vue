@@ -1060,7 +1060,7 @@ const submitApplication = async () => {
 
     data.append(
       "date_filed",
-      new Date().toISOString().split("T")[0]
+      new Date().toISOString().split("T")[0] ?? ""
     );
 
     data.append(

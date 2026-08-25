@@ -42,6 +42,11 @@ class LeaveController extends Controller
             'number_of_days' => 'required|integer|min:1',
             'commutation' => 'nullable|string',
             'reason' => 'required|string',
+            'applicants_signature' => [
+                'required',
+                'string',
+                'starts_with:data:image/png;base64,',
+            ],
 
             // ENHS FIELDS
             'vacation_location_type' => 'nullable|string',
@@ -125,6 +130,7 @@ class LeaveController extends Controller
 
             'commutation' => $request->commutation,
             'reason' => $request->reason,
+            'applicants_signature' => $request->applicants_signature,
 
             // CERTIFICATION
             'certification_as_of' => $request->certification_as_of,
@@ -375,6 +381,27 @@ public function downloadPdf($id)
     $text('working_days_applied', (string) $leave->number_of_days);
     $inclusiveDates = optional($leave->start_date)->format('M d, Y') . ' - ' . optional($leave->end_date)->format('M d, Y');
     $text('inclusive_dates', $inclusiveDates);
+
+    if ($leave->applicants_signature) {
+        $signature = preg_replace(
+            '#^data:image/png;base64,#',
+            '',
+            $leave->applicants_signature
+        );
+        $signatureBinary = base64_decode($signature, true);
+
+        if ($signatureBinary !== false) {
+            $signatureCoordinates = $coords['applicant_signature'];
+            $pdf->Image(
+                '@' . $signatureBinary,
+                $signatureCoordinates['x'],
+                $signatureCoordinates['y'],
+                100,
+                32,
+                'PNG'
+            );
+        }
+    }
 
     if ($leave->commutation === 'requested') {
         $check('chk_commutation_requested');

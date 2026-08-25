@@ -22,6 +22,14 @@
       >
         {{ printingPdf ? "Preparing..." : "Print Form" }}
       </button>
+
+      <button
+        @click="downloadForm"
+        :disabled="downloadingPdf"
+        class="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg"
+      >
+        {{ downloadingPdf ? "Downloading..." : "Download Civil Service Form" }}
+      </button>
     </div>
 
     <!-- ========================================= -->
@@ -410,6 +418,13 @@
             </div>
 
             <div class="mt-8 text-center">
+              <img
+                v-if="leave.applicants_signature"
+                :src="leave.applicants_signature"
+                class="applicant-signature"
+                alt="Applicant signature"
+              />
+
               <div class="signature-line"></div>
 
               <div class="text-xs mt-1">(Signature of Applicant)</div>
@@ -731,8 +746,8 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
-
+import { getLeave, getLeaveTypes,   downloadLeavePdf, } from "../services/leave";
+import html2pdf from "html2pdf.js";
 /* =========================================
   ROUTER
 ========================================= */
@@ -958,7 +973,7 @@ const isImage = (attachment: any) => {
 ========================================= */
 
 const printForm = async () => {
-  if (!leave.value) {
+  if (!leave.value?.leave_id) {
     return;
   }
 
@@ -967,20 +982,21 @@ const printForm = async () => {
   try {
     const blob = await downloadLeavePdf(leave.value.leave_id);
 
-    const url = window.URL.createObjectURL(blob);
+    if (!blob || blob.size === 0) {
+      throw new Error("Empty PDF response");
+    }
+
+    const url = window.URL.createObjectURL(
+      new Blob([blob], {
+        type: "application/pdf",
+      }),
+    );
 
     const iframe = document.createElement("iframe");
 
     iframe.style.position = "fixed";
-
-    iframe.style.right = "0";
-
-    iframe.style.bottom = "0";
-
     iframe.style.width = "0";
-
     iframe.style.height = "0";
-
     iframe.style.border = "0";
 
     iframe.src = url;
@@ -990,20 +1006,88 @@ const printForm = async () => {
     iframe.onload = () => {
       setTimeout(() => {
         iframe.contentWindow?.focus();
-
         iframe.contentWindow?.print();
-      }, 300);
+      }, 500);
     };
+
   } catch (error) {
-    console.error("Failed to print PDF", error);
+    console.error("Failed to print PDF:", error);
 
     alert("Failed to print PDF. Please try again.");
+
   } finally {
     printingPdf.value = false;
   }
 };
 
 const printingPdf = ref(false);
+
+
+const downloadingPdf = ref(false);
+
+const downloadForm = async () => {
+  if (!leave.value?.leave_id) {
+    alert("Leave application not found.");
+    return;
+  }
+
+  downloadingPdf.value = true;
+
+  try {
+    const element = document.getElementById("printArea");
+
+    if (!element) {
+      throw new Error("Leave application form not found.");
+    }
+
+    const employeeName =
+      [
+        leave.value.employee?.last_name,
+        leave.value.employee?.first_name,
+      ]
+        .filter(Boolean)
+        .join("_") || "leave_application";
+
+    const filename =
+      `Civil_Service_Form_6_${employeeName}_${leave.value.leave_id}.pdf`;
+
+    await html2pdf()
+      .set({
+        margin: 0,
+        filename: filename,
+
+        image: {
+          type: "jpeg",
+          quality: 0.98,
+        },
+
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: element.scrollWidth,
+        },
+
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait",
+        },
+
+       
+      })
+      .from(element)
+      .save();
+
+  } catch (error) {
+    console.error("Failed to download PDF:", error);
+    alert("Failed to download Civil Service Form. Please try again.");
+  } finally {
+    downloadingPdf.value = false;
+  }
+};
 
 const loadLeave = async () => {
   try {
@@ -1132,6 +1216,18 @@ onMounted(() => {
   border-bottom: 1px solid black;
 
   height: 26px;
+}
+
+.applicant-signature {
+  display: block;
+
+  width: 150px;
+
+  height: 42px;
+
+  object-fit: contain;
+
+  margin: 0 auto -16px;
 }
 
 /* =========================================
