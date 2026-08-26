@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\SalarySchedule;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\EmployeeRecord;
@@ -20,8 +22,36 @@ class EmployeeController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'department' => 'required|string',
-            'position_id' => 'required|exists:positions,id'
+            'position_id' => 'required|exists:positions,id',
+            'salary_step' => 'required|integer|min:1|max:8',
         ]);
+
+        $position = Position::findOrFail($request->position_id);
+
+        if (!$position->salary_grade) {
+            return response()->json([
+                'message' => 'This position does not have a salary grade.'
+            ], 422);
+        }
+
+        $salary = SalarySchedule::where(
+            'salary_grade',
+            $position->salary_grade
+        )
+            ->where(
+                'step',
+                $request->salary_step
+            )
+            ->value('salary');
+
+        if (!$salary) {
+            return response()->json([
+                'message' => 'No salary schedule found for Salary Grade '
+                    . $position->salary_grade
+                    . ' Step '
+                    . $request->salary_step
+            ], 422);
+        }
 
         $plainPassword = Str::random(8);
 
@@ -35,14 +65,19 @@ class EmployeeController extends Controller
             'user_id' => $user->user_id,
             'created_by' => auth()->id(),
             'employee_code' => 'EMP-' . rand(1000, 9999),
+
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-            'position_id' => $request->position_id,
+
+            'position_id' => $position->id,
             'employee_category' => $request->employee_category,
-            'salary' => $request->salary,
+
+            'salary_step' => $request->salary_step,
+            'salary' => $salary,
+
             'contact_number' => $request->contact_number,
             'employment_status' => $request->employment_status ?? 'active',
             'date_hired' => now(),
@@ -57,7 +92,41 @@ class EmployeeController extends Controller
             'message' => 'Employee created successfully',
             'email' => $user->email,
             'password' => $plainPassword,
-            'employee' => $employee
+            'employee' => $employee->load('position')
+        ]);
+    }
+
+    public function salaryInfo(Request $request)
+    {
+        $request->validate([
+            'position_id' => 'required|exists:positions,id',
+            'salary_step' => 'required|integer|min:1|max:8',
+        ]);
+
+        $position = Position::findOrFail($request->position_id);
+
+        if (!$position->salary_grade) {
+            return response()->json([
+                'salary_grade' => null,
+                'salary' => null,
+                'message' => 'This position has no salary grade.'
+            ]);
+        }
+
+        $salary = SalarySchedule::where(
+            'salary_grade',
+            $position->salary_grade
+        )
+            ->where(
+                'step',
+                $request->salary_step
+            )
+            ->value('salary');
+
+        return response()->json([
+            'salary_grade' => $position->salary_grade,
+            'step' => $request->salary_step,
+            'salary' => $salary
         ]);
     }
 
@@ -71,11 +140,11 @@ class EmployeeController extends Controller
     }
 
     public function listPositions()
-{
-    return response()->json(
-        \App\Models\Position::orderBy('name')->get()
-    );
-}
+    {
+        return response()->json(
+            \App\Models\Position::orderBy('name')->get()
+        );
+    }
 
     // UPDATE EMPLOYEE
     public function update(Request $request, $id)
@@ -98,6 +167,7 @@ class EmployeeController extends Controller
             'department' => $request->department,
             'position_id' => $request->position_id,
             'employee_category' => $request->employee_category,
+            'salary_step' => $request->salary_step ?? 1,
             'salary' => $request->salary,
             'contact_number' => $request->contact_number,
             'employment_status' => $request->employment_status,
@@ -186,10 +256,10 @@ class EmployeeController extends Controller
             'position_id' => $request->position_id,
         ]);
 
-    AuditLogger::log(
-        'Profile updated',
-        "Updated profile for employee {$employee->first_name} {$employee->last_name}"
-    );
+        AuditLogger::log(
+            'Profile updated',
+            "Updated profile for employee {$employee->first_name} {$employee->last_name}"
+        );
 
 
         return response()->json([

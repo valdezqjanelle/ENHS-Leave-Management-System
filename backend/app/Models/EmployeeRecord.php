@@ -24,7 +24,8 @@ class EmployeeRecord extends Model
         'salary',
         'contact_number',
         'employment_status',
-        'date_hired'
+        'date_hired',
+        'salary_step'
     ];
 
     public function position()
