@@ -904,8 +904,12 @@
                 <div class="signature-line"></div>
 
                 <div class="text-xs mt-1">
-                  (Authorized Officer)
-                </div>
+              <b>Emily O. Benitez, EdD </b> 
+            </div>
+
+            <div class="text-xs mt-1">
+              School Principal II
+            </div>
 
               </div>
 
