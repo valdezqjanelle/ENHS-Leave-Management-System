@@ -904,12 +904,12 @@
                 <div class="signature-line"></div>
 
                 <div class="text-xs mt-1">
-              <b>Emily O. Benitez, EdD </b> 
-            </div>
+                  <b>Emily O. Benitez, EdD</b>
+                </div>
 
-            <div class="text-xs mt-1">
-              School Principal II
-            </div>
+                <div class="text-xs mt-1">
+                  School Principal II
+                </div>
 
               </div>
 
@@ -1213,7 +1213,11 @@
 
   </div>
 
+
+  <!-- ========================================= -->
   <!-- LOADING -->
+  <!-- ========================================= -->
+
   <div
     v-else-if="loading"
     class="min-h-screen bg-gray-200 flex items-center justify-center"
@@ -1223,12 +1227,18 @@
     </div>
   </div>
 
+
+  <!-- ========================================= -->
   <!-- ERROR -->
+  <!-- ========================================= -->
+
   <div
     v-else
     class="min-h-screen bg-gray-200 flex items-center justify-center"
   >
+
     <div class="bg-white p-8 rounded-lg shadow text-center">
+
       <h2 class="text-xl font-bold text-red-600 mb-2">
         Unable to load leave application
       </h2>
@@ -1244,12 +1254,16 @@
       >
         Back
       </button>
+
     </div>
+
   </div>
+
 </template>
 
 
 <script setup lang="ts">
+
 import {
   ref,
   computed,
@@ -1262,7 +1276,7 @@ import {
 } from "vue-router";
 
 import {
-  getLeave,
+  getMyLeaves,
   getLeaveTypes,
   downloadLeavePdf,
 } from "../services/leave";
@@ -1299,8 +1313,34 @@ const printingPdf = ref(false);
    GO BACK
 ========================================= */
 
+/* =========================================
+   GO BACK / CANCEL
+========================================= */
+
 const goBack = () => {
-  router.push("/admin-applications");
+  /*
+   * ADMIN
+   * If this page was opened from an admin route,
+   * return to the Admin Applications page.
+   */
+  const routeName = String(route.name || "").toLowerCase();
+  const currentPath = route.path.toLowerCase();
+
+  const isAdmin =
+    routeName.includes("admin") ||
+    currentPath.includes("/admin") ||
+    currentPath.includes("admin-applications");
+
+  if (isAdmin) {
+    router.push("/admin-applications");
+    return;
+  }
+
+  /*
+   * EMPLOYEE
+   * Employees should return to Apply Leave.
+   */
+  router.push("/leave-application");
 };
 
 
@@ -1309,6 +1349,7 @@ const goBack = () => {
 ========================================= */
 
 const leaveTypeList = [
+
   {
     key: "vacation",
     label: "Vacation Leave",
@@ -1412,6 +1453,7 @@ const leaveTypeList = [
       "R.A. No. 8552",
     match: ["adoption"],
   },
+
 ];
 
 
@@ -1428,6 +1470,7 @@ const currentLeaveTypeName = computed(() => {
   );
 
   return current?.leave_type_name || "";
+
 });
 
 
@@ -1457,6 +1500,7 @@ const isLeaveTypeSelected = (
     (match) =>
       name.includes(match)
   );
+
 };
 
 
@@ -1480,6 +1524,7 @@ const formatDate = (
       day: "numeric",
     }
   );
+
 };
 
 
@@ -1504,10 +1549,13 @@ const getAttachmentUrl = (
   }
 
   if (attachment.file_path) {
+
     return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
+
   }
 
   return "";
+
 };
 
 
@@ -1525,6 +1573,7 @@ const getAttachmentName = (
     attachment.original_name ||
     ""
   ).toLowerCase();
+
 };
 
 
@@ -1544,6 +1593,7 @@ const isPdf = (
       "application/pdf" ||
     name.endsWith(".pdf")
   );
+
 };
 
 
@@ -1566,6 +1616,7 @@ const isImage = (
       name
     )
   );
+
 };
 
 
@@ -1576,7 +1627,11 @@ const isImage = (
 const downloadPdf = async () => {
 
   if (!leave.value?.leave_id) {
-    alert("Leave application not found.");
+
+    alert(
+      "Leave application not found."
+    );
+
     return;
   }
 
@@ -1590,9 +1645,11 @@ const downloadPdf = async () => {
       );
 
     if (!blob || blob.size === 0) {
+
       throw new Error(
         "No PDF file was returned."
       );
+
     }
 
     const url =
@@ -1615,7 +1672,9 @@ const downloadPdf = async () => {
     document.body.removeChild(link);
 
     setTimeout(() => {
+
       window.URL.revokeObjectURL(url);
+
     }, 1000);
 
   } catch (error) {
@@ -1634,6 +1693,7 @@ const downloadPdf = async () => {
     downloadingPdf.value = false;
 
   }
+
 };
 
 
@@ -1644,7 +1704,11 @@ const downloadPdf = async () => {
 const printForm = async () => {
 
   if (!leave.value?.leave_id) {
-    alert("Leave application not found.");
+
+    alert(
+      "Leave application not found."
+    );
+
     return;
   }
 
@@ -1652,22 +1716,17 @@ const printForm = async () => {
 
   try {
 
-    /*
-     * Get the PDF from Laravel.
-     *
-     * IMPORTANT:
-     * There is only ONE `url` declaration here.
-     */
-
     const blob =
       await downloadLeavePdf(
         leave.value.leave_id
       );
 
     if (!blob || blob.size === 0) {
+
       throw new Error(
         "Empty PDF response."
       );
+
     }
 
     const url =
@@ -1708,19 +1767,20 @@ const printForm = async () => {
         }
 
       }, 500);
+
     };
 
-
-    /*
-     * Clean up iframe and object URL later.
-     */
 
     setTimeout(() => {
 
       window.URL.revokeObjectURL(url);
 
       if (iframe.parentNode) {
-        iframe.parentNode.removeChild(iframe);
+
+        iframe.parentNode.removeChild(
+          iframe
+        );
+
       }
 
     }, 60000);
@@ -1741,6 +1801,7 @@ const printForm = async () => {
     printingPdf.value = false;
 
   }
+
 };
 
 
@@ -1752,6 +1813,7 @@ const printForm = async () => {
 const downloadForm = async () => {
 
   if (!leave.value?.leave_id) {
+
     alert(
       "Leave application not found."
     );
@@ -1769,18 +1831,26 @@ const downloadForm = async () => {
       );
 
     if (!element) {
+
       throw new Error(
         "Leave application form not found."
       );
+
     }
 
 
     const employeeName = [
+
       leave.value.employee?.last_name,
+
       leave.value.employee?.first_name,
+
     ]
+
       .filter(Boolean)
+
       .join("_") ||
+
       "leave_application";
 
 
@@ -1789,6 +1859,7 @@ const downloadForm = async () => {
 
 
     await html2pdf()
+
       .set({
 
         margin: 0,
@@ -1796,8 +1867,11 @@ const downloadForm = async () => {
         filename: filename,
 
         image: {
+
           type: "jpeg",
+
           quality: 0.98,
+
         },
 
         html2canvas: {
@@ -1814,6 +1888,7 @@ const downloadForm = async () => {
 
           windowWidth:
             element.scrollWidth,
+
         },
 
         jsPDF: {
@@ -1827,15 +1902,23 @@ const downloadForm = async () => {
         },
 
         pagebreak: {
+
           mode: [
+
             "avoid-all",
+
             "css",
+
             "legacy",
+
           ],
+
         },
 
       })
+
       .from(element)
+
       .save();
 
   } catch (error) {
@@ -1854,24 +1937,99 @@ const downloadForm = async () => {
     downloadingForm.value = false;
 
   }
+
 };
 
 
 /* =========================================
-   LOAD LEAVE
+   LOAD EMPLOYEE'S OWN LEAVE
 ========================================= */
 
 const loadLeave = async () => {
 
+  loading.value = true;
+
   try {
 
-    leave.value =
-      await getLeave(
-        Number(route.params.id)
+   
+
+    const leaveId =
+      Number(route.params.id);
+
+
+    if (
+      !leaveId ||
+      Number.isNaN(leaveId)
+    ) {
+
+      throw new Error(
+        "Invalid leave application ID."
       );
 
+    }
+
+
+   
+
+    const response =
+      await getMyLeaves();
+
+
+    /*
+     * Normally getMyLeaves() returns an array.
+     *
+     * This also safely supports an API response
+     * wrapped inside { data: [...] }.
+     */
+
+    const myLeaves =
+      Array.isArray(response)
+        ? response
+        : response?.data ?? [];
+
+
     console.log(
-      "LOADED LEAVE:",
+      "EMPLOYEE MY LEAVES:",
+      myLeaves
+    );
+
+    console.log(
+      "REQUESTED LEAVE ID:",
+      leaveId
+    );
+
+
+    /*
+     * Find the exact application requested
+     * by the route.
+     */
+
+    const foundLeave =
+      myLeaves.find(
+        (item: any) =>
+          Number(item.leave_id) ===
+          leaveId
+      );
+
+
+    if (!foundLeave) {
+
+      throw new Error(
+        "Leave application not found in the employee's own applications."
+      );
+
+    }
+
+
+    /*
+     * Store the complete leave object.
+     */
+
+    leave.value = foundLeave;
+
+
+    console.log(
+      "LOADED EMPLOYEE LEAVE:",
       leave.value
     );
 
@@ -1881,21 +2039,30 @@ const loadLeave = async () => {
     );
 
 
+    /*
+     * Load leave types for the
+     * Civil Service Form checkbox.
+     */
+
     leaveTypes.value =
       await getLeaveTypes();
+
 
   } catch (error) {
 
     console.error(
-      "Failed loading leave:",
+      "Failed loading employee leave:",
       error
     );
+
+    leave.value = null;
 
   } finally {
 
     loading.value = false;
 
   }
+
 };
 
 
@@ -1904,7 +2071,9 @@ const loadLeave = async () => {
 ========================================= */
 
 onMounted(() => {
+
   loadLeave();
+
 });
 
 </script>
@@ -1956,7 +2125,9 @@ onMounted(() => {
 ========================================= */
 
 .field-row {
+
   min-height: 60px;
+
 }
 
 
@@ -2069,7 +2240,9 @@ onMounted(() => {
 
 
 .double-border-y.no-top {
+
   border-top-width: 0;
+
 }
 
 
@@ -2277,7 +2450,9 @@ td {
 
 
 .attachment-icon {
+
   font-size: 40px;
+
 }
 
 
