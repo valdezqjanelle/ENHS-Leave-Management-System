@@ -1,67 +1,82 @@
-```vue
 <template>
-  <div class="dashboard-shell p-8 min-h-screen">
-    <div class="space-y-6">
+  <div class="dashboard-shell min-h-screen p-4 sm:p-6 lg:p-8">
+    <div class="w-full space-y-6">
 
-      <!-- Header -->
-      <div class="neo-card p-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <!-- ========================================================= -->
+      <!-- HEADER -->
+      <!-- ========================================================= -->
+
+      <div class="neo-card w-full p-5 sm:p-6">
+        <div
+          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        >
           <div>
             <h2 class="text-xl font-semibold text-white">
               Reports
             </h2>
 
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="mt-1 text-sm text-gray-400">
               Generate and view various reports
             </p>
           </div>
 
-          <div class="flex gap-2">
-            <button
-              @click="generateCustomReport"
-              class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Generate Report
-            </button>
-          </div>
+          <button
+            @click="generateCustomReport"
+            class="w-full sm:w-auto rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+          >
+            Generate Report
+          </button>
         </div>
       </div>
 
 
-      <!-- Report Type Selection -->
-      <div class="neo-card p-6">
+      <!-- ========================================================= -->
+      <!-- REPORT TYPE SELECTION -->
+      <!-- ========================================================= -->
 
-        <h3 class="text-lg font-semibold text-white mb-4">
-          Select Report Type
-        </h3>
+      <div class="neo-card w-full p-5 sm:p-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-white">
+            Select Report Type
+          </h3>
+
+          <p class="mt-1 text-sm text-gray-400">
+            Choose the type of report you want to view.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
           <button
             v-for="reportType in reportTypes"
             :key="reportType.id"
             @click="selectedReportType = reportType.id"
             :class="[
-              'p-4 rounded-lg border-2 transition-all text-left',
+              'rounded-xl border p-4 text-left transition-all duration-200',
               selectedReportType === reportType.id
-                ? 'border-blue-500 bg-blue-500/10'
-                : 'border-slate-700 hover:border-slate-500'
+                ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/5'
+                : 'border-slate-700 bg-[#0D1724] hover:border-slate-600 hover:bg-[#101C2B]'
             ]"
           >
 
-            <component
-              :is="reportType.icon"
-              class="w-8 h-8 mx-auto mb-2"
-              :class="reportType.iconColor"
-            />
+            <div class="flex flex-col items-center">
 
-            <h4 class="font-medium text-white text-center">
-              {{ reportType.name }}
-            </h4>
+              <component
+                :is="reportType.icon"
+                class="mb-3 h-8 w-8"
+                :class="reportType.iconColor"
+              />
 
-            <p class="text-sm text-gray-400 mt-1 text-center">
-              {{ reportType.description }}
-            </p>
+              <h4 class="text-center font-medium text-white">
+                {{ reportType.name }}
+              </h4>
+
+              <p class="mt-1 text-center text-sm leading-5 text-gray-400">
+                {{ reportType.description }}
+              </p>
+
+            </div>
 
           </button>
 
@@ -69,59 +84,62 @@
       </div>
 
 
-      <!-- Date Range Selection -->
-      <div class="neo-card p-6">
+      <!-- ========================================================= -->
+      <!-- DATE RANGE SELECTION -->
+      <!-- ========================================================= -->
 
-        <h3 class="text-lg font-semibold text-white mb-4">
-          Date Range
-        </h3>
+      <div class="neo-card w-full p-5 sm:p-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="mb-5">
+          <h3 class="text-lg font-semibold text-white">
+            Date Range
+          </h3>
+
+          <p class="mt-1 text-sm text-gray-400">
+            Select the reporting period.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
 
           <!-- Start Date -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="mb-2 block text-sm font-medium text-gray-300">
               Start Date
             </label>
 
             <input
               v-model="dateRange.start"
               type="date"
-              class="w-full px-3 py-2 text-white bg-[#0B1420] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
 
           <!-- End Date -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="mb-2 block text-sm font-medium text-gray-300">
               End Date
             </label>
 
             <input
               v-model="dateRange.end"
               type="date"
-              class="w-full px-3 py-2 text-white bg-[#0B1420] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
 
           <!-- Quick Select -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="mb-2 block text-sm font-medium text-gray-300">
               Quick Select
             </label>
 
             <select
               @change="setQuickDateRange"
-              class="w-full px-3 py-2 text-white bg-[#0B1420] border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-
               <option value="">
                 Custom Range
               </option>
@@ -145,39 +163,50 @@
               <option value="year">
                 This Year
               </option>
-
             </select>
-
           </div>
 
         </div>
       </div>
 
 
-      <!-- Report Display -->
-      <div class="neo-card">
+      <!-- ========================================================= -->
+      <!-- REPORT DISPLAY -->
+      <!-- ========================================================= -->
+
+      <div class="neo-card w-full overflow-hidden">
 
         <!-- Report Header -->
-        <div class="px-6 py-4 border-b border-slate-800">
+        <div
+          class="border-b border-slate-800 px-5 py-5 sm:px-6"
+        >
 
-          <div class="flex justify-between items-center">
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
 
-            <h3 class="text-lg font-semibold text-white">
-              {{ getCurrentReportName() }}
-            </h3>
+            <div>
+              <h3 class="text-lg font-semibold text-white">
+                {{ getCurrentReportName() }}
+              </h3>
 
-            <div class="flex gap-2">
+              <p class="mt-1 text-sm text-gray-400">
+                Report results and statistics
+              </p>
+            </div>
+
+            <div class="flex w-full gap-2 sm:w-auto">
 
               <button
                 @click="exportReport"
-                class="px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
+                class="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-600 sm:flex-none"
               >
                 Export
               </button>
 
               <button
                 @click="printReport"
-                class="px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
+                class="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-600 sm:flex-none"
               >
                 Print
               </button>
@@ -193,557 +222,663 @@
         <!-- LEAVE SUMMARY REPORT -->
         <!-- ========================================================= -->
 
-        <div
-          v-if="selectedReportType === 'leave-summary'"
-          class="p-6"
-        >
+        <template v-if="selectedReportType === 'leave-summary'">
 
-          <!-- Charts -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="leave-summary p-5 sm:p-6">
 
-            <!-- Leave by Type -->
-            <div class="bg-[#0B1420] border border-slate-800 rounded-lg p-4">
+            <!-- ===================================================== -->
+            <!-- LEAVE SUMMARY OVERVIEW -->
+            <!-- ===================================================== -->
 
-              <h4 class="text-md font-semibold text-white mb-4">
-                Leave by Type
-              </h4>
+            <div class="mb-6">
 
-              <div class="relative h-[320px]">
-                <canvas ref="leaveTypeChart"></canvas>
-              </div>
-
-            </div>
+              
 
 
-            <!-- Leave by Department -->
-            <div class="bg-[#0B1420] border border-slate-800 rounded-lg p-4">
+              <!-- Department Summary -->
+              <div class="department-section">
 
-              <h4 class="text-md font-semibold text-white mb-4">
-                Leave by Department
-              </h4>
+                <div class="mb-3 flex items-center justify-between">
+                  <h5 class="text-sm font-semibold uppercase tracking-wide text-gray-300">
+                    Leave By Department
+                  </h5>
 
-              <div class="relative h-[320px]">
-                <canvas ref="departmentChart"></canvas>
-              </div>
-
-            </div>
-
-          </div>
+                  <span class="text-xs text-gray-500">
+                    Total Requests
+                  </span>
+                </div>
 
 
-          <!-- Summary Table -->
-          <div class="overflow-x-auto">
-
-            <table class="w-full">
-
-              <thead class="bg-[#0B1420]">
-
-                <tr>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Department
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Total Leaves
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Approved
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Pending
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Disapproved
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody class="divide-y divide-slate-800">
-
-                <tr
-                  v-for="dept in leaveSummaryData"
-                  :key="dept.department"
-                  class="hover:bg-white/5 transition"
+                <div
+                  v-if="leaveByDepartment.length"
+                  class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
                 >
 
-                  <td class="px-6 py-4 text-sm font-medium text-white">
-                    {{ dept.department }}
-                  </td>
+                  <div
+                    v-for="dept in leaveByDepartment"
+                    :key="dept.department"
+                    class="department-item flex min-h-[82px] items-center justify-between rounded-xl border border-slate-700/80 bg-[#0D1724] px-4 py-3.5 transition hover:border-slate-600 hover:bg-[#101C2B]"
+                  >
 
-                  <td class="px-6 py-4 text-white text-sm">
-                    {{ dept.total }}
-                  </td>
+                    <div class="min-w-0 pr-4">
+                      <p class="truncate text-sm font-semibold text-white">
+                        {{ dept.department }}
+                      </p>
 
-                  <td class="px-6 py-4 text-sm text-green-400">
-                    {{ dept.approved }}
-                  </td>
+                      <p class="mt-1 text-xs text-gray-500">
+                        Leave Requests
+                      </p>
+                    </div>
 
-                  <td class="px-6 py-4 text-sm text-yellow-400">
-                    {{ dept.pending }}
-                  </td>
+                    <div class="shrink-0">
+                      <span class="text-2xl font-bold text-white">
+                        {{ dept.count }}
+                      </span>
+                    </div>
 
-                  <td class="px-6 py-4 text-sm text-red-400">
-                    {{ dept.disapproved }}
-                  </td>
+                  </div>
 
-                </tr>
+                </div>
 
-              </tbody>
+                <div
+                  v-else
+                  class="rounded-xl border border-dashed border-slate-700 bg-[#0D1724] px-4 py-8 text-center"
+                >
+                  <p class="text-sm text-gray-400">
+                    No department data available.
+                  </p>
+                </div>
 
-            </table>
+              </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- STATUS + LEAVE TYPE -->
+            <!-- ===================================================== -->
+
+            <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+
+              <!-- =================================================== -->
+              <!-- STATUS -->
+              <!-- =================================================== -->
+
+              <div class="summary-panel rounded-xl border border-slate-700/80 bg-[#0D1724] p-5 sm:p-6">
+
+                <div class="mb-5">
+                  <h3 class="text-base font-semibold text-white">
+                    Leave Application Status
+                  </h3>
+
+                  <p class="mt-1 text-sm text-gray-400">
+                    Overview of submitted leave requests.
+                  </p>
+                </div>
+
+
+                <div class="space-y-5">
+
+                  <!-- Approved -->
+                  <div>
+
+                    <div class="mb-2 flex items-center justify-between">
+
+                      <span class="text-sm font-medium text-gray-300">
+                        Approved
+                      </span>
+
+                      <span class="text-sm font-semibold text-green-400">
+                        {{ statusChartData.approved }}
+                      </span>
+
+                    </div>
+
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+
+                      <div
+                        class="h-2.5 rounded-full bg-green-500 transition-all duration-500"
+                        :style="{
+                          width:
+                            calculatePercentage(statusChartData.approved) + '%'
+                        }"
+                      ></div>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- Pending -->
+                  <div>
+
+                    <div class="mb-2 flex items-center justify-between">
+
+                      <span class="text-sm font-medium text-gray-300">
+                        Pending
+                      </span>
+
+                      <span class="text-sm font-semibold text-yellow-400">
+                        {{ statusChartData.pending }}
+                      </span>
+
+                    </div>
+
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+
+                      <div
+                        class="h-2.5 rounded-full bg-yellow-500 transition-all duration-500"
+                        :style="{
+                          width:
+                            calculatePercentage(statusChartData.pending) + '%'
+                        }"
+                      ></div>
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- Disapproved -->
+                  <div>
+
+                    <div class="mb-2 flex items-center justify-between">
+
+                      <span class="text-sm font-medium text-gray-300">
+                        Disapproved
+                      </span>
+
+                      <span class="text-sm font-semibold text-red-400">
+                        {{ statusChartData.disapproved }}
+                      </span>
+
+                    </div>
+
+                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+
+                      <div
+                        class="h-2.5 rounded-full bg-red-500 transition-all duration-500"
+                        :style="{
+                          width:
+                            calculatePercentage(statusChartData.disapproved) + '%'
+                        }"
+                      ></div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              <!-- =================================================== -->
+              <!-- LEAVE BY TYPE -->
+              <!-- =================================================== -->
+
+              <div class="summary-panel rounded-xl border border-slate-700/80 bg-[#0D1724] p-5 sm:p-6">
+
+                <div class="mb-5">
+                  <h3 class="text-base font-semibold text-white">
+                    Leave By Type
+                  </h3>
+
+                  <p class="mt-1 text-sm text-gray-400">
+                    Breakdown of leave requests by leave category.
+                  </p>
+                </div>
+
+
+                <div
+                  v-if="leaveByType.length"
+                  class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-2"
+                >
+
+                  <div
+                    v-for="leave in leaveByType"
+                    :key="leave.name"
+                    class="leave-type-item rounded-xl border border-slate-700 bg-[#111D2E] p-4 transition hover:border-slate-600"
+                  >
+
+                    <p
+                      class="truncate text-xs font-medium uppercase tracking-wide text-gray-400"
+                      :title="leave.name"
+                    >
+                      {{ leave.name }}
+                    </p>
+
+                    <p class="mt-2 text-2xl font-bold text-white">
+                      {{ leave.count }}
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-500">
+                      Requests
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div
+                  v-else
+                  class="rounded-xl border border-dashed border-slate-700 bg-[#111D2E] px-4 py-8 text-center"
+                >
+                  <p class="text-sm text-gray-400">
+                    No leave type data available.
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
 
           </div>
 
-        </div>
+        </template>
 
 
         <!-- ========================================================= -->
         <!-- ATTENDANCE REPORT -->
         <!-- ========================================================= -->
 
-        <div
-          v-else-if="selectedReportType === 'attendance'"
-          class="p-6"
-        >
+        <template v-else-if="selectedReportType === 'attendance'">
 
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div class="p-5 sm:p-6">
 
-            <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
-
-              <h4 class="text-md font-semibold text-green-400 mb-2">
-                Overall Attendance Rate
+            <div class="mb-5">
+              <h4 class="text-lg font-semibold text-white">
+                Attendance Report
               </h4>
 
-              <p class="text-3xl font-bold text-white">
-                94.5%
+              <p class="mt-1 text-sm text-gray-400">
+                Employee attendance patterns
               </p>
-
-              <p class="text-sm text-green-400 mt-1">
-                ↑ 2.3% from last month
-              </p>
-
             </div>
 
 
-            <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+            <div class="overflow-x-auto">
 
-              <h4 class="text-md font-semibold text-yellow-400 mb-2">
-                Late Arrivals
-              </h4>
+              <table class="w-full min-w-[800px]">
 
-              <p class="text-3xl font-bold text-white">
-                127
-              </p>
+                <thead class="bg-[#0B1420]">
 
-              <p class="text-sm text-yellow-400 mt-1">
-                ↓ 5.1% from last month
-              </p>
+                  <tr>
 
-            </div>
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Department
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Total Faculty
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Present Days
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Late Days
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Absent Days
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Attendance Rate
+                    </th>
+
+                  </tr>
+
+                </thead>
 
 
-            <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                <tbody class="divide-y divide-slate-800">
 
-              <h4 class="text-md font-semibold text-red-400 mb-2">
-                Absenteeism Rate
-              </h4>
+                  <tr
+                    v-for="dept in attendanceData"
+                    :key="dept.department"
+                    class="transition hover:bg-white/5"
+                  >
 
-              <p class="text-3xl font-bold text-white">
-                3.2%
-              </p>
+                    <td class="px-6 py-4 text-white">
+                      {{ dept.department }}
+                    </td>
 
-              <p class="text-sm text-red-400 mt-1">
-                ↓ 0.8% from last month
-              </p>
+                    <td class="px-6 py-4 text-white">
+                      {{ dept.totalFaculty }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ dept.presentDays }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ dept.lateDays }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ dept.absentDays }}
+                    </td>
+
+                    <td class="px-6 py-4">
+
+                      <span
+                        class="rounded-full px-3 py-1 text-sm font-medium"
+                        :class="getAttendanceRateClass(dept.attendanceRate)"
+                      >
+                        {{ dept.attendanceRate }}%
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                </tbody>
+
+              </table>
 
             </div>
 
           </div>
 
-
-          <!-- Attendance Trend Chart -->
-          <div class="bg-[#0B1420] border border-slate-800 rounded-lg p-4 mb-6">
-
-            <h4 class="text-md font-semibold text-white mb-4">
-              Monthly Attendance Trend
-            </h4>
-
-            <canvas ref="attendanceTrendChart"></canvas>
-
-          </div>
-
-
-          <!-- Department Attendance Table -->
-          <div class="overflow-x-auto">
-
-            <table class="w-full">
-
-              <thead class="bg-[#0B1420]">
-
-                <tr>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Department
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Total Faculty
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Present Days
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Late Days
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Absent Days
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Attendance Rate
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody class="divide-y divide-slate-800">
-
-                <tr
-                  v-for="dept in attendanceData"
-                  :key="dept.department"
-                  class="hover:bg-white/5 transition"
-                >
-
-                  <td class="px-6 py-4 text-sm font-medium text-white">
-                    {{ dept.department }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ dept.totalFaculty }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ dept.presentDays }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ dept.lateDays }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ dept.absentDays }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm">
-
-                    <span
-                      class="px-2 py-1 text-xs font-medium rounded-full"
-                      :class="getAttendanceRateClass(dept.attendanceRate)"
-                    >
-                      {{ dept.attendanceRate }}%
-                    </span>
-
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
+        </template>
 
 
         <!-- ========================================================= -->
         <!-- EMPLOYEE PERFORMANCE -->
         <!-- ========================================================= -->
 
-        <div
-          v-else-if="selectedReportType === 'faculty-performance'"
-          class="p-6"
-        >
+        <template v-else-if="selectedReportType === 'faculty-performance'">
 
-          <div class="mb-4">
+          <div class="p-5 sm:p-6">
 
-            <h4 class="text-lg font-semibold text-white">
-              Employee Performance Report
-            </h4>
+            <div class="mb-5">
 
-            <p class="text-sm text-gray-400">
-              Total Employees: {{ totalEmployees }}
-            </p>
+              <h4 class="text-lg font-semibold text-white">
+                Employee Performance Report
+              </h4>
+
+              <p class="mt-1 text-sm text-gray-400">
+                Total Employees: {{ totalEmployees }}
+              </p>
+
+            </div>
+
+
+            <div class="overflow-x-auto">
+
+              <table class="w-full min-w-[1000px]">
+
+                <thead class="bg-[#0B1420]">
+
+                  <tr>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Employee
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Department
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Position
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Employment Status
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Vacation Balance
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Sick Balance
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Used Leave
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody class="divide-y divide-slate-800">
+
+                  <tr
+                    v-for="employee in employeeData"
+                    :key="employee.employee_id"
+                    class="transition hover:bg-white/5"
+                  >
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.employee_name }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.department }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.position }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.employment_status }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.vacation_balance }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.sick_balance }}
+                    </td>
+
+                    <td class="px-6 py-4 text-white">
+                      {{ employee.used_leave }}
+                    </td>
+
+                  </tr>
+
+
+                  <tr v-if="employeeData.length === 0">
+
+                    <td
+                      colspan="7"
+                      class="px-6 py-8 text-center text-gray-500"
+                    >
+                      No employee records found.
+                    </td>
+
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
 
           </div>
 
-
-          <div class="overflow-x-auto">
-
-            <table class="w-full">
-
-              <thead class="bg-[#0B1420]">
-
-                <tr>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Employee
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Department
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Position
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Employment Status
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Vacation Balance
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Sick Balance
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Used Leave
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody class="divide-y divide-slate-800">
-
-                <tr
-                  v-for="employee in employeeData"
-                  :key="employee.employee_id"
-                  class="hover:bg-white/5 transition"
-                >
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.employee_name }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.department }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.position }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.employment_status }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.vacation_balance }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.sick_balance }}
-                  </td>
-
-                  <td class="px-6 py-4 text-white">
-                    {{ employee.used_leave }}
-                  </td>
-
-                </tr>
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
+        </template>
 
 
         <!-- ========================================================= -->
         <!-- LEAVE CREDITS -->
         <!-- ========================================================= -->
 
-        <div
-          v-else-if="selectedReportType === 'leave-credits'"
-          class="p-6"
-        >
+        <template v-else-if="selectedReportType === 'leave-credits'">
 
-          <!-- Summary Cards -->
-          <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+          <div class="p-5 sm:p-6">
 
-            <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+            <!-- Summary Cards -->
+            <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-              <h4 class="text-md font-semibold text-blue-400 mb-2">
-                Total Employees
-              </h4>
+              <!-- Total Employees -->
+              <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
 
-              <p class="text-2xl font-bold text-white">
-                {{ leaveTotals.employees ?? 0 }}
-              </p>
+                <h4 class="mb-2 text-sm font-semibold text-blue-400">
+                  Total Employees
+                </h4>
 
-              <p class="text-sm text-blue-400 mt-1">
-                Employees with leave balances
-              </p>
+                <p class="text-2xl font-bold text-white">
+                  {{ leaveTotals.employees ?? 0 }}
+                </p>
+
+                <p class="mt-1 text-xs text-blue-400">
+                  Employees with leave balances
+                </p>
+
+              </div>
+
+
+              <!-- Vacation Earned -->
+              <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+
+                <h4 class="mb-2 text-sm font-semibold text-green-400">
+                  Total Vacation Earned
+                </h4>
+
+                <p class="text-2xl font-bold text-white">
+                  {{ leaveTotals.vacation_earned ?? 0 }}
+                </p>
+
+                <p class="mt-1 text-xs text-green-400">
+                  Vacation leave credits earned
+                </p>
+
+              </div>
+
+
+              <!-- Sick Earned -->
+              <div class="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4">
+
+                <h4 class="mb-2 text-sm font-semibold text-yellow-400">
+                  Total Sick Earned
+                </h4>
+
+                <p class="text-2xl font-bold text-white">
+                  {{ leaveTotals.sick_earned ?? 0 }}
+                </p>
+
+                <p class="mt-1 text-xs text-yellow-400">
+                  Sick leave credits earned
+                </p>
+
+              </div>
+
+
+              <!-- Used Leave -->
+              <div class="rounded-xl border border-purple-500/20 bg-purple-500/10 p-4">
+
+                <h4 class="mb-2 text-sm font-semibold text-purple-400">
+                  Total Used Leave
+                </h4>
+
+                <p class="text-2xl font-bold text-white">
+                  {{ leaveTotals.used_leave ?? 0 }}
+                </p>
+
+                <p class="mt-1 text-xs text-purple-400">
+                  Total leave days used
+                </p>
+
+              </div>
 
             </div>
 
 
-            <div class="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+            <!-- Employee Leave Balances -->
+            <div class="overflow-x-auto">
 
-              <h4 class="text-md font-semibold text-green-400 mb-2">
-                Total Vacation Earned
-              </h4>
+              <table class="w-full min-w-[700px]">
 
-              <p class="text-2xl font-bold text-white">
-                {{ leaveTotals.vacation_earned ?? 0 }}
-              </p>
+                <thead class="bg-[#0B1420]">
 
-              <p class="text-sm text-green-400 mt-1">
-                Vacation leave credits earned
-              </p>
+                  <tr>
 
-            </div>
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Employee
+                    </th>
 
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Department
+                    </th>
 
-            <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Vacation Balance
+                    </th>
 
-              <h4 class="text-md font-semibold text-yellow-400 mb-2">
-                Total Sick Earned
-              </h4>
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Sick Balance
+                    </th>
 
-              <p class="text-2xl font-bold text-white">
-                {{ leaveTotals.sick_earned ?? 0 }}
-              </p>
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                      Used Leave
+                    </th>
 
-              <p class="text-sm text-yellow-400 mt-1">
-                Sick leave credits earned
-              </p>
+                  </tr>
 
-            </div>
-
-
-            <div class="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
-
-              <h4 class="text-md font-semibold text-purple-400 mb-2">
-                Total Used Leave
-              </h4>
-
-              <p class="text-2xl font-bold text-white">
-                {{ leaveTotals.used_leave ?? 0 }}
-              </p>
-
-              <p class="text-sm text-purple-400 mt-1">
-                Total leave days used
-              </p>
-
-            </div>
-
-          </div>
+                </thead>
 
 
-          <!-- Employee Leave Balances -->
-          <div class="overflow-x-auto">
+                <tbody class="divide-y divide-slate-800">
 
-            <table class="w-full">
-
-              <thead class="bg-[#0B1420]">
-
-                <tr>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Employee
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Department
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Vacation Balance
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Sick Balance
-                  </th>
-
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">
-                    Used Leave
-                  </th>
-
-                </tr>
-
-              </thead>
-
-
-              <tbody class="divide-y divide-slate-800">
-
-                <tr
-                  v-for="employee in creditsData"
-                  :key="employee.employee_id"
-                  class="hover:bg-white/5 transition"
-                >
-
-                  <td class="px-6 py-4 text-sm font-medium text-white">
-                    {{ employee.employee_name }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ employee.department }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ employee.vacation_balance }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ employee.sick_balance }}
-                  </td>
-
-                  <td class="px-6 py-4 text-sm text-white">
-                    {{ employee.used_leave }}
-                  </td>
-
-                </tr>
-
-
-                <tr v-if="creditsData.length === 0">
-
-                  <td
-                    colspan="5"
-                    class="px-6 py-8 text-center text-gray-500"
+                  <tr
+                    v-for="employee in creditsData"
+                    :key="employee.employee_id"
+                    class="transition hover:bg-white/5"
                   >
-                    No leave credit records found.
-                  </td>
 
-                </tr>
+                    <td class="px-6 py-4 text-sm font-medium text-white">
+                      {{ employee.employee_name }}
+                    </td>
 
-              </tbody>
+                    <td class="px-6 py-4 text-sm text-white">
+                      {{ employee.department }}
+                    </td>
 
-            </table>
+                    <td class="px-6 py-4 text-sm text-white">
+                      {{ employee.vacation_balance }}
+                    </td>
+
+                    <td class="px-6 py-4 text-sm text-white">
+                      {{ employee.sick_balance }}
+                    </td>
+
+                    <td class="px-6 py-4 text-sm text-white">
+                      {{ employee.used_leave }}
+                    </td>
+
+                  </tr>
+
+
+                  <tr v-if="creditsData.length === 0">
+
+                    <td
+                      colspan="5"
+                      class="px-6 py-8 text-center text-gray-500"
+                    >
+                      No leave credit records found.
+                    </td>
+
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
 
           </div>
 
-        </div>
+        </template>
 
       </div>
 
@@ -758,7 +893,8 @@ import {
   ref,
   onMounted,
   nextTick,
-  watch
+  watch,
+  computed
 } from 'vue'
 
 import {
@@ -939,6 +1075,7 @@ const attendanceData = [
 
 
 const employeeData = ref<any[]>([])
+
 const totalEmployees = ref(0)
 
 const creditsData = ref<any[]>([])
@@ -946,6 +1083,88 @@ const creditsData = ref<any[]>([])
 const leaveTotals = ref<any>({})
 
 const loading = ref(false)
+
+
+/*
+|--------------------------------------------------------------------------
+| Computed Leave Summary Data
+|--------------------------------------------------------------------------
+*/
+
+const leaveByDepartment = computed(() => {
+
+  return leaveSummaryData.value.map((item: any) => ({
+    department: item.department ?? 'Unknown',
+    count: Number(
+      item.total ??
+      item.count ??
+      0
+    )
+  }))
+
+})
+
+
+const leaveByType = computed(() => {
+
+  const totals: Record<string, number> = {}
+
+  leaveSummaryData.value.forEach((dept: any) => {
+
+    if (!dept.leave_types) {
+      return
+    }
+
+    Object.entries(dept.leave_types).forEach(
+      ([type, count]) => {
+
+        totals[type] =
+          (totals[type] || 0) +
+          Number(count)
+
+      }
+    )
+
+  })
+
+  return Object.entries(totals).map(
+    ([name, count]) => ({
+      name,
+      count
+    })
+  )
+
+})
+
+
+const statusChartData = computed(() => {
+
+  return {
+
+    approved:
+      leaveSummaryData.value.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.approved ?? 0),
+        0
+      ),
+
+    pending:
+      leaveSummaryData.value.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.pending ?? 0),
+        0
+      ),
+
+    disapproved:
+      leaveSummaryData.value.reduce(
+        (sum: number, item: any) =>
+          sum + Number(item.disapproved ?? 0),
+        0
+      )
+
+  }
+
+})
 
 
 /*
@@ -973,6 +1192,30 @@ let attendanceTrendInstance: ChartJS | null = null
 
 /*
 |--------------------------------------------------------------------------
+| Percentage Helper
+|--------------------------------------------------------------------------
+*/
+
+function calculatePercentage(value: number) {
+
+  const total =
+    statusChartData.value.approved +
+    statusChartData.value.pending +
+    statusChartData.value.disapproved
+
+  if (!total) {
+    return 0
+  }
+
+  return Math.round(
+    (value / total) * 100
+  )
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
 | Load Leave Summary
 |--------------------------------------------------------------------------
 */
@@ -983,7 +1226,8 @@ async function loadLeaveSummary() {
 
   try {
 
-    const response = await getLeaveSummary()
+    const response =
+      await getLeaveSummary()
 
     leaveSummaryData.value =
       response.data.summary || []
@@ -1046,12 +1290,14 @@ function createLeaveCharts() {
 
   const departmentLabels =
     leaveSummaryData.value.map(
-      (item: any) => item.department
+      (item: any) =>
+        item.department
     )
 
   const departmentTotals =
     leaveSummaryData.value.map(
-      (item: any) => Number(item.total)
+      (item: any) =>
+        Number(item.total)
     )
 
 
@@ -1090,18 +1336,18 @@ function createLeaveCharts() {
 
   /*
   |--------------------------------------------------------------------------
-  | RED / GREEN / Additional Colors
+  | Chart Colors
   |--------------------------------------------------------------------------
   */
 
   const chartColors = [
 
-    '#22c55e', // Green
-    '#ef4444', // Red
-    '#3b82f6', // Blue
-    '#f59e0b', // Yellow
-    '#a855f7', // Purple
-    '#06b6d4', // Cyan
+    '#22c55e',
+    '#ef4444',
+    '#3b82f6',
+    '#f59e0b',
+    '#a855f7',
+    '#06b6d4'
 
   ]
 
@@ -1121,7 +1367,9 @@ function createLeaveCharts() {
       data: {
 
         labels:
-          Object.keys(leaveTypeTotals),
+          Object.keys(
+            leaveTypeTotals
+          ),
 
         datasets: [
 
@@ -1229,12 +1477,6 @@ function createLeaveCharts() {
 
             data:
               departmentTotals,
-
-            /*
-            |--------------------------------------------------------------------------
-            | Green and Red Bar Colors
-            |--------------------------------------------------------------------------
-            */
 
             backgroundColor:
               departmentTotals.map(
@@ -1595,120 +1837,223 @@ const generateCustomReport = () => {
 const exportReport = () => {
 
   let data: any[] = []
-  let filename = 'report.csv'
 
-  switch (selectedReportType.value) {
+  let filename =
+    'report.csv'
+
+
+  switch (
+    selectedReportType.value
+  ) {
 
     case 'leave-summary':
 
-      data = leaveSummaryData.value.map((item: any) => ({
-        Department: item.department ?? '',
-        'Total Leaves': item.total ?? 0,
-        Approved: item.approved ?? 0,
-        Pending: item.pending ?? 0,
-        Disapproved: item.disapproved ?? 0
-      }))
+      data =
+        leaveSummaryData.value.map(
+          (item: any) => ({
 
-      filename = 'leave-summary-report.csv'
+            Department:
+              item.department ?? '',
+
+            'Total Leaves':
+              item.total ?? 0,
+
+            Approved:
+              item.approved ?? 0,
+
+            Pending:
+              item.pending ?? 0,
+
+            Disapproved:
+              item.disapproved ?? 0
+
+          })
+        )
+
+      filename =
+        'leave-summary-report.csv'
 
       break
 
 
     case 'leave-credits':
 
-      data = creditsData.value.map((employee: any) => ({
-        Employee: employee.employee_name ?? '',
-        Department: employee.department ?? '',
-        'Vacation Balance': employee.vacation_balance ?? 0,
-        'Sick Balance': employee.sick_balance ?? 0,
-        'Used Leave': employee.used_leave ?? 0
-      }))
+      data =
+        creditsData.value.map(
+          (employee: any) => ({
 
-      filename = 'leave-credits-report.csv'
+            Employee:
+              employee.employee_name ?? '',
+
+            Department:
+              employee.department ?? '',
+
+            'Vacation Balance':
+              employee.vacation_balance ?? 0,
+
+            'Sick Balance':
+              employee.sick_balance ?? 0,
+
+            'Used Leave':
+              employee.used_leave ?? 0
+
+          })
+        )
+
+      filename =
+        'leave-credits-report.csv'
 
       break
 
 
     case 'faculty-performance':
 
-      data = employeeData.value.map((employee: any) => ({
-        Employee: employee.employee_name ?? '',
-        Department: employee.department ?? '',
-        Position: employee.position ?? '',
-        'Employment Status': employee.employment_status ?? '',
-        'Vacation Balance': employee.vacation_balance ?? 0,
-        'Sick Balance': employee.sick_balance ?? 0,
-        'Used Leave': employee.used_leave ?? 0
-      }))
+      data =
+        employeeData.value.map(
+          (employee: any) => ({
 
-      filename = 'employee-performance-report.csv'
+            Employee:
+              employee.employee_name ?? '',
+
+            Department:
+              employee.department ?? '',
+
+            Position:
+              employee.position ?? '',
+
+            'Employment Status':
+              employee.employment_status ?? '',
+
+            'Vacation Balance':
+              employee.vacation_balance ?? 0,
+
+            'Sick Balance':
+              employee.sick_balance ?? 0,
+
+            'Used Leave':
+              employee.used_leave ?? 0
+
+          })
+        )
+
+      filename =
+        'employee-performance-report.csv'
 
       break
 
 
     case 'attendance':
 
-      data = attendanceData.map((dept: any) => ({
-        Department: dept.department ?? '',
-        'Total Faculty': dept.totalFaculty ?? 0,
-        'Present Days': dept.presentDays ?? 0,
-        'Late Days': dept.lateDays ?? 0,
-        'Absent Days': dept.absentDays ?? 0,
-        'Attendance Rate': `${dept.attendanceRate ?? 0}%`
-      }))
+      data =
+        attendanceData.map(
+          (dept: any) => ({
 
-      filename = 'attendance-report.csv'
+            Department:
+              dept.department ?? '',
+
+            'Total Faculty':
+              dept.totalFaculty ?? 0,
+
+            'Present Days':
+              dept.presentDays ?? 0,
+
+            'Late Days':
+              dept.lateDays ?? 0,
+
+            'Absent Days':
+              dept.absentDays ?? 0,
+
+            'Attendance Rate':
+              `${dept.attendanceRate ?? 0}%`
+
+          })
+        )
+
+      filename =
+        'attendance-report.csv'
 
       break
+
   }
 
 
-  // Check if there is data to export
+  /*
+  |--------------------------------------------------------------------------
+  | Check Data
+  |--------------------------------------------------------------------------
+  */
+
   if (data.length === 0) {
 
-    alert('No data available to export.')
+    alert(
+      'No data available to export.'
+    )
 
     return
 
   }
 
 
-  // Get column headers
-  const headers = Object.keys(data[0])
+  /*
+  |--------------------------------------------------------------------------
+  | Get Headers
+  |--------------------------------------------------------------------------
+  */
+
+  const headers =
+    Object.keys(data[0])
 
 
-  // Convert data to CSV
+  /*
+  |--------------------------------------------------------------------------
+  | Convert To CSV
+  |--------------------------------------------------------------------------
+  */
+
   const csvRows = [
 
     headers.join(','),
 
     ...data.map((row) =>
+
       headers
         .map((header) => {
 
-          const value = row[header] ?? ''
+          const value =
+            row[header] ?? ''
 
-          // Escape quotes and commas
-          return `"${String(value).replace(/"/g, '""')}"`
+          return `"${String(value).replace(
+            /"/g,
+            '""'
+          )}"`
 
         })
         .join(',')
+
     )
 
   ]
 
 
   const csvContent =
-    '\uFEFF' + csvRows.join('\n')
+    '\uFEFF' +
+    csvRows.join('\n')
 
 
-  // Create downloadable file
-  const blob = new Blob(
-    [csvContent],
-    {
-      type: 'text/csv;charset=utf-8;'
-    }
-  )
+  /*
+  |--------------------------------------------------------------------------
+  | Create Download
+  |--------------------------------------------------------------------------
+  */
+
+  const blob =
+    new Blob(
+      [csvContent],
+      {
+        type:
+          'text/csv;charset=utf-8;'
+      }
+    )
 
 
   const url =
@@ -1719,19 +2064,36 @@ const exportReport = () => {
     document.createElement('a')
 
 
-  link.href = url
-  link.download = filename
+  link.href =
+    url
 
-  document.body.appendChild(link)
+  link.download =
+    filename
+
+
+  document.body.appendChild(
+    link
+  )
 
   link.click()
 
-  document.body.removeChild(link)
+  document.body.removeChild(
+    link
+  )
 
-  URL.revokeObjectURL(url)
+
+  URL.revokeObjectURL(
+    url
+  )
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Print
+|--------------------------------------------------------------------------
+*/
 
 const printReport = () => {
 
@@ -1785,6 +2147,11 @@ watch(
 
         break
 
+
+      case 'attendance':
+
+        break
+
     }
 
   }
@@ -1802,15 +2169,10 @@ watch(
 
 .neo-card {
   background: #111D2E;
-
   border: 1px solid #1E293B;
-
   border-radius: 1.4rem;
-
   box-shadow:
-    0 10px 22px
-    rgba(15, 23, 42, 0.04);
-
+    0 10px 22px rgba(15, 23, 42, 0.04);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
@@ -1818,84 +2180,107 @@ watch(
 
 
 .neo-card:hover {
-
   box-shadow:
-    0 14px 26px
-    rgba(15, 23, 42, 0.06);
-
+    0 14px 26px rgba(15, 23, 42, 0.06);
 }
 
 
-.stats-card {
+/* =========================================================
+   LEAVE SUMMARY
+   ========================================================= */
 
-  border-left:
-    4px solid currentColor;
-
-  padding:
-    1.35rem;
-
+.leave-summary {
+  width: 100%;
 }
 
 
-.stats-card .p-3 {
+/* Prevent nested summary panels from behaving like large cards */
 
-  border-radius:
-    0.9rem;
-
+.summary-panel {
+  min-width: 0;
 }
 
+
+/* Department cards */
+
+.department-item {
+  min-width: 0;
+}
+
+
+/* Leave type cards */
+
+.leave-type-item {
+  min-width: 0;
+}
+
+
+/* Typography */
 
 .neo-card h3,
+.neo-card h4,
+.neo-card h5,
 .neo-card p,
 .neo-card span,
-.neo-card button {
-
-  letter-spacing:
-    -0.01em;
-
+.neo-card button,
+.neo-card label {
+  letter-spacing: -0.01em;
 }
 
 
+/* Charts */
 
 canvas {
-
   max-width: 100%;
+}
+
+
+/* =========================================================
+   RESPONSIVE SPACING
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .dashboard-shell {
+    padding: 1rem;
+  }
+
+  .neo-card {
+    border-radius: 1.1rem;
+  }
 
 }
 
+
+/* =========================================================
+   PRINT
+   ========================================================= */
 
 @media print {
 
   .dashboard-shell {
-
     background: white !important;
-
   }
 
-  .neo-card {
-
+  .neo-card,
+  .summary-panel,
+  .department-item,
+  .leave-type-item {
     background: white !important;
-
-    border:
-      1px solid #ddd !important;
-
-    box-shadow:
-      none !important;
-
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
   }
 
   .neo-card h3,
   .neo-card h4,
+  .neo-card h5,
   .neo-card p,
   .neo-card span,
   .neo-card td,
   .neo-card th {
-
     color: black !important;
-
   }
 
 }
 
 </style>
-
