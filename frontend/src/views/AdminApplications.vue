@@ -1,9 +1,11 @@
 <template>
-  <div class="max-w-7xl mx-auto p-4 dashboard-shell">
-    <div class="bg-white rounded-lg shadow neo-card">
+  <div
+    class="w-full max-w-[1400px] mx-auto px-2 sm:px-3 md:px-4 lg:px-6 py-4 dashboard-shell"
+  >
+    <div class="bg-white rounded-lg shadow neo-card w-full min-w-0">
 
       <!-- Header -->
-      <div class="px-6 py-4 border-b border-gray-200">
+      <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
         <h2 class="text-xl font-semibold text-white">
           Submitted Leave Applications
         </h2>
@@ -14,15 +16,15 @@
       </div>
 
       <!-- Filter Tabs -->
-      <div class="px-6 py-3 border-b border-gray-200">
-        <div class="flex space-x-4">
+      <div class="px-4 sm:px-6 py-3 border-b border-gray-200 overflow-x-auto">
+        <div class="flex space-x-2 sm:space-x-4 min-w-max">
 
           <button
             v-for="tab in tabs"
             :key="tab.key"
             @click="activeTab = tab.key"
             :class="[
-              'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+              'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
               activeTab === tab.key
                 ? 'bg-blue-100 text-blue-700'
                 : 'text-white hover:text-gray-700 hover:bg-gray-100',
@@ -44,15 +46,15 @@
       </div>
 
       <!-- Applications List -->
-      <div class="p-6">
+      <div class="p-4 sm:p-6 min-w-0">
 
         <!-- Search and Filters -->
         <div class="mb-6">
 
-          <div class="flex flex-col md:flex-row gap-3">
+          <div class="flex flex-col lg:flex-row gap-3">
 
             <!-- Search -->
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <input
                 v-model="searchQuery"
                 type="text"
@@ -64,7 +66,7 @@
             <!-- Leave Type -->
             <select
               v-model="filterType"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
+              class="w-full lg:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
             >
               <option value="">All Leave Types</option>
               <option value="vacation">Vacation Leave</option>
@@ -85,7 +87,7 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 hover:text-gray-800 transition"
+              class="w-full lg:w-auto px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 hover:text-gray-800 transition whitespace-nowrap"
             >
               Clear
             </button>
@@ -139,17 +141,21 @@
           <div
             v-for="application in displayedApplications"
             :key="application.leave_id"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card"
+            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card min-w-0"
           >
 
-            <div class="flex items-start justify-between">
+            <div
+              class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4"
+            >
 
               <!-- Application Information -->
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
 
-                <div class="flex items-center space-x-3">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
 
-                  <h3 class="text-lg font-medium text-white">
+                  <h3
+                    class="text-lg font-medium text-white break-words"
+                  >
                     {{ application.employee.last_name }},
                     {{ application.employee.first_name }}
                     {{ application.employee.middle_name }}
@@ -157,7 +163,7 @@
 
                   <span
                     :class="[
-                      'px-2 py-1 text-xs font-medium rounded-full',
+                      'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
                       getStatusClass(application.final_status),
                     ]"
                   >
@@ -168,10 +174,10 @@
 
                 <!-- Application Details -->
                 <div
-                  class="mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-white"
+                  class="mt-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 text-sm text-white"
                 >
 
-                  <div>
+                  <div class="min-w-0 break-words">
                     <span class="font-medium">
                       Office:
                     </span>
@@ -179,7 +185,7 @@
                     {{ application.employee.department }}
                   </div>
 
-                  <div>
+                  <div class="min-w-0 break-words">
                     <span class="font-medium">
                       Position:
                     </span>
@@ -187,7 +193,7 @@
                     {{ application.employee.position }}
                   </div>
 
-                  <div>
+                  <div class="min-w-0 break-words">
                     <span class="font-medium">
                       Date Filed:
                     </span>
@@ -195,7 +201,7 @@
                     {{ formatDate(application.date_filed) }}
                   </div>
 
-                  <div>
+                  <div class="min-w-0 break-words">
                     <span class="font-medium">
                       Leave Type:
                     </span>
@@ -203,7 +209,7 @@
                     {{ getLeaveType(application.leave_type) }}
                   </div>
 
-                  <div>
+                  <div class="min-w-0 break-words">
                     <span class="font-medium">
                       Days Applied:
                     </span>
@@ -231,11 +237,11 @@
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded"
+                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded max-w-full break-all"
                     >
 
                       <svg
-                        class="w-3 h-3 mr-1"
+                        class="w-3 h-3 mr-1 flex-shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -259,20 +265,15 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="flex flex-col space-y-2 ml-4">
+              <div
+                class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
+              >
 
                 <button
                   @click="viewApplication(application)"
-                  class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
                 >
                   View Details
-                </button>
-
-                <button
-                  @click="downloadApplication(application)"
-                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition"
-                >
-                  Download PDF
                 </button>
 
                 <button
@@ -280,7 +281,7 @@
                     application.final_status?.toLowerCase() === 'pending'
                   "
                   @click="openApprovalModal(application)"
-                  class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition"
+                  class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
                 >
                   Approve
                 </button>
@@ -295,7 +296,7 @@
                       'disapproved'
                     )
                   "
-                  class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
+                  class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
                 >
                   Reject
                 </button>
@@ -313,7 +314,7 @@
           >
 
             <!-- Pagination Information -->
-            <div class="text-sm text-gray-400">
+            <div class="text-sm text-gray-400 text-center sm:text-left">
               Showing
               <span class="font-medium text-white">
                 {{ paginationStart }}
@@ -335,7 +336,7 @@
             </div>
 
             <!-- Pagination Controls -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-shrink-0">
 
               <!-- Previous -->
               <button
@@ -388,14 +389,14 @@
 
     <div
       v-if="showDetailModal"
-      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
     >
 
       <div
-        class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[90vh] overflow-y-auto neo-card"
+        class="relative mx-auto my-4 sm:my-8 p-4 sm:p-5 border w-full sm:w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[calc(100vh-2rem)] sm:max-h-[90vh] overflow-y-auto neo-card"
       >
 
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4 gap-3">
 
           <h3 class="text-xl font-medium text-white">
             Leave Application Details
@@ -403,7 +404,7 @@
 
           <button
             @click="showDetailModal = false"
-            class="text-white hover:text-gray-600"
+            class="text-white hover:text-gray-600 flex-shrink-0"
           >
 
             <svg
@@ -430,20 +431,22 @@
         >
 
           <!-- Applicant Information -->
-          <div class="border border-gray-300 p-4">
+          <div class="border border-gray-300 p-4 min-w-0">
 
             <h4 class="text-sm font-bold mb-3 text-white">
               Applicant Information
             </h4>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white"
+            >
 
-              <div>
+              <div class="break-words">
                 <strong>Office:</strong>
                 {{ selectedApplication.employee.department }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Name:</strong>
 
                 {{ selectedApplication.employee.employee_last_name }},
@@ -451,22 +454,22 @@
                 {{ selectedApplication.employee.employee_middle_name }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Date of Filing:</strong>
                 {{ formatDate(selectedApplication.date_filed) }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Position:</strong>
                 {{ selectedApplication.employee.position }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Salary:</strong>
                 {{ selectedApplication.employee.salary }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Status:</strong>
 
                 <span
@@ -486,7 +489,7 @@
           </div>
 
           <!-- Leave Details -->
-          <div class="border border-gray-300 p-4">
+          <div class="border border-gray-300 p-4 min-w-0">
 
             <h4 class="text-sm font-bold mb-3 text-white">
               Leave Details
@@ -494,17 +497,17 @@
 
             <div class="space-y-2 text-sm text-white">
 
-              <div>
+              <div class="break-words">
                 <strong>Type of Leave:</strong>
                 {{ getLeaveType(selectedApplication.leave_type) }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Number of Days:</strong>
                 {{ selectedApplication.number_of_days }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Inclusive Dates:</strong>
 
                 {{ formatDate(selectedApplication.start_date) }}
@@ -514,7 +517,7 @@
                 {{ formatDate(selectedApplication.end_date) }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Commutation:</strong>
 
                 {{
@@ -524,7 +527,7 @@
                 }}
               </div>
 
-              <div>
+              <div class="break-words">
                 <strong>Applicant Signature:</strong>
 
                 {{ selectedApplication.employee.employee_first_name }}
@@ -536,53 +539,14 @@
 
           </div>
 
-          <!-- Attachments -->
-          <div
-            v-if="
-              selectedApplication.attachments &&
-              selectedApplication.attachments.length > 0
-            "
-            class="border border-gray-300 p-4"
-          >
-
-            <h4 class="text-sm font-bold mb-3 text-white">
-              Supporting Documents
-            </h4>
-
-            <div class="space-y-2">
-
-              <div
-                v-for="(attachment, index) in selectedApplication.attachments"
-                :key="index"
-                class="flex items-center justify-between p-2 bg-gray-50 rounded"
-              >
-
-                <span class="text-sm text-gray-800">
-                  {{ attachment.name }}
-
-                  ({{ formatFileSize(attachment.size) }})
-                </span>
-
-                <button
-                  class="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  Download
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
           <!-- Action Buttons -->
           <div
-            class="flex justify-end space-x-3 pt-4 border-t"
+            class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t"
           >
 
             <button
               @click="downloadApplication(selectedApplication)"
-              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
             >
               Download PDF
             </button>
@@ -595,7 +559,7 @@
               @click="
                 openApprovalModal(selectedApplication)
               "
-              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
             >
               Approve
             </button>
@@ -611,7 +575,7 @@
                   'disapproved'
                 )
               "
-              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
             >
               Reject
             </button>
@@ -632,18 +596,18 @@
 
   <div
     v-if="showApprovalModal"
-    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-3 sm:p-4 overflow-y-auto"
   >
 
     <div
-      class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 neo-card"
+      class="bg-white rounded-lg shadow-xl w-full max-w-md p-4 sm:p-6 neo-card max-h-[95vh] overflow-y-auto"
     >
 
       <h3 class="text-lg font-semibold text-white">
         Approve Leave Application
       </h3>
 
-      <p class="text-sm text-white mt-2">
+      <p class="text-sm text-white mt-2 break-words">
 
         This leave application is for
 
@@ -662,7 +626,7 @@
           Deduct leave balance?
         </label>
 
-        <div class="flex gap-4">
+        <div class="flex gap-4 flex-wrap">
 
           <label class="flex items-center gap-2 text-white">
 
@@ -771,26 +735,26 @@
         <!-- Total -->
         <div class="mt-4 p-3 bg-gray-50 rounded-lg">
 
-          <div class="flex justify-between text-sm">
+          <div class="flex justify-between text-sm gap-3">
 
             <span class="text-gray-800">
               Days applied:
             </span>
 
-            <span class="font-medium text-gray-800">
+            <span class="font-medium text-gray-800 text-right">
               {{ approvalApplication?.number_of_days ?? 0 }}
               day(s)
             </span>
 
           </div>
 
-          <div class="flex justify-between text-sm mt-1">
+          <div class="flex justify-between text-sm mt-1 gap-3">
 
             <span class="text-gray-800">
               Total deduction:
             </span>
 
-            <span class="font-semibold text-gray-800">
+            <span class="font-semibold text-gray-800 text-right">
 
               {{
                 vacationDeductDays +
@@ -822,18 +786,18 @@
       </div>
 
       <!-- Buttons -->
-      <div class="flex justify-end gap-3 mt-6">
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
 
         <button
           @click="showApprovalModal = false"
-          class="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-800"
+          class="w-full sm:w-auto px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-800 whitespace-nowrap"
         >
           Cancel
         </button>
 
         <button
           @click="confirmApproval"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 whitespace-nowrap"
         >
           Confirm Approval
         </button>
@@ -1546,6 +1510,9 @@ onMounted(() => {
 .dashboard-shell {
   background: #080D14;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .neo-card {
@@ -1558,6 +1525,8 @@ onMounted(() => {
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
+
+  min-width: 0;
 }
 
 .neo-card:hover {
@@ -1579,6 +1548,65 @@ onMounted(() => {
 .neo-card span,
 .neo-card button {
   letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   RESPONSIVE / ZOOM BEHAVIOR
+========================================================= */
+
+/* Prevent children from forcing horizontal overflow */
+.neo-card * {
+  min-width: 0;
+}
+
+/* Allow long employee names, filenames, departments,
+   positions, etc. to wrap instead of breaking layout */
+.neo-card h3,
+.neo-card p,
+.neo-card span,
+.neo-card div {
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   LARGE TABLET / HIGH ZOOM
+========================================================= */
+
+@media (max-width: 1023px) {
+  .dashboard-shell {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* =========================================================
+   TABLET / HIGHER ZOOM
+========================================================= */
+
+@media (max-width: 767px) {
+  .dashboard-shell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .neo-card {
+    border-radius: 1rem;
+  }
+}
+
+/* =========================================================
+   SMALL PHONE / VERY HIGH ZOOM
+========================================================= */
+
+@media (max-width: 480px) {
+  .dashboard-shell {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+
+  .neo-card {
+    border-radius: 0.75rem;
+  }
 }
 
 /* =========================================================

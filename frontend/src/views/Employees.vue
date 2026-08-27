@@ -1206,6 +1206,21 @@ const formatDate = (date?: string) => {
 };
 
 /* ========================================================= */
+/* STATUS */
+/* ========================================================= */
+
+const normalizeEmploymentStatus = (
+  status: string | undefined
+) => {
+
+  return String(status || "")
+    .trim()
+    .toLowerCase();
+
+};
+
+
+/* ========================================================= */
 /* VIEW EMPLOYEE */
 /* ========================================================= */
 
@@ -1231,6 +1246,8 @@ const filteredEmployees = computed(() => {
 
     const lastName = employee.last_name?.toLowerCase() || "";
 
+    const middleName = employee.middle_name?.toLowerCase() || "";
+
     const employeeCode = employee.employee_code?.toLowerCase() || "";
 
     const email = employee.user?.email?.toLowerCase() || "";
@@ -1239,13 +1256,27 @@ const filteredEmployees = computed(() => {
 
     const position = employee.position?.name?.toLowerCase() || "";
 
+    const category =
+      employee.employee_category?.toLowerCase() || "";
+
     return (
+
       firstName.includes(keyword) ||
+
+      middleName.includes(keyword) ||
+
       lastName.includes(keyword) ||
+
       employeeCode.includes(keyword) ||
+
       email.includes(keyword) ||
+
       department.includes(keyword) ||
-      position.includes(keyword)
+
+      position.includes(keyword) ||
+
+      category.includes(keyword)
+
     );
   });
 });
@@ -1270,13 +1301,15 @@ const editEmployee = (employee: Employee) => {
 
     position_id: employee.position_id || null,
 
-    employee_category: employee.employee_category || "",
+    employee_category:
+      employee.employee_category || "",
 
     salary_step: employee.salary_step || null,
 
     salary: employee.salary != null ? String(employee.salary) : "",
 
-    contact_number: employee.contact_number || "",
+    contact_number:
+      employee.contact_number || "",
 
     employment_status: employee.employment_status || "",
   };
@@ -1392,7 +1425,8 @@ onMounted(async () => {
 
   border-radius: 1.4rem;
 
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.04);
 
   transition:
     box-shadow 0.2s ease,

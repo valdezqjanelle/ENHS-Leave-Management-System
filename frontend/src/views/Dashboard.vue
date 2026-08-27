@@ -165,10 +165,10 @@
               <div class="text-right ml-4 flex-shrink-0">
 
                 <span
-                  :class="getStatusClass(app.status)"
+                  :class="getStatusClass(getAppStatus(app))"
                   class="inline-block px-2 py-1 rounded-full text-xs font-semibold"
                 >
-                  {{ formatStatus(app.status) }}
+                  {{ formatStatus(getAppStatus(app)) }}
                 </span>
 
                 <p class="text-xs text-gray-400 mt-1">
@@ -996,6 +996,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { getAdminDashboard, getEmployeeDashboard } from "@/services/dashboard";
+import { getMyLeaves } from "@/services/leave"; // adjust path if needed (matches MyApplications.vue)
 import api from "@/services/api";
 import { useRouter } from "vue-router";
 
@@ -1031,7 +1032,6 @@ const approvedLeaves = ref(0);
 const disapprovedLeaves = ref(0);
 
 const recentApplications = ref<any[]>([]);
-
 const pendingRequests = ref<any[]>([]);
 
 const leaveByType = ref<any[]>([]);
@@ -1077,23 +1077,14 @@ const totalDisapprovedLeaves = ref(0);
 // COMPUTED
 // ============================================================
 
-const isAdmin = computed(() => {
-  return userRole.value.toLowerCase() === "admin";
-});
-
-const isEmployee = computed(() => {
-  return userRole.value.toLowerCase() === "employee";
-});
+const isAdmin = computed(() => userRole.value.toLowerCase() === "admin");
+const isEmployee = computed(() => userRole.value.toLowerCase() === "employee");
 
 // ============================================================
 // ERROR HANDLER
 // ============================================================
 
-const extractErrorMessage = (
-  error: unknown,
-  fallback: string
-): string => {
-
+const extractErrorMessage = (error: unknown, fallback: string): string => {
   if (isAxiosError(error)) {
     return (
       error.response?.data?.error ||
@@ -1101,11 +1092,9 @@ const extractErrorMessage = (
       fallback
     );
   }
-
   if (error instanceof Error) {
     return error.message;
   }
-
   return fallback;
 };
 
@@ -1114,33 +1103,22 @@ const extractErrorMessage = (
 // ============================================================
 
 const normalizeStatus = (status: unknown): string => {
-  if (status === null || status === undefined) {
-    return "";
-  }
-
-  return String(status)
-    .trim()
-    .toLowerCase();
+  if (status === null || status === undefined) return "";
+  return String(status).trim().toLowerCase();
 };
 
 const formatStatus = (status: unknown): string => {
   const normalized = normalizeStatus(status);
-
-  if (!normalized) {
-    return "Unknown";
-  }
-
+  if (!normalized) return "Unknown";
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 };
 
 const getStatusClass = (status: unknown): string => {
-
   const normalized = normalizeStatus(status);
 
   if (normalized === "approved") {
     return "bg-green-500/20 text-green-300";
   }
-
   if (
     normalized === "pending" ||
     normalized === "for approval" ||
@@ -1148,7 +1126,6 @@ const getStatusClass = (status: unknown): string => {
   ) {
     return "bg-yellow-500/20 text-yellow-300";
   }
-
   if (
     normalized === "disapproved" ||
     normalized === "rejected" ||
@@ -1156,30 +1133,32 @@ const getStatusClass = (status: unknown): string => {
   ) {
     return "bg-red-500/20 text-red-300";
   }
-
   return "bg-gray-500/20 text-gray-300";
+};
+
+// NEW: resolves the status regardless of whether the record uses
+// `status` or `final_status` (your leave records use final_status).
+const getAppStatus = (application: any): string => {
+  if (!application) return "";
+  return (
+    application.final_status ??
+    application.status ??
+    application.leave_status ??
+    ""
+  );
 };
 
 // ============================================================
 // APPLICATION DATA HELPERS
-// These allow the dashboard to work with slightly different
-// backend field names.
 // ============================================================
 
 const getEmployeeName = (application: any): string => {
-
-  if (!application) {
-    return "Unknown Employee";
-  }
+  if (!application) return "Unknown Employee";
 
   if (typeof application.employee === "string") {
     return application.employee;
   }
-
-  if (
-    application.employee &&
-    typeof application.employee === "object"
-  ) {
+  if (application.employee && typeof application.employee === "object") {
     return (
       application.employee.name ||
       application.employee.full_name ||
@@ -1187,7 +1166,6 @@ const getEmployeeName = (application: any): string => {
       "Unknown Employee"
     );
   }
-
   return (
     application.employee_name ||
     application.employeeName ||
@@ -1198,37 +1176,25 @@ const getEmployeeName = (application: any): string => {
 };
 
 const getEmployeeInitial = (application: any): string => {
-
   const name = getEmployeeName(application);
-
-  if (!name || name === "Unknown Employee") {
-    return "?";
-  }
-
+  if (!name || name === "Unknown Employee") return "?";
   return name.charAt(0).toUpperCase();
 };
 
 const getLeaveType = (application: any): string => {
-
-  if (!application) {
-    return "Leave";
-  }
+  if (!application) return "Leave";
 
   if (typeof application.leave_type === "string") {
     return application.leave_type;
   }
-
-  if (
-    application.leave_type &&
-    typeof application.leave_type === "object"
-  ) {
+  if (application.leave_type && typeof application.leave_type === "object") {
     return (
+      application.leave_type.leave_type_name || // <-- FIX: was missing, this is your actual field
       application.leave_type.name ||
       application.leave_type.leave_name ||
       "Leave"
     );
   }
-
   return (
     application.leaveType ||
     application.leave_name ||
@@ -1238,10 +1204,7 @@ const getLeaveType = (application: any): string => {
 };
 
 const getDays = (application: any): number | null => {
-
-  if (!application) {
-    return null;
-  }
+  if (!application) return null;
 
   const value =
     application.days ??
@@ -1249,15 +1212,22 @@ const getDays = (application: any): number | null => {
     application.total_days ??
     application.duration;
 
-  if (value === null || value === undefined || value === "") {
-    return null;
+  if (value !== null && value !== undefined && value !== "") {
+    const numberValue = Number(value);
+    if (!Number.isNaN(numberValue)) return numberValue;
   }
 
-  const numberValue = Number(value);
+  // FIX: fall back to computing from start/end dates,
+  // since these leave records don't carry an explicit "days" field.
+  if (application.start_date && application.end_date) {
+    const start = new Date(application.start_date).getTime();
+    const end = new Date(application.end_date).getTime();
+    if (!Number.isNaN(start) && !Number.isNaN(end) && end >= start) {
+      return Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    }
+  }
 
-  return Number.isNaN(numberValue)
-    ? null
-    : numberValue;
+  return null;
 };
 
 // ============================================================
@@ -1265,30 +1235,20 @@ const getDays = (application: any): number | null => {
 // ============================================================
 
 const calculatePercentage = (value: number) => {
-
   const total =
     statusChartData.value.approved +
     statusChartData.value.pending +
     statusChartData.value.disapproved;
-
-  if (total === 0) {
-    return 0;
-  }
-
+  if (total === 0) return 0;
   return Math.round((value / total) * 100);
 };
 
 const calculateEmployeePercentage = (value: number) => {
-
   const total =
     employeeStatusChart.value.approved +
     employeeStatusChart.value.pending +
     employeeStatusChart.value.disapproved;
-
-  if (total === 0) {
-    return 0;
-  }
-
+  if (total === 0) return 0;
   return Math.round((value / total) * 100);
 };
 
@@ -1297,188 +1257,160 @@ const calculateEmployeePercentage = (value: number) => {
 // ============================================================
 
 const getCurrentUser = async () => {
-
   const response = await api.get("/me");
-
-  userRole.value = String(
-    response.data?.role || "employee"
-  ).toLowerCase();
+  userRole.value = String(response.data?.role || "employee").toLowerCase();
 };
 
 // ============================================================
-// LOAD ADMIN DASHBOARD
+// LOAD ADMIN DASHBOARD (unchanged)
 // ============================================================
 
 const loadAdminDashboard = async () => {
-
   const response = await getAdminDashboard();
-
   const data = response.data;
 
   if (!data || !data.summary) {
-    throw new Error(
-      "Unexpected response shape from /admin/dashboard"
-    );
+    throw new Error("Unexpected response shape from /admin/dashboard");
   }
 
-  // ----------------------------------------------------------
-  // SUMMARY
-  // ----------------------------------------------------------
+  totalEmployees.value = Number(data.summary.totalEmployees) || 0;
+  pendingLeaves.value = Number(data.summary.pendingLeaves) || 0;
+  approvedLeaves.value = Number(data.summary.approvedLeaves) || 0;
+  disapprovedLeaves.value = Number(data.summary.disapprovedLeaves) || 0;
 
-  totalEmployees.value =
-    Number(data.summary.totalEmployees) || 0;
+  recentApplications.value = Array.isArray(data.recentApplications)
+    ? data.recentApplications
+    : [];
 
-  pendingLeaves.value =
-    Number(data.summary.pendingLeaves) || 0;
-
-  approvedLeaves.value =
-    Number(data.summary.approvedLeaves) || 0;
-
-  disapprovedLeaves.value =
-    Number(data.summary.disapprovedLeaves) || 0;
-
-  // ----------------------------------------------------------
-  // RECENT APPLICATIONS
-  // ----------------------------------------------------------
-
-  recentApplications.value =
-    Array.isArray(data.recentApplications)
-      ? data.recentApplications
-      : [];
-
-  // ----------------------------------------------------------
-  // IMPORTANT FIX:
-  //
-  // Some backend responses may not contain pendingRequests.
-  // In that case, derive pending requests from the applications
-  // that are already returned.
-  // ----------------------------------------------------------
-
-  const backendPendingRequests =
-    Array.isArray(data.pendingRequests)
-      ? data.pendingRequests
-      : [];
+  const backendPendingRequests = Array.isArray(data.pendingRequests)
+    ? data.pendingRequests
+    : [];
 
   if (backendPendingRequests.length > 0) {
-
-    pendingRequests.value =
-      backendPendingRequests.filter((request: any) => {
-
-        const status = normalizeStatus(request.status);
-
-        return (
-          status === "pending" ||
-          status === "for approval" ||
-          status === "for_approval"
-        );
-      });
-
+    pendingRequests.value = backendPendingRequests.filter((request: any) => {
+      const status = normalizeStatus(request.status);
+      return (
+        status === "pending" ||
+        status === "for approval" ||
+        status === "for_approval"
+      );
+    });
   } else {
-
-    pendingRequests.value =
-      recentApplications.value.filter((application: any) => {
-
-        const status = normalizeStatus(
-          application.status
-        );
-
-        return (
-          status === "pending" ||
-          status === "for approval" ||
-          status === "for_approval"
-        );
-      });
+    pendingRequests.value = recentApplications.value.filter((application: any) => {
+      const status = normalizeStatus(application.status);
+      return (
+        status === "pending" ||
+        status === "for approval" ||
+        status === "for_approval"
+      );
+    });
   }
 
-  // ----------------------------------------------------------
-  // OTHER ADMIN DATA
-  // ----------------------------------------------------------
+  leaveByType.value = Array.isArray(data.leaveByType) ? data.leaveByType : [];
+  leaveByDepartment.value = Array.isArray(data.leaveByDepartment)
+    ? data.leaveByDepartment
+    : [];
 
-  leaveByType.value =
-    Array.isArray(data.leaveByType)
-      ? data.leaveByType
-      : [];
+  statusChartData.value = data.statusChart || {
+    approved: 0,
+    pending: 0,
+    disapproved: 0,
+  };
 
-  leaveByDepartment.value =
-    Array.isArray(data.leaveByDepartment)
-      ? data.leaveByDepartment
-      : [];
-
-  statusChartData.value =
-    data.statusChart || {
-      approved: 0,
-      pending: 0,
-      disapproved: 0,
-    };
-
-  recentActivities.value =
-    Array.isArray(data.recentActivities)
-      ? data.recentActivities
-      : [];
+  recentActivities.value = Array.isArray(data.recentActivities)
+    ? data.recentActivities
+    : [];
 };
 
 // ============================================================
-// LOAD EMPLOYEE DASHBOARD
+// LOAD EMPLOYEE DASHBOARD  — REWRITTEN
+//
+// getEmployeeDashboard()'s summary/list fields weren't populating
+// (only `employee` came through correctly). Since getMyLeaves()
+// already works reliably on the My Applications page, we use it
+// as the single source of truth for stats/lists here, and only
+// use getEmployeeDashboard() for the profile info.
 // ============================================================
 
 const loadEmployeeDashboard = async () => {
-
-  const response = await getEmployeeDashboard();
-
-  const data = response.data;
-
-  if (!data || !data.summary) {
-    throw new Error(
-      "Unexpected response shape from /employee/dashboard"
-    );
-  }
-
-  totalEmployeeApplications.value =
-    Number(data.summary.totalApplications) || 0;
-
-  totalPendingLeaves.value =
-    Number(data.summary.pendingLeaves) || 0;
-
-  totalApprovedLeaves.value =
-    Number(data.summary.approvedLeaves) || 0;
-
-  totalDisapprovedLeaves.value =
-    Number(data.summary.disapprovedLeaves) || 0;
-
-  employeeInfo.value =
-    data.employee || {
+  // 1. Profile info (this part was already working)
+  try {
+    const response = await getEmployeeDashboard();
+    const data = response.data;
+    employeeInfo.value = data?.employee || {
       name: "",
       email: "",
       department: "",
       position: "",
     };
+  } catch (error) {
+    // Don't fail the whole dashboard just because profile info is unavailable
+    console.error("Failed to load employee profile info", error);
+  }
 
-  myApplications.value =
-    Array.isArray(data.myApplications)
-      ? data.myApplications
-      : [];
+  // 2. Applications — proven-working source
+  const myLeaves = await getMyLeaves();
+  const applications = Array.isArray(myLeaves) ? myLeaves : [];
 
-  upcomingLeaves.value =
-    Array.isArray(data.upcomingLeaves)
-      ? data.upcomingLeaves
-      : [];
+  // Sort newest-filed first
+  const sorted = [...applications].sort((a, b) => {
+    return (
+      new Date(b.date_filed || 0).getTime() -
+      new Date(a.date_filed || 0).getTime()
+    );
+  });
 
-  employeeStatusChart.value =
-    data.statusChart || {
-      approved: 0,
-      pending: 0,
-      disapproved: 0,
-    };
+  myApplications.value = sorted;
 
-  employeeLeaveByType.value =
-    Array.isArray(data.leaveByType)
-      ? data.leaveByType
-      : [];
+  // 3. Stats derived client-side
+  totalEmployeeApplications.value = applications.length;
 
-  employeeActivities.value =
-    Array.isArray(data.recentActivities)
-      ? data.recentActivities
-      : [];
+  totalApprovedLeaves.value = applications.filter(
+    (app) => normalizeStatus(getAppStatus(app)) === "approved"
+  ).length;
+
+  totalPendingLeaves.value = applications.filter((app) => {
+    const status = normalizeStatus(getAppStatus(app));
+    return status === "pending" || status === "for approval" || status === "for_approval";
+  }).length;
+
+  totalDisapprovedLeaves.value = applications.filter((app) => {
+    const status = normalizeStatus(getAppStatus(app));
+    return status === "disapproved" || status === "rejected" || status === "denied";
+  }).length;
+
+  employeeStatusChart.value = {
+    approved: totalApprovedLeaves.value,
+    pending: totalPendingLeaves.value,
+    disapproved: totalDisapprovedLeaves.value,
+  };
+
+  // 4. Upcoming leaves: approved, start date in the future
+  const now = new Date();
+  upcomingLeaves.value = applications
+    .filter((app) => {
+      const status = normalizeStatus(getAppStatus(app));
+      const start = app.start_date ? new Date(app.start_date) : null;
+      return status === "approved" && start && start.getTime() >= now.setHours(0, 0, 0, 0);
+    })
+    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+
+  // 5. Leave by type
+  const typeCounts = new Map<string, number>();
+  applications.forEach((app) => {
+    const name = getLeaveType(app);
+    typeCounts.set(name, (typeCounts.get(name) || 0) + 1);
+  });
+  employeeLeaveByType.value = Array.from(typeCounts.entries()).map(
+    ([name, count]) => ({ name, count })
+  );
+
+  // 6. Recent activities — simple derivation from filed applications
+  employeeActivities.value = sorted.slice(0, 5).map((app) => ({
+    id: app.leave_id,
+    message: `${getLeaveType(app)} application ${formatStatus(getAppStatus(app)).toLowerCase()}`,
+    time: app.date_filed || "",
+  }));
 };
 
 // ============================================================
@@ -1486,19 +1418,10 @@ const loadEmployeeDashboard = async () => {
 // ============================================================
 
 const reviewRequest = (request: any) => {
-
   if (request?.id) {
-
-    router.push({
-      path: "/admin-applications",
-      query: {
-        id: String(request.id),
-      },
-    });
-
+    router.push({ path: "/admin-applications", query: { id: String(request.id) } });
     return;
   }
-
   router.push("/admin-applications");
 };
 
@@ -1506,37 +1429,21 @@ const reviewRequest = (request: any) => {
 // NAVIGATION
 // ============================================================
 
-const goToEmployees = () => {
-  router.push("/employees");
-};
-
-const goToLeaveRequests = () => {
-  router.push("/admin-applications");
-};
-
-const goToReports = () => {
-  router.push("/reports");
-};
-
-const goToApply = () => {
-  router.push("/leave-application");
-};
-
-const goToMyApplications = () => {
-  router.push("/my-applications");
-};
+const goToEmployees = () => router.push("/employees");
+const goToLeaveRequests = () => router.push("/admin-applications");
+const goToReports = () => router.push("/reports");
+const goToApply = () => router.push("/leave-application");
+const goToMyApplications = () => router.push("/my-applications");
 
 // ============================================================
 // INITIAL LOAD
 // ============================================================
 
 const runLoad = async () => {
-
   loading.value = true;
   loadError.value = null;
 
   try {
-
     await getCurrentUser();
 
     if (isAdmin.value) {
@@ -1544,16 +1451,12 @@ const runLoad = async () => {
     } else {
       await loadEmployeeDashboard();
     }
-
   } catch (error) {
-
     loadError.value = extractErrorMessage(
       error,
       "Something went wrong loading your dashboard. Please try again."
     );
-
   } finally {
-
     loading.value = false;
   }
 };
@@ -1688,4 +1591,4 @@ button:hover {
   transform: translateY(-1px);
 }
 </style>
-```
+
