@@ -1,7 +1,8 @@
 <template>
-  <div class="dashboard-shell min-h-screen px-6 py-8">
+  <div class="dashboard-shell min-h-screen w-full px-4 sm:px-6 lg:px-8 py-8">
+
     <!-- Main Form Card -->
-    <div class="neo-card max-w-7xl mx-auto overflow-hidden">
+    <div class="neo-card w-full max-w-none mx-auto overflow-hidden">
 
       <!-- Header -->
       <div class="px-6 py-5 border-b border-slate-700">
@@ -135,6 +136,7 @@
               v-if="selectedLeaveName?.includes('Vacation')"
               class="detail-box"
             >
+
               <div>
                 <label class="form-label">
                   Vacation Location Type
@@ -145,9 +147,11 @@
                   class="input-field"
                 >
                   <option value="">Select</option>
+
                   <option value="within_philippines">
                     Within Philippines
                   </option>
+
                   <option value="abroad">
                     Abroad
                   </option>
@@ -165,6 +169,7 @@
                   class="input-field"
                 />
               </div>
+
             </div>
 
 
@@ -173,6 +178,7 @@
               v-if="selectedLeaveName?.includes('Sick')"
               class="detail-box"
             >
+
               <div>
                 <label class="form-label">
                   Treatment
@@ -183,9 +189,11 @@
                   class="input-field"
                 >
                   <option value="">Select</option>
+
                   <option value="in_hospital">
                     In Hospital
                   </option>
+
                   <option value="out_patient">
                     Out Patient
                   </option>
@@ -203,6 +211,7 @@
                   class="input-field"
                 />
               </div>
+
             </div>
 
 
@@ -211,6 +220,7 @@
               v-if="selectedLeaveName?.includes('Study')"
               class="option-box"
             >
+
               <label class="checkbox-label">
                 <input
                   type="checkbox"
@@ -230,6 +240,7 @@
 
                 <span>Board Examination Review</span>
               </label>
+
             </div>
 
 
@@ -241,6 +252,7 @@
               "
               class="option-box"
             >
+
               <label class="checkbox-label">
                 <input
                   type="checkbox"
@@ -266,6 +278,7 @@
                 placeholder="Other purpose"
                 class="input-field mt-3"
               />
+
             </div>
 
 
@@ -280,9 +293,11 @@
                 class="input-field"
               >
                 <option value="">Select</option>
+
                 <option value="requested">
                   Requested
                 </option>
+
                 <option value="not requested">
                   Not Requested
                 </option>
@@ -377,9 +392,7 @@
             Available Leave Credits
           </h3>
 
-          
-
-         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
             <div class="credit-item">
               <span class="text-slate-400">
@@ -391,6 +404,7 @@
               </span>
             </div>
 
+
             <div class="credit-item">
               <span class="text-slate-400">
                 Vacation:
@@ -401,6 +415,7 @@
               </span>
             </div>
 
+
             <div class="credit-item">
               <span class="text-slate-400">
                 Service Credits:
@@ -410,7 +425,6 @@
                 {{ leaveBalance.service_credits }} Days
               </span>
             </div>
-            
 
           </div>
         </div>
@@ -528,50 +542,56 @@
 
         </div>
 
+
         <!-- =============================== -->
-<!-- APPLICANT SIGNATURE -->
-<!-- =============================== -->
-<div class="form-section">
-  <label class="form-label">
-    Applicant Signature
-    <span class="text-red-400">*</span>
-  </label>
+        <!-- APPLICANT SIGNATURE -->
+        <!-- =============================== -->
 
-  <p class="text-xs text-slate-400 mb-3">
-    Please draw your signature in the box below.
-  </p>
+        <div class="form-section">
 
-  <div class="signature-box">
-    <canvas
-      ref="signatureCanvas"
-      class="signature-canvas"
-    ></canvas>
-  </div>
+          <label class="form-label">
+            Applicant Signature
+            <span class="text-red-400">*</span>
+          </label>
 
-  <div class="flex items-center justify-between mt-3">
-    <span
-      v-if="signatureData"
-      class="text-xs text-green-400"
-    >
-      ✓ Signature provided
-    </span>
+          <p class="text-xs text-slate-400 mb-3">
+            Please draw your signature in the box below.
+          </p>
 
-    <span
-      v-else
-      class="text-xs text-slate-500"
-    >
-      Sign using your mouse, trackpad, touchscreen, or stylus.
-    </span>
+          <div class="signature-box">
+            <canvas
+              ref="signatureCanvas"
+              class="signature-canvas"
+            ></canvas>
+          </div>
 
-    <button
-      type="button"
-      @click="clearSignature"
-      class="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm"
-    >
-      Clear Signature
-    </button>
-  </div>
-</div>
+          <div class="flex items-center justify-between mt-3">
+
+            <span
+              v-if="signatureData"
+              class="text-xs text-green-400"
+            >
+              ✓ Signature provided
+            </span>
+
+            <span
+              v-else
+              class="text-xs text-slate-500"
+            >
+              Sign using your mouse, trackpad, touchscreen, or stylus.
+            </span>
+
+            <button
+              type="button"
+              @click="clearSignature"
+              class="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm"
+            >
+              Clear Signature
+            </button>
+
+          </div>
+
+        </div>
 
 
         <!-- =============================== -->
@@ -697,6 +717,7 @@
 
 
 <script setup lang="ts">
+
 import {
   ref,
   computed,
@@ -704,8 +725,11 @@ import {
   onBeforeUnmount,
   nextTick
 } from "vue";
+
 import axios from "axios";
+
 import SignaturePad from "signature_pad";
+
 import {
   getLeaveTypes,
   submitLeave,
@@ -724,7 +748,6 @@ import {
 import { getMyProfile } from "../services/employee";
 
 
-
 interface Attachment {
   name: string;
   size: number;
@@ -736,6 +759,7 @@ const router = useRouter();
 
 
 const form = ref({
+
   leave_type_id: "",
 
   vacation_location_type: "",
@@ -761,10 +785,12 @@ const form = ref({
   attachments: [] as Attachment[],
 
   declaration: false,
+
 });
 
 
 const employee = ref({
+
   employee_code: "",
   first_name: "",
   middle_name: "",
@@ -772,10 +798,12 @@ const employee = ref({
   department: "",
   position: "",
   contact_number: "",
+
 });
 
 
 const fullName = computed(() => {
+
   return [
     employee.value.first_name,
     employee.value.middle_name,
@@ -783,6 +811,7 @@ const fullName = computed(() => {
   ]
     .filter(Boolean)
     .join(" ");
+
 });
 
 
@@ -790,14 +819,19 @@ const isSubmitting = ref(false);
 
 const leaveTypes = ref<any[]>([]);
 
+
 const leaveBalance = ref({
+
   vacation_balance: 0,
   sick_balance: 0,
   used_leave: 0,
   service_credits: 0,
+
 });
 
+
 const loadLeaveBalance = async () => {
+
   const token = localStorage.getItem("token");
 
   const response = await axios.get(
@@ -810,160 +844,262 @@ const loadLeaveBalance = async () => {
   );
 
   leaveBalance.value = response.data;
+
 };
 
+
 onMounted(async () => {
+
   try {
+
     leaveTypes.value = await getLeaveTypes();
+
     employee.value = await getMyProfile();
+
     await loadLeaveBalance();
+
     await initializeSignaturePad();
 
     window.addEventListener(
       "resize",
       handleSignatureResize
     );
+
   } catch (error) {
+
     console.error(error);
+
   }
+
 });
+
+
 onBeforeUnmount(() => {
+
   window.removeEventListener(
     "resize",
     handleSignatureResize
   );
 
   signaturePad.value?.off();
+
   signaturePad.value = null;
+
 });
+
 
 const showSuccessModal = ref(false);
 
 const submittedLeaveId = ref<number | null>(null);
 
 const fileInput = ref<HTMLInputElement | null>(null);
+
 const signatureCanvas = ref<HTMLCanvasElement | null>(null);
+
 const signaturePad = ref<SignaturePad | null>(null);
+
 const signatureData = ref<string | null>(null);
+
+
 const handleSignatureResize = () => {
+
   resizeSignatureCanvas();
+
 };
 
+
 const resizeSignatureCanvas = () => {
+
   const canvas = signatureCanvas.value;
+
   const pad = signaturePad.value;
 
   if (!canvas || !pad) {
     return;
   }
 
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  const ratio = Math.max(
+    window.devicePixelRatio || 1,
+    1
+  );
+
 
   const width = canvas.offsetWidth;
+
   const height = canvas.offsetHeight;
+
 
   if (width === 0 || height === 0) {
     return;
   }
 
+
   const existingSignature = pad.isEmpty()
     ? null
     : pad.toData();
 
+
   canvas.width = width * ratio;
+
   canvas.height = height * ratio;
 
+
   const context = canvas.getContext("2d");
+
 
   if (context) {
     context.scale(ratio, ratio);
   }
 
+
   pad.clear();
+
 
   if (existingSignature) {
     pad.fromData(existingSignature);
   }
+
 };
 
+
 const initializeSignaturePad = async () => {
+
   await nextTick();
+
 
   const canvas = signatureCanvas.value;
 
+
   if (!canvas) {
+
     console.error("Signature canvas not found.");
+
     return;
+
   }
 
-  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  const ratio = Math.max(
+    window.devicePixelRatio || 1,
+    1
+  );
+
 
   const width = canvas.offsetWidth;
+
   const height = canvas.offsetHeight;
 
+
   canvas.width = width * ratio;
+
   canvas.height = height * ratio;
 
+
   const context = canvas.getContext("2d");
+
 
   if (context) {
     context.scale(ratio, ratio);
   }
 
+
   signaturePad.value = new SignaturePad(canvas, {
+
     backgroundColor: "rgb(15, 26, 42)",
+
     penColor: "rgb(248, 250, 252)",
+
     minWidth: 0.8,
+
     maxWidth: 2.2,
+
   });
 
-  signaturePad.value.addEventListener("endStroke", () => {
-    if (
-      signaturePad.value &&
-      !signaturePad.value.isEmpty()
-    ) {
-      signatureData.value =
-        signaturePad.value.toDataURL("image/png");
+
+  signaturePad.value.addEventListener(
+    "endStroke",
+    () => {
+
+      if (
+        signaturePad.value &&
+        !signaturePad.value.isEmpty()
+      ) {
+
+        signatureData.value =
+          signaturePad.value.toDataURL("image/png");
+
+      }
+
     }
-  });
+  );
+
 };
 
+
 const clearSignature = () => {
+
   signaturePad.value?.clear();
+
   signatureData.value = null;
+
 };
 
 
 const minDate = computed(() => {
+
   const today = new Date();
 
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
+
+  const month = String(
+    today.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    today.getDate()
+  ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+
 });
 
 
 const calculateDays = () => {
-  if (!form.value.startDate || !form.value.endDate) {
+
+  if (
+    !form.value.startDate ||
+    !form.value.endDate
+  ) {
     return 0;
   }
 
-  const start = new Date(form.value.startDate);
-  const end = new Date(form.value.endDate);
+
+  const start = new Date(
+    form.value.startDate
+  );
+
+  const end = new Date(
+    form.value.endDate
+  );
+
 
   if (end < start) {
     return 0;
   }
 
-  const diffTime = end.getTime() - start.getTime();
+
+  const diffTime =
+    end.getTime() - start.getTime();
+
 
   return (
     Math.ceil(
-      diffTime / (1000 * 60 * 60 * 24)
+      diffTime /
+      (1000 * 60 * 60 * 24)
     ) + 1
   );
+
 };
 
 
@@ -974,11 +1110,17 @@ const handleFileUpload = (event: Event) => {
 
   const files = target.files;
 
+
   if (files) {
 
-    for (let i = 0; i < files.length; i++) {
+    for (
+      let i = 0;
+      i < files.length;
+      i++
+    ) {
 
       const file = files[i];
+
 
       if (
         file &&
@@ -986,9 +1128,13 @@ const handleFileUpload = (event: Event) => {
       ) {
 
         form.value.attachments.push({
+
           name: file.name,
+
           size: file.size,
+
           file: file,
+
         });
 
       }
@@ -996,11 +1142,17 @@ const handleFileUpload = (event: Event) => {
     }
 
   }
+
 };
 
 
 const removeFile = (index: number) => {
-  form.value.attachments.splice(index, 1);
+
+  form.value.attachments.splice(
+    index,
+    1
+  );
+
 };
 
 
@@ -1010,7 +1162,9 @@ const formatFileSize = (bytes: number) => {
     return "0 Bytes";
   }
 
+
   const k = 1024;
+
 
   const sizes = [
     "Bytes",
@@ -1019,69 +1173,97 @@ const formatFileSize = (bytes: number) => {
     "GB"
   ];
 
+
   const i =
     Math.floor(
-      Math.log(bytes) / Math.log(k)
+      Math.log(bytes) /
+      Math.log(k)
     );
 
+
   return (
+
     parseFloat(
       (
-        bytes / Math.pow(k, i)
+        bytes /
+        Math.pow(k, i)
       ).toFixed(2)
     ) +
+
     " " +
+
     sizes[i]
+
   );
+
 };
 
 
 const submitApplication = async () => {
+
   if (
     !signaturePad.value ||
     signaturePad.value.isEmpty()
   ) {
-    alert("Please provide your signature before submitting.");
+
+    alert(
+      "Please provide your signature before submitting."
+    );
+
     return;
+
   }
+
 
   signatureData.value =
     signaturePad.value.toDataURL("image/png");
 
+
   isSubmitting.value = true;
 
+
   try {
+
     const data = new FormData();
+
 
     data.append(
       "leave_type_id",
       String(form.value.leave_type_id)
     );
 
+
     data.append(
       "date_filed",
-      new Date().toISOString().split("T")[0] ?? ""
+      new Date()
+        .toISOString()
+        .split("T")[0] ?? ""
     );
+
 
     data.append(
       "start_date",
       form.value.startDate
     );
 
+
     data.append(
       "end_date",
       form.value.endDate
     );
+
 
     data.append(
       "number_of_days",
       String(calculateDays())
     );
 
+
     data.append(
       "reason",
       form.value.reason
     );
+
 
     // Applicant Signature
     data.append(
@@ -1089,104 +1271,151 @@ const submitApplication = async () => {
       signatureData.value
     );
 
+
     // Additional Leave Details
     data.append(
       "vacation_location_type",
       form.value.vacation_location_type
     );
 
+
     data.append(
       "vacation_location",
       form.value.vacation_location
     );
+
 
     data.append(
       "sick_type",
       form.value.sick_type
     );
 
+
     data.append(
       "illness",
       form.value.illness
     );
 
+
     data.append(
       "masters_degree",
-      form.value.masters_degree ? "1" : "0"
+      form.value.masters_degree
+        ? "1"
+        : "0"
     );
+
 
     data.append(
       "board_exam_review",
-      form.value.board_exam_review ? "1" : "0"
+      form.value.board_exam_review
+        ? "1"
+        : "0"
     );
+
 
     data.append(
       "monetization",
-      form.value.monetization ? "1" : "0"
+      form.value.monetization
+        ? "1"
+        : "0"
     );
+
 
     data.append(
       "terminal_leave",
-      form.value.terminal_leave ? "1" : "0"
+      form.value.terminal_leave
+        ? "1"
+        : "0"
     );
+
 
     data.append(
       "other_purpose",
       form.value.other_purpose
     );
 
+
     data.append(
       "commutation",
       form.value.commutation
     );
 
+
     // Attachments
-    form.value.attachments.forEach((file) => {
-      data.append(
-        "attachments[]",
-        file.file
-      );
-    });
+    form.value.attachments.forEach(
+      (file) => {
 
-    const response = await submitLeave(data);
+        data.append(
+          "attachments[]",
+          file.file
+        );
 
-    console.log("SUBMIT RESPONSE:", response);
+      }
+    );
 
-    const applications = await getMyLeaves();
 
-    const latestLeave = applications[0];
+    const response =
+      await submitLeave(data);
+
+
+    console.log(
+      "SUBMIT RESPONSE:",
+      response
+    );
+
+
+    const applications =
+      await getMyLeaves();
+
+
+    const latestLeave =
+      applications[0];
+
 
     if (!latestLeave) {
+
       throw new Error(
         "Leave application was submitted but could not be retrieved."
       );
+
     }
+
 
     submittedLeaveId.value =
       latestLeave.leave_id;
+
 
     console.log(
       "SUBMITTED LEAVE ID:",
       submittedLeaveId.value
     );
 
+
     showSuccessModal.value = true;
+
 
     resetForm();
 
+
   } catch (error) {
+
     console.error(
       "SUBMIT LEAVE ERROR:",
       error
     );
 
+
     alert(
       "Failed to submit leave application. Please try again."
     );
 
+
   } finally {
+
     isSubmitting.value = false;
+
   }
+
 };
 
 
@@ -1199,14 +1428,18 @@ const viewApplicationStatus = () => {
     );
 
     return;
+
   }
 
+
   router.push({
+
     name: "LeaveApplicationPrint",
 
     params: {
       id: submittedLeaveId.value
     }
+
   });
 
 };
@@ -1220,6 +1453,7 @@ const selectedLeaveName = computed(() => {
         l.leave_type_id ==
         form.value.leave_type_id
     );
+
 
   return leave?.leave_type_name ?? "";
 
@@ -1257,6 +1491,8 @@ const resetForm = () => {
     declaration: false,
 
   };
+
+
   clearSignature();
 
 };
@@ -1272,6 +1508,13 @@ const resetForm = () => {
 
 .dashboard-shell {
   background: #080D14;
+
+  /*
+   * IMPORTANT:
+   * Do not give this container a max-width.
+   * It should grow with the browser viewport.
+   */
+  width: 100%;
 }
 
 
@@ -1286,6 +1529,13 @@ const resetForm = () => {
 
   border-radius: 1.4rem;
 
+  /*
+   * IMPORTANT:
+   * Allow the card to occupy the full available width.
+   */
+  width: 100%;
+  max-width: none;
+
   box-shadow:
     0 10px 22px rgba(15, 23, 42, 0.18);
 
@@ -1293,6 +1543,7 @@ const resetForm = () => {
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
+
 
 .neo-card:hover {
   box-shadow:
@@ -1306,17 +1557,6 @@ const resetForm = () => {
 
 .form-section {
   padding-top: 0.5rem;
-}
-
-
-.section-title {
-  color: #f8fafc;
-
-  font-size: 1rem;
-
-  font-weight: 600;
-
-  margin-bottom: 1.25rem;
 }
 
 
@@ -1338,11 +1578,28 @@ const resetForm = () => {
 
 
 /* =========================================
+   SECTION TITLES
+========================================= */
+
+.section-title {
+  color: #f8fafc;
+
+  font-size: 1rem;
+
+  font-weight: 600;
+
+  margin-bottom: 1.25rem;
+}
+
+
+/* =========================================
    INPUTS
 ========================================= */
 
 .input-field {
   width: 100%;
+
+  min-width: 0;
 
   border: 1px solid #334155;
 
@@ -1364,6 +1621,7 @@ const resetForm = () => {
     background 0.2s ease;
 }
 
+
 .input-field:focus {
   border-color: #3b82f6;
 
@@ -1371,9 +1629,11 @@ const resetForm = () => {
     0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
+
 .input-field::placeholder {
   color: #64748b;
 }
+
 
 .input-field:read-only {
   color: #cbd5e1;
@@ -1381,9 +1641,11 @@ const resetForm = () => {
   background: #0b1524;
 }
 
+
 select.input-field {
   color: #f8fafc;
 }
+
 
 select.input-field option {
   color: #f8fafc;
@@ -1410,6 +1672,8 @@ select.input-field option {
   border: 1px solid #334155;
 
   border-radius: 0.8rem;
+
+  min-width: 0;
 }
 
 
@@ -1425,7 +1689,10 @@ select.input-field option {
   border: 1px solid #334155;
 
   border-radius: 0.8rem;
+
+  min-width: 0;
 }
+
 
 .checkbox-label {
   display: flex;
@@ -1443,9 +1710,11 @@ select.input-field option {
   cursor: pointer;
 }
 
+
 .checkbox-label:last-child {
   margin-bottom: 0;
 }
+
 
 .checkbox-input {
   width: 1rem;
@@ -1455,6 +1724,8 @@ select.input-field option {
   accent-color: #2563eb;
 
   cursor: pointer;
+
+  flex-shrink: 0;
 }
 
 
@@ -1471,7 +1742,10 @@ select.input-field option {
   border-radius: 1rem;
 
   padding: 1.25rem;
+
+  width: 100%;
 }
+
 
 .credit-item {
   display: flex;
@@ -1481,6 +1755,8 @@ select.input-field option {
   gap: 0.35rem;
 
   font-size: 0.875rem;
+
+  min-width: 0;
 }
 
 
@@ -1502,7 +1778,10 @@ select.input-field option {
   transition:
     border-color 0.2s ease,
     background 0.2s ease;
+
+  width: 100%;
 }
+
 
 .upload-box:hover {
   border-color: #3b82f6;
@@ -1538,6 +1817,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 
 /* =========================================
+   SIGNATURE
+========================================= */
+
+.signature-box {
+  width: 100%;
+
+  height: 180px;
+
+  border: 1px solid #334155;
+
+  border-radius: 0.75rem;
+
+  background: #0f1a2a;
+
+  overflow: hidden;
+}
+
+
+.signature-canvas {
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  cursor: crosshair;
+
+  touch-action: none;
+}
+
+
+/* =========================================
    RESPONSIVE
 ========================================= */
 
@@ -1549,21 +1860,32 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 }
 
-.signature-box {
-  width: 100%;
-  height: 180px;
-  border: 1px solid #334155;
-  border-radius: 0.75rem;
-  background: #0f1a2a;
-  overflow: hidden;
-}
 
-.signature-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  cursor: crosshair;
-  touch-action: none;
+/*
+ * Extra protection for very small screens.
+ * Prevents inner content from forcing the page
+ * wider than the viewport.
+ */
+
+@media (max-width: 640px) {
+
+  .dashboard-shell {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .neo-card {
+    border-radius: 1rem;
+  }
+
+  .neo-card form {
+    padding: 1rem;
+  }
+
+  .detail-box {
+    padding: 0.75rem;
+  }
+
 }
 
 </style>
