@@ -51,150 +51,130 @@
       </div>
 
       <!-- ================= EMPLOYEE TABLE ================= -->
-      <div class="neo-card w-full p-6 overflow-x-auto">
-        <table class="w-full min-w-[1100px]">
-          <thead class="bg-gray-100">
-            <tr class="text-left text-black font-semibold">
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Employee Code
-              </th>
+      <div class="neo-card w-full p-6">
+        <div class="table-wrapper">
+          <table class="employee-table">
+            <thead class="bg-gray-100">
+              <tr class="text-left text-black font-semibold">
+                <th class="px-2 sm:px-3 py-3 font-bold">
+                  Employee Code
+                </th>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Employee
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-bold">
+                  Employee
+                </th>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Email
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-bold">
+                  Email
+                </th>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Department
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-bold">
+                  Department
+                </th>
 
-              <th class="px-6 py-3 font-extrabold whitespace-nowrap">
-                Position
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-extrabold">
+                  Position
+                </th>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Category
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-bold">
+                  Status
+                </th>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Status
-              </th>
+                <th class="px-2 sm:px-3 py-3 font-bold text-center">
+                  Action
+                </th>
+              </tr>
+            </thead>
 
-              <th class="px-6 py-3 font-bold whitespace-nowrap">
-                Created By
-              </th>
-
-              <th
-                class="px-6 py-3 font-bold text-center whitespace-nowrap"
+            <tbody>
+              <tr
+                v-for="employee in filteredEmployees"
+                :key="employee.employee_id"
+                class="border-t hover:bg-gray-800 transition-colors duration-200"
               >
-                Action
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr
-              v-for="employee in filteredEmployees"
-              :key="employee.employee_id"
-              class="border-t hover:bg-gray-800 transition-colors duration-200"
-            >
-              <td
-                class="px-6 py-4 text-white font-semibold whitespace-nowrap"
-              >
-                {{ employee.employee_code }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white font-medium whitespace-nowrap"
-              >
-                {{ employee.last_name }},
-                {{ employee.first_name }}
-                {{ employee.middle_name }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                {{ employee.user.email }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                {{ employee.department }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                {{ employee.position?.name || "-" }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                {{ employee.employee_category }}
-              </td>
-
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                <span
-                  class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs"
+                <td
+                  class="px-2 sm:px-3 py-4 text-white font-semibold break-words"
                 >
-                  {{ employee.employment_status }}
-                </span>
-              </td>
+                  {{ employee.employee_code }}
+                </td>
 
-              <td
-                class="px-6 py-4 text-white whitespace-nowrap"
-              >
-                {{ employee.created_by?.email || "-" }}
-              </td>
-
-              <!-- ================= ACTION BUTTONS ================= -->
-              <td class="px-6 py-4">
-                <div
-                  class="flex items-center justify-center gap-2 whitespace-nowrap"
+                <td
+                  class="px-2 sm:px-3 py-4 text-white font-medium break-words"
                 >
-                  <button
-                    @click="viewEmployee(employee)"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    View
-                  </button>
+                  {{ employee.last_name }},
+                  {{ employee.first_name }}
+                  {{ employee.middle_name }}
+                </td>
 
-                  <button
-                    @click="editEmployee(employee)"
-                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    Edit
-                  </button>
+                <td
+                  class="px-2 sm:px-3 py-4 text-white break-all"
+                >
+                  {{ employee.user.email }}
+                </td>
 
-                  <button
-                    @click="deleteEmployee(employee)"
-                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
+                <td
+                  class="px-2 sm:px-3 py-4 text-white break-words"
+                >
+                  {{ employee.department }}
+                </td>
 
-            <!-- ================= EMPTY STATE ================= -->
-            <tr v-if="filteredEmployees.length === 0">
-              <td
-                colspan="9"
-                class="text-center py-10 text-white"
-              >
-                No employees found.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <td
+                  class="px-2 sm:px-3 py-4 text-white break-words"
+                >
+                  {{ employee.position?.name || "-" }}
+                </td>
+
+                <td
+                  class="px-2 sm:px-3 py-4 text-white"
+                >
+                  <span
+                    class="inline-block bg-green-300 text-green-700 px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                  >
+                    {{ employee.employment_status }}
+                  </span>
+                </td>
+
+                <!-- ================= ACTION BUTTONS ================= -->
+                <td class="px-2 sm:px-3 py-4">
+                  <div
+                    class="flex flex-wrap items-center justify-center gap-1"
+                  >
+                    <button
+                      @click="viewEmployee(employee)"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      @click="editEmployee(employee)"
+                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      @click="deleteEmployee(employee)"
+                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- ================= EMPTY STATE ================= -->
+              <tr v-if="filteredEmployees.length === 0">
+                <td
+                  colspan="7"
+                  class="text-center py-10 text-white"
+                >
+                  No employees found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -305,7 +285,9 @@
                   v-model="form.sex"
                   class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
                 >
-                  <option value="">Select</option>
+                  <option value="">
+                    Select
+                  </option>
 
                   <option value="Male">
                     Male
@@ -326,7 +308,13 @@
 
                 <input
                   v-model="form.contact_number"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
+                  type="tel"
+                  inputmode="numeric"
+                  maxlength="11"
+                  pattern="[0-9]{11}"
+                  @input="form.contact_number = form.contact_number.replace(/\D/g, '').slice(0, 11)"
+                  class="text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter 11-digit contact number"
                 />
               </div>
             </div>
@@ -469,7 +457,7 @@
         >
           <button
             @click="showCreateModal = false"
-            class="w-full sm:w-auto px-5 py-2 rounded-lg border"
+            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg border text-black"
           >
             Cancel
           </button>
@@ -599,9 +587,7 @@
                 Account Information
               </h3>
 
-              <div
-                class="mt-4 space-y-3 text-black"
-              >
+              <div class="mt-4 space-y-3 text-black">
                 <div>
                   <span class="font-medium">
                     Employee Code:
@@ -668,9 +654,7 @@
                 Personal Information
               </h3>
 
-              <div
-                class="mt-4 space-y-3 text-black"
-              >
+              <div class="mt-4 space-y-3 text-black">
                 <div>
                   <span class="font-medium">
                     First Name:
@@ -1158,38 +1142,38 @@
           <!-- Deleted Employees Table -->
           <div
             v-else
-            class="overflow-x-auto border rounded-lg"
+            class="border rounded-lg overflow-hidden"
           >
-            <table class="w-full min-w-[900px]">
+            <table class="deleted-table">
               <thead class="bg-gray-100">
                 <tr
                   class="text-left text-black font-semibold"
                 >
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Employee Code
                   </th>
 
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Employee
                   </th>
 
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Email
                   </th>
 
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Department
                   </th>
 
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Position
                   </th>
 
-                  <th class="px-6 py-3">
+                  <th class="px-2 sm:px-4 py-3">
                     Deleted At
                   </th>
 
-                  <th class="px-6 py-3 text-center">
+                  <th class="px-2 sm:px-4 py-3 text-center">
                     Action
                   </th>
                 </tr>
@@ -1202,13 +1186,13 @@
                   class="border-t hover:bg-gray-50"
                 >
                   <td
-                    class="px-6 py-4 text-gray-800 font-semibold whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 font-semibold break-words"
                   >
                     {{ employee.employee_code }}
                   </td>
 
                   <td
-                    class="px-6 py-4 text-gray-800 whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
                   >
                     {{ employee.last_name }},
                     {{ employee.first_name }}
@@ -1216,31 +1200,31 @@
                   </td>
 
                   <td
-                    class="px-6 py-4 text-gray-800 whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 break-all"
                   >
                     {{ employee.user?.email || "-" }}
                   </td>
 
                   <td
-                    class="px-6 py-4 text-gray-800 whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
                   >
                     {{ employee.department }}
                   </td>
 
                   <td
-                    class="px-6 py-4 text-gray-800 whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
                   >
                     {{ employee.position?.name || "-" }}
                   </td>
 
                   <td
-                    class="px-6 py-4 text-gray-800 whitespace-nowrap"
+                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
                   >
                     {{ formatDate(employee.deleted_at) }}
                   </td>
 
                   <td
-                    class="px-6 py-4 text-center"
+                    class="px-2 sm:px-4 py-4 text-center"
                   >
                     <button
                       @click="
@@ -1248,7 +1232,7 @@
                           employee.employee_id
                         )
                       "
-                      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg whitespace-nowrap"
+                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg whitespace-nowrap"
                     >
                       Restore
                     </button>
@@ -1275,9 +1259,7 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
-
 import {
   ref,
   computed,
@@ -1296,7 +1278,6 @@ import {
   restoreEmployee,
   getPositions,
 } from "../services/employee";
-
 
 /* ========================================================= */
 /* INTERFACE */
@@ -1344,7 +1325,6 @@ interface Employee {
   } | null;
 }
 
-
 /* ========================================================= */
 /* STATE */
 /* ========================================================= */
@@ -1367,7 +1347,6 @@ const showCredentialsModal = ref(false);
 
 const selectedEmployee = ref<Employee | null>(null);
 
-
 const positions = ref<
   {
     id: number;
@@ -1376,7 +1355,6 @@ const positions = ref<
     salary_grade: string | null;
   }[]
 >([]);
-
 
 /* ========================================================= */
 /* LOAD POSITIONS */
@@ -1393,7 +1371,6 @@ const loadPositions = async () => {
   }
 };
 
-
 /* ========================================================= */
 /* CATEGORY MAPPING */
 /* ========================================================= */
@@ -1401,7 +1378,6 @@ const loadPositions = async () => {
 const mapPositionTypeToCategory = (
   type: string
 ) => {
-
   if (type === "Non-Teaching") {
     return "Non-Teaching";
   }
@@ -1409,13 +1385,11 @@ const mapPositionTypeToCategory = (
   return "Teaching";
 };
 
-
 /* ========================================================= */
 /* CREATE FORM */
 /* ========================================================= */
 
 const form = ref({
-
   email: "",
 
   first_name: "",
@@ -1435,9 +1409,7 @@ const form = ref({
   salary: "",
 
   contact_number: "",
-
 });
-
 
 /* ========================================================= */
 /* CREATE SALARY GRADE */
@@ -1445,7 +1417,6 @@ const form = ref({
 
 const selectedCreateSalaryGrade =
   computed(() => {
-
     const selected =
       positions.value.find(
         (p) =>
@@ -1454,29 +1425,22 @@ const selectedCreateSalaryGrade =
       );
 
     return selected?.salary_grade || null;
-
   });
-
 
 /* ========================================================= */
 /* CREATE SALARY CALCULATION */
 /* ========================================================= */
 
 const calculateSalary = async () => {
-
   if (
     !form.value.position_id ||
     !form.value.salary_step
   ) {
-
     form.value.salary = "";
-
     return;
   }
 
-
   try {
-
     const response =
       await axios.get(
         "http://127.0.0.1:8000/api/salary-info",
@@ -1496,23 +1460,17 @@ const calculateSalary = async () => {
         }
       );
 
-
     form.value.salary =
       response.data.salary ?? "";
-
   } catch (error) {
-
     console.error(
       "Failed to calculate salary:",
       error
     );
 
     form.value.salary = "";
-
   }
-
 };
-
 
 watch(
   [
@@ -1520,12 +1478,9 @@ watch(
     () => form.value.salary_step,
   ],
   () => {
-
     calculateSalary();
-
   }
 );
-
 
 /* ========================================================= */
 /* CREATE FORMATTED SALARY */
@@ -1533,7 +1488,6 @@ watch(
 
 const formattedCreateSalary =
   computed(() => {
-
     if (!form.value.salary) {
       return "-";
     }
@@ -1541,15 +1495,10 @@ const formattedCreateSalary =
     return `₱${Number(
       form.value.salary
     ).toLocaleString("en-PH", {
-
       minimumFractionDigits: 2,
-
       maximumFractionDigits: 2,
-
     })}`;
-
   });
-
 
 /* ========================================================= */
 /* AUTO CATEGORY - CREATE */
@@ -1559,44 +1508,34 @@ watch(
   () => form.value.position_id,
 
   (newId) => {
-
     const selected =
       positions.value.find(
         (p) => p.id === newId
       );
 
     if (selected) {
-
       form.value.employee_category =
         mapPositionTypeToCategory(
           selected.type
         );
-
     }
-
   }
 );
-
 
 /* ========================================================= */
 /* GENERATED CREDENTIALS */
 /* ========================================================= */
 
 const generatedCredentials = ref({
-
   email: "",
-
   password: "",
-
 });
-
 
 /* ========================================================= */
 /* EDIT FORM */
 /* ========================================================= */
 
 const editForm = ref({
-
   employee_id: 0,
 
   email: "",
@@ -1620,9 +1559,7 @@ const editForm = ref({
   contact_number: "",
 
   employment_status: "",
-
 });
-
 
 /* ========================================================= */
 /* EDIT SALARY GRADE */
@@ -1630,7 +1567,6 @@ const editForm = ref({
 
 const selectedSalaryGrade =
   computed(() => {
-
     const selected =
       positions.value.find(
         (p) =>
@@ -1639,9 +1575,7 @@ const selectedSalaryGrade =
       );
 
     return selected?.salary_grade || null;
-
   });
-
 
 /* ========================================================= */
 /* EDIT FORMATTED SALARY */
@@ -1649,7 +1583,6 @@ const selectedSalaryGrade =
 
 const formattedSalary =
   computed(() => {
-
     if (!editForm.value.salary) {
       return "-";
     }
@@ -1657,15 +1590,10 @@ const formattedSalary =
     return `₱${Number(
       editForm.value.salary
     ).toLocaleString("en-PH", {
-
       minimumFractionDigits: 2,
-
       maximumFractionDigits: 2,
-
     })}`;
-
   });
-
 
 /* ========================================================= */
 /* EDIT SALARY CALCULATION */
@@ -1673,20 +1601,15 @@ const formattedSalary =
 
 const calculateEditSalary =
   async () => {
-
     if (
       !editForm.value.position_id ||
       !editForm.value.salary_step
     ) {
-
       editForm.value.salary = "";
-
       return;
     }
 
-
     try {
-
       const response =
         await axios.get(
           "http://127.0.0.1:8000/api/salary-info",
@@ -1706,23 +1629,17 @@ const calculateEditSalary =
           }
         );
 
-
       editForm.value.salary =
         response.data.salary ?? "";
-
     } catch (error) {
-
       console.error(
         "Failed to calculate edit salary:",
         error
       );
 
       editForm.value.salary = "";
-
     }
-
   };
-
 
 watch(
   [
@@ -1731,12 +1648,9 @@ watch(
   ],
 
   () => {
-
     calculateEditSalary();
-
   }
 );
-
 
 /* ========================================================= */
 /* AUTO CATEGORY - EDIT */
@@ -1746,24 +1660,19 @@ watch(
   () => editForm.value.position_id,
 
   (newId) => {
-
     const selected =
       positions.value.find(
         (p) => p.id === newId
       );
 
     if (selected) {
-
       editForm.value.employee_category =
         mapPositionTypeToCategory(
           selected.type
         );
-
     }
-
   }
 );
-
 
 /* ========================================================= */
 /* FORMAT DATE */
@@ -1772,7 +1681,6 @@ watch(
 const formatDate = (
   date?: string
 ) => {
-
   if (!date) {
     return "-";
   }
@@ -1787,9 +1695,7 @@ const formatDate = (
       day: "numeric",
     }
   );
-
 };
-
 
 /* ========================================================= */
 /* STATUS */
@@ -1799,13 +1705,10 @@ const normalizeEmploymentStatus =
   (
     status: string | undefined
   ) => {
-
     return String(status || "")
       .trim()
       .toLowerCase();
-
   };
-
 
 /* ========================================================= */
 /* VIEW EMPLOYEE */
@@ -1814,14 +1717,11 @@ const normalizeEmploymentStatus =
 const viewEmployee = (
   employee: Employee
 ) => {
-
   selectedEmployee.value =
     employee;
 
   showViewModal.value = true;
-
 };
-
 
 /* ========================================================= */
 /* SEARCH / FILTER */
@@ -1829,21 +1729,17 @@ const viewEmployee = (
 
 const filteredEmployees =
   computed(() => {
-
     const keyword =
       search.value
         .toLowerCase()
         .trim();
 
-
     if (!keyword) {
       return employees.value;
     }
 
-
     return employees.value.filter(
       (employee) => {
-
         const firstName =
           employee.first_name
             ?.toLowerCase() || "";
@@ -1876,9 +1772,7 @@ const filteredEmployees =
           employee.employee_category
             ?.toLowerCase() || "";
 
-
         return (
-
           firstName.includes(
             keyword
           ) ||
@@ -1910,14 +1804,10 @@ const filteredEmployees =
           category.includes(
             keyword
           )
-
         );
-
       }
     );
-
   });
-
 
 /* ========================================================= */
 /* EDIT EMPLOYEE */
@@ -1926,9 +1816,7 @@ const filteredEmployees =
 const editEmployee = (
   employee: Employee
 ) => {
-
   editForm.value = {
-
     employee_id:
       Number(
         employee.employee_id
@@ -1971,14 +1859,10 @@ const editEmployee = (
 
     employment_status:
       employee.employment_status || "",
-
   };
 
-
   showEditModal.value = true;
-
 };
-
 
 /* ========================================================= */
 /* UPDATE EMPLOYEE */
@@ -1986,38 +1870,28 @@ const editEmployee = (
 
 const updateEmployee =
   async () => {
-
     try {
-
       await updateEmployeeAPI(
         editForm.value.employee_id,
         editForm.value
       );
 
-
       alert(
         "Employee updated successfully!"
       );
 
-
       showEditModal.value =
         false;
 
-
       await loadEmployees();
-
     } catch (error) {
-
       console.error(error);
 
       alert(
         "Unable to update employee."
       );
-
     }
-
   };
-
 
 /* ========================================================= */
 /* DELETE EMPLOYEE */
@@ -2027,34 +1901,26 @@ const deleteEmployee =
   async (
     employee: Employee
   ) => {
-
     const confirmed =
       confirm(
         `Are you sure you want to delete ${employee.first_name} ${employee.last_name}?`
       );
 
-
     if (!confirmed) {
       return;
     }
 
-
     try {
-
       await deleteEmployeeAPI(
         employee.employee_id
       );
-
 
       alert(
         "Employee deleted successfully."
       );
 
-
       await loadEmployees();
-
     } catch (error) {
-
       console.error(
         "Failed to delete employee:",
         error
@@ -2063,11 +1929,8 @@ const deleteEmployee =
       alert(
         "Unable to delete employee."
       );
-
     }
-
   };
-
 
 /* ========================================================= */
 /* LOAD EMPLOYEES */
@@ -2075,29 +1938,21 @@ const deleteEmployee =
 
 const loadEmployees =
   async () => {
-
     try {
-
       employees.value =
         await getEmployees();
-
 
       console.log(
         "Employees:",
         employees.value
       );
-
     } catch (error) {
-
       console.error(
         "Failed to load employees:",
         error
       );
-
     }
-
   };
-
 
 /* ========================================================= */
 /* DELETED EMPLOYEES */
@@ -2105,31 +1960,23 @@ const loadEmployees =
 
 const openDeletedEmployees =
   async () => {
-
     showDeletedModal.value =
       true;
 
     await loadDeletedEmployees();
-
   };
-
 
 const loadDeletedEmployees =
   async () => {
-
     try {
-
       deletedEmployees.value =
         await getDeletedEmployees();
-
 
       console.log(
         "Deleted Employees:",
         deletedEmployees.value
       );
-
     } catch (error) {
-
       console.error(
         "Failed to load deleted employees:",
         error
@@ -2138,45 +1985,33 @@ const loadDeletedEmployees =
       alert(
         "Unable to load deleted employees."
       );
-
     }
-
   };
-
 
 const restoreEmployeeRecord =
   async (
     id: number
   ) => {
-
     if (
       !confirm(
         "Are you sure you want to restore this employee?"
       )
     ) {
-
       return;
-
     }
 
-
     try {
-
       await restoreEmployee(id);
-
 
       alert(
         "Employee restored successfully."
       );
 
-
       await Promise.all([
         loadEmployees(),
         loadDeletedEmployees(),
       ]);
-
     } catch (error) {
-
       console.error(
         "Failed to restore employee:",
         error
@@ -2185,11 +2020,8 @@ const restoreEmployeeRecord =
       alert(
         "Unable to restore employee."
       );
-
     }
-
   };
-
 
 /* ========================================================= */
 /* CREATE EMPLOYEE */
@@ -2197,42 +2029,31 @@ const restoreEmployeeRecord =
 
 const saveEmployee =
   async () => {
-
     try {
-
       const response =
         await createEmployeeAPI(
           form.value
         );
 
-
       generatedCredentials.value =
         {
-
           email:
             response.email,
 
           password:
             response.password,
-
         };
-
 
       showCreateModal.value =
         false;
 
-
       showCredentialsModal.value =
         true;
 
-
       await loadEmployees();
 
-
       /* RESET FORM */
-
       form.value = {
-
         email: "",
 
         first_name: "",
@@ -2254,21 +2075,15 @@ const saveEmployee =
         salary: "",
 
         contact_number: "",
-
       };
-
     } catch (error) {
-
       console.error(error);
 
       alert(
         "Unable to create employee."
       );
-
     }
-
   };
-
 
 /* ========================================================= */
 /* INITIAL LOAD */
@@ -2276,182 +2091,262 @@ const saveEmployee =
 
 onMounted(
   async () => {
-
     await Promise.all([
       loadEmployees(),
       loadPositions(),
     ]);
-
   }
 );
-
 </script>
 
-
 <style scoped>
-
 .dashboard-shell {
-
   background: #080d14;
-
   min-height: 100vh;
-
-  /*
-   * IMPORTANT:
-   * No max-width here.
-   * The page expands with the viewport.
-   */
   width: 100%;
-
   max-width: none;
-
   box-sizing: border-box;
-
 }
 
-
 .neo-card {
-
   background: #111d2e;
-
   border: 1px solid #1e293b;
-
   border-radius: 1.4rem;
-
   box-shadow:
     0 10px 22px
     rgba(15, 23, 42, 0.04);
-
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 
-  /*
-   * Make every card capable of using
-   * the entire available width.
-   */
   width: 100%;
-
   max-width: none;
-
   min-width: 0;
-
   box-sizing: border-box;
-
 }
 
-
 .neo-card:hover {
-
   box-shadow:
     0 14px 26px
     rgba(15, 23, 42, 0.06);
-
 }
 
-
 .stats-card {
-
   border-left:
     4px solid currentColor;
 
   padding: 1.35rem;
-
 }
-
 
 .stats-card .p-3 {
-
   border-radius: 0.9rem;
-
 }
-
 
 .neo-card h3,
 .neo-card p,
 .neo-card span,
 .neo-card button {
-
   letter-spacing: -0.01em;
-
 }
 
+/* ========================================================= */
+/* IMPORTANT: TABLE DOES NOT SCROLL */
+/* ========================================================= */
+
+.table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.employee-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
 
 /*
- * Prevent flex/grid children from
- * creating unexpected overflow.
+ * Allow text to wrap instead of forcing
+ * the table wider than the screen.
  */
+
+.employee-table th,
+.employee-table td {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ========================================================= */
+/* TABLE COLUMN WIDTHS */
+/* ========================================================= */
+
+.employee-table th:nth-child(1),
+.employee-table td:nth-child(1) {
+  width: 11%;
+}
+
+.employee-table th:nth-child(2),
+.employee-table td:nth-child(2) {
+  width: 17%;
+}
+
+.employee-table th:nth-child(3),
+.employee-table td:nth-child(3) {
+  width: 19%;
+}
+
+.employee-table th:nth-child(4),
+.employee-table td:nth-child(4) {
+  width: 14%;
+}
+
+.employee-table th:nth-child(5),
+.employee-table td:nth-child(5) {
+  width: 14%;
+}
+
+.employee-table th:nth-child(6),
+.employee-table td:nth-child(6) {
+  width: 10%;
+}
+
+.employee-table th:nth-child(7),
+.employee-table td:nth-child(7) {
+  width: 15%;
+}
+
+/* ========================================================= */
+/* DELETED EMPLOYEES TABLE */
+/* ========================================================= */
+
+.deleted-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.deleted-table th,
+.deleted-table td {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.deleted-table th:nth-child(1),
+.deleted-table td:nth-child(1) {
+  width: 12%;
+}
+
+.deleted-table th:nth-child(2),
+.deleted-table td:nth-child(2) {
+  width: 17%;
+}
+
+.deleted-table th:nth-child(3),
+.deleted-table td:nth-child(3) {
+  width: 19%;
+}
+
+.deleted-table th:nth-child(4),
+.deleted-table td:nth-child(4) {
+  width: 13%;
+}
+
+.deleted-table th:nth-child(5),
+.deleted-table td:nth-child(5) {
+  width: 13%;
+}
+
+.deleted-table th:nth-child(6),
+.deleted-table td:nth-child(6) {
+  width: 13%;
+}
+
+.deleted-table th:nth-child(7),
+.deleted-table td:nth-child(7) {
+  width: 13%;
+}
+
+/* ========================================================= */
+/* FLEX / GRID CHILDREN */
+/* ========================================================= */
 
 .dashboard-shell *,
 .neo-card * {
-
   min-width: 0;
-
 }
 
+/* ========================================================= */
+/* SMALLER SCREENS */
+/* ========================================================= */
 
-/*
- * Keep table action buttons together.
- */
+@media (max-width: 1024px) {
+  .employee-table th,
+  .employee-table td {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
 
-td:last-child {
+  .employee-table {
+    font-size: 0.875rem;
+  }
 
-  white-space: nowrap;
-
+  .employee-table button {
+    font-size: 0.7rem;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+  }
 }
-
-
-/*
- * Tables should use all available width
- * when there is enough space.
- */
-
-table {
-
-  width: 100%;
-
-}
-
-
-/*
- * On smaller screens, preserve usable
- * horizontal scrolling rather than
- * squashing the table.
- */
 
 @media (max-width: 768px) {
-
   .dashboard-shell {
-
     padding-left: 0.75rem;
-
     padding-right: 0.75rem;
-
   }
-
 
   .neo-card {
-
     border-radius: 1rem;
-
   }
 
+  .employee-table,
+  .deleted-table {
+    font-size: 0.75rem;
+  }
+
+  .employee-table th,
+  .employee-table td,
+  .deleted-table th,
+  .deleted-table td {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .employee-table button,
+  .deleted-table button {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.4rem;
+  }
 }
-
-
-/*
- * Make modal content comfortable on
- * very small screens.
- */
 
 @media (max-width: 640px) {
-
   .neo-card {
-
     border-radius: 0.9rem;
-
   }
 
-}
+  .employee-table,
+  .deleted-table {
+    font-size: 0.7rem;
+  }
 
+  .employee-table th,
+  .employee-table td,
+  .deleted-table th,
+  .deleted-table td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+}
 </style>
