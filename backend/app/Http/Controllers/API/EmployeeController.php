@@ -14,7 +14,6 @@ use App\Support\AuditLogger;
 
 class EmployeeController extends Controller
 {
-    // CREATE EMPLOYEE (ADMIN ONLY)
     public function store(Request $request)
     {
         $request->validate([
@@ -65,19 +64,15 @@ class EmployeeController extends Controller
             'user_id' => $user->user_id,
             'created_by' => auth()->id(),
             'employee_code' => 'EMP-' . rand(1000, 9999),
-
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-
             'position_id' => $position->id,
             'employee_category' => $request->employee_category,
-
             'salary_step' => $request->salary_step,
             'salary' => $salary,
-
             'contact_number' => $request->contact_number,
             'employment_status' => $request->employment_status ?? 'active',
             'date_hired' => now(),
@@ -142,42 +137,70 @@ class EmployeeController extends Controller
     public function listPositions()
     {
         return response()->json(
-            \App\Models\Position::orderBy('name')->get()
+            Position::orderBy('name')->get()
         );
     }
 
-    // UPDATE EMPLOYEE
     public function update(Request $request, $id)
     {
         $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'department' => 'required|string',
-            'position_id' => 'required|exists:positions,id'
+            'position_id' => 'required|exists:positions,id',
+            'salary_step' => 'required|integer|min:1|max:8',
         ]);
 
         $employee = EmployeeRecord::findOrFail($id);
+        $position = Position::findOrFail($request->position_id);
 
-        // Update employee information
+        if (!$position->salary_grade) {
+            return response()->json([
+                'message' => 'This position does not have a salary grade.'
+            ], 422);
+        }
+
+        $salary = SalarySchedule::where(
+            'salary_grade',
+            $position->salary_grade
+        )
+            ->where(
+                'step',
+                $request->salary_step
+            )
+            ->value('salary');
+
+        if (!$salary) {
+            return response()->json([
+                'message' => 'No salary schedule found for Salary Grade '
+                    . $position->salary_grade
+                    . ' Step '
+                    . $request->salary_step
+            ], 422);
+        }
+
         $employee->update([
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
             'department' => $request->department,
-            'position_id' => $request->position_id,
+            'position_id' => $position->id,
             'employee_category' => $request->employee_category,
-            'salary_step' => $request->salary_step ?? 1,
-            'salary' => $request->salary,
+            'salary_step' => $request->salary_step,
+            'salary' => $salary,
             'contact_number' => $request->contact_number,
             'employment_status' => $request->employment_status,
         ]);
 
-        // Optional: update email if changed
         if (
             $request->filled('email') &&
             $request->email !== $employee->user->email
         ) {
+            $request->validate([
+                'email' => 'email|unique:users,email,' . $employee->user->user_id . ',user_id'
+            ]);
+
             $employee->user->update([
                 'email' => $request->email
             ]);
@@ -190,13 +213,13 @@ class EmployeeController extends Controller
 
         return response()->json([
             'message' => 'Employee updated successfully.',
-            'employee' => $employee->load('user')
+            'employee' => $employee->fresh()->load(['user', 'position'])
         ]);
     }
 
     public function myProfile(Request $request)
     {
-        $employee = EmployeeRecord::with('user')
+        $employee = EmployeeRecord::with(['user', 'position'])
             ->where('user_id', $request->user()->user_id)
             ->first();
 
@@ -209,34 +232,30 @@ class EmployeeController extends Controller
         return response()->json([
             'employee_id' => $employee->employee_id,
             'employee_code' => $employee->employee_code,
-
             'first_name' => $employee->first_name,
             'middle_name' => $employee->middle_name,
             'last_name' => $employee->last_name,
-
             'sex' => $employee->sex,
             'department' => $employee->department,
             'position_id' => $employee->position_id,
             'position' => $employee->position->name ?? null,
             'employee_category' => $employee->employee_category,
-
+            'salary_step' => $employee->salary_step,
             'salary' => $employee->salary,
             'contact_number' => $employee->contact_number,
             'employment_status' => $employee->employment_status,
             'date_hired' => $employee->date_hired,
-
             'email' => $employee->user->email,
             'role' => $employee->user->role,
         ]);
     }
-    // UPDATE OWN PROFILE
+
     public function updateProfile(Request $request)
     {
         $employee = EmployeeRecord::where(
             'user_id',
             $request->user()->user_id
         )->firstOrFail();
-
 
         $request->validate([
             'first_name' => 'required|string',
@@ -261,38 +280,29 @@ class EmployeeController extends Controller
             "Updated profile for employee {$employee->first_name} {$employee->last_name}"
         );
 
-
         return response()->json([
             'message' => 'Profile updated successfully',
             'employee' => $employee
         ]);
     }
 
-
-
-    // UPDATE EMAIL
     public function updateEmail(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|unique:users,email'
-        ]);
-
-
         $user = $request->user();
+
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id'
+        ]);
 
         $user->update([
             'email' => $request->email
         ]);
-
 
         return response()->json([
             'message' => 'Email updated successfully'
         ]);
     }
 
-
-
-    // UPDATE PASSWORD
     public function updatePassword(Request $request)
     {
         $request->validate([
@@ -300,20 +310,16 @@ class EmployeeController extends Controller
             'new_password' => 'required|min:8|confirmed'
         ]);
 
-
         $user = $request->user();
-
 
         if (!Hash::check(
             $request->current_password,
             $user->password
         )) {
-
             return response()->json([
                 'message' => 'Current password incorrect'
             ], 401);
         }
-
 
         $user->update([
             'password' => Hash::make(
@@ -321,36 +327,70 @@ class EmployeeController extends Controller
             )
         ]);
 
-
         return response()->json([
             'message' => 'Password updated successfully'
         ]);
     }
 
-
-
-
-    // UPDATE PHONE
     public function updatePhone(Request $request)
     {
         $request->validate([
             'contact_number' => 'required|string'
         ]);
 
-
         $employee = EmployeeRecord::where(
             'user_id',
             $request->user()->user_id
         )->firstOrFail();
 
-
         $employee->update([
             'contact_number' => $request->contact_number
         ]);
-
 
         return response()->json([
             'message' => 'Phone updated successfully'
         ]);
     }
+
+    public function destroy($id)
+{
+    $employee = EmployeeRecord::findOrFail($id);
+
+    $employee->delete();
+
+    AuditLogger::log(
+        'Employee deleted',
+        "Soft deleted employee {$employee->first_name} {$employee->last_name}"
+    );
+
+    return response()->json([
+        'message' => 'Employee deleted successfully.'
+    ]);
+}
+
+public function restore($id)
+{
+    $employee = EmployeeRecord::withTrashed()->findOrFail($id);
+
+    $employee->restore();
+
+    AuditLogger::log(
+        'Employee restored',
+        "Restored employee {$employee->first_name} {$employee->last_name}"
+    );
+
+    return response()->json([
+        'message' => 'Employee restored successfully.'
+    ]);
+}
+
+public function deleted()
+{
+    $employees = EmployeeRecord::onlyTrashed()
+        ->with(['user', 'createdBy', 'position'])
+        ->latest('deleted_at')
+        ->get();
+
+    return response()->json($employees);
+}
 }

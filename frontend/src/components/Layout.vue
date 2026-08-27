@@ -90,10 +90,7 @@
           My Applications
         </router-link>
 
-        <router-link to="/attendance" class="nav-item">
-          <Calendar class="icon" />
-          Attendance
-        </router-link>
+        
 
         <router-link 
         v-if="currentUser.role === 'employee'"
