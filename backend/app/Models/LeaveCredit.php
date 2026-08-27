@@ -21,6 +21,7 @@ class LeaveCredit extends Model
         'recorded_by'
     ];
 
+    protected $dates = ['deleted_at'];
 
     public function employee()
     {

@@ -16,3 +16,22 @@ export const getLeaveBalances = async () => {
 
   return response.data;
 };
+
+
+
+export const deleteBalance = async (employee_id: number) => {
+  const response = await axios.delete(
+    `${API}/leave-balances/${employee_id}`,
+    authHeader()
+  );
+  return response.data;
+};
+
+
+export const getLeaveBalanceByEmployeeId = async (employee_id: number) => {
+  const response = await axios.get(
+    `${API}/leave-balances/${employee_id}`,
+    authHeader()
+  );
+  return response.data;
+};

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveBalance extends Model
+
 {
+    use SoftDeletes;
     protected $table = 'leave_balances';
 
     protected $primaryKey = 'balance_id';
@@ -20,6 +23,8 @@ class LeaveBalance extends Model
         'used_leave',
         'last_updated'
     ];
+
+    protected $dates = ['deleted_at'];
 
     public function employee()
     {

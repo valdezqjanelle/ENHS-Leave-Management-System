@@ -157,6 +157,13 @@
                     Edit Balance
                   </button>
 
+                  <button
+                    @click="deleteBalance(balance.employee_id)"
+                    class="edit-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition ml-2"
+                  >
+                    Delete Balance
+                  </button>
+
                 </td>
 
               </tr>
@@ -364,6 +371,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
 
 // ============================================================
 // INTERFACES
@@ -397,6 +405,7 @@ interface LeaveBalance {
 // ============================================================
 
 const balances = ref<LeaveBalance[]>([]);
+
 
 const showModal = ref(false);
 
@@ -510,6 +519,42 @@ const updateBalance = async () => {
   }
 };
 
+const deleteBalance = async (
+  employee_id: number
+) => {
+
+  if (
+    !confirm(
+      "Are you sure you want to delete this leave balance?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    await deleteLeaveBalance(
+      employee_id
+    );
+
+    alert(
+      "Leave balance deleted successfully"
+    );
+
+    await loadBalances();
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+    alert(
+      "Failed deleting balance"
+    );
+
+  }
+};
 // ============================================================
 // TOTAL BALANCE
 // ============================================================

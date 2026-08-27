@@ -156,4 +156,28 @@ public function index()
         'last_updated' => $balance->last_updated,
     ]);
 }
+
+public function destroy($employee_id)
+{
+    $balance = LeaveBalance::where('employee_id', $employee_id)->first();
+
+    if (!$balance) {
+        return response()->json([
+            'message' => 'Leave balance not found for this employee.'
+        ], 404);
+    }
+
+    $balance->delete();
+
+    AuditLogger::log(
+        'Leave balance deleted',
+        "Deleted leave balance for employee #{$employee_id}"
+    );
+
+    return response()->json([
+        'message' => 'Leave balance deleted successfully.'
+    ], 200);
+}
+
+
 }
