@@ -109,3 +109,31 @@ export const updatePhone = async (contact_number: string) => {
 
     return response.data;
 };
+
+export const deleteEmployee = async (id: number) => {
+  const response = await axios.delete(
+    `${API}/employees/${id}`,
+    authHeader()
+  );
+
+  return response.data;
+};
+
+export const restoreEmployee = async (id: number) => {
+  const response = await axios.post(
+    `${API}/employees/${id}/restore`,
+    {},
+    authHeader()
+  );
+
+  return response.data;
+};
+
+export const getDeletedEmployees = async () => {
+  const response = await axios.get(
+    `${API}/employees/deleted`,
+    authHeader()
+  );
+
+  return response.data;
+};

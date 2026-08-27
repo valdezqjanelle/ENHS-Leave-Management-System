@@ -4,18 +4,29 @@
       <!-- ================= HEADER ================= -->
       <div class="neo-card p-6">
         <div class="flex justify-between items-center">
+          <!-- LEFT: TITLE -->
           <div>
             <h2 class="text-2xl font-bold text-white">Employee Management</h2>
 
             <p class="text-white mt-1">Create and manage employee accounts.</p>
           </div>
 
-          <button
-            @click="showCreateModal = true"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
-          >
-            + Create Employee
-          </button>
+          <!-- RIGHT: BUTTONS -->
+          <div class="flex items-center gap-3">
+            <button
+              @click="openDeletedEmployees"
+              class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg font-medium transition"
+            >
+              Deleted Employees
+            </button>
+
+            <button
+              @click="showCreateModal = true"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition"
+            >
+              + Create Employee
+            </button>
+          </div>
         </div>
       </div>
 
@@ -120,6 +131,13 @@
                     class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
                   >
                     Edit
+                  </button>
+
+                  <button
+                    @click="deleteEmployee(employee)"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  >
+                    Delete
                   </button>
                 </div>
               </td>
@@ -863,6 +881,125 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="showDeletedModal"
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-4 overflow-hidden"
+      >
+        <!-- Header -->
+        <div
+          class="bg-gray-700 text-white px-6 py-5 flex justify-between items-center"
+        >
+          <div>
+            <h2 class="text-2xl font-bold">Deleted Employees</h2>
+
+            <p class="text-gray-200 text-sm mt-1">
+              View and restore previously deleted employee records.
+            </p>
+          </div>
+
+          <button
+            @click="showDeletedModal = false"
+            class="text-white text-3xl hover:text-gray-300"
+          >
+            &times;
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+          <!-- Empty State -->
+          <div
+            v-if="deletedEmployees.length === 0"
+            class="text-center py-12 text-gray-500"
+          >
+            <p class="text-lg font-semibold">No deleted employees found.</p>
+
+            <p class="text-sm mt-1">
+              Deleted employee records will appear here.
+            </p>
+          </div>
+
+          <!-- Deleted Employees Table -->
+          <div v-else class="overflow-x-auto border rounded-lg">
+            <table class="min-w-full">
+              <thead class="bg-gray-100">
+                <tr class="text-left text-black font-semibold">
+                  <th class="px-6 py-3">Employee Code</th>
+
+                  <th class="px-6 py-3">Employee</th>
+
+                  <th class="px-6 py-3">Email</th>
+
+                  <th class="px-6 py-3">Department</th>
+
+                  <th class="px-6 py-3">Position</th>
+
+                  <th class="px-6 py-3">Deleted At</th>
+
+                  <th class="px-6 py-3 text-center">Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  v-for="employee in deletedEmployees"
+                  :key="employee.employee_id"
+                  class="border-t hover:bg-gray-50"
+                >
+                  <td class="px-6 py-4 text-gray-800 font-semibold">
+                    {{ employee.employee_code }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-800">
+                    {{ employee.last_name }},
+                    {{ employee.first_name }}
+                    {{ employee.middle_name }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-800">
+                    {{ employee.user?.email || "-" }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-800">
+                    {{ employee.department }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-800">
+                    {{ employee.position?.name || "-" }}
+                  </td>
+
+                  <td class="px-6 py-4 text-gray-800">
+                    {{ formatDate(employee.deleted_at) }}
+                  </td>
+
+                  <td class="px-6 py-4 text-center">
+                    <button
+                      @click="restoreEmployeeRecord(employee.employee_id)"
+                      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                    >
+                      Restore
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-100 px-6 py-4 flex justify-end">
+          <button
+            @click="showDeletedModal = false"
+            class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -874,6 +1011,9 @@ import {
   getEmployees,
   createEmployee as createEmployeeAPI,
   updateEmployee as updateEmployeeAPI,
+  deleteEmployee as deleteEmployeeAPI,
+  getDeletedEmployees,
+  restoreEmployee,
   getPositions,
 } from "../services/employee";
 
@@ -884,6 +1024,8 @@ import {
 interface Employee {
   employee_id: number;
   employee_code: string;
+
+  deleted_at?: string;
 
   first_name: string;
   middle_name: string;
@@ -926,6 +1068,8 @@ interface Employee {
 /* ========================================================= */
 
 const employees = ref<Employee[]>([]);
+const deletedEmployees = ref<Employee[]>([]);
+const showDeletedModal = ref(false);
 
 const search = ref("");
 
@@ -1308,6 +1452,28 @@ const updateEmployee = async () => {
 /* LOAD EMPLOYEES */
 /* ========================================================= */
 
+const deleteEmployee = async (employee: Employee) => {
+  const confirmed = confirm(
+    `Are you sure you want to delete ${employee.first_name} ${employee.last_name}?`,
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await deleteEmployeeAPI(employee.employee_id);
+
+    alert("Employee deleted successfully.");
+
+    await loadEmployees();
+  } catch (error) {
+    console.error("Failed to delete employee:", error);
+
+    alert("Unable to delete employee.");
+  }
+};
+
 const loadEmployees = async () => {
   try {
     employees.value = await getEmployees();
@@ -1318,6 +1484,39 @@ const loadEmployees = async () => {
   }
 };
 
+const openDeletedEmployees = async () => {
+  showDeletedModal.value = true;
+
+  await loadDeletedEmployees();
+};
+
+const loadDeletedEmployees = async () => {
+  try {
+    deletedEmployees.value = await getDeletedEmployees();
+
+    console.log("Deleted Employees:", deletedEmployees.value);
+  } catch (error) {
+    console.error("Failed to load deleted employees:", error);
+    alert("Unable to load deleted employees.");
+  }
+};
+
+const restoreEmployeeRecord = async (id: number) => {
+  if (!confirm("Are you sure you want to restore this employee?")) {
+    return;
+  }
+
+  try {
+    await restoreEmployee(id);
+
+    alert("Employee restored successfully.");
+
+    await Promise.all([loadEmployees(), loadDeletedEmployees()]);
+  } catch (error) {
+    console.error("Failed to restore employee:", error);
+    alert("Unable to restore employee.");
+  }
+};
 /* ========================================================= */
 /* CREATE EMPLOYEE */
 /* ========================================================= */

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\LeaveBalance;
@@ -8,6 +9,7 @@ use App\Models\User;
 
 class EmployeeRecord extends Model
 {
+    use SoftDeletes;
     protected $primaryKey = 'employee_id';
 
     protected $fillable = [
@@ -28,6 +30,7 @@ class EmployeeRecord extends Model
         'salary_step'
     ];
 
+    protected $dates = ['deleted_at'];
     public function position()
     {
         return $this->belongsTo(Position::class);
