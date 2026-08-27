@@ -400,6 +400,15 @@ public function downloadPdf($id)
                 32,
                 'PNG'
             );
+        $middleInitial = '';
+        if (!empty($employee->middle_name)) {
+            $middleInitial = strtoupper(substr(trim($employee->middle_name), 0, 1)) . '. ';
+        }
+
+        // Build formatted name: First M. Last
+        $applicantName = trim(($employee->first_name ?? '') . ' ' . $middleInitial . ($employee->last_name ?? ''));
+
+        $text('applicant_signature_name', $applicantName);
         }
     }
 
