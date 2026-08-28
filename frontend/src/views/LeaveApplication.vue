@@ -131,49 +131,59 @@
             </div>
 
 
-            <!-- Vacation Details -->
-            <div
-              v-if="selectedLeaveName?.includes('Vacation')"
-              class="detail-box"
-            >
+<!-- Vacation Details -->
+<div
+  v-if="selectedLeaveName?.includes('Vacation')"
+  class="detail-box"
+>
 
-              <div>
-                <label class="form-label">
-                  Vacation Location Type
-                </label>
+  <div>
+    <label class="form-label">
+      Vacation Location Type
+    </label>
 
-                <select
-                  v-model="form.vacation_location_type"
-                  class="input-field"
-                >
-                  <option value="">Select</option>
+    <select
+      v-model="form.vacation_location_type"
+      class="input-field"
+    >
+      <option value="">Select</option>
 
-                  <option value="within_philippines">
-                    Within Philippines
-                  </option>
+      <option value="within_philippines">
+        Within Philippines
+      </option>
 
-                  <option value="abroad">
-                    Abroad
-                  </option>
-                </select>
-              </div>
+      <option value="abroad">
+        Abroad
+      </option>
+    </select>
+  </div>
 
-              <div>
-                <label class="form-label">
-                  Specify Location
-                </label>
+  <div>
+    <label class="form-label">
+      Specify Location
+    </label>
 
-                <input
-                  v-model="form.vacation_location"
-                  type="text"
-                  class="input-field"
-                />
-              </div>
+    <LocationAutocomplete
+      v-if="form.vacation_location_type === 'within_philippines'"
+      v-model="form.vacation_location"
+    />
 
-            </div>
+    <CountryAutocomplete
+      v-else-if="form.vacation_location_type === 'abroad'"
+      v-model="form.vacation_location"
+    />
 
+    <input
+      v-else
+      v-model="form.vacation_location"
+      type="text"
+      class="input-field"
+      disabled
+      placeholder="Select a location type first"
+    />
+  </div>
 
-            <!-- Sick Details -->
+</div>            <!-- Sick Details -->
             <div
               v-if="selectedLeaveName?.includes('Sick')"
               class="detail-box"
@@ -746,6 +756,8 @@ import {
 } from "lucide-vue-next";
 
 import { getMyProfile } from "../services/employee";
+import LocationAutocomplete from "../components/LocationAutocomplete.vue";
+import CountryAutocomplete from "../components/CountryAutocomplete.vue";
 
 
 interface Attachment {
@@ -964,85 +976,59 @@ const resizeSignatureCanvas = () => {
 
 
 const initializeSignaturePad = async () => {
-
   await nextTick();
 
-
   const canvas = signatureCanvas.value;
-
-
   if (!canvas) {
-
     console.error("Signature canvas not found.");
-
     return;
-
   }
 
+  // Preserve existing signature data URL if resizing
+  const existingData = signaturePad.value && !signaturePad.value.isEmpty() 
+    ? signaturePad.value.toDataURL() 
+    : null;
 
-  const ratio = Math.max(
-    window.devicePixelRatio || 1,
-    1
-  );
-
-
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
   const width = canvas.offsetWidth;
-
   const height = canvas.offsetHeight;
 
-
+  // Setting width/height resets the canvas state and clears content
   canvas.width = width * ratio;
-
   canvas.height = height * ratio;
 
-
   const context = canvas.getContext("2d");
-
-
   if (context) {
     context.scale(ratio, ratio);
   }
 
-
+  // Instantiate SignaturePad
   signaturePad.value = new SignaturePad(canvas, {
-
-    backgroundColor: "rgb(15, 26, 42)",
-
-    penColor: "rgb(248, 250, 252)",
-
-    minWidth: 0.8,
-
-    maxWidth: 2.2,
-
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    penColor: "rgb(0, 0, 0)",
+    minWidth: 1.2,
+    maxWidth: 3.0,
   });
 
+  // Restore signature drawing if it previously existed
+  if (existingData) {
+    signaturePad.value.fromDataURL(existingData);
+  }
 
-  signaturePad.value.addEventListener(
-    "endStroke",
-    () => {
-
-      if (
-        signaturePad.value &&
-        !signaturePad.value.isEmpty()
-      ) {
-
-        signatureData.value =
-          signaturePad.value.toDataURL("image/png");
-
-      }
-
+  // Event listener for stroke end
+  signaturePad.value.addEventListener("endStroke", () => {
+    if (signaturePad.value && !signaturePad.value.isEmpty()) {
+      signatureData.value = signaturePad.value.toDataURL("image/png");
     }
-  );
-
+  });
 };
 
-
+// Make sure your Clear button function resets signatureData state as well
 const clearSignature = () => {
-
-  signaturePad.value?.clear();
-
-  signatureData.value = null;
-
+  if (signaturePad.value) {
+    signaturePad.value.clear();
+    signatureData.value = null; // Reset backend payload state
+  }
 };
 
 
@@ -1822,15 +1808,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .signature-box {
   width: 100%;
-
-  height: 180px;
-
+  height: 260px;
   border: 1px solid #334155;
-
   border-radius: 0.75rem;
-
-  background: #0f1a2a;
-
+  background: #ffffff;
   overflow: hidden;
 }
 

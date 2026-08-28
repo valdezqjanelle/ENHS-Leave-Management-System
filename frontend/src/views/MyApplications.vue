@@ -2,43 +2,6 @@
   <div class="dashboard-shell min-h-screen p-6 space-y-6">
 
     <!-- =============================== -->
-    <!-- HEADER -->
-    <!-- =============================== -->
-
-    <div class="neo-card p-6">
-      <div
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-      >
-        <div>
-          <h2 class="text-xl font-semibold text-white">
-            My Leave Applications
-          </h2>
-
-          <p class="text-sm text-slate-400 mt-1">
-            Track and manage your leave application status
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button
-            @click="exportApplications"
-            class="px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition"
-          >
-            Export
-          </button>
-
-          <button
-            @click="$router.push('/leave-application')"
-            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition"
-          >
-            New Application
-          </button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- =============================== -->
     <!-- STATISTICS CARDS -->
     <!-- =============================== -->
 
@@ -133,606 +96,483 @@
 
     </div>
 
+<!-- =============================== -->
+<!-- FILTER AND SEARCH -->
+<!-- =============================== -->
 
-    <!-- =============================== -->
-    <!-- FILTER AND SEARCH -->
-    <!-- =============================== -->
+<div class="neo-card p-5">
+  <div class="flex flex-col lg:flex-row gap-4">
 
-    <div class="neo-card p-5">
-
-      <div class="flex flex-col lg:flex-row gap-4">
-
-        <!-- Search -->
-        <div class="flex-1">
-
-          <div class="relative">
-
-            <Search
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"
-            />
-
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search ID, leave type, status, reason, date..."
-              class="dark-input w-full pl-10 pr-4"
-            />
-
-          </div>
-
-        </div>
-
-
-        <!-- Filters -->
-        <div class="flex flex-col sm:flex-row gap-3">
-
-          <select
-            v-model="filterStatus"
-            class="dark-input sm:w-44"
-          >
-            <option value="">
-              All Status
-            </option>
-
-            <option value="pending">
-              Pending
-            </option>
-
-            <option value="approved">
-              Approved
-            </option>
-
-            <option value="disapproved">
-              Disapproved
-            </option>
-          </select>
-
-
-          <select
-            v-model="filterType"
-            class="dark-input sm:w-48"
-          >
-            <option value="">
-              All Types
-            </option>
-
-            <option value="vacation">
-              Vacation Leave
-            </option>
-
-            <option value="sick">
-              Sick Leave
-            </option>
-
-            <option value="maternity">
-              Maternity Leave
-            </option>
-
-            <option value="paternity">
-              Paternity Leave
-            </option>
-
-            <option value="study">
-              Study Leave
-            </option>
-
-            <option value="special">
-              Special Leave
-            </option>
-
-            <option value="mandatory">
-              Mandatory/Forced Leave
-            </option>
-          </select>
-
-
-          <button
-            @click="clearFilters"
-            class="px-4 py-2 text-sm border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition"
-          >
-            Clear
-          </button>
-
-        </div>
-
+    <!-- Search Input -->
+    <div class="flex-1">
+      <div class="relative">
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 pointer-events-none z-10" />
+        <input 
+          v-model="searchQuery" 
+          type="text" 
+          placeholder="Search ID, leave type, status, date..."
+          class="dark-input w-full !pl-10 py-2" 
+        />
       </div>
+    </div>
 
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <select v-model="filterStatus" class="dark-input sm:w-44">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="disapproved">Disapproved</option>
+      </select>
 
-      <!-- Search result info -->
-      <div
-        v-if="searchQuery || filterStatus || filterType"
-        class="mt-3 text-sm text-slate-500"
+      <select v-model="filterType" class="dark-input sm:w-48">
+        <option value="">All Types</option>
+        <option value="vacation">Vacation Leave</option>
+        <option value="sick">Sick Leave</option>
+        <option value="study">Study Leave</option>
+        <option value="special">Special Leave</option>
+        <option value="mandatory">Mandatory/Forced Leave</option>
+      </select>
+
+      <button 
+        @click="clearFilters"
+        class="px-4 py-2 text-sm border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition"
       >
-        {{ filteredApplications.length }}
-        application(s) found
+        Clear
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Search Result Counter -->
+<div v-if="searchQuery || filterStatus || filterType" class="mt-3 text-sm text-slate-500">
+  {{ filteredApplications.length }} application(s) found
+</div>
+
+
+  <!-- =============================== -->
+  <!-- APPLICATION HISTORY -->
+  <!-- =============================== -->
+
+  <div class="neo-card overflow-hidden">
+
+    <div
+      class="px-6 py-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+
+      <div>
+        <h3 class="text-lg font-semibold text-white">
+          Application History
+        </h3>
+
+        <p class="text-sm text-slate-400 mt-1">
+          Showing {{ displayedApplications.length }} of
+          {{ filteredApplications.length }} application(s)
+        </p>
       </div>
+
+      <button v-if="applications.length > 15" @click="showAllApplications = !showAllApplications"
+        class="px-4 py-2 text-sm border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-500/10 transition">
+        {{
+          showAllApplications
+            ? "Show Recent 15"
+            : `Show All Applications (${filteredApplications.length})`
+        }}
+      </button>
 
     </div>
 
 
-    <!-- =============================== -->
-    <!-- APPLICATION HISTORY -->
-    <!-- =============================== -->
+    <div class="overflow-x-auto">
 
-    <div class="neo-card overflow-hidden">
+      <table class="w-full">
 
-      <div
-        class="px-6 py-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-      >
+        <!-- Table Header -->
+        <thead class="bg-[#0D1725]">
+
+          <tr>
+
+            <th class="table-header">
+              Application ID
+            </th>
+
+            <th class="table-header">
+              Leave Type
+            </th>
+
+            <th class="table-header">
+              Duration
+            </th>
+
+            <th class="table-header">
+              Filed Date
+            </th>
+
+            <th class="table-header">
+              Status
+            </th>
+
+            <th class="table-header">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <!-- Table Body -->
+        <tbody class="divide-y divide-slate-800">
+
+          <tr v-for="application in displayedApplications" :key="application.leave_id"
+            class="hover:bg-slate-800/40 transition">
+
+            <!-- ID -->
+            <td class="table-cell font-medium text-white">
+              #{{ application.leave_id }}
+            </td>
+
+
+            <!-- Leave Type -->
+            <td class="table-cell text-slate-300">
+              {{ application.leave_type.leave_type_name }}
+            </td>
+
+
+            <!-- Duration -->
+            <td class="table-cell text-slate-300">
+              {{
+                formatDateRange(
+                  application.start_date,
+                  application.end_date
+                )
+              }}
+            </td>
+
+
+            <!-- Filed -->
+            <td class="table-cell text-slate-300">
+              {{ formatDate(application.date_filed) }}
+            </td>
+
+
+            <!-- Status -->
+            <td class="table-cell">
+
+              <span class="px-3 py-1.5 text-xs font-semibold rounded-full"
+                :class="getStatusClass(application.final_status)">
+                {{ application.final_status }}
+              </span>
+
+            </td>
+
+
+            <!-- Actions -->
+            <td class="table-cell">
+
+              <div class="flex items-center gap-3">
+
+                <button @click="viewDetails(application)"
+                  class="text-blue-400 hover:text-blue-300 font-medium transition">
+                  View Details
+                </button>
+
+                <button v-if="application.status === 'Approved'" @click="downloadForm(application)"
+                  class="text-green-400 hover:text-green-300 font-medium transition">
+                  Download
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- Empty State -->
+          <tr v-if="displayedApplications.length === 0">
+
+            <td colspan="6" class="px-6 py-12 text-center">
+
+              <FileText class="w-10 h-10 mx-auto text-slate-600 mb-3" />
+
+              <p class="text-slate-400">
+                No leave applications found.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- =============================== -->
+  <!-- APPLICATION DETAILS MODAL -->
+  <!-- =============================== -->
+
+  <div v-if="application"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6">
+
+    <div class="relative w-full max-w-3xl shadow-2xl rounded-2xl bg-[#111D2E] border border-slate-700">
+
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center px-6 py-5 border-b border-slate-700">
 
         <div>
-          <h3 class="text-lg font-semibold text-white">
-            Application History
+
+          <h3 class="text-xl font-semibold text-white">
+            Application Details
           </h3>
 
           <p class="text-sm text-slate-400 mt-1">
-            Showing {{ displayedApplications.length }} of
-            {{ filteredApplications.length }} application(s)
+            Application #{{ application.leave_id }}
           </p>
+
         </div>
 
-        <button
-          v-if="applications.length > 15"
-          @click="showAllApplications = !showAllApplications"
-          class="px-4 py-2 text-sm border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-500/10 transition"
-        >
-          {{
-            showAllApplications
-              ? "Show Recent 15"
-              : `Show All Applications (${filteredApplications.length})`
-          }}
+
+        <button @click="application = null" class="text-slate-500 hover:text-white transition">
+          <X class="w-6 h-6" />
         </button>
 
       </div>
 
 
-      <div class="overflow-x-auto">
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6">
 
-        <table class="w-full">
 
-          <!-- Table Header -->
-          <thead class="bg-[#0D1725]">
+        <!-- Application Information -->
+        <div class="modal-section">
 
-            <tr>
+          <h4 class="modal-title">
+            Application Information
+          </h4>
 
-              <th class="table-header">
-                Application ID
-              </th>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-              <th class="table-header">
+            <div>
+              <p class="modal-label">
                 Leave Type
-              </th>
+              </p>
 
-              <th class="table-header">
-                Duration
-              </th>
-
-              <th class="table-header">
-                Filed Date
-              </th>
-
-              <th class="table-header">
-                Status
-              </th>
-
-              <th class="table-header">
-                Actions
-              </th>
-
-            </tr>
-
-          </thead>
-
-
-          <!-- Table Body -->
-          <tbody class="divide-y divide-slate-800">
-
-            <tr
-              v-for="application in displayedApplications"
-              :key="application.leave_id"
-              class="hover:bg-slate-800/40 transition"
-            >
-
-              <!-- ID -->
-              <td class="table-cell font-medium text-white">
-                #{{ application.leave_id }}
-              </td>
-
-
-              <!-- Leave Type -->
-              <td class="table-cell text-slate-300">
+              <p class="modal-value">
                 {{ application.leave_type.leave_type_name }}
-              </td>
+              </p>
+            </div>
 
 
-              <!-- Duration -->
-              <td class="table-cell text-slate-300">
+            <div>
+              <p class="modal-label">
+                Duration
+              </p>
+
+              <p class="modal-value">
                 {{
                   formatDateRange(
                     application.start_date,
                     application.end_date
                   )
                 }}
-              </td>
+              </p>
+            </div>
 
 
-              <!-- Filed -->
-              <td class="table-cell text-slate-300">
+            <div>
+              <p class="modal-label">
+                Filed Date
+              </p>
+
+              <p class="modal-value">
                 {{ formatDate(application.date_filed) }}
-              </td>
+              </p>
+            </div>
 
 
-              <!-- Status -->
-              <td class="table-cell">
+            <div>
+              <p class="modal-label">
+                Status
+              </p>
 
-                <span
-                  class="px-3 py-1.5 text-xs font-semibold rounded-full"
-                  :class="getStatusClass(application.final_status)"
-                >
-                  {{ application.final_status }}
-                </span>
-
-              </td>
-
-
-              <!-- Actions -->
-              <td class="table-cell">
-
-                <div class="flex items-center gap-3">
-
-                  <button
-                    @click="viewDetails(application)"
-                    class="text-blue-400 hover:text-blue-300 font-medium transition"
-                  >
-                    View Details
-                  </button>
-
-                  <button
-                    v-if="application.status === 'Approved'"
-                    @click="downloadForm(application)"
-                    class="text-green-400 hover:text-green-300 font-medium transition"
-                  >
-                    Download
-                  </button>
-
-                </div>
-
-              </td>
-
-            </tr>
-
-
-            <!-- Empty State -->
-            <tr v-if="displayedApplications.length === 0">
-
-              <td
-                colspan="6"
-                class="px-6 py-12 text-center"
-              >
-
-                <FileText
-                  class="w-10 h-10 mx-auto text-slate-600 mb-3"
-                />
-
-                <p class="text-slate-400">
-                  No leave applications found.
-                </p>
-
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-
-    <!-- =============================== -->
-    <!-- APPLICATION DETAILS MODAL -->
-    <!-- =============================== -->
-
-    <div
-      v-if="application"
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6"
-    >
-
-      <div
-        class="relative w-full max-w-3xl shadow-2xl rounded-2xl bg-[#111D2E] border border-slate-700"
-      >
-
-        <!-- Modal Header -->
-        <div
-          class="flex justify-between items-center px-6 py-5 border-b border-slate-700"
-        >
-
-          <div>
-
-            <h3 class="text-xl font-semibold text-white">
-              Application Details
-            </h3>
-
-            <p class="text-sm text-slate-400 mt-1">
-              Application #{{ application.leave_id }}
-            </p>
+              <span class="px-3 py-1.5 text-xs font-semibold rounded-full inline-block"
+                :class="getStatusClass(application.final_status)">
+                {{ application.final_status }}
+              </span>
+            </div>
 
           </div>
-
-
-          <button
-            @click="application = null"
-            class="text-slate-500 hover:text-white transition"
-          >
-            <X class="w-6 h-6" />
-          </button>
 
         </div>
 
 
-        <!-- Modal Body -->
-        <div class="p-6 space-y-6">
+        <!-- Supporting Documents -->
+        <div v-if="
+          application.attachments &&
+          application.attachments.length > 0
+        " class="modal-section">
 
+          <h4 class="modal-title">
+            Supporting Documents
+          </h4>
 
-          <!-- Application Information -->
-          <div class="modal-section">
+          <div class="space-y-2">
 
-            <h4 class="modal-title">
-              Application Information
-            </h4>
+            <div v-for="(file, index) in application.attachments" :key="index"
+              class="flex items-center justify-between p-3 bg-[#0F1A2A] border border-slate-700 rounded-lg">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="flex items-center min-w-0">
 
-              <div>
-                <p class="modal-label">
-                  Leave Type
-                </p>
+                <FileText class="w-5 h-5 text-slate-500 mr-3 flex-shrink-0" />
 
-                <p class="modal-value">
-                  {{ application.leave_type.leave_type_name }}
-                </p>
+                <span class="text-sm text-slate-300 truncate">
+                  {{ file.name }}
+                </span>
+
               </div>
 
 
+              <button class="text-blue-400 hover:text-blue-300 text-sm ml-4">
+                Download
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Status Timeline -->
+        <div class="modal-section">
+
+          <h4 class="modal-title">
+            Status Timeline
+          </h4>
+
+
+          <div class="space-y-5">
+
+            <!-- Submitted -->
+            <div class="flex items-start">
+
+              <div class="w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+
               <div>
-                <p class="modal-label">
-                  Duration
+
+                <p class="text-sm font-medium text-white">
+                  Application Submitted
                 </p>
 
-                <p class="modal-value">
+                <p class="text-xs text-slate-500 mt-1">
+                  {{ formatDate(application.date_filed) }}
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- Review -->
+            <div v-if="application.final_status !== 'pending'" class="flex items-start">
+
+              <div class="w-3 h-3 bg-yellow-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+
+              <div>
+
+                <p class="text-sm font-medium text-white">
+                  Under Review
+                </p>
+
+                <p class="text-xs text-slate-500 mt-1">
                   {{
-                    formatDateRange(
-                      application.start_date,
-                      application.end_date
+                    formatDate(
+                      application.reviewDate ||
+                      application.date_filed
                     )
                   }}
                 </p>
+
               </div>
 
+            </div>
+
+
+            <!-- Approved -->
+            <div v-if="application.final_status === 'approved'" class="flex items-start">
+
+              <div class="w-3 h-3 bg-green-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
 
               <div>
-                <p class="modal-label">
-                  Filed Date
+
+                <p class="text-sm font-medium text-white">
+                  Application Approved
                 </p>
 
-                <p class="modal-value">
-                  {{ formatDate(application.date_filed) }}
+                <p class="text-xs text-slate-500 mt-1">
+                  {{
+                    formatDate(
+                      application.approvedDate ||
+                      application.date_filed
+                    )
+                  }}
                 </p>
+
               </div>
 
+            </div>
+
+
+            <!-- Disapproved -->
+            <div v-if="application.final_status === 'disapproved'" class="flex items-start">
+
+              <div class="w-3 h-3 bg-red-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
 
               <div>
-                <p class="modal-label">
-                  Status
+
+                <p class="text-sm font-medium text-white">
+                  Application Disapproved
                 </p>
 
-                <span
-                  class="px-3 py-1.5 text-xs font-semibold rounded-full inline-block"
-                  :class="getStatusClass(application.final_status)"
-                >
-                  {{ application.final_status }}
-                </span>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- Supporting Documents -->
-          <div
-            v-if="
-              application.attachments &&
-              application.attachments.length > 0
-            "
-            class="modal-section"
-          >
-
-            <h4 class="modal-title">
-              Supporting Documents
-            </h4>
-
-            <div class="space-y-2">
-
-              <div
-                v-for="(file, index) in application.attachments"
-                :key="index"
-                class="flex items-center justify-between p-3 bg-[#0F1A2A] border border-slate-700 rounded-lg"
-              >
-
-                <div class="flex items-center min-w-0">
-
-                  <FileText
-                    class="w-5 h-5 text-slate-500 mr-3 flex-shrink-0"
-                  />
-
-                  <span class="text-sm text-slate-300 truncate">
-                    {{ file.name }}
-                  </span>
-
-                </div>
-
-
-                <button
-                  class="text-blue-400 hover:text-blue-300 text-sm ml-4"
-                >
-                  Download
-                </button>
+                <p class="text-xs text-slate-500 mt-1">
+                  {{
+                    formatDate(
+                      application.rejectedDate ||
+                      application.date_filed
+                    )
+                  }}
+                </p>
 
               </div>
 
             </div>
 
           </div>
-
-
-          <!-- Status Timeline -->
-          <div class="modal-section">
-
-            <h4 class="modal-title">
-              Status Timeline
-            </h4>
-
-
-            <div class="space-y-5">
-
-              <!-- Submitted -->
-              <div class="flex items-start">
-
-                <div
-                  class="w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 flex-shrink-0"
-                ></div>
-
-                <div>
-
-                  <p class="text-sm font-medium text-white">
-                    Application Submitted
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{ formatDate(application.date_filed) }}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <!-- Review -->
-              <div
-                v-if="application.final_status !== 'pending'"
-                class="flex items-start"
-              >
-
-                <div
-                  class="w-3 h-3 bg-yellow-500 rounded-full mt-1.5 mr-3 flex-shrink-0"
-                ></div>
-
-                <div>
-
-                  <p class="text-sm font-medium text-white">
-                    Under Review
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{
-                      formatDate(
-                        application.reviewDate ||
-                        application.date_filed
-                      )
-                    }}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <!-- Approved -->
-              <div
-                v-if="application.final_status === 'approved'"
-                class="flex items-start"
-              >
-
-                <div
-                  class="w-3 h-3 bg-green-500 rounded-full mt-1.5 mr-3 flex-shrink-0"
-                ></div>
-
-                <div>
-
-                  <p class="text-sm font-medium text-white">
-                    Application Approved
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{
-                      formatDate(
-                        application.approvedDate ||
-                        application.date_filed
-                      )
-                    }}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <!-- Disapproved -->
-              <div
-                v-if="application.final_status === 'disapproved'"
-                class="flex items-start"
-              >
-
-                <div
-                  class="w-3 h-3 bg-red-500 rounded-full mt-1.5 mr-3 flex-shrink-0"
-                ></div>
-
-                <div>
-
-                  <p class="text-sm font-medium text-white">
-                    Application Disapproved
-                  </p>
-
-                  <p class="text-xs text-slate-500 mt-1">
-                    {{
-                      formatDate(
-                        application.rejectedDate ||
-                        application.date_filed
-                      )
-                    }}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- Modal Footer -->
-        <div
-          class="px-6 py-4 border-t border-slate-700 flex justify-end"
-        >
-
-          <button
-            @click="application = null"
-            class="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition text-sm"
-          >
-            Close
-          </button>
 
         </div>
 
       </div>
 
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-slate-700 flex justify-end">
+
+        <button @click="application = null"
+          class="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition text-sm">
+          Close
+        </button>
+
+      </div>
+
     </div>
+
+  </div>
 
   </div>
 </template>
@@ -765,10 +605,10 @@ interface Application {
   date_filed: string;
 
   final_status:
-    | "pending"
-    | "approved"
-    | "disapproved"
-    | "on pr";
+  | "pending"
+  | "approved"
+  | "disapproved"
+  | "on pr";
 
   attachments?: Array<{
     name: string;
@@ -1035,20 +875,10 @@ const downloadForm = (
 
 };
 
-
-const exportApplications = () => {
-
-  console.log(
-    "Exporting applications..."
-  );
-
-};
-
 </script>
 
 
 <style scoped>
-
 /* =========================================
    DASHBOARD BACKGROUND
 ========================================= */
@@ -1293,5 +1123,4 @@ const exportApplications = () => {
   }
 
 }
-
 </style>

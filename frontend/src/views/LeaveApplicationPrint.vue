@@ -37,7 +37,7 @@
       </button>
 
       <!-- DOWNLOAD CIVIL SERVICE FORM -->
-      <button
+      <!-- <button
         @click="downloadForm"
         :disabled="downloadingForm"
         type="button"
@@ -48,9 +48,8 @@
             ? "Downloading..."
             : "Download Civil Service Form"
         }}
-      </button>
+      </button> -->
     </div>
-
 
     <!-- ========================================= -->
     <!-- PAGE 1 - APPLICATION FORM -->
@@ -104,7 +103,6 @@
 
         </div>
       </div>
-
 
       <!-- ================= FORM BODY ================= -->
 
@@ -176,7 +174,6 @@
 
         </div>
 
-
         <!-- ========================================= -->
         <!-- 3 / 4 / 5 -->
         <!-- ========================================= -->
@@ -201,7 +198,6 @@
 
           </span>
 
-
           <span>
 
             <span class="font-bold">
@@ -216,7 +212,6 @@
             </span>
 
           </span>
-
 
           <span>
 
@@ -239,7 +234,6 @@
 
         </div>
 
-
         <!-- ========================================= -->
         <!-- 6. DETAILS TITLE -->
         <!-- ========================================= -->
@@ -249,7 +243,6 @@
         >
           6. DETAILS OF APPLICATION
         </div>
-
 
         <!-- ========================================= -->
         <!-- 6.A + 6.B -->
@@ -300,7 +293,6 @@
 
               </div>
 
-
               <div class="mt-3">
 
                 <div class="italic">
@@ -317,7 +309,6 @@
 
           </div>
 
-
           <!-- ================= 6.B ================= -->
 
           <div class="px-3 pb-3">
@@ -325,7 +316,6 @@
             <div class="font-bold py-1">
               6.B DETAILS OF LEAVE
             </div>
-
 
             <!-- Vacation -->
 
@@ -365,7 +355,6 @@
 
               </div>
 
-
               <div class="flex items-baseline mt-1">
 
                 <span class="checkbox">
@@ -397,7 +386,6 @@
               </div>
 
             </div>
-
 
             <!-- Sick -->
 
@@ -435,7 +423,6 @@
 
               </div>
 
-
               <div class="flex items-baseline mt-1">
 
                 <span class="checkbox">
@@ -470,7 +457,6 @@
 
             </div>
 
-
             <!-- Women -->
 
             <div class="mb-3">
@@ -494,7 +480,6 @@
               </div>
 
             </div>
-
 
             <!-- Study -->
 
@@ -520,7 +505,6 @@
 
               </div>
 
-
               <div class="flex items-center mt-1">
 
                 <span class="checkbox">
@@ -538,7 +522,6 @@
               </div>
 
             </div>
-
 
             <!-- Other Purpose -->
 
@@ -564,7 +547,6 @@
 
               </div>
 
-
               <div class="flex items-center mt-1">
 
                 <span class="checkbox">
@@ -586,7 +568,6 @@
           </div>
 
         </div>
-
 
         <!-- ========================================= -->
         <!-- 6.C + 6.D -->
@@ -626,7 +607,6 @@
 
           </div>
 
-
           <!-- ================= 6.D ================= -->
 
           <div class="p-3">
@@ -634,7 +614,6 @@
             <div class="font-bold mb-2">
               6.D COMMUTATION
             </div>
-
 
             <div class="flex items-center mb-2">
 
@@ -657,7 +636,6 @@
 
             </div>
 
-
             <div class="flex items-center">
 
               <span class="checkbox">
@@ -677,7 +655,6 @@
               </span>
 
             </div>
-
 
             <div class="mt-8 text-center">
 
@@ -700,7 +677,6 @@
 
         </div>
 
-
         <!-- ========================================= -->
         <!-- 7. DETAILS OF ACTION -->
         <!-- ========================================= -->
@@ -708,7 +684,6 @@
         <div class="text-center font-bold py-2 double-border-y">
           7. DETAILS OF ACTION ON APPLICATION
         </div>
-
 
         <!-- ========================================= -->
         <!-- 7.A + 7.B -->
@@ -736,7 +711,6 @@
 
               </div>
 
-
               <table
                 class="text-xs mx-auto"
                 style="width: 96%"
@@ -756,7 +730,6 @@
 
                 </tr>
 
-
                 <tr>
 
                   <td class="italic text-left">
@@ -773,7 +746,6 @@
 
                 </tr>
 
-
                 <tr>
 
                   <td class="italic text-left">
@@ -789,7 +761,6 @@
                   </td>
 
                 </tr>
-
 
                 <tr>
 
@@ -809,7 +780,6 @@
 
               </table>
 
-
               <div class="mt-10 text-center">
 
                 <div class="signature-line"></div>
@@ -823,7 +793,6 @@
             </div>
 
           </div>
-
 
           <!-- ================= 7.B ================= -->
 
@@ -855,7 +824,6 @@
                 </span>
 
               </div>
-
 
               <div class="flex items-baseline mb-2">
 
@@ -889,7 +857,6 @@
 
               </div>
 
-
               <div class="fill-line mb-1">
                 &nbsp;
               </div>
@@ -897,7 +864,6 @@
               <div class="fill-line mb-1">
                 &nbsp;
               </div>
-
 
               <div class="mt-8 text-center">
 
@@ -919,7 +885,6 @@
 
         </div>
 
-
         <!-- ========================================= -->
         <!-- 7.C + 7.D -->
         <!-- ========================================= -->
@@ -936,7 +901,6 @@
                 7.C APPROVED FOR:
               </div>
 
-
               <div class="mb-1">
 
                 <span
@@ -950,7 +914,6 @@
 
               </div>
 
-
               <div class="mb-1">
 
                 <span
@@ -963,7 +926,6 @@
                 days without pay
 
               </div>
-
 
               <div>
 
@@ -980,7 +942,6 @@
 
             </div>
 
-
             <!-- ================= 7.D ================= -->
 
             <div class="p-3">
@@ -988,7 +949,6 @@
               <div class="font-bold mb-2">
                 7.D DISAPPROVED DUE TO:
               </div>
-
 
               <div class="fill-line mb-1">
 
@@ -1009,7 +969,6 @@
             </div>
 
           </div>
-
 
           <!-- Authorized Official -->
 
@@ -1034,7 +993,6 @@
     </div>
     <!-- END APPLICATION FORM -->
 
-
     <!-- ========================================= -->
     <!-- ATTACHMENTS - A4 PAGE(S) -->
     <!-- ========================================= -->
@@ -1055,7 +1013,6 @@
           SUPPORTING DOCUMENTS
         </h2>
 
-
         <div class="attachment-info">
 
           <strong>
@@ -1065,7 +1022,6 @@
           {{ leave.leave_id }}
 
         </div>
-
 
         <div class="attachment-info">
 
@@ -1079,7 +1035,6 @@
 
         </div>
 
-
         <div class="attachment-info">
 
           <strong>
@@ -1089,7 +1044,6 @@
           {{ currentLeaveTypeName }}
 
         </div>
-
 
         <div class="attachment-info">
 
@@ -1106,7 +1060,6 @@
         </div>
 
       </div>
-
 
       <!-- ================= ATTACHMENTS ================= -->
 
@@ -1141,7 +1094,6 @@
 
         </div>
 
-
         <!-- ================= PDF ================= -->
 
         <iframe
@@ -1151,7 +1103,6 @@
           title="PDF Attachment"
         ></iframe>
 
-
         <!-- ================= IMAGE ================= -->
 
         <img
@@ -1160,7 +1111,6 @@
           class="attachment-image"
           alt="Supporting document"
         />
-
 
         <!-- ================= OTHER DOCUMENT ================= -->
 
@@ -1186,11 +1136,9 @@
 
             </div>
 
-
             <div class="text-gray-600 mt-2">
               This document was submitted as a supporting attachment.
             </div>
-
 
             <div
               v-if="getAttachmentUrl(attachment)"
@@ -1213,7 +1161,6 @@
 
   </div>
 
-
   <!-- ========================================= -->
   <!-- LOADING -->
   <!-- ========================================= -->
@@ -1226,7 +1173,6 @@
       Loading leave application...
     </div>
   </div>
-
 
   <!-- ========================================= -->
   <!-- ERROR -->
@@ -1260,7 +1206,6 @@
   </div>
 
 </template>
-
 
 <script setup lang="ts">
 
@@ -1310,21 +1255,22 @@ const printingPdf = ref(false);
 
 
 /* =========================================
-   GO BACK
-========================================= */
-
-/* =========================================
    GO BACK / CANCEL
 ========================================= */
 
 const goBack = () => {
+
   /*
    * ADMIN
    * If this page was opened from an admin route,
    * return to the Admin Applications page.
    */
-  const routeName = String(route.name || "").toLowerCase();
-  const currentPath = route.path.toLowerCase();
+
+  const routeName =
+    String(route.name || "").toLowerCase();
+
+  const currentPath =
+    route.path.toLowerCase();
 
   const isAdmin =
     routeName.includes("admin") ||
@@ -1332,15 +1278,20 @@ const goBack = () => {
     currentPath.includes("admin-applications");
 
   if (isAdmin) {
+
     router.push("/admin-applications");
+
     return;
+
   }
 
   /*
    * EMPLOYEE
    * Employees should return to Apply Leave.
    */
+
   router.push("/leave-application");
+
 };
 
 
@@ -1463,11 +1414,12 @@ const leaveTypeList = [
 
 const currentLeaveTypeName = computed(() => {
 
-  const current = leaveTypes.value.find(
-    (type) =>
-      type.leave_type_id ==
-      leave.value?.leave_type_id
-  );
+  const current =
+    leaveTypes.value.find(
+      (type) =>
+        type.leave_type_id ==
+        leave.value?.leave_type_id
+    );
 
   return current?.leave_type_name || "";
 
@@ -1482,18 +1434,21 @@ const isLeaveTypeSelected = (
   lt: { match: string[] }
 ) => {
 
-  const current = leaveTypes.value.find(
-    (type) =>
-      type.leave_type_id ==
-      leave.value?.leave_type_id
-  );
+  const current =
+    leaveTypes.value.find(
+      (type) =>
+        type.leave_type_id ==
+        leave.value?.leave_type_id
+    );
 
   const name = (
     current?.leave_type_name || ""
   ).toLowerCase();
 
   if (!name) {
+
     return false;
+
   }
 
   return lt.match.some(
@@ -1513,7 +1468,9 @@ const formatDate = (
 ) => {
 
   if (!date) {
+
     return "";
+
   }
 
   return new Date(date).toLocaleDateString(
@@ -1537,15 +1494,21 @@ const getAttachmentUrl = (
 ) => {
 
   if (attachment.file_url) {
+
     return attachment.file_url;
+
   }
 
   if (attachment.url) {
+
     return attachment.url;
+
   }
 
   if (attachment.download_url) {
+
     return attachment.download_url;
+
   }
 
   if (attachment.file_path) {
@@ -1633,6 +1596,7 @@ const downloadPdf = async () => {
     );
 
     return;
+
   }
 
   downloadingPdf.value = true;
@@ -1710,6 +1674,7 @@ const printForm = async () => {
     );
 
     return;
+
   }
 
   printingPdf.value = true;
@@ -1770,7 +1735,6 @@ const printForm = async () => {
 
     };
 
-
     setTimeout(() => {
 
       window.URL.revokeObjectURL(url);
@@ -1819,6 +1783,7 @@ const downloadForm = async () => {
     );
 
     return;
+
   }
 
   downloadingForm.value = true;
@@ -1838,7 +1803,6 @@ const downloadForm = async () => {
 
     }
 
-
     const employeeName = [
 
       leave.value.employee?.last_name,
@@ -1853,73 +1817,85 @@ const downloadForm = async () => {
 
       "leave_application";
 
-
     const filename =
       `Civil_Service_Form_6_${employeeName}_${leave.value.leave_id}.pdf`;
 
 
+    /*
+     * html2pdf.js supports the pagebreak option,
+     * but the installed TypeScript definition does
+     * not include it in Html2PdfOptions.
+     *
+     * `as any` prevents TypeScript from rejecting
+     * the valid html2pdf.js pagebreak configuration.
+     */
+
+    const pdfOptions = {
+
+      margin: 0,
+
+      filename: filename,
+
+      image: {
+
+        type: "jpeg",
+
+        quality: 0.98,
+
+      },
+
+      html2canvas: {
+
+        scale: 2,
+
+        useCORS: true,
+
+        backgroundColor: "#ffffff",
+
+        scrollX: 0,
+
+        scrollY: 0,
+
+        windowWidth:
+          element.scrollWidth,
+
+      },
+
+      jsPDF: {
+
+        unit: "mm",
+
+        format: "a4",
+
+        orientation: "portrait",
+
+      },
+
+      pagebreak: {
+
+        mode: [
+
+          "avoid-all",
+
+          "css",
+
+          "legacy",
+
+        ],
+
+      },
+
+    } as any;
+
+
     await html2pdf()
 
-      .set({
-
-        margin: 0,
-
-        filename: filename,
-
-        image: {
-
-          type: "jpeg",
-
-          quality: 0.98,
-
-        },
-
-        html2canvas: {
-
-          scale: 2,
-
-          useCORS: true,
-
-          backgroundColor: "#ffffff",
-
-          scrollX: 0,
-
-          scrollY: 0,
-
-          windowWidth:
-            element.scrollWidth,
-
-        },
-
-        jsPDF: {
-
-          unit: "mm",
-
-          format: "a4",
-
-          orientation: "portrait",
-
-        },
-
-        pagebreak: {
-
-          mode: [
-
-            "avoid-all",
-
-            "css",
-
-            "legacy",
-
-          ],
-
-        },
-
-      })
+      .set(pdfOptions)
 
       .from(element)
 
       .save();
+
 
   } catch (error) {
 
@@ -1951,11 +1927,8 @@ const loadLeave = async () => {
 
   try {
 
-   
-
     const leaveId =
       Number(route.params.id);
-
 
     if (
       !leaveId ||
@@ -1968,12 +1941,8 @@ const loadLeave = async () => {
 
     }
 
-
-   
-
     const response =
       await getMyLeaves();
-
 
     /*
      * Normally getMyLeaves() returns an array.
@@ -1987,7 +1956,6 @@ const loadLeave = async () => {
         ? response
         : response?.data ?? [];
 
-
     console.log(
       "EMPLOYEE MY LEAVES:",
       myLeaves
@@ -1997,7 +1965,6 @@ const loadLeave = async () => {
       "REQUESTED LEAVE ID:",
       leaveId
     );
-
 
     /*
      * Find the exact application requested
@@ -2011,7 +1978,6 @@ const loadLeave = async () => {
           leaveId
       );
 
-
     if (!foundLeave) {
 
       throw new Error(
@@ -2020,13 +1986,11 @@ const loadLeave = async () => {
 
     }
 
-
     /*
      * Store the complete leave object.
      */
 
     leave.value = foundLeave;
-
 
     console.log(
       "LOADED EMPLOYEE LEAVE:",
@@ -2038,7 +2002,6 @@ const loadLeave = async () => {
       leave.value?.attachments
     );
 
-
     /*
      * Load leave types for the
      * Civil Service Form checkbox.
@@ -2046,7 +2009,6 @@ const loadLeave = async () => {
 
     leaveTypes.value =
       await getLeaveTypes();
-
 
   } catch (error) {
 
@@ -2077,7 +2039,6 @@ onMounted(() => {
 });
 
 </script>
-
 
 <style scoped>
 
@@ -2116,7 +2077,9 @@ onMounted(() => {
 
 
 #printArea * {
+
   color: black !important;
+
 }
 
 

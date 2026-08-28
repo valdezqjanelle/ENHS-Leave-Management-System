@@ -18,6 +18,7 @@ use App\Http\Controllers\API\LeaveSettingController;
 use App\Http\Controllers\ApprovalSettingController;
 use App\Http\Controllers\API\SystemSettingController;
 use App\Http\Controllers\API\BackupController;
+use App\Http\Controllers\API\LocationController;
 
 
 /*
@@ -25,7 +26,7 @@ use App\Http\Controllers\API\BackupController;
 | AUTH
 |--------------------------------------------------------------------------
 */
-
+Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
