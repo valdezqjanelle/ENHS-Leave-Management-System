@@ -109,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'role' => $request->user()->role,
         ]);
     });
+    
 
     Route::middleware('role:admin')->group(function () {
 
