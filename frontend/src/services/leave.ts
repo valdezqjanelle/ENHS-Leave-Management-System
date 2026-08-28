@@ -90,3 +90,18 @@ export const getDeletedLeaveApplications = async () => {
   );
   return response.data;
 };
+
+export const rejectLeaveApplication = async (
+  leaveId: number,
+  disapprovalReason?: string
+) => {
+  const response = await api.put(
+    `/leave-applications/${leaveId}`,
+    {
+      final_status: "disapproved",
+      disapproval_reason: disapprovalReason ?? "",
+    }
+  );
+
+  return response.data;
+};

@@ -220,71 +220,64 @@
                 </div>
               </div>
 
-         <!-- Action Buttons -->
-<div 
-  class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
->
-  <!-- ===================================================== -->
-  <!-- NORMAL APPLICATIONS -->
-  <!-- ===================================================== -->
+              <!-- Action Buttons -->
+              <div
+                class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
+              >
+                <!-- ===================================================== -->
+                <!-- NORMAL APPLICATIONS -->
+                <!-- ===================================================== -->
 
-  <template v-if="activeTab !== 'deleted'">
+                <template v-if="activeTab !== 'deleted'">
+                  <!-- View -->
+                  <button
+                    @click="viewApplication(application)"
+                    class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
+                  >
+                    View Details
+                  </button>
 
-    <!-- View -->
-    <button
-      @click="viewApplication(application)"
-      class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
-    >
-      View Details
-    </button>
+                  <!-- Approve -->
+                  <button
+                    v-if="application.final_status?.toLowerCase() === 'pending'"
+                    @click="openApprovalModal(application)"
+                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+                  >
+                    Approve
+                  </button>
 
-    <!-- Approve -->
-    <button
-      v-if="application.final_status?.toLowerCase() === 'pending'"
-      @click="openApprovalModal(application)"
-      class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
-    >
-      Approve
-    </button>
+                  <button
+                    v-if="application.final_status?.toLowerCase() === 'pending'"
+                    @click="rejectApplication(application.leave_id)"
+                    class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
+                  >
+                    Reject
+                  </button>
 
-    <!-- Reject -->
-    <button
-      v-if="application.final_status?.toLowerCase() === 'pending'"
-      @click="updateStatus(application.leave_id, 'disapproved')"
-      class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
-    >
-      Reject
-    </button>
+                  <!-- Delete -->
+                  <button
+                    @click="deleteLeaveApplicationById(application.leave_id)"
+                    class="px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition whitespace-nowrap"
+                  >
+                    Delete
+                  </button>
+                </template>
 
-    <!-- Delete -->
-    <button
-      @click="deleteLeaveApplicationById(application.leave_id)"
-      class="px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition whitespace-nowrap"
-    >
-      Delete
-    </button>
+                <!-- ===================================================== -->
+                <!-- REMOVED APPLICATIONS -->
+                <!-- ===================================================== -->
 
-  </template>
-
-
-  <!-- ===================================================== -->
-  <!-- REMOVED APPLICATIONS -->
-  <!-- ===================================================== -->
-
-  <template v-else>
-
-    <button
-      @click="restoreLeaveApplicationById(application.leave_id)"
-      class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
-    >
-      Restore
-    </button>
-
-  </template>
-
-</div>
-</div>
-</div>
+                <template v-else>
+                  <button
+                    @click="restoreLeaveApplicationById(application.leave_id)"
+                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+                  >
+                    Restore
+                  </button>
+                </template>
+              </div>
+            </div>
+          </div>
 
           <!-- Pagination -->
           <div
@@ -503,12 +496,11 @@
             >
               Approve
             </button>
-
             <button
               v-if="
                 selectedApplication.final_status?.toLowerCase() === 'pending'
               "
-              @click="updateStatus(selectedApplication.leave_id, 'disapproved')"
+              @click="rejectApplication(selectedApplication.leave_id)"
               class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
             >
               Reject
@@ -695,6 +687,7 @@ import {
   deleteLeaveApplication,
   restoreLeaveApplication,
   getDeletedLeaveApplications,
+  rejectLeaveApplication,
 } from "@/services/leave";
 
 import axios from "axios";
@@ -961,7 +954,6 @@ watch(
 ========================================================= */
 
 const getTabCount = (tabKey: string) => {
-
   if (tabKey === "all") {
     return applications.value.length;
   }
@@ -971,11 +963,8 @@ const getTabCount = (tabKey: string) => {
   }
 
   return applications.value.filter(
-    (app) =>
-      app.final_status
-        ?.toLowerCase() === tabKey
+    (app) => app.final_status?.toLowerCase() === tabKey,
   ).length;
-
 };
 
 /* =========================================================
@@ -1123,6 +1112,32 @@ const updateStatus = async (
   }
 };
 
+const rejectApplication = async (leaveId: number) => {
+  const reason = prompt("Enter reason for disapproval:");
+
+  if (reason === null) {
+    return;
+  }
+
+  try {
+    await rejectLeaveApplication(leaveId, reason);
+
+    alert("Leave application disapproved successfully.");
+
+    showDetailModal.value = false;
+
+    await loadApplications();
+  } catch (error: any) {
+    console.error("Failed to reject leave application:", error);
+
+    console.error("Response:", error.response?.data);
+
+    alert(
+      error.response?.data?.message ?? "Failed to reject leave application.",
+    );
+  }
+};
+
 /* =========================================================
    CONFIRM APPROVAL
 ========================================================= */
@@ -1204,114 +1219,58 @@ const loadApplications = async () => {
   }
 };
 
-const deleteLeaveApplicationById = async (
-  leaveId: number
-) => {
-
-  if (
-    !confirm(
-      "Are you sure you want to delete this leave application?"
-    )
-  ) {
+const deleteLeaveApplicationById = async (leaveId: number) => {
+  if (!confirm("Are you sure you want to delete this leave application?")) {
     return;
   }
 
   try {
+    await deleteLeaveApplication(leaveId);
 
-    await deleteLeaveApplication(
-      leaveId
-    );
-
-    alert(
-      "Leave application deleted successfully."
-    );
+    alert("Leave application deleted successfully.");
 
     await loadApplications();
-
   } catch (error: any) {
-
-    console.error(
-      "Failed to delete leave application",
-      error
-    );
+    console.error("Failed to delete leave application", error);
 
     alert(
-      error.response?.data?.message ??
-      "Failed to delete leave application."
+      error.response?.data?.message ?? "Failed to delete leave application.",
     );
-
   }
-
 };
 
 const getDeletedApplications = async () => {
-
   try {
+    const response = await getDeletedLeaveApplications();
 
-    const response =
-      await getDeletedLeaveApplications();
+    deletedApplications.value = Array.isArray(response) ? response : [];
 
-    deletedApplications.value =
-      Array.isArray(response)
-        ? response
-        : [];
-
-    console.log(
-      "DELETED APPLICATIONS:",
-      deletedApplications.value
-    );
-
+    console.log("DELETED APPLICATIONS:", deletedApplications.value);
   } catch (error) {
-
-    console.error(
-      "Failed to fetch deleted leave applications",
-      error
-    );
-
+    console.error("Failed to fetch deleted leave applications", error);
   }
-
 };
 
-const restoreLeaveApplicationById = async (
-  leaveId: number
-) => {
-
-  if (
-    !confirm(
-      "Are you sure you want to restore this leave application?"
-    )
-  ) {
+const restoreLeaveApplicationById = async (leaveId: number) => {
+  if (!confirm("Are you sure you want to restore this leave application?")) {
     return;
   }
 
   try {
+    await restoreLeaveApplication(leaveId);
 
-    await restoreLeaveApplication(
-      leaveId
-    );
-
-    alert(
-      "Leave application restored successfully."
-    );
+    alert("Leave application restored successfully.");
 
     await getDeletedApplications();
 
     await loadApplications();
-
   } catch (error: any) {
-
-    console.error(
-      "Failed to restore leave application",
-      error
-    );
+    console.error("Failed to restore leave application", error);
 
     alert(
-      error.response?.data?.message ??
-      "Failed to restore leave application."
+      error.response?.data?.message ?? "Failed to restore leave application.",
     );
-
   }
-
 };
 
 /* =========================================================
