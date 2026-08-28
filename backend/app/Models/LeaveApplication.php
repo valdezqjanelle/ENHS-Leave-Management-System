@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveApplication extends Model
 {
+    use SoftDeletes;
     protected $table = 'leave_applications';
     protected $primaryKey = 'leave_id';
 
@@ -92,6 +94,8 @@ class LeaveApplication extends Model
         'sick_less_application' => 'decimal:2',
         'sick_balance' => 'decimal:2',
     ];
+
+    protected $dates = ['deleted_at'];
 
     public $timestamps = true;
 

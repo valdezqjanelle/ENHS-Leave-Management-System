@@ -30,7 +30,7 @@ export function useLocationSearch() {
         const token = localStorage.getItem("token");
 
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/locations/search",
+          "https://enhs-leave-management-system.onrender.com/api/locations/search",
           {
             params: { q: term },
             headers: {

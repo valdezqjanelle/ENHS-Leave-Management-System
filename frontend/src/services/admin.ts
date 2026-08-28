@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000/api";
+const API = "https://enhs-leave-management-system.onrender.com/api";
 
 const authHeader = () => ({
   headers: {
@@ -11,6 +11,15 @@ const authHeader = () => ({
 // Get admin profile
 export const getAdminProfile = async () => {
   const response = await axios.get(`${API}/admin/profile`, authHeader());
+
+  return response.data;
+};
+
+export const getAdminPositions = async () => {
+  const response = await axios.get(
+    `${API}/admin/positions`,
+    authHeader()
+  );
 
   return response.data;
 };
@@ -114,3 +123,4 @@ export const deleteLeaveType = async(id:number)=>{
     return response.data;
 
 };
+

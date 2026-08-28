@@ -125,6 +125,30 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
 
         Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
+        Route::get('/leave-applications/deleted', [
+            LeaveController::class,
+            'deletedLeaves'
+        ]);
+
+        Route::post('/leave-applications/{id}/restore', [
+            LeaveController::class,
+            'restoreLeave'
+        ]);
+
+        Route::get('/leave-applications/{id}', [
+            LeaveController::class,
+            'show'
+        ]);
+
+        Route::put('/leave-applications/{id}', [
+            LeaveController::class,
+            'update'
+        ]);
+
+        Route::delete('/leave-applications/{id}', [
+            LeaveController::class,
+            'destroy'
+        ]);
 
 
         // Leave Credits
@@ -133,12 +157,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/leave-credits/{employee_id}', [LeaveCreditController::class, 'show']);
         Route::put('/leave-credits/{id}', [LeaveCreditController::class, 'update']);
         Route::post('/leave-credits/{id}/apply', [LeaveCreditController::class, 'apply']);
+        Route::delete('/leave-credits/{id}', [LeaveCreditController::class, 'destroy']);
 
 
         // Leave Balances
         Route::get('/leave-balances', [LeaveBalanceController::class, 'index']);
         Route::get('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'show']);
         Route::put('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'update']);
+        Route::delete('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'destroy']);
 
 
         // Attendance
@@ -162,6 +188,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/profile', [AdminController::class, 'updateProfile']);
         Route::put('/admin/email', [AdminController::class, 'updateEmail']);
         Route::put('/admin/password', [AdminController::class, 'updatePassword']);
+        Route::get('/admin/positions', [AdminController::class, 'positions']);
 
 
         // Audit Logs

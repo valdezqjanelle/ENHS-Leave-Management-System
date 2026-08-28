@@ -189,73 +189,84 @@ class ReportController extends Controller
         ]);
     }
 
-    public function employeeReport()
-    {
-        $employees = \App\Models\EmployeeRecord::with([
-            'leaveApplications.leaveType',
-            'leaveBalance'
-        ])->get();
+  public function employeeReport()
+{
+    $employees = \App\Models\EmployeeRecord::with([
+        'position',
+        'leaveApplications.leaveType',
+        'leaveBalance'
+    ])->get();
 
-        $report = [];
+    $report = [];
 
-        foreach ($employees as $employee) {
+    foreach ($employees as $employee) {
 
-            $approved = $employee->leaveApplications
-                ->where('final_status', 'approved')
-                ->count();
+        $approved = $employee->leaveApplications
+            ->where('final_status', 'approved')
+            ->count();
 
-            $pending = $employee->leaveApplications
-                ->where('final_status', 'pending')
-                ->count();
+        $pending = $employee->leaveApplications
+            ->where('final_status', 'pending')
+            ->count();
 
-            $disapproved = $employee->leaveApplications
-                ->where('final_status', 'disapproved')
-                ->count();
+        $disapproved = $employee->leaveApplications
+            ->where('final_status', 'disapproved')
+            ->count();
 
-            $report[] = [
+        $report[] = [
 
-                'employee_id' => $employee->employee_id,
+            'employee_id' => $employee->employee_id,
 
-                'employee_name' =>
+            'employee_name' =>
                 $employee->first_name . ' ' .
-                    $employee->last_name,
+                $employee->last_name,
 
-                'department' => $employee->department,
+            'department' => $employee->department,
 
-                'position' => $employee->positionInfo->name ?? '',
-                'employment_status' => $employee->employment_status,
+            'position' => $employee->position
+                ? [
+                    'id' => $employee->position->id,
+                    'name' => $employee->position->name,
+                ]
+                : null,
 
-                'approved' => $approved,
+            'employment_status' => $employee->employment_status,
 
-                'pending' => $pending,
+            'approved' => $approved,
 
-                'disapproved' => $disapproved,
+            'pending' => $pending,
 
-                'total_leave_applications' =>
+            'disapproved' => $disapproved,
+
+            'total_leave_applications' =>
                 $employee->leaveApplications->count(),
 
-                'vacation_balance' =>
+            'vacation_balance' =>
                 optional($employee->leaveBalance)->vacation_balance ?? 0,
 
-                'sick_balance' =>
+            'sick_balance' =>
                 optional($employee->leaveBalance)->sick_balance ?? 0,
-                'used_leave' =>
+
+            'used_leave' =>
                 optional($employee->leaveBalance)->used_leave ?? 0,
-            ];
-        }
-
-        return response()->json([
-            'employees' => $report,
-
-            'totals' => [
-                'employees' => count($report),
-                'approved' => collect($report)->sum('approved'),
-                'pending' => collect($report)->sum('pending'),
-                'disapproved' => collect($report)->sum('disapproved'),
-                'applications' => collect($report)->sum('total_leave_applications'),
-            ]
-        ]);
+        ];
     }
+
+    return response()->json([
+
+        'employees' => $report,
+
+        'totals' => [
+            'employees' => count($report),
+            'approved' => collect($report)->sum('approved'),
+            'pending' => collect($report)->sum('pending'),
+            'disapproved' => collect($report)->sum('disapproved'),
+            'applications' =>
+                collect($report)->sum('total_leave_applications'),
+        ]
+
+    ]);
+}
 
     /*
     |--------------------------------------------------------------------------

@@ -35,7 +35,6 @@
 
     </div>
 
-
     <!-- ========================================= -->
     <!-- PDF PREVIEW (backend-generated CS Form 6) -->
     <!-- ========================================= -->
@@ -171,6 +170,8 @@
   </div>
 
   <!-- LOADING -->
+  <!-- ========================================= -->
+
   <div
     v-else-if="loading"
     class="min-h-screen bg-gray-100 flex items-center justify-center px-4"
@@ -180,7 +181,10 @@
     </div>
   </div>
 
+  <!-- ========================================= -->
   <!-- ERROR -->
+  <!-- ========================================= -->
+
   <div
     v-else
     class="min-h-screen bg-gray-100 flex items-center justify-center px-4"
@@ -199,10 +203,12 @@
       >
         Back
       </button>
-    </div>
-  </div>
-</template>
 
+    </div>
+
+  </div>
+
+</template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
@@ -236,7 +242,39 @@ const buildFileName = () => {
 };
 
 const goBack = () => {
-  router.push("/admin-applications");
+
+  /*
+   * ADMIN
+   * If this page was opened from an admin route,
+   * return to the Admin Applications page.
+   */
+
+  const routeName =
+    String(route.name || "").toLowerCase();
+
+  const currentPath =
+    route.path.toLowerCase();
+
+  const isAdmin =
+    routeName.includes("admin") ||
+    currentPath.includes("/admin") ||
+    currentPath.includes("admin-applications");
+
+  if (isAdmin) {
+
+    router.push("/admin-applications");
+
+    return;
+
+  }
+
+  /*
+   * EMPLOYEE
+   * Employees should return to Apply Leave.
+   */
+
+  router.push("/leave-application");
+
 };
 
 /*
@@ -255,6 +293,7 @@ const currentLeaveTypeName = computed(() => {
     (type) => type.leave_type_id == leave.value?.leave_type_id
   );
   return current?.leave_type_name || "";
+
 });
 
 const formatDate = (date: string | null) => {
@@ -283,6 +322,7 @@ const getAttachmentUrl = (attachment: any) => {
   if (attachment.download_url) return attachment.download_url;
   if (attachment.file_path) return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
   return "";
+
 };
 
 const getAttachmentName = (attachment: any) => {
@@ -334,8 +374,13 @@ const ensurePdfBlob = async (): Promise<Blob> => {
 
 const downloadPdf = async () => {
   if (!leave.value?.leave_id) {
-    alert("Leave application not found.");
+
+    alert(
+      "Leave application not found."
+    );
+
     return;
+
   }
 
   downloadingPdf.value = true;
@@ -359,12 +404,18 @@ const downloadPdf = async () => {
   } finally {
     downloadingPdf.value = false;
   }
+
 };
 
 const printForm = async () => {
   if (!leave.value?.leave_id) {
-    alert("Leave application not found.");
+
+    alert(
+      "Leave application not found."
+    );
+
     return;
+
   }
 
   printingPdf.value = true;
@@ -393,6 +444,7 @@ const printForm = async () => {
           console.error("Print window error:", error);
         }
       }, 500);
+
     };
 
     setTimeout(() => {
@@ -405,6 +457,7 @@ const printForm = async () => {
   } finally {
     printingPdf.value = false;
   }
+
 };
 
 /* LOAD LEAVE */
@@ -417,6 +470,7 @@ const loadLeave = async () => {
   } finally {
     loading.value = false;
   }
+
 };
 
 onMounted(async () => {
@@ -430,7 +484,6 @@ onUnmounted(() => {
   if (pdfUrl.value) window.URL.revokeObjectURL(pdfUrl.value);
 });
 </script>
-
 
 <style scoped>
 .pdf-frame {

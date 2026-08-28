@@ -6,14 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AdminProfile;
+use App\Models\Position;
 
 class AdminController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | GET ADMIN PROFILE
-    |--------------------------------------------------------------------------
-    */
     public function profile(Request $request)
     {
         $user = $request->user();
@@ -27,69 +23,70 @@ class AdminController extends Controller
             'user_id' => $user->user_id,
             'email' => $user->email,
             'role' => $user->role,
-
             'profile' => $profile
         ]);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE ADMIN PROFILE
-    |--------------------------------------------------------------------------
-    */
- public function updateProfile(Request $request)
-{
-    $request->validate([
-        'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'sex' => 'required|string|max:50',
-        'position' => 'required|string|max:255',
-        'department' => 'required|string|max:255',
-        'contact_number' => 'nullable|string|max:20',
-    ]);
-
-    $user = $request->user();
-
-    $profile = $user->adminProfile;
-
-    if (!$profile) {
-        return response()->json([
-            'message' => 'Admin profile not found'
-        ], 404);
+    public function positions()
+    {
+        return response()->json(
+            Position::orderBy('name')->get([
+                'code',
+                'name',
+                'type',
+                'salary_grade'
+            ])
+        );
     }
 
-    $profile->update([
-        'first_name' => $request->first_name,
-        'middle_name' => $request->middle_name,
-        'last_name' => $request->last_name,
-        'sex' => $request->sex,
-        'position' => $request->position,
-        'department' => $request->department,
-        'contact_number' => $request->contact_number,
-    ]);
-
-    return response()->json([
-        'message' => 'Admin profile updated successfully',
-        'profile' => $profile
-    ]);
-}
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE EMAIL
-    |--------------------------------------------------------------------------
-    */
-    public function updateEmail(Request $request)
+    public function updateProfile(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|unique:users,email'
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'sex' => 'required|string|max:50',
+            'position' => 'required|string|max:255',
+            'department' => 'required|string|max:255',
+            'contact_number' => 'nullable|string|max:20',
         ]);
 
         $user = $request->user();
+
+        $profile = AdminProfile::where(
+            'user_id',
+            $user->user_id
+        )->first();
+
+        if (!$profile) {
+            return response()->json([
+                'message' => 'Admin profile not found'
+            ], 404);
+        }
+
+        $profile->update([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'sex' => $request->sex,
+            'position' => $request->position,
+            'department' => $request->department,
+            'contact_number' => $request->contact_number,
+        ]);
+
+        return response()->json([
+            'message' => 'Admin profile updated successfully',
+            'profile' => $profile
+        ]);
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id'
+        ]);
 
         $user->update([
             'email' => $request->email
@@ -100,12 +97,6 @@ class AdminController extends Controller
         ]);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE PASSWORD
-    |--------------------------------------------------------------------------
-    */
     public function updatePassword(Request $request)
     {
         $request->validate([

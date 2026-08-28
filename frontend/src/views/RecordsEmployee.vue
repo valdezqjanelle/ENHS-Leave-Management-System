@@ -322,7 +322,7 @@ const initials = computed(() => {
 const loadProfile = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.get("http://127.0.0.1:8000/api/my-profile", {
+  const response = await axios.get("https://enhs-leave-management-system.onrender.com/api/my-profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -335,7 +335,7 @@ const loadRecentLeaves = async () => {
   const token = localStorage.getItem("token");
 
   const response = await axios.get(
-    "http://127.0.0.1:8000/api/my-leave-applications",
+    "https://enhs-leave-management-system.onrender.com/api/my-leave-applications",
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -356,7 +356,7 @@ const loadLeaveBalance = async () => {
   const token = localStorage.getItem("token");
 
   const response = await axios.get(
-    "http://127.0.0.1:8000/api/my-leave-balance",
+    "https://enhs-leave-management-system.onrender.com/api/my-leave-balance",
     {
       headers: {
         Authorization: `Bearer ${token}`,

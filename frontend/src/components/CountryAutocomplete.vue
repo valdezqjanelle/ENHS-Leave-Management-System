@@ -59,8 +59,15 @@ function moveHighlight(dir: number) {
 }
 
 function confirmHighlighted() {
-  if (highlightedIndex.value >= 0) {
-    selectCountry(results.value[highlightedIndex.value]);
+  if (
+    highlightedIndex.value >= 0 &&
+    highlightedIndex.value < results.value.length
+  ) {
+    const selected = results.value[highlightedIndex.value];
+
+    if (selected) {
+      selectCountry(selected);
+    }
   }
 }
 

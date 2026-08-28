@@ -779,6 +779,49 @@ private function deductLeaveBalance(
     $balance->last_updated = now();
 
     $balance->save();
-}
+
+
 }
 
+public function destroy($id)
+{
+    $leave = LeaveApplication::findOrFail($id);
+
+    $leave->delete();
+
+    AuditLogger::log(
+        'Leave deleted',
+        "Deleted leave #{$leave->leave_id} for employee #{$leave->employee_id}"
+    );
+
+    return response()->json([
+        'message' => 'Leave application deleted successfully.'
+    ], 200);
+}
+
+public function deletedLeaves()
+{
+    $deletedLeaves = LeaveApplication::onlyTrashed()
+        ->with('employee')
+        ->orderBy('deleted_at', 'desc')
+        ->get();
+
+    return response()->json($deletedLeaves);
+}
+
+public function restoreLeave($id)
+{
+    $leave = LeaveApplication::onlyTrashed()->findOrFail($id);
+
+    $leave->restore();
+
+    AuditLogger::log(
+        'Leave restored',
+        "Restored leave #{$leave->leave_id} for employee #{$leave->employee_id}"
+    );
+
+    return response()->json([
+        'message' => 'Leave application restored successfully.'
+    ], 200);
+}
+}

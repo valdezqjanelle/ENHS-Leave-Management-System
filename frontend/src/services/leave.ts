@@ -70,3 +70,23 @@ export const downloadLeavePdf = async (leaveId: number) => {
 
   return response.data;
 };
+ export const deleteLeaveApplication = async (leaveId: number) => {
+  const response = await api.delete(
+    `/leave-applications/${leaveId}`
+  );
+  return response.data;
+};
+
+export const restoreLeaveApplication = async (leaveId: number) => {
+  const response = await api.put(
+    `/leave-applications/${leaveId}/restore`
+  );
+  return response.data;
+};
+
+export const getDeletedLeaveApplications = async () => {
+  const response = await api.get(
+    `/leave-applications/deleted`
+  );
+  return response.data;
+};

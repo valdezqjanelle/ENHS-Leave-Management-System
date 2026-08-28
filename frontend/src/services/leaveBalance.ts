@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://127.0.0.1:8000/api";
+const API = "https://enhs-leave-management-system.onrender.com/api";
 
 const authHeader = () => ({
   headers: {
@@ -14,5 +14,24 @@ export const getLeaveBalances = async () => {
     authHeader()
   );
 
+  return response.data;
+};
+
+
+
+export const deleteBalance = async (employee_id: number) => {
+  const response = await axios.delete(
+    `${API}/leave-balances/${employee_id}`,
+    authHeader()
+  );
+  return response.data;
+};
+
+
+export const getLeaveBalanceByEmployeeId = async (employee_id: number) => {
+  const response = await axios.get(
+    `${API}/leave-balances/${employee_id}`,
+    authHeader()
+  );
   return response.data;
 };

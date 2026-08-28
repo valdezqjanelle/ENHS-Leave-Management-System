@@ -89,6 +89,30 @@ public function index()
             'data' => $credit
         ]);
     }
+    public function destroy($id)
+{
+    $employee = LeaveCredit::findOrFail($id);
+
+    $employee->delete();
+
+    AuditLogger::log(
+        'Credits deleted',
+        "Soft deleted leave credit #{$employee->credits_id} for employee #{$employee->employee_id}"
+    );
+
+    return response()->json([
+        'message' => 'Leave credit deleted successfully.'
+    ]);
+}
+
+public function deleted()
+{
+    $deletedCredits = LeaveCredit::onlyTrashed()->get();
+
+    return response()->json([
+        'data' => $deletedCredits
+    ]);
+}
 
 public function apply(Request $request, $id)
 {
@@ -234,5 +258,7 @@ public function apply(Request $request, $id)
         'data' => $credit
     ]);
 }
+
+
  
 }

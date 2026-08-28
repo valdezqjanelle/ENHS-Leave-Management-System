@@ -169,16 +169,171 @@
 
     </div>
 
-    <!-- Apply Credit Modal -->
-    <div
-      v-if="showApplyModal"
-      class="modal-overlay"
-      @click.self="closeApplyModal"
-    >
+    <!-- ========================================================= -->
+<!-- LEAVE CREDITS TABLE -->
+<!-- ========================================================= -->
+<div class="neo-card p-6">
 
-        <h2 class="text-xl font-semibold text-white">
-          Apply Leave Credit
-        </h2>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h3 class="text-lg font-semibold text-white">
+        Leave Credit Records
+      </h3>
+
+      <p class="text-gray-400 text-sm mt-1">
+        View and apply recorded leave credits.
+      </p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+
+    <table class="credit-table">
+
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Credit Type</th>
+          <th>Activity</th>
+          <th>Hours Rendered</th>
+          <th>Equivalent Days</th>
+          <th>Date Recorded</th>
+          <th>Status</th>
+          <th class="action-column">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr
+          v-for="credit in credits"
+          :key="credit.credits_id"
+        >
+
+          <!-- Employee -->
+          <td class="employee-cell">
+            <span class="employee-name">
+              {{ credit.employee?.last_name }},
+              {{ credit.employee?.first_name }}
+            </span>
+          </td>
+
+          <!-- Credit Type -->
+          <td>
+            <span
+              :class="{
+                'credit-service':
+                  credit.credit_type === 'Service Credits',
+
+                'credit-vacation':
+                  credit.credit_type === 'Vacation',
+
+                'credit-sick':
+                  credit.credit_type === 'Sick',
+
+                'credit-other':
+                  !['Service Credits', 'Vacation', 'Sick']
+                    .includes(credit.credit_type)
+              }"
+            >
+              {{
+                credit.credit_type === 'Vacation'
+                  ? 'Vacation Leave'
+                  : credit.credit_type === 'Sick'
+                    ? 'Sick Leave'
+                    : credit.credit_type
+              }}
+            </span>
+          </td>
+
+          <!-- Activity -->
+          <td class="table-primary">
+            {{ credit.activity_name || '—' }}
+          </td>
+
+          <!-- Hours -->
+          <td>
+            {{ Number(credit.hours_rendered || 0).toFixed(2) }}
+          </td>
+
+          <!-- Equivalent Days -->
+          <td>
+            {{ Number(credit.equivalent_leave_days || 0).toFixed(2) }}
+          </td>
+
+          <!-- Date -->
+          <td>
+            {{ formatDate(credit.date_recorded) }}
+          </td>
+
+          <!-- Status -->
+          <td>
+            <span
+              :class="
+                credit.status === 'Applied'
+                  ? 'status-applied'
+                  : 'status-pending'
+              "
+            >
+              {{ credit.status || 'Pending' }}
+            </span>
+          </td>
+
+          <!-- Action -->
+          <td class="action-cell">
+
+            <button
+              v-if="credit.status !== 'Applied'"
+              @click="applyCredit(credit.credits_id)"
+              type="button"
+              class="apply-button"
+            >
+              Apply Credit
+            </button>
+
+            <span
+              v-else
+              class="applied-text"
+            >
+              Applied
+            </span>
+
+          </td>
+
+        </tr>
+
+        <!-- Empty State -->
+        <tr v-if="credits.length === 0">
+
+          <td
+            colspan="8"
+            class="empty-state"
+          >
+            No leave credit records found.
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+    <!-- Apply Credit Modal -->
+  <div
+  v-if="showApplyModal"
+  class="modal-overlay"
+  @click.self="closeApplyModal"
+>
+
+  <div class="modal-card">
+
+    <h2 class="text-xl font-semibold text-white">
+      Apply Leave Credit
+    </h2>
 
         <p class="text-gray-300 mt-3">
           Choose where this credit should be applied. This will update the
@@ -381,8 +536,7 @@
 
     </div>
     
-
-  
+</div>  
 </template>
 
 
