@@ -131,49 +131,59 @@
             </div>
 
 
-            <!-- Vacation Details -->
-            <div
-              v-if="selectedLeaveName?.includes('Vacation')"
-              class="detail-box"
-            >
+<!-- Vacation Details -->
+<div
+  v-if="selectedLeaveName?.includes('Vacation')"
+  class="detail-box"
+>
 
-              <div>
-                <label class="form-label">
-                  Vacation Location Type
-                </label>
+  <div>
+    <label class="form-label">
+      Vacation Location Type
+    </label>
 
-                <select
-                  v-model="form.vacation_location_type"
-                  class="input-field"
-                >
-                  <option value="">Select</option>
+    <select
+      v-model="form.vacation_location_type"
+      class="input-field"
+    >
+      <option value="">Select</option>
 
-                  <option value="within_philippines">
-                    Within Philippines
-                  </option>
+      <option value="within_philippines">
+        Within Philippines
+      </option>
 
-                  <option value="abroad">
-                    Abroad
-                  </option>
-                </select>
-              </div>
+      <option value="abroad">
+        Abroad
+      </option>
+    </select>
+  </div>
 
-              <div>
-                <label class="form-label">
-                  Specify Location
-                </label>
+  <div>
+    <label class="form-label">
+      Specify Location
+    </label>
 
-                <input
-                  v-model="form.vacation_location"
-                  type="text"
-                  class="input-field"
-                />
-              </div>
+    <LocationAutocomplete
+      v-if="form.vacation_location_type === 'within_philippines'"
+      v-model="form.vacation_location"
+    />
 
-            </div>
+    <CountryAutocomplete
+      v-else-if="form.vacation_location_type === 'abroad'"
+      v-model="form.vacation_location"
+    />
 
+    <input
+      v-else
+      v-model="form.vacation_location"
+      type="text"
+      class="input-field"
+      disabled
+      placeholder="Select a location type first"
+    />
+  </div>
 
-            <!-- Sick Details -->
+</div>            <!-- Sick Details -->
             <div
               v-if="selectedLeaveName?.includes('Sick')"
               class="detail-box"
@@ -746,6 +756,8 @@ import {
 } from "lucide-vue-next";
 
 import { getMyProfile } from "../services/employee";
+import LocationAutocomplete from "../components/LocationAutocomplete.vue";
+import CountryAutocomplete from "../components/CountryAutocomplete.vue";
 
 
 interface Attachment {

@@ -327,7 +327,7 @@ public function downloadPdf($id)
 };
 
     $employee = $leave->employee;
-    $text('office_department', $employee->department ?? '');
+    $text('office_department', 'Echague National High School');
     $text('last_name', $employee->last_name ?? '');
     $text('first_name', $employee->first_name ?? '');
     $text('middle_name', $employee->middle_name ?? '');

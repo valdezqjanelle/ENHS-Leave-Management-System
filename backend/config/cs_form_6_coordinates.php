@@ -36,11 +36,11 @@
 return [
 
     // ── Section 1–5: Employee Info ──────────────────────────────
-    'office_department' => ['x' => 75,  'y' => 147],
-    'last_name'          => ['x' => 275, 'y' => 147],
-    'first_name'         => ['x' => 360, 'y' => 147],
-    'middle_name'        => ['x' => 450, 'y' => 147],
-    'date_of_filing'      => ['x' => 136, 'y' => 170],
+    'office_department' => ['x' => 76,  'y' => 147],
+    'last_name'          => ['x' => 280, 'y' => 147],
+    'first_name'         => ['x' => 365, 'y' => 147],
+    'middle_name'        => ['x' => 455, 'y' => 147],
+    'date_of_filing'      => ['x' => 137, 'y' => 170],
     'position'            => ['x' => 277, 'y' => 170],
     'salary'              => ['x' => 457, 'y' => 170],
 
