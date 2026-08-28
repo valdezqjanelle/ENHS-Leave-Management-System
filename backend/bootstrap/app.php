@@ -18,8 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
-        $middleware->redirectGuestsTo(null);
+        // Enable CORS for all requests
+        $middleware->prepend(
+            \Illuminate\Http\Middleware\HandleCors::class
+        );
 
+        $middleware->redirectGuestsTo(null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
