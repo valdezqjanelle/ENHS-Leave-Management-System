@@ -6,10 +6,12 @@ const api = axios.create({
     Accept: 'application/json',
   },
 })
-
-// Automatically attach the token if it exists
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
+
+  console.log("API REQUEST:", config.url)
+  console.log("TOKEN EXISTS:", !!token)
+  console.log("TOKEN:", token)
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
