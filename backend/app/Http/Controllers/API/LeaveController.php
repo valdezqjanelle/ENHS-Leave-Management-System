@@ -449,10 +449,13 @@ public function downloadPdf($id)
         }
     }
 
-    $employeeName = $employee
+        $employeeName = $employee
         ? "{$employee->last_name}_{$employee->first_name}"
         : "employee_{$leave->employee_id}";
-    $filename = "Leave_Application_{$employeeName}_{$leave->leave_id}.pdf";
+    $dateFiled = optional($leave->date_filed)->format('Y-m-d') ?? 'no-date';
+    $filename = "Leave_Application_{$employeeName}_{$dateFiled}.pdf";
+
+    $pdf->SetTitle($filename);
 
     return response($pdf->Output($filename, 'S'), 200, [
         'Content-Type' => 'application/pdf',
@@ -474,6 +477,7 @@ public function downloadPdf($id)
     $path = Storage::disk('public')->path($attachment->file_path);
 
     return response()->file($path);
+    
 }
 
 
