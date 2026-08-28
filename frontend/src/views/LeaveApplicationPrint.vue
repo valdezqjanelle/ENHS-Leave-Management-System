@@ -37,7 +37,7 @@
       </button>
 
       <!-- DOWNLOAD CIVIL SERVICE FORM -->
-      <button
+      <!-- <button
         @click="downloadForm"
         :disabled="downloadingForm"
         type="button"
@@ -48,7 +48,7 @@
             ? "Downloading..."
             : "Download Civil Service Form"
         }}
-      </button>
+      </button> -->
     </div>
 
     <!-- ========================================= -->

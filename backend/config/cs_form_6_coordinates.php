@@ -36,13 +36,13 @@
 return [
 
     // ── Section 1–5: Employee Info ──────────────────────────────
-    'office_department' => ['x' => 75,  'y' => 147],
-    'last_name'          => ['x' => 275, 'y' => 147],
-    'first_name'         => ['x' => 360, 'y' => 147],
-    'middle_name'        => ['x' => 450, 'y' => 147],
-    'date_of_filing'      => ['x' => 136, 'y' => 170],
+    'office_department' => ['x' => 76,  'y' => 147],
+    'last_name'          => ['x' => 280, 'y' => 147],
+    'first_name'         => ['x' => 365, 'y' => 147],
+    'middle_name'        => ['x' => 455, 'y' => 147],
+    'date_of_filing'      => ['x' => 137, 'y' => 170],
     'position'            => ['x' => 277, 'y' => 170],
-    'salary'              => ['x' => 450, 'y' => 170],
+    'salary'              => ['x' => 457, 'y' => 170],
 
     // ── Section 6.A: Type of Leave (checkboxes) ─────────────────
     'chk_vacation'            => ['x' => 70, 'y' => 227], //227
@@ -80,7 +80,8 @@ return [
     'inclusive_dates'          => ['x' => 90, 'y' => 510],
     'chk_commutation_not_requested' => ['x' => 325,  'y' => 480],
     'chk_commutation_requested'     => ['x' => 325, 'y' => 494],
-    'applicant_signature'      => ['x' => 350, 'y' => 520],
+    'applicant_signature_name' => ['x' => 375, 'y' => 512],
+    'applicant_signature'      => ['x' => 375, 'y' => 480],
 
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 574],

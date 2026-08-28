@@ -327,7 +327,7 @@ public function downloadPdf($id)
 };
 
     $employee = $leave->employee;
-    $text('office_department', $employee->department ?? '');
+    $text('office_department', 'Echague National High School');
     $text('last_name', $employee->last_name ?? '');
     $text('first_name', $employee->first_name ?? '');
     $text('middle_name', $employee->middle_name ?? '');
@@ -400,6 +400,15 @@ public function downloadPdf($id)
                 32,
                 'PNG'
             );
+        $middleInitial = '';
+        if (!empty($employee->middle_name)) {
+            $middleInitial = strtoupper(substr(trim($employee->middle_name), 0, 1)) . '. ';
+        }
+
+        // Build formatted name: First M. Last
+        $applicantName = trim(($employee->first_name ?? '') . ' ' . $middleInitial . ($employee->last_name ?? ''));
+
+        $text('applicant_signature_name', $applicantName);
         }
     }
 
