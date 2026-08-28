@@ -316,13 +316,19 @@ const formatDateForFilename = (date: string | null) => {
 };
 
 /* ATTACHMENT HELPERS (unchanged) */
+const BACKEND_URL =
+  "https://enhs-leave-management-system.onrender.com";
+
 const getAttachmentUrl = (attachment: any) => {
   if (attachment.file_url) return attachment.file_url;
   if (attachment.url) return attachment.url;
   if (attachment.download_url) return attachment.download_url;
-  if (attachment.file_path) return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
-  return "";
 
+  if (attachment.file_path) {
+    return `${BACKEND_URL}/storage/${attachment.file_path}`;
+  }
+
+  return "";
 };
 
 const getAttachmentName = (attachment: any) => {
