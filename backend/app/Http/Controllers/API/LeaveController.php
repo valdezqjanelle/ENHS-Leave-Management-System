@@ -801,18 +801,28 @@ public function destroy($id)
 
 public function deletedLeaves()
 {
-    $deletedLeaves = LeaveApplication::onlyTrashed()
-        ->with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])
-        ->orderBy('deleted_at', 'desc')
-        ->get();
+    try {
+        $deletedLeaves = LeaveApplication::onlyTrashed()
+            ->with([
+                'employee',
+                'leaveType',
+                'attachments'
+            ])
+            ->orderBy('deleted_at', 'desc')
+            ->get();
 
-    return response()->json($deletedLeaves);
+        return response()->json($deletedLeaves);
+    } catch (\Exception $e) {
+        \Log::error('Failed to fetch deleted leave applications', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 500);
+    }
 }
-
 public function restoreLeave($id)
 {
     $leave = LeaveApplication::onlyTrashed()->findOrFail($id);

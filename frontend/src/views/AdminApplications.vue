@@ -220,79 +220,69 @@
                 </div>
               </div>
 
-              <!-- Action Buttons -->
-              <div
-                class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
-              >
-                <button
-                  @click="viewApplication(application)"
-                  class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
-                >
-                  View Details
-                </button>
+         <!-- Action Buttons -->
+<div 
+  class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
+>
+  <!-- ===================================================== -->
+  <!-- NORMAL APPLICATIONS -->
+  <!-- ===================================================== -->
 
-                <button
-                  v-if="application.final_status?.toLowerCase() === 'pending'"
-                  @click="openApprovalModal(application)"
-                  class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
-                >
-                  Approve
-                </button>
+  <template v-if="activeTab !== 'deleted'">
 
-                <button
-                  v-if="application.final_status?.toLowerCase() === 'pending'"
-                  @click="updateStatus(application.leave_id, 'disapproved')"
-                  class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
-                >
-                  Reject
-                </button>
-                <!-- Normal applications -->
+    <!-- View -->
+    <button
+      @click="viewApplication(application)"
+      class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
+    >
+      View Details
+    </button>
 
-                <template v-if="activeTab !== 'deleted'">
-                  <button
-                    @click="viewApplication(application)"
-                    class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
-                  >
-                    View Details
-                  </button>
+    <!-- Approve -->
+    <button
+      v-if="application.final_status?.toLowerCase() === 'pending'"
+      @click="openApprovalModal(application)"
+      class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+    >
+      Approve
+    </button>
 
-                  <button
-                    v-if="application.final_status?.toLowerCase() === 'pending'"
-                    @click="openApprovalModal(application)"
-                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
-                  >
-                    Approve
-                  </button>
+    <!-- Reject -->
+    <button
+      v-if="application.final_status?.toLowerCase() === 'pending'"
+      @click="updateStatus(application.leave_id, 'disapproved')"
+      class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
+    >
+      Reject
+    </button>
 
-                  <button
-                    v-if="application.final_status?.toLowerCase() === 'pending'"
-                    @click="updateStatus(application.leave_id, 'disapproved')"
-                    class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
-                  >
-                    Reject
-                  </button>
+    <!-- Delete -->
+    <button
+      @click="deleteLeaveApplicationById(application.leave_id)"
+      class="px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition whitespace-nowrap"
+    >
+      Delete
+    </button>
 
-                  <button
-                    @click="deleteLeaveApplicationById(application.leave_id)"
-                    class="px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition whitespace-nowrap"
-                  >
-                    Delete
-                  </button>
-                </template>
+  </template>
 
-                <!-- Deleted applications -->
 
-                <template v-else>
-                  <button
-                    @click="restoreLeaveApplicationById(application.leave_id)"
-                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
-                  >
-                    Restore
-                  </button>
-                </template>
-              </div>
-            </div>
-          </div>
+  <!-- ===================================================== -->
+  <!-- REMOVED APPLICATIONS -->
+  <!-- ===================================================== -->
+
+  <template v-else>
+
+    <button
+      @click="restoreLeaveApplicationById(application.leave_id)"
+      class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+    >
+      Restore
+    </button>
+
+  </template>
+
+</div>
 
           <!-- Pagination -->
           <div
@@ -361,6 +351,8 @@
           </div>
         </div>
       </div>
+    </div>
+    </div>  
     </div>
 
     <!-- ====================================================== -->
@@ -1253,33 +1245,34 @@ const deleteLeaveApplicationById = async (
 };
 
 const getDeletedApplications = async () => {
-
   try {
+    const response = await getDeletedLeaveApplications();
 
-    const response =
-      await getDeletedLeaveApplications();
+    deletedApplications.value = Array.isArray(response)
+      ? response
+      : [];
 
-    deletedApplications.value =
-      Array.isArray(response)
-        ? response
-        : [];
+    currentPage.value = 1;
 
     console.log(
       "DELETED APPLICATIONS:",
       deletedApplications.value
     );
 
-  } catch (error) {
-
+  } catch (error: any) {
     console.error(
       "Failed to fetch deleted leave applications",
       error
     );
 
+    deletedApplications.value = [];
+
+    alert(
+      error.response?.data?.message ??
+      "Failed to load removed applications."
+    );
   }
-
 };
-
 const restoreLeaveApplicationById = async (
   leaveId: number
 ) => {
