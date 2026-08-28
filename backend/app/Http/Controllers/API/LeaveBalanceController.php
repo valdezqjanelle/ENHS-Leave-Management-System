@@ -76,7 +76,8 @@ public function index()
         return response()->json($balance);
     }
 
-    public function update(Request $request, $employee_id)
+    
+public function update(Request $request, $employee_id)
 {
     $request->validate([
         'vacation_earned' => 'required|numeric|min:0',
@@ -86,19 +87,22 @@ public function index()
         'service_credits' => 'required|numeric|min:0',
     ]);
 
-    $balance = LeaveBalance::updateOrCreate(
-        [
-            'employee_id' => $employee_id
-        ],
-        [
-            'vacation_earned' => $request->vacation_earned,
-            'sick_earned' => $request->sick_earned,
-            'vacation_balance' => $request->vacation_balance,
-            'sick_balance' => $request->sick_balance,
-            'service_credits' => $request->service_credits,
-            'last_updated' => now()
-        ]
-    );
+    $balance = LeaveBalance::where('employee_id', $employee_id)->first();
+
+    if (!$balance) {
+        return response()->json([
+            'message' => 'Leave balance not found.'
+        ], 404);
+    }
+
+    $balance->update([
+        'vacation_earned' => $request->vacation_earned,
+        'sick_earned' => $request->sick_earned,
+        'vacation_balance' => $request->vacation_balance,
+        'sick_balance' => $request->sick_balance,
+        'service_credits' => $request->service_credits,
+        'last_updated' => now(),
+    ]);
 
     AuditLogger::log(
         'Leave balance updated',
@@ -108,7 +112,7 @@ public function index()
     return response()->json([
         'message' => 'Leave balance saved successfully',
         'data' => $balance
-    ]);
+    ], 200);
 }
 
     /*
@@ -167,17 +171,23 @@ public function destroy($employee_id)
         ], 404);
     }
 
-    $balance->delete();
+    $balance->update([
+        'vacation_earned' => 0,
+        'sick_earned' => 0,
+        'vacation_balance' => 0,
+        'sick_balance' => 0,
+        'service_credits' => 0,
+        'last_updated' => now(),
+    ]);
 
     AuditLogger::log(
-        'Leave balance deleted',
-        "Deleted leave balance for employee #{$employee_id}"
+        'Leave balance cleared',
+        "Cleared leave balance for employee #{$employee_id}"
     );
 
     return response()->json([
-        'message' => 'Leave balance deleted successfully.'
+        'message' => 'Leave balance cleared successfully.',
+        'data' => $balance
     ], 200);
 }
-
-
 }
