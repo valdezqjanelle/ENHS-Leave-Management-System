@@ -245,10 +245,9 @@
                   >
                     Approve
                   </button>
-
                   <button
                     v-if="application.final_status?.toLowerCase() === 'pending'"
-                    @click="rejectApplication(application.leave_id)"
+                    @click="openRejectModal(application.leave_id)"
                     class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
                   >
                     Reject
@@ -500,7 +499,7 @@
               v-if="
                 selectedApplication.final_status?.toLowerCase() === 'pending'
               "
-              @click="rejectApplication(selectedApplication.leave_id)"
+              @click="openRejectModal(selectedApplication.leave_id)"
               class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
             >
               Reject
@@ -677,6 +676,79 @@
       </div>
     </div>
   </div>
+
+  <!-- ====================================================== -->
+<!-- REJECTION MODAL -->
+<!-- ====================================================== -->
+
+<div
+  v-if="showRejectModal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[70] p-4"
+>
+  <div
+    class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 neo-card"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-white">
+        Disapprove Leave Application
+      </h3>
+
+      <button
+        @click="cancelReject"
+        class="text-white hover:text-gray-400"
+        :disabled="isRejecting"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-sm text-gray-300 mb-4">
+      Please provide a reason for disapproving this leave application.
+    </p>
+
+    <textarea
+      v-model="rejectionReason"
+      rows="4"
+      placeholder="Enter reason for disapproval..."
+      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-black bg-white focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+      :disabled="isRejecting"
+    ></textarea>
+
+    <p class="text-xs text-gray-400 mt-2">
+      A reason is required before the application can be disapproved.
+    </p>
+
+    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
+      <button
+        @click="cancelReject"
+        :disabled="isRejecting"
+        class="w-full sm:w-auto px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
+      >
+        Cancel
+      </button>
+
+      <button
+        @click="confirmReject"
+        :disabled="isRejecting || !rejectionReason.trim()"
+        class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {{ isRejecting ? "Disapproving..." : "Confirm Disapproval" }}
+      </button>
+    </div>
+  </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -1112,29 +1184,61 @@ const updateStatus = async (
   }
 };
 
-const rejectApplication = async (leaveId: number) => {
-  const reason = prompt("Enter reason for disapproval:");
 
-  if (reason === null) {
+
+const showRejectModal = ref(false);
+const rejectionReason = ref("");
+const rejectionLeaveId = ref<number | null>(null);
+const isRejecting = ref(false);
+
+const openRejectModal = (leaveId: number) => {
+  rejectionLeaveId.value = leaveId;
+  rejectionReason.value = "";
+  showRejectModal.value = true;
+};
+
+const cancelReject = () => {
+  showRejectModal.value = false;
+  rejectionReason.value = "";
+  rejectionLeaveId.value = null;
+};
+
+const confirmReject = async () => {
+  if (!rejectionLeaveId.value) {
+    return;
+  }
+
+  const reason = rejectionReason.value.trim();
+
+  if (!reason) {
+    alert("Please enter a reason for disapproval.");
     return;
   }
 
   try {
-    await rejectLeaveApplication(leaveId, reason);
+    isRejecting.value = true;
+
+    await rejectLeaveApplication(rejectionLeaveId.value, reason);
 
     alert("Leave application disapproved successfully.");
 
+    showRejectModal.value = false;
+    rejectionReason.value = "";
+    rejectionLeaveId.value = null;
+
+    // Close details modal if rejection came from View Details
     showDetailModal.value = false;
 
     await loadApplications();
   } catch (error: any) {
     console.error("Failed to reject leave application:", error);
-
     console.error("Response:", error.response?.data);
 
     alert(
       error.response?.data?.message ?? "Failed to reject leave application.",
     );
+  } finally {
+    isRejecting.value = false;
   }
 };
 
