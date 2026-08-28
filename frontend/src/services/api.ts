@@ -1,9 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-baseURL: 'https://enhs-leave-management-system.onrender.com/api',
+  baseURL: 'https://enhs-leave-management-system.onrender.com/api',
   headers: {
-
     Accept: 'application/json',
   },
 })
