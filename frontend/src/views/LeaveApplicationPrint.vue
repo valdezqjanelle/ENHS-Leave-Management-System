@@ -317,7 +317,7 @@ const formatDateForFilename = (date: string | null) => {
 
 /* ATTACHMENT HELPERS (unchanged) */
 const BACKEND_URL =
-  "https://enhs-leave-management-system.onrender.com";
+  "https://enhs-leave-management-system.onrender.com/api";
 
 const getAttachmentUrl = (attachment: any) => {
   if (attachment.file_url) return attachment.file_url;
