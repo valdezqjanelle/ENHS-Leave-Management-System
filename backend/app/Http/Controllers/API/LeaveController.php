@@ -802,7 +802,11 @@ public function destroy($id)
 public function deletedLeaves()
 {
     $deletedLeaves = LeaveApplication::onlyTrashed()
-        ->with('employee')
+        ->with([
+            'employee',
+            'leaveType',
+            'attachments'
+        ])
         ->orderBy('deleted_at', 'desc')
         ->get();
 

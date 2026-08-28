@@ -26,6 +26,7 @@ use App\Http\Controllers\API\LocationController;
 | AUTH
 |--------------------------------------------------------------------------
 */
+
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -102,12 +103,12 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/debug-role', function (Request $request) {
-    return response()->json([
-        'user_id' => $request->user()->user_id,
-        'email' => $request->user()->email,
-        'role' => $request->user()->role,
-    ]);
-});
+        return response()->json([
+            'user_id' => $request->user()->user_id,
+            'email' => $request->user()->email,
+            'role' => $request->user()->role,
+        ]);
+    });
 
     Route::middleware('role:admin')->group(function () {
 
@@ -126,34 +127,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
 
 
-        // Leave Management
         Route::get('/leave-applications', [LeaveController::class, 'index']);
+        Route::get('/leave-applications/deleted', [LeaveController::class, 'deletedLeaves']);
         Route::get('/leave-applications/{id}', [LeaveController::class, 'show']);
         Route::put('/leave-applications/{id}', [LeaveController::class, 'updateStatus']);
         Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
-
         Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
-        Route::get('/leave-applications/deleted', [
-            LeaveController::class,
-            'deletedLeaves'
-        ]);
-
-        Route::post('/leave-applications/{id}/restore', [
-            LeaveController::class,
-            'restoreLeave'
-        ]);
-
- 
-
-        Route::put('/leave-applications/{id}', [
-            LeaveController::class,
-            'update'
-        ]);
-
-        Route::delete('/leave-applications/{id}', [
-            LeaveController::class,
-            'destroy'
-        ]);
+        Route::post('/leave-applications/{id}/restore', [LeaveController::class, 'restoreLeave']);
+        Route::delete('/leave-applications/{id}', [LeaveController::class, 'destroy']);
 
 
         // Leave Credits
