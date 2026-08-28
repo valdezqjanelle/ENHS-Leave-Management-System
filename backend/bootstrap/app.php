@@ -18,10 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'api/*'
+        ]);
+
         // CORS
-        $middleware->prepend(
-            \App\Http\Middleware\Cors::class
-        );
+
+  
 
         $middleware->redirectGuestsTo(null);
     })
