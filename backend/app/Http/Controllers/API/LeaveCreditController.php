@@ -89,15 +89,15 @@ public function index()
             'data' => $credit
         ]);
     }
-    public function destroy($id)
+public function destroy($id)
 {
-    $employee = LeaveCredit::findOrFail($id);
+    $credit = LeaveCredit::findOrFail($id);
 
-    $employee->delete();
+    $credit->delete();
 
     AuditLogger::log(
-        'Credits deleted',
-        "Soft deleted leave credit #{$employee->credits_id} for employee #{$employee->employee_id}"
+        'Leave credit deleted',
+        "Soft deleted leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
     );
 
     return response()->json([

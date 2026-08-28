@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveCredit extends Model
 {
+    use SoftDeletes;
     protected $table = 'leave_credits';
 
     protected $primaryKey = 'credits_id';

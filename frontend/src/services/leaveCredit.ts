@@ -50,3 +50,12 @@ export const applyLeaveCredit = async (data: ApplyLeaveCreditPayload) => {
 
   return response.data;
 };
+
+export const deleteLeaveCredit = async (id: number) => {
+  const response = await axios.delete(
+    `${API}/leave-credits/${id}`,
+    authHeader()
+  );
+
+  return response.data;
+};

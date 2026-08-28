@@ -1,48 +1,29 @@
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
-
     <!-- ========================================================= -->
     <!-- HEADER -->
     <!-- ========================================================= -->
     <div class="neo-card p-6">
-
-      <h2 class="text-2xl font-bold text-white">
-        Leave Credits
-      </h2>
+      <h2 class="text-2xl font-bold text-white">Leave Credits</h2>
 
       <p class="text-gray-400 mt-1">
         Record earned leave credits for employees.
       </p>
-
     </div>
-
 
     <!-- ========================================================= -->
     <!-- FORM -->
     <!-- ========================================================= -->
     <div class="neo-card p-6">
-
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Employee -->
         <div class="min-w-0">
-
-          <label
-            class="block text-sm font-medium text-white mb-2"
-          >
+          <label class="block text-sm font-medium text-white mb-2">
             Employee
           </label>
 
-          <select
-            v-model="form.employee_id"
-            class="form-control"
-          >
-
-            <option value="">
-              Select Employee
-            </option>
+          <select v-model="form.employee_id" class="form-control">
+            <option value="">Select Employee</option>
 
             <option
               v-for="employee in employees"
@@ -52,53 +33,29 @@
               {{ employee.last_name }},
               {{ employee.first_name }}
             </option>
-
           </select>
-
         </div>
-
 
         <!-- Credit Type -->
         <div class="min-w-0">
-
-          <label
-            class="block text-sm font-medium text-white mb-2"
-          >
+          <label class="block text-sm font-medium text-white mb-2">
             Credit Type
           </label>
 
-          <select
-            v-model="form.credit_type"
-            class="form-control"
-          >
+          <select v-model="form.credit_type" class="form-control">
+            <option value="">Select Credit Type</option>
 
-            <option value="">
-              Select Credit Type
-            </option>
+            <option value="Service Credits">Service Credits</option>
 
-            <option value="Service Credits">
-              Service Credits
-            </option>
+            <option value="Vacation">Vacation Leave</option>
 
-            <option value="Vacation">
-              Vacation Leave
-            </option>
-
-            <option value="Sick">
-              Sick Leave
-            </option>
-
+            <option value="Sick">Sick Leave</option>
           </select>
-
         </div>
-
 
         <!-- Activity -->
         <div class="min-w-0">
-
-          <label
-            class="block text-sm font-medium text-white mb-2"
-          >
+          <label class="block text-sm font-medium text-white mb-2">
             Activity Name
           </label>
 
@@ -108,16 +65,11 @@
             class="form-control"
             placeholder="Example: Overtime Duty"
           />
-
         </div>
-
 
         <!-- Hours -->
         <div class="min-w-0">
-
-          <label
-            class="block text-sm font-medium text-white mb-2"
-          >
+          <label class="block text-sm font-medium text-white mb-2">
             Hours Rendered
           </label>
 
@@ -128,16 +80,11 @@
             step="0.25"
             class="form-control"
           />
-
         </div>
-
 
         <!-- Equivalent Leave Days -->
         <div class="min-w-0">
-
-          <label
-            class="block text-sm font-medium text-white mb-2"
-          >
+          <label class="block text-sm font-medium text-white mb-2">
             Equivalent Leave Days
           </label>
 
@@ -148,192 +95,159 @@
             step="0.25"
             class="form-control"
           />
-
         </div>
-
       </div>
-
 
       <!-- Save Button -->
       <div class="mt-6">
-
-        <button
-          @click="saveCredit"
-          type="button"
-          class="primary-button"
-        >
+        <button @click="saveCredit" type="button" class="primary-button">
           Save Credit
         </button>
-
       </div>
-
     </div>
 
     <!-- ========================================================= -->
-<!-- LEAVE CREDITS TABLE -->
-<!-- ========================================================= -->
-<div class="neo-card p-6">
+    <!-- LEAVE CREDITS TABLE -->
+    <!-- ========================================================= -->
+    <div class="neo-card p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-lg font-semibold text-white">Leave Credit Records</h3>
 
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h3 class="text-lg font-semibold text-white">
-        Leave Credit Records
-      </h3>
+          <p class="text-gray-400 text-sm mt-1">
+            View and apply recorded leave credits.
+          </p>
+        </div>
+      </div>
 
-      <p class="text-gray-400 text-sm mt-1">
-        View and apply recorded leave credits.
-      </p>
+      <div class="table-wrapper">
+        <table class="credit-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Credit Type</th>
+              <th>Activity</th>
+              <th>Hours Rendered</th>
+              <th>Equivalent Days</th>
+              <th>Date Recorded</th>
+              <th>Status</th>
+              <th class="action-column">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="credit in credits" :key="credit.credits_id">
+              <!-- Employee -->
+              <td class="employee-cell">
+                <span class="employee-name">
+                  {{ credit.employee?.last_name }},
+                  {{ credit.employee?.first_name }}
+                </span>
+              </td>
+
+              <!-- Credit Type -->
+              <td>
+                <span
+                  :class="{
+                    'credit-service': credit.credit_type === 'Service Credits',
+
+                    'credit-vacation': credit.credit_type === 'Vacation',
+
+                    'credit-sick': credit.credit_type === 'Sick',
+
+                    'credit-other': ![
+                      'Service Credits',
+                      'Vacation',
+                      'Sick',
+                    ].includes(credit.credit_type),
+                  }"
+                >
+                  {{
+                    credit.credit_type === "Vacation"
+                      ? "Vacation Leave"
+                      : credit.credit_type === "Sick"
+                        ? "Sick Leave"
+                        : credit.credit_type
+                  }}
+                </span>
+              </td>
+
+              <!-- Activity -->
+              <td class="table-primary">
+                {{ credit.activity_name || "—" }}
+              </td>
+
+              <!-- Hours -->
+              <td>
+                {{ Number(credit.hours_rendered || 0).toFixed(2) }}
+              </td>
+
+              <!-- Equivalent Days -->
+              <td>
+                {{ Number(credit.equivalent_leave_days || 0).toFixed(2) }}
+              </td>
+
+              <!-- Date -->
+              <td>
+                {{ formatDate(credit.date_recorded) }}
+              </td>
+
+              <!-- Status -->
+              <td>
+                <span
+                  :class="
+                    credit.status === 'Applied'
+                      ? 'status-applied'
+                      : 'status-pending'
+                  "
+                >
+                  {{ credit.status || "Pending" }}
+                </span>
+              </td>
+
+              <td class="action-cell">
+                <div class="action-buttons">
+                  <button
+                    v-if="credit.status !== 'Applied'"
+                    @click="applyCredit(credit.credits_id)"
+                    type="button"
+                    class="apply-button"
+                  >
+                    Apply Credit
+                  </button>
+
+                  <span v-else class="applied-text"> Applied </span>
+
+                  <button
+                    @click="removeCredit(credit.credits_id)"
+                    type="button"
+                    class="remove-button"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr v-if="credits.length === 0">
+              <td colspan="8" class="empty-state">
+                No leave credit records found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-
-  <div class="table-wrapper">
-
-    <table class="credit-table">
-
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <th>Credit Type</th>
-          <th>Activity</th>
-          <th>Hours Rendered</th>
-          <th>Equivalent Days</th>
-          <th>Date Recorded</th>
-          <th>Status</th>
-          <th class="action-column">Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-
-        <tr
-          v-for="credit in credits"
-          :key="credit.credits_id"
-        >
-
-          <!-- Employee -->
-          <td class="employee-cell">
-            <span class="employee-name">
-              {{ credit.employee?.last_name }},
-              {{ credit.employee?.first_name }}
-            </span>
-          </td>
-
-          <!-- Credit Type -->
-          <td>
-            <span
-              :class="{
-                'credit-service':
-                  credit.credit_type === 'Service Credits',
-
-                'credit-vacation':
-                  credit.credit_type === 'Vacation',
-
-                'credit-sick':
-                  credit.credit_type === 'Sick',
-
-                'credit-other':
-                  !['Service Credits', 'Vacation', 'Sick']
-                    .includes(credit.credit_type)
-              }"
-            >
-              {{
-                credit.credit_type === 'Vacation'
-                  ? 'Vacation Leave'
-                  : credit.credit_type === 'Sick'
-                    ? 'Sick Leave'
-                    : credit.credit_type
-              }}
-            </span>
-          </td>
-
-          <!-- Activity -->
-          <td class="table-primary">
-            {{ credit.activity_name || '—' }}
-          </td>
-
-          <!-- Hours -->
-          <td>
-            {{ Number(credit.hours_rendered || 0).toFixed(2) }}
-          </td>
-
-          <!-- Equivalent Days -->
-          <td>
-            {{ Number(credit.equivalent_leave_days || 0).toFixed(2) }}
-          </td>
-
-          <!-- Date -->
-          <td>
-            {{ formatDate(credit.date_recorded) }}
-          </td>
-
-          <!-- Status -->
-          <td>
-            <span
-              :class="
-                credit.status === 'Applied'
-                  ? 'status-applied'
-                  : 'status-pending'
-              "
-            >
-              {{ credit.status || 'Pending' }}
-            </span>
-          </td>
-
-          <!-- Action -->
-          <td class="action-cell">
-
-            <button
-              v-if="credit.status !== 'Applied'"
-              @click="applyCredit(credit.credits_id)"
-              type="button"
-              class="apply-button"
-            >
-              Apply Credit
-            </button>
-
-            <span
-              v-else
-              class="applied-text"
-            >
-              Applied
-            </span>
-
-          </td>
-
-        </tr>
-
-        <!-- Empty State -->
-        <tr v-if="credits.length === 0">
-
-          <td
-            colspan="8"
-            class="empty-state"
-          >
-            No leave credit records found.
-          </td>
-
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</div>
 
     <!-- Apply Credit Modal -->
-  <div
-  v-if="showApplyModal"
-  class="modal-overlay"
-  @click.self="closeApplyModal"
->
-
-  <div class="modal-card">
-
-    <h2 class="text-xl font-semibold text-white">
-      Apply Leave Credit
-    </h2>
+    <div
+      v-if="showApplyModal"
+      class="modal-overlay"
+      @click.self="closeApplyModal"
+    >
+      <div class="modal-card">
+        <h2 class="text-xl font-semibold text-white">Apply Leave Credit</h2>
 
         <p class="text-gray-300 mt-3">
           Choose where this credit should be applied. This will update the
@@ -341,65 +255,42 @@
         </p>
 
         <!-- Credit Details -->
-        <div
-          v-if="selectedCredit"
-          class="credit-details"
-        >
-
+        <div v-if="selectedCredit" class="credit-details">
           <!-- Employee -->
           <div class="detail-row">
-
-            <span class="detail-label">
-              Employee:
-            </span>
+            <span class="detail-label"> Employee: </span>
 
             <span class="detail-value">
               {{ selectedCredit.employee?.last_name }},
               {{ selectedCredit.employee?.first_name }}
             </span>
-
           </div>
-
 
           <!-- Credit Type -->
           <div class="detail-row">
-
-            <span class="detail-label">
-              Credit Type:
-            </span>
+            <span class="detail-label"> Credit Type: </span>
 
             <span class="detail-value">
               {{ selectedCredit.credit_type }}
             </span>
-
           </div>
-
 
           <!-- Activity -->
           <div class="detail-row">
-
-            <span class="detail-label">
-              Activity:
-            </span>
+            <span class="detail-label"> Activity: </span>
 
             <span class="detail-value">
               {{ selectedCredit.activity_name }}
             </span>
-
           </div>
-
 
           <!-- Equivalent Days -->
           <div class="detail-row">
-
-            <span class="detail-label">
-              Equivalent Days:
-            </span>
+            <span class="detail-label"> Equivalent Days: </span>
 
             <span class="detail-value">
               {{ selectedCredit.equivalent_leave_days }}
             </span>
-
           </div>
 
           <div>
@@ -432,42 +323,48 @@
                 v-model="applyForm.split"
                 type="checkbox"
                 class="rounded border-slate-700 bg-[#0B1420] text-blue-600 focus:ring-blue-500"
-              >
+              />
               Split Application
             </label>
 
             <div v-if="!applyForm.split">
-              <label class="block font-medium text-white mb-2">Days to Apply</label>
+              <label class="block font-medium text-white mb-2"
+                >Days to Apply</label
+              >
               <input
                 v-model.number="applyForm.days"
                 type="number"
                 min="0"
                 step="0.25"
                 class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
+              />
             </div>
 
             <div v-else class="space-y-3">
               <div>
-                <label class="block font-medium text-white mb-2">Vacation Leave Allocation</label>
+                <label class="block font-medium text-white mb-2"
+                  >Vacation Leave Allocation</label
+                >
                 <input
                   v-model.number="applyForm.vacation_days"
                   type="number"
                   min="0"
                   step="0.25"
                   class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                />
               </div>
 
               <div>
-                <label class="block font-medium text-white mb-2">Sick Leave Allocation</label>
+                <label class="block font-medium text-white mb-2"
+                  >Sick Leave Allocation</label
+                >
                 <input
                   v-model.number="applyForm.sick_days"
                   type="number"
                   min="0"
                   step="0.25"
                   class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                />
               </div>
             </div>
 
@@ -487,21 +384,27 @@
             <div>
               <label class="block font-medium text-white mb-2">Apply To</label>
               <input
-                :value="selectedCredit.credit_type === 'Vacation' ? 'Vacation Leave' : 'Sick Leave'"
+                :value="
+                  selectedCredit.credit_type === 'Vacation'
+                    ? 'Vacation Leave'
+                    : 'Sick Leave'
+                "
                 type="text"
                 readonly
                 class="w-full border border-slate-700 rounded-lg px-3 py-2 text-gray-400 bg-[#0B1420]"
-              >
+              />
             </div>
 
             <div>
-              <label class="block font-medium text-white mb-2">Days to Apply</label>
+              <label class="block font-medium text-white mb-2"
+                >Days to Apply</label
+              >
               <input
                 :value="selectedCredit.equivalent_leave_days"
                 type="number"
                 readonly
                 class="w-full border border-slate-700 rounded-lg px-3 py-2 text-gray-400 bg-[#0B1420]"
-              >
+              />
             </div>
           </template>
 
@@ -510,15 +413,9 @@
           </p>
         </div>
 
-
         <!-- Modal Buttons -->
         <div class="modal-actions">
-
-          <button
-            @click="closeApplyModal"
-            type="button"
-            class="cancel-button"
-          >
+          <button @click="closeApplyModal" type="button" class="cancel-button">
             Cancel
           </button>
 
@@ -529,16 +426,11 @@
           >
             Apply Credit
           </button>
-
         </div>
-
       </div>
-
     </div>
-    
-</div>  
+  </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
@@ -547,7 +439,8 @@ import {
   getEmployees,
   getLeaveCredits,
   addLeaveCredit,
-  applyLeaveCredit
+  applyLeaveCredit,
+  deleteLeaveCredit,
 } from "@/services/leaveCredit";
 
 /* ============================================================
@@ -587,7 +480,7 @@ const applyForm = ref({
   days: 0,
   split: false,
   vacation_days: 0,
-  sick_days: 0
+  sick_days: 0,
 });
 
 const validationMessage = ref("");
@@ -597,7 +490,7 @@ const form = ref({
   activity_name: "",
   hours_rendered: "",
   equivalent_leave_days: "",
-  credit_type: ""
+  credit_type: "",
 });
 
 /* ============================================================
@@ -610,7 +503,7 @@ const resetApplyForm = () => {
     days: 0,
     split: false,
     vacation_days: 0,
-    sick_days: 0
+    sick_days: 0,
   };
   validationMessage.value = "";
 };
@@ -622,7 +515,7 @@ const handleApplyTypeChange = () => {
 };
 
 const availableCreditDays = computed(() =>
-  Number(selectedCredit.value?.equivalent_leave_days ?? 0)
+  Number(selectedCredit.value?.equivalent_leave_days ?? 0),
 );
 
 const totalApplied = computed(() => {
@@ -632,12 +525,13 @@ const totalApplied = computed(() => {
   }
 
   return applyForm.value.split
-    ? Number(applyForm.value.vacation_days || 0) + Number(applyForm.value.sick_days || 0)
+    ? Number(applyForm.value.vacation_days || 0) +
+        Number(applyForm.value.sick_days || 0)
     : Number(applyForm.value.days || 0);
 });
 
-const remainingCredit = computed(() =>
-  availableCreditDays.value - totalApplied.value
+const remainingCredit = computed(
+  () => availableCreditDays.value - totalApplied.value,
 );
 
 /* ============================================================
@@ -681,7 +575,7 @@ const saveCredit = async () => {
       activity_name: "",
       hours_rendered: "",
       equivalent_leave_days: "",
-      credit_type: ""
+      credit_type: "",
     };
 
     await loadCredits();
@@ -691,10 +585,9 @@ const saveCredit = async () => {
 
     alert(
       error.response?.data?.message ??
-      JSON.stringify(
-        error.response?.data?.errors ??
-        "Unable to save leave credit."
-      )
+        JSON.stringify(
+          error.response?.data?.errors ?? "Unable to save leave credit.",
+        ),
     );
   }
 };
@@ -748,7 +641,8 @@ const confirmApplyCredit = async () => {
   }
 
   if (total > availableCreditDays.value) {
-    validationMessage.value = "Total applied days cannot exceed the available credit.";
+    validationMessage.value =
+      "Total applied days cannot exceed the available credit.";
     return;
   }
 
@@ -759,7 +653,7 @@ const confirmApplyCredit = async () => {
       days: applyForm.value.split ? total : applyForm.value.days,
       split: applyForm.value.split,
       vacation_days: applyForm.value.vacation_days,
-      sick_days: applyForm.value.sick_days
+      sick_days: applyForm.value.sick_days,
     });
 
     alert("Leave credit applied successfully!");
@@ -770,6 +664,49 @@ const confirmApplyCredit = async () => {
   } catch (error) {
     console.error(error);
     alert("Unable to apply leave credit.");
+  }
+};
+
+const removeCredit = async (id: number) => {
+  const credit = credits.value.find(
+    (credit) => credit.credits_id === id
+  );
+
+  if (!credit) {
+    return;
+  }
+
+  const employeeName = `${credit.employee?.last_name ?? ""}, ${credit.employee?.first_name ?? ""}`;
+
+  const confirmed = window.confirm(
+    `Are you sure you want to remove this leave credit?\n\n` +
+    `Employee: ${employeeName}\n` +
+    `Activity: ${credit.activity_name}\n` +
+    `Credit: ${credit.equivalent_leave_days} days\n\n` +
+    `This will only remove it from the active records.`
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await deleteLeaveCredit(id);
+
+    alert("Leave credit removed successfully.");
+
+    await loadCredits();
+
+  } catch (error: any) {
+    console.error(
+      "Failed to remove leave credit:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+      "Unable to remove leave credit."
+    );
   }
 };
 
@@ -791,7 +728,7 @@ const formatDate = (date: string) => {
   return parsedDate.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
-    day: "numeric"
+    day: "numeric",
   });
 };
 
@@ -805,64 +742,48 @@ onMounted(() => {
 });
 </script>
 
-
 <style scoped>
-
 /* ============================================================
    PAGE
    ============================================================ */
 
 .dashboard-shell {
-
   background: #080d14;
 
   width: 100%;
 
   min-height: 100vh;
-
 }
-
 
 /* ============================================================
    CARDS
    ============================================================ */
 
 .neo-card {
-
   background: #111d2e;
 
   border: 1px solid #1e293b;
 
   border-radius: 1.4rem;
 
-  box-shadow:
-    0 10px 22px
-    rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
 
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 
   min-width: 0;
-
 }
-
 
 .neo-card:hover {
-
-  box-shadow:
-    0 14px 26px
-    rgba(15, 23, 42, 0.08);
-
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.08);
 }
-
 
 /* ============================================================
    FORM CONTROLS
    ============================================================ */
 
 .form-control {
-
   width: 100%;
 
   min-width: 0;
@@ -871,9 +792,7 @@ onMounted(() => {
 
   border-radius: 0.5rem;
 
-  padding:
-    0.5rem
-    0.75rem;
+  padding: 0.5rem 0.75rem;
 
   color: white;
 
@@ -884,43 +803,29 @@ onMounted(() => {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-
 }
-
 
 .form-control::placeholder {
-
   color: #6b7280;
-
 }
-
 
 .form-control:focus {
-
   border-color: #3b82f6;
 
-  box-shadow:
-    0 0 0 2px
-    rgba(59, 130, 246, 0.25);
-
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
-
 .form-control option {
-
   background: #0b1420;
 
   color: white;
-
 }
-
 
 /* ============================================================
    BUTTONS
    ============================================================ */
 
 .primary-button {
-
   display: inline-flex;
 
   align-items: center;
@@ -929,9 +834,7 @@ onMounted(() => {
 
   min-height: 40px;
 
-  padding:
-    0.5rem
-    1.5rem;
+  padding: 0.5rem 1.5rem;
 
   background: #2563eb;
 
@@ -947,25 +850,19 @@ onMounted(() => {
     background-color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
-
 }
 
-
 .primary-button:hover {
-
   background: #1d4ed8;
 
   transform: translateY(-1px);
-
 }
-
 
 /* ============================================================
    TABLE WRAPPER
    ============================================================ */
 
 .table-wrapper {
-
   width: 100%;
 
   max-width: 100%;
@@ -975,16 +872,13 @@ onMounted(() => {
   overflow-y: hidden;
 
   -webkit-overflow-scrolling: touch;
-
 }
-
 
 /* ============================================================
    TABLE
    ============================================================ */
 
 .credit-table {
-
   width: 100%;
 
   min-width: 850px;
@@ -992,26 +886,18 @@ onMounted(() => {
   border-collapse: collapse;
 
   table-layout: auto;
-
 }
-
 
 /* ============================================================
    TABLE HEADER
    ============================================================ */
 
 .credit-table thead {
-
   background: #0b1420;
-
 }
 
-
 .credit-table th {
-
-  padding:
-    0.75rem
-    1rem;
+  padding: 0.75rem 1rem;
 
   color: white;
 
@@ -1023,70 +909,46 @@ onMounted(() => {
 
   white-space: nowrap;
 
-  border-bottom:
-    1px solid #1e293b;
-
+  border-bottom: 1px solid #1e293b;
 }
-
 
 /* ============================================================
    TABLE BODY
    ============================================================ */
 
 .credit-table tbody tr {
-
-  border-top:
-    1px solid #1e293b;
+  border-top: 1px solid #1e293b;
 
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
-
 }
-
 
 .credit-table tbody tr:hover {
-
-  background: rgba(
-    255,
-    255,
-    255,
-    0.05
-  );
-
+  background: rgba(255, 255, 255, 0.05);
 }
 
-
 .credit-table td {
-
-  padding:
-    0.75rem
-    1rem;
+  padding: 0.75rem 1rem;
 
   vertical-align: middle;
 
   color: white;
 
   font-size: 0.875rem;
-
 }
-
 
 /* ============================================================
    EMPLOYEE
    ============================================================ */
 
 .employee-cell {
-
   min-width: 150px;
 
   max-width: 220px;
-
 }
 
-
 .employee-name {
-
   display: block;
 
   color: white;
@@ -1094,156 +956,118 @@ onMounted(() => {
   font-weight: 500;
 
   overflow-wrap: anywhere;
-
 }
-
 
 /* ============================================================
    TABLE TEXT
    ============================================================ */
 
 .table-primary {
-
   color: white;
 
   overflow-wrap: anywhere;
-
 }
-
 
 /* ============================================================
    CREDIT TYPES
    ============================================================ */
 
 .credit-service {
-
   color: #c084fc;
 
   font-weight: 600;
 
   white-space: nowrap;
-
 }
 
-
 .credit-vacation {
-
   color: #60a5fa;
 
   font-weight: 600;
 
   white-space: nowrap;
-
 }
 
-
 .credit-sick {
-
   color: #4ade80;
 
   font-weight: 600;
 
   white-space: nowrap;
-
 }
 
-
 .credit-other {
-
   color: #9ca3af;
 
   font-weight: 600;
-
 }
-
 
 /* ============================================================
    STATUS
    ============================================================ */
 
 .status-pending {
-
   display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
 
-  padding:
-    0.25rem
-    0.75rem;
+  padding: 0.25rem 0.75rem;
 
   border-radius: 9999px;
 
-  background:
-    rgba(234, 179, 8, 0.20);
+  background: rgba(234, 179, 8, 0.2);
 
   color: #facc15;
 
   font-size: 0.75rem;
 
   white-space: nowrap;
-
 }
 
-
 .status-applied {
-
   display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
 
-  padding:
-    0.25rem
-    0.75rem;
+  padding: 0.25rem 0.75rem;
 
   border-radius: 9999px;
 
-  background:
-    rgba(34, 197, 94, 0.20);
+  background: rgba(34, 197, 94, 0.2);
 
   color: #4ade80;
 
   font-size: 0.75rem;
 
   white-space: nowrap;
-
 }
-
 
 /* ============================================================
    ACTION
    ============================================================ */
 
 .action-column {
-
   text-align: center !important;
-
 }
 
-
 .action-cell {
-
   text-align: center;
 
   white-space: nowrap;
-
 }
 
-
 .apply-button {
-
   display: inline-flex;
 
   align-items: center;
 
   justify-content: center;
 
-  padding:
-    0.5rem
-    1rem;
+  padding: 0.5rem 1rem;
 
   background: #2563eb;
 
@@ -1260,49 +1084,37 @@ onMounted(() => {
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
-
 }
 
-
 .apply-button:hover {
-
   background: #1d4ed8;
 
   transform: translateY(-1px);
-
 }
 
-
 .applied-text {
-
   color: #4ade80;
 
   font-weight: 600;
 
   white-space: nowrap;
-
 }
-
 
 /* ============================================================
    EMPTY STATE
    ============================================================ */
 
 .empty-state {
-
   text-align: center;
 
   color: #9ca3af;
-
 }
-
 
 /* ============================================================
    MODAL
    ============================================================ */
 
 .modal-overlay {
-
   position: fixed;
 
   inset: 0;
@@ -1317,16 +1129,12 @@ onMounted(() => {
 
   padding: 1rem;
 
-  background:
-    rgba(0, 0, 0, 0.60);
+  background: rgba(0, 0, 0, 0.6);
 
   overflow-y: auto;
-
 }
 
-
 .modal-card {
-
   width: 100%;
 
   max-width: 28rem;
@@ -1343,35 +1151,26 @@ onMounted(() => {
 
   border-radius: 1.4rem;
 
-  box-shadow:
-    0 20px 40px
-    rgba(0, 0, 0, 0.35);
-
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
-
 
 /* ============================================================
    CREDIT DETAILS
    ============================================================ */
 
 .credit-details {
-
   margin-top: 1rem;
 
   padding: 1rem;
 
   background: #0b1420;
 
-  border:
-    1px solid #1e293b;
+  border: 1px solid #1e293b;
 
   border-radius: 0.5rem;
-
 }
 
-
 .detail-row {
-
   display: flex;
 
   justify-content: space-between;
@@ -1380,40 +1179,30 @@ onMounted(() => {
 
   gap: 1rem;
 
-  padding:
-    0.25rem 0;
-
+  padding: 0.25rem 0;
 }
 
-
 .detail-label {
-
   color: #9ca3af;
 
   font-weight: 500;
 
   flex-shrink: 0;
-
 }
 
-
 .detail-value {
-
   color: white;
 
   text-align: right;
 
   overflow-wrap: anywhere;
-
 }
-
 
 /* ============================================================
    MODAL ACTIONS
    ============================================================ */
 
 .modal-actions {
-
   display: flex;
 
   justify-content: flex-end;
@@ -1423,15 +1212,10 @@ onMounted(() => {
   margin-top: 1.5rem;
 
   flex-wrap: wrap;
-
 }
 
-
 .cancel-button {
-
-  padding:
-    0.5rem
-    1rem;
+  padding: 0.5rem 1rem;
 
   background: #334155;
 
@@ -1444,24 +1228,16 @@ onMounted(() => {
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
-
 }
 
-
 .cancel-button:hover {
-
   background: #475569;
 
   transform: translateY(-1px);
-
 }
 
-
 .confirm-button {
-
-  padding:
-    0.5rem
-    1rem;
+  padding: 0.5rem 1rem;
 
   background: #2563eb;
 
@@ -1474,18 +1250,13 @@ onMounted(() => {
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
-
 }
 
-
 .confirm-button:hover {
-
   background: #1d4ed8;
 
   transform: translateY(-1px);
-
 }
-
 
 /* ============================================================
    GENERAL TEXT BEHAVIOR
@@ -1495,21 +1266,15 @@ onMounted(() => {
 .neo-card p,
 .neo-card span,
 .neo-card button {
-
   letter-spacing: -0.01em;
-
 }
 
-
 button {
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
-
 }
-
 
 /* ============================================================
    ZOOM / SMALL VIEWPORT BEHAVIOR
@@ -1522,101 +1287,92 @@ button {
   when the viewport becomes narrow because of zoom.
 */
 
-
 @media (max-width: 768px) {
-
   .dashboard-shell {
-
-    padding:
-      1.5rem;
-
+    padding: 1.5rem;
   }
-
 
   .neo-card {
-
-    border-radius:
-      1.1rem;
-
+    border-radius: 1.1rem;
   }
-
 
   .neo-card.p-6 {
-
-    padding:
-      1.25rem;
-
+    padding: 1.25rem;
   }
-
 
   .modal-card {
-
-    padding:
-      1.25rem;
-
+    padding: 1.25rem;
   }
-
 }
-
 
 /* ============================================================
    VERY NARROW VIEWPORT
    ============================================================ */
 
 @media (max-width: 640px) {
-
   .dashboard-shell {
-
-    padding:
-      1rem;
-
+    padding: 1rem;
   }
-
 
   .neo-card.p-6 {
-
-    padding:
-      1rem;
-
+    padding: 1rem;
   }
-
 
   .primary-button {
-
     width: 100%;
-
   }
-
 
   .modal-actions {
-
     flex-direction: column;
-
   }
-
 
   .modal-actions button {
-
     width: 100%;
-
   }
 
-
   .detail-row {
-
     flex-direction: column;
 
     gap: 0.15rem;
-
   }
-
 
   .detail-value {
-
     text-align: left;
-
   }
-
 }
 
+.action-buttons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.remove-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.5rem 1rem;
+
+  background: #dc2626;
+  color: white;
+
+  border-radius: 0.5rem;
+
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.remove-button:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
 </style>
