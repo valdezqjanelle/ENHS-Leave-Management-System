@@ -20,12 +20,7 @@
             </p>
           </div>
 
-          <button
-            @click="generateCustomReport"
-            class="w-full sm:w-auto rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            Generate Report
-          </button>
+      
         </div>
       </div>
 
@@ -478,112 +473,7 @@
         </template>
 
 
-        <!-- ========================================================= -->
-        <!-- ATTENDANCE REPORT -->
-        <!-- ========================================================= -->
-
-        <template v-else-if="selectedReportType === 'attendance'">
-
-          <div class="p-5 sm:p-6">
-
-            <div class="mb-5">
-              <h4 class="text-lg font-semibold text-white">
-                Attendance Report
-              </h4>
-
-              <p class="mt-1 text-sm text-gray-400">
-                Employee attendance patterns
-              </p>
-            </div>
-
-
-            <div class="overflow-x-auto">
-
-              <table class="w-full min-w-[800px]">
-
-                <thead class="bg-[#0B1420]">
-
-                  <tr>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Department
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Total Faculty
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Present Days
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Late Days
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Absent Days
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                      Attendance Rate
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody class="divide-y divide-slate-800">
-
-                  <tr
-                    v-for="dept in attendanceData"
-                    :key="dept.department"
-                    class="transition hover:bg-white/5"
-                  >
-
-                    <td class="px-6 py-4 text-white">
-                      {{ dept.department }}
-                    </td>
-
-                    <td class="px-6 py-4 text-white">
-                      {{ dept.totalFaculty }}
-                    </td>
-
-                    <td class="px-6 py-4 text-white">
-                      {{ dept.presentDays }}
-                    </td>
-
-                    <td class="px-6 py-4 text-white">
-                      {{ dept.lateDays }}
-                    </td>
-
-                    <td class="px-6 py-4 text-white">
-                      {{ dept.absentDays }}
-                    </td>
-
-                    <td class="px-6 py-4">
-
-                      <span
-                        class="rounded-full px-3 py-1 text-sm font-medium"
-                        :class="getAttendanceRateClass(dept.attendanceRate)"
-                      >
-                        {{ dept.attendanceRate }}%
-                      </span>
-
-                    </td>
-
-                  </tr>
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-
-        </template>
+    
 
 
         <!-- ========================================================= -->
@@ -596,13 +486,7 @@
 
             <div class="mb-5">
 
-              <h4 class="text-lg font-semibold text-white">
-                Employee Performance Report
-              </h4>
-
-              <p class="mt-1 text-sm text-gray-400">
-                Total Employees: {{ totalEmployees }}
-              </p>
+  
 
             </div>
 
@@ -665,7 +549,7 @@
                     </td>
 
                     <td class="px-6 py-4 text-white">
-                      {{ employee.position }}
+                      {{ employee.position?.name || employee.position || "-" }}
                     </td>
 
                     <td class="px-6 py-4 text-white">
@@ -998,13 +882,7 @@ const reportTypes = [
     iconColor: 'text-blue-400'
   },
 
-  {
-    id: 'attendance',
-    name: 'Attendance Report',
-    description: 'Employee attendance patterns',
-    icon: Users,
-    iconColor: 'text-green-400'
-  },
+
 
   {
     id: 'faculty-performance',
@@ -1033,45 +911,7 @@ const reportTypes = [
 
 const leaveSummaryData = ref<any[]>([])
 
-const attendanceData = [
 
-  {
-    department: 'Computer Science',
-    totalFaculty: 45,
-    presentDays: 1205,
-    lateDays: 89,
-    absentDays: 31,
-    attendanceRate: 95.2
-  },
-
-  {
-    department: 'Mathematics',
-    totalFaculty: 38,
-    presentDays: 1012,
-    lateDays: 76,
-    absentDays: 28,
-    attendanceRate: 94.8
-  },
-
-  {
-    department: 'English',
-    totalFaculty: 32,
-    presentDays: 845,
-    lateDays: 58,
-    absentDays: 22,
-    attendanceRate: 94.1
-  },
-
-  {
-    department: 'Science',
-    totalFaculty: 41,
-    presentDays: 1089,
-    lateDays: 92,
-    absentDays: 35,
-    attendanceRate: 93.5
-  }
-
-]
 
 
 const employeeData = ref<any[]>([])
@@ -1919,7 +1759,7 @@ const exportReport = () => {
               employee.department ?? '',
 
             Position:
-              employee.position ?? '',
+              employee.position?.name ?? employee.position ?? '',
 
             'Employment Status':
               employee.employment_status ?? '',
@@ -1938,39 +1778,6 @@ const exportReport = () => {
 
       filename =
         'employee-performance-report.csv'
-
-      break
-
-
-    case 'attendance':
-
-      data =
-        attendanceData.map(
-          (dept: any) => ({
-
-            Department:
-              dept.department ?? '',
-
-            'Total Faculty':
-              dept.totalFaculty ?? 0,
-
-            'Present Days':
-              dept.presentDays ?? 0,
-
-            'Late Days':
-              dept.lateDays ?? 0,
-
-            'Absent Days':
-              dept.absentDays ?? 0,
-
-            'Attendance Rate':
-              `${dept.attendanceRate ?? 0}%`
-
-          })
-        )
-
-      filename =
-        'attendance-report.csv'
 
       break
 

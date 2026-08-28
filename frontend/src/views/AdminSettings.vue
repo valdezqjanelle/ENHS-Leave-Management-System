@@ -153,21 +153,29 @@
             </select>
           </div>
 
-          <!-- Position -->
           <div>
             <label class="block text-sm font-medium text-gray-300">
               Position
             </label>
 
-            <input
+            <select
               v-model="adminProfile.position"
-              type="text"
-              :readonly="!isEditingProfile"
+              :disabled="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
-            />
+            >
+              <option value="">Select Position</option>
+
+              <option
+                v-for="position in positions"
+                :key="position.code"
+                :value="position.name"
+              >
+                {{ position.name }}
+              </option>
+            </select>
           </div>
 
           <!-- Department -->
@@ -1010,49 +1018,46 @@
           </div>
         </div>
 
-        <div class="mt-5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-  <p class="text-sm font-medium text-yellow-400">
-    Restore Database
-  </p>
+        <div
+          class="mt-5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"
+        >
+          <p class="text-sm font-medium text-yellow-400">Restore Database</p>
 
-  <p class="text-sm text-yellow-500/80 mt-1 mb-4">
-    Select a previously downloaded JSON database backup file to restore the
-    system data.
-  </p>
+          <p class="text-sm text-yellow-500/80 mt-1 mb-4">
+            Select a previously downloaded JSON database backup file to restore
+            the system data.
+          </p>
 
-  <div class="flex flex-col sm:flex-row gap-3">
-    <input
-      ref="restoreFileInput"
-      type="file"
-      accept=".json,application/json"
-      @change="handleRestoreFile"
-      class="hidden"
-    />
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              ref="restoreFileInput"
+              type="file"
+              accept=".json,application/json"
+              @change="handleRestoreFile"
+              class="hidden"
+            />
 
-    <button
-      @click="restoreFileInput?.click()"
-      :disabled="restoreLoading"
-      class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-    >
-      {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
-    </button>
-  </div>
+            <button
+              @click="restoreFileInput?.click()"
+              :disabled="restoreLoading"
+              class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+            >
+              {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
+            </button>
+          </div>
 
-  <p
-    v-if="selectedRestoreFile"
-    class="text-sm text-gray-400 mt-3"
-  >
-    Selected file:
-    <span class="text-white">
-      {{ selectedRestoreFile.name }}
-    </span>
-  </p>
+          <p v-if="selectedRestoreFile" class="text-sm text-gray-400 mt-3">
+            Selected file:
+            <span class="text-white">
+              {{ selectedRestoreFile.name }}
+            </span>
+          </p>
 
-  <p class="text-xs text-red-400 mt-3">
-    Warning: Restoring a backup will replace the current database records
-    with the records contained in the selected backup.
-  </p>
-</div>
+          <p class="text-xs text-red-400 mt-3">
+            Warning: Restoring a backup will replace the current database
+            records with the records contained in the selected backup.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -1113,6 +1118,7 @@ import { onMounted, ref } from "vue";
 
 import {
   getAdminProfile,
+  getAdminPositions,
   updateAdminEmail,
   updateAdminPassword,
   updateAdminProfile,
@@ -1143,7 +1149,7 @@ import {
   createDatabaseBackup,
   getBackups,
   downloadBackup,
-  restoreDatabaseBackup
+  restoreDatabaseBackup,
 } from "@/services/backup";
 
 const activeTab = ref("account");
@@ -1235,11 +1241,6 @@ const tabs = [
   },
 
   {
-    id: "credits",
-    name: "Leave Credits",
-  },
-
-  {
     id: "approval",
     name: "Approval Settings",
   },
@@ -1270,6 +1271,17 @@ const adminProfile = ref({
   department: "",
   contact_number: "",
 });
+
+const positions = ref<any[]>([]);
+
+const loadPositions = async () => {
+  try {
+    const data = await getAdminPositions();
+    positions.value = Array.isArray(data) ? data : [];
+  } catch (error: any) {
+    console.error("Failed to load positions:", error.response?.data || error);
+  }
+};
 
 // Snapshot used to restore values if the user cancels an edit
 const adminProfileBackup = ref({ ...adminProfile.value });
@@ -1316,6 +1328,7 @@ const loadAdmin = async () => {
     const data = await getAdminProfile();
 
     adminEmail.value = data.email;
+    positions.value = data.positions ?? [];
 
     if (data.profile) {
       adminProfile.value = {
@@ -1633,10 +1646,7 @@ const loadBackups = async () => {
       };
     }
   } catch (error: any) {
-    console.error(
-      "Failed to load backups:",
-      error.response?.data || error
-    );
+    console.error("Failed to load backups:", error.response?.data || error);
   }
 };
 
@@ -1670,13 +1680,10 @@ const createBackup = async () => {
   } catch (error: any) {
     console.error(
       "Failed to create database backup:",
-      error.response?.data || error
+      error.response?.data || error,
     );
 
-    alert(
-      error.response?.data?.message ||
-        "Failed to create database backup."
-    );
+    alert(error.response?.data?.message || "Failed to create database backup.");
   } finally {
     backupLoading.value = false;
   }
@@ -1723,15 +1730,9 @@ const downloadLatestBackup = async () => {
 
     window.URL.revokeObjectURL(url);
   } catch (error: any) {
-    console.error(
-      "Failed to download backup:",
-      error.response?.data || error
-    );
+    console.error("Failed to download backup:", error.response?.data || error);
 
-    alert(
-      error.response?.data?.message ||
-        "Failed to download backup."
-    );
+    alert(error.response?.data?.message || "Failed to download backup.");
   }
 };
 
@@ -1742,11 +1743,11 @@ const handleRestoreFile = async (event: Event) => {
     return;
   }
 
-const file = input.files.item(0);
+  const file = input.files.item(0);
 
-if (!file) {
-  return;
-}
+  if (!file) {
+    return;
+  }
 
   // Make sure the file is JSON
   if (
@@ -1764,7 +1765,7 @@ if (!file) {
 
   const confirmed = confirm(
     `Are you sure you want to restore "${file.name}"?\n\n` +
-      "This will replace the current database records with the records from this backup."
+      "This will replace the current database records with the records from this backup.",
   );
 
   if (!confirmed) {
@@ -1781,10 +1782,7 @@ if (!file) {
 
     console.log("RESTORE RESPONSE:", response);
 
-    alert(
-      response.data?.message ||
-        "Database restored successfully."
-    );
+    alert(response.data?.message || "Database restored successfully.");
 
     selectedRestoreFile.value = null;
 
@@ -1793,27 +1791,22 @@ if (!file) {
 
     // Reset file input so the same file can be selected again
     input.value = "";
- } catch (error: any) {
-  console.error("FULL RESTORE ERROR:", error);
-  console.error("STATUS:", error.response?.status);
-  console.error("DATA:", error.response?.data);
+  } catch (error: any) {
+    console.error("FULL RESTORE ERROR:", error);
+    console.error("STATUS:", error.response?.status);
+    console.error("DATA:", error.response?.data);
 
-  alert(
-    "RESTORE FAILED\n\n" +
-    JSON.stringify(error.response?.data, null, 2)
-  );
+    alert("RESTORE FAILED\n\n" + JSON.stringify(error.response?.data, null, 2));
 
-  input.value = "";
-
+    input.value = "";
   } finally {
     restoreLoading.value = false;
   }
 };
 
-
-
 onMounted(() => {
   loadAdmin();
+  loadPositions();
   loadLeaveTypes();
   loadLeaveRules();
   loadApprovalSettings();

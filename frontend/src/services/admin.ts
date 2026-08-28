@@ -15,6 +15,15 @@ export const getAdminProfile = async () => {
   return response.data;
 };
 
+export const getAdminPositions = async () => {
+  const response = await axios.get(
+    `${API}/admin/positions`,
+    authHeader()
+  );
+
+  return response.data;
+};
+
 // Update admin profile
 export const updateAdminProfile = async (data: {
   first_name: string;
@@ -114,3 +123,4 @@ export const deleteLeaveType = async(id:number)=>{
     return response.data;
 
 };
+
