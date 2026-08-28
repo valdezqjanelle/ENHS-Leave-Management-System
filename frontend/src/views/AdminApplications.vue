@@ -283,6 +283,8 @@
   </template>
 
 </div>
+</div>
+</div>
 
           <!-- Pagination -->
           <div
@@ -351,8 +353,6 @@
           </div>
         </div>
       </div>
-    </div>
-    </div>  
     </div>
 
     <!-- ====================================================== -->
@@ -1245,34 +1245,33 @@ const deleteLeaveApplicationById = async (
 };
 
 const getDeletedApplications = async () => {
+
   try {
-    const response = await getDeletedLeaveApplications();
 
-    deletedApplications.value = Array.isArray(response)
-      ? response
-      : [];
+    const response =
+      await getDeletedLeaveApplications();
 
-    currentPage.value = 1;
+    deletedApplications.value =
+      Array.isArray(response)
+        ? response
+        : [];
 
     console.log(
       "DELETED APPLICATIONS:",
       deletedApplications.value
     );
 
-  } catch (error: any) {
+  } catch (error) {
+
     console.error(
       "Failed to fetch deleted leave applications",
       error
     );
 
-    deletedApplications.value = [];
-
-    alert(
-      error.response?.data?.message ??
-      "Failed to load removed applications."
-    );
   }
+
 };
+
 const restoreLeaveApplicationById = async (
   leaveId: number
 ) => {

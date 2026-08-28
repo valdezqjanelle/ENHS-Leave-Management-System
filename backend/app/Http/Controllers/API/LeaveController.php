@@ -510,7 +510,7 @@ public function updateStatus(Request $request, $id)
         'other_approval' => 'nullable|string',
 
         // Final
-        'final_status' => 'nullable|in:pending,approved,rejected',
+        'final_status' => 'nullable|in:pending,approved,disapproved',
         'disapproval_reason' => 'nullable|string',
         'admin_remarks' => 'nullable|string',
 
