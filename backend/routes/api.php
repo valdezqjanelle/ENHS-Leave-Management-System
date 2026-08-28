@@ -101,6 +101,14 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    Route::get('/debug-role', function (Request $request) {
+    return response()->json([
+        'user_id' => $request->user()->user_id,
+        'email' => $request->user()->email,
+        'role' => $request->user()->role,
+    ]);
+});
+
     Route::middleware('role:admin')->group(function () {
 
         // Dashboard
