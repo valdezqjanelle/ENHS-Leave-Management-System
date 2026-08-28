@@ -135,10 +135,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'restoreLeave'
         ]);
 
-        Route::get('/leave-applications/{id}', [
-            LeaveController::class,
-            'show'
-        ]);
+ 
 
         Route::put('/leave-applications/{id}', [
             LeaveController::class,

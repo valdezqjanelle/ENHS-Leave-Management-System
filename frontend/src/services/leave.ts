@@ -78,7 +78,7 @@ export const downloadLeavePdf = async (leaveId: number) => {
 };
 
 export const restoreLeaveApplication = async (leaveId: number) => {
-  const response = await api.put(
+  const response = await api.post(
     `/leave-applications/${leaveId}/restore`
   );
   return response.data;
