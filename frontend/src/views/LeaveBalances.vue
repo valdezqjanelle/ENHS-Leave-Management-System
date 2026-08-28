@@ -425,7 +425,7 @@ const loadBalances = async () => {
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      "http://127.0.0.1:8000/api/leave-balances",
+      "https://enhs-leave-management-system.onrender.com/api/leave-balances",
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -473,7 +473,7 @@ const updateBalance = async () => {
       localStorage.getItem("token");
 
     await axios.put(
-      `http://127.0.0.1:8000/api/leave-balances/${selectedBalance.value.employee_id}`,
+      `https://enhs-leave-management-system.onrender.com/api/leave-balances/${selectedBalance.value.employee_id}`,
       {
         service_credits:
           selectedBalance.value.service_credits,

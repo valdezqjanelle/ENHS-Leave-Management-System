@@ -1102,7 +1102,7 @@ const updateStatus = async (
     const token = localStorage.getItem("token");
 
     await axios.put(
-      `http://127.0.0.1:8000/api/leave-applications/${leaveId}`,
+      `https://enhs-leave-management-system.onrender.com/api/leave-applications/${leaveId}`,
 
       {
         final_status: status,
@@ -1192,7 +1192,7 @@ const loadApplications = async () => {
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      "http://127.0.0.1:8000/api/leave-applications",
+      "https://enhs-leave-management-system.onrender.com/api/leave-applications",
       {
         headers: {
           Authorization: `Bearer ${token}`,

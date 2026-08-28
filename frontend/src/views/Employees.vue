@@ -1443,7 +1443,7 @@ const calculateSalary = async () => {
   try {
     const response =
       await axios.get(
-        "http://127.0.0.1:8000/api/salary-info",
+        "https://enhs-leave-management-system.onrender.com/api/salary-info",
         {
           params: {
             position_id:
@@ -1612,7 +1612,7 @@ const calculateEditSalary =
     try {
       const response =
         await axios.get(
-          "http://127.0.0.1:8000/api/salary-info",
+          "https://enhs-leave-management-system.onrender.com/api/salary-info",
           {
             params: {
               position_id:

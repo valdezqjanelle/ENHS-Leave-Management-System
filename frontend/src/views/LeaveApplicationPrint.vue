@@ -1513,7 +1513,7 @@ const getAttachmentUrl = (
 
   if (attachment.file_path) {
 
-    return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
+    return `http://https://enhs-leave-management-system.onrender.com/api/storage/${attachment.file_path}`;
 
   }
 
