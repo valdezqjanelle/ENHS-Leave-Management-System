@@ -281,6 +281,8 @@ class LeaveController extends Controller
             'email' => auth()->user()?->email,
         ]);
 
+        try {
+
         $leave = LeaveApplication::with([
             'employee',
             'leaveType'
@@ -373,7 +375,7 @@ class LeaveController extends Controller
 
         $text(
             'position',
-            $employee->position->name ?? ''
+            $employee->position?->name ?? ''
         );
 
         $text(
@@ -657,15 +659,28 @@ class LeaveController extends Controller
         $pdf->SetTitle($filename);
 
         return response(
-            $pdf->Output($filename, 'S'),
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => "inline; filename=\"{$filename}\"",
-                'Access-Control-Allow-Origin' => request()->header('Origin', '*'),
-                'Access-Control-Allow-Credentials' => 'true',
-            ]
-        );
+        $pdf->Output($filename, 'S'),
+        200,
+        [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"{$filename}\"",
+        ]
+    );
+
+    } catch (\Throwable $e) {
+
+        \Log::error('PDF GENERATION FAILED', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json([
+            'message' => 'PDF generation failed',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
     }
 
     public function downloadAttachment($leave_id, $attachment_id)
