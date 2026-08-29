@@ -20,7 +20,8 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:users,email',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'department' => 'required|string',
+            'department_id' => 'required|exists:departments,department_id',
+            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => 'required|exists:positions,id',
             'salary_step' => 'required|integer|min:1|max:8',
         ]);
@@ -68,9 +69,9 @@ class EmployeeController extends Controller
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
-            'department' => $request->department,
+            'level' => $request->level,
+            'department_id' => $request->department_id,
             'position_id' => $position->id,
-            'employee_category' => $request->employee_category,
             'salary_step' => $request->salary_step,
             'salary' => $salary,
             'contact_number' => $request->contact_number,
@@ -127,7 +128,7 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employees = EmployeeRecord::with(['user', 'createdBy', 'position'])
+        $employees = EmployeeRecord::with(['user', 'createdBy', 'position', 'department'])
             ->latest()
             ->get();
 
@@ -146,7 +147,8 @@ class EmployeeController extends Controller
         $request->validate([
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'department' => 'required|string',
+            'department_id' => 'required|exists:departments,department_id',
+            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => 'required|exists:positions,id',
             'salary_step' => 'required|integer|min:1|max:8',
         ]);
@@ -184,9 +186,9 @@ class EmployeeController extends Controller
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
-            'department' => $request->department,
+            'level' => $request->level,
+            'department_id' => $request->department_id,
             'position_id' => $position->id,
-            'employee_category' => $request->employee_category,
             'salary_step' => $request->salary_step,
             'salary' => $salary,
             'contact_number' => $request->contact_number,
@@ -219,7 +221,7 @@ class EmployeeController extends Controller
 
     public function myProfile(Request $request)
     {
-        $employee = EmployeeRecord::with(['user', 'position'])
+        $employee = EmployeeRecord::with(['user', 'position', 'department'])
             ->where('user_id', $request->user()->user_id)
             ->first();
 
@@ -236,10 +238,11 @@ class EmployeeController extends Controller
             'middle_name' => $employee->middle_name,
             'last_name' => $employee->last_name,
             'sex' => $employee->sex,
-            'department' => $employee->department,
+            'department_id' => $employee->department_id,
+            'department_name' => $employee->department?->department_name,
             'position_id' => $employee->position_id,
             'position' => $employee->position->name ?? null,
-            'employee_category' => $employee->employee_category,
+            'level' => $employee->level,
             'salary_step' => $employee->salary_step,
             'salary' => $employee->salary,
             'contact_number' => $employee->contact_number,
@@ -262,7 +265,8 @@ class EmployeeController extends Controller
             'middle_name' => 'nullable|string',
             'last_name' => 'required|string',
             'sex' => 'required|string',
-            'department' => 'required|string',
+            'department_id' => 'required|exists:departments,department_id',
+            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => 'required|exists:positions,id',
         ]);
 
@@ -271,7 +275,8 @@ class EmployeeController extends Controller
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'sex' => $request->sex,
-            'department' => $request->department,
+            'level' => $request->level,
+            'department_id' => $request->department_id,
             'position_id' => $request->position_id,
         ]);
 

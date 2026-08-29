@@ -154,7 +154,7 @@
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Office: </span>
 
-                    {{ application.employee.department }}
+                    {{ application.employee.department_name }}
                   </div>
 
                   <div class="min-w-0 break-words">
@@ -395,7 +395,7 @@
             >
               <div class="break-words">
                 <strong>Office:</strong>
-                {{ selectedApplication.employee.department }}
+                {{ selectedApplication.employee.department_name }}
               </div>
 
               <div class="break-words">

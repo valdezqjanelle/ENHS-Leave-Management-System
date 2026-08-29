@@ -185,13 +185,24 @@
             </label>
 
             <input
-              v-model="adminProfile.department"
+              v-model="adminProfile.department_name"
               type="text"
-              :readonly="!isEditingProfile"
-              :class="[
-                'mt-1 w-full border rounded-lg px-3 py-2',
-                isEditingProfile ? 'field-editable' : 'field-readonly',
-              ]"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+            />
+          </div>
+
+          <!-- Level -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300">
+              Level
+            </label>
+
+            <input
+              v-model="adminProfile.level"
+              type="text"
+              readonly
+              class="mt-1 w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
             />
           </div>
 
@@ -1268,7 +1279,9 @@ const adminProfile = ref({
   last_name: "",
   sex: "",
   position: "",
-  department: "",
+  department_id: null as number | null,
+  department_name: "",
+  level: "",
   contact_number: "",
 });
 
@@ -1337,7 +1350,9 @@ const loadAdmin = async () => {
         last_name: data.profile.last_name || "",
         sex: data.profile.sex || "",
         position: data.profile.position || "",
-        department: data.profile.department || "",
+        department_id: data.profile.department_id || null,
+        department_name: data.profile.department_name || "",
+        level: data.profile.level || "",
         contact_number: data.profile.contact_number || "",
       };
 

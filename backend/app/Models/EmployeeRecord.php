@@ -20,9 +20,9 @@ class EmployeeRecord extends Model
         'middle_name',
         'last_name',
         'sex',
-        'department',
+        'level',
+        'department_id',
         'position_id',
-        'employee_category',
         'salary',
         'contact_number',
         'employment_status',
@@ -30,13 +30,25 @@ class EmployeeRecord extends Model
         'salary_step'
     ];
 
+    protected $appends = ['department_name'];
+
     protected $dates = ['deleted_at'];
+
     public function position()
     {
         return $this->belongsTo(Position::class);
     }
 
-    // Relationship to User
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'department_id');
+    }
+
+    public function getDepartmentNameAttribute()
+    {
+        return $this->department?->department_name;
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
@@ -44,23 +56,16 @@ class EmployeeRecord extends Model
 
     public function createdBy()
     {
-    return $this->belongsTo(User::class, 'created_by', 'user_id');
+        return $this->belongsTo(User::class, 'created_by', 'user_id');
     }
 
     public function leaveApplications()
     {
-    return $this->hasMany(
-        LeaveApplication::class,
-        'employee_id',
-        'employee_id'
-    );
+        return $this->hasMany(LeaveApplication::class, 'employee_id', 'employee_id');
     }
 
     public function leaveBalance()
     {
-    return $this->hasOne(
-        LeaveBalance::class,
-        'employee_id'
-    );
+        return $this->hasOne(LeaveBalance::class, 'employee_id');
     }
 }

@@ -545,7 +545,7 @@
                     </td>
 
                     <td class="px-6 py-4 text-white">
-                      {{ employee.department }}
+                      {{ employee.department_name }}
                     </td>
 
                     <td class="px-6 py-4 text-white">
@@ -725,7 +725,7 @@
                     </td>
 
                     <td class="px-6 py-4 text-sm text-white">
-                      {{ employee.department }}
+                      {{ employee.department_name }}
                     </td>
 
                     <td class="px-6 py-4 text-sm text-white">
@@ -1726,7 +1726,7 @@ const exportReport = () => {
               employee.employee_name ?? '',
 
             Department:
-              employee.department ?? '',
+              employee.department_name ?? '',
 
             'Vacation Balance':
               employee.vacation_balance ?? 0,
@@ -1756,7 +1756,7 @@ const exportReport = () => {
               employee.employee_name ?? '',
 
             Department:
-              employee.department ?? '',
+              employee.department_name ?? '',
 
             Position:
               employee.position?.name ?? employee.position ?? '',

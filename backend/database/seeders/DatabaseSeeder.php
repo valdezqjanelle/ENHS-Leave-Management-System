@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([PositionSeeder::class,]);
         $this->call([SalaryScheduleSeeder::class,]);
+        $this->call([DepartmentSeeder::class,]);
     }
 }

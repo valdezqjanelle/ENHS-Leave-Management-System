@@ -74,14 +74,27 @@
               <div>
                 <label class="block text-sm font-medium text-gray-400 mb-1">Department</label>
                 <select
-                  v-model="userProfile.department"
+                  v-model="userProfile.department_id"
                   class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Mathematics">Mathematics</option>
-                  <option value="English">English</option>
-                  <option value="Science">Science</option>
+                  <option :value="null">Select Department</option>
+                  <option
+                    v-for="dept in departments"
+                    :key="dept.department_id"
+                    :value="dept.department_id"
+                  >
+                    {{ dept.department_name }} ({{ dept.level }})
+                  </option>
                 </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Level</label>
+                <input
+                  v-model="userProfile.level"
+                  type="text"
+                  class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               <div>
@@ -893,7 +906,9 @@ const loadProfile = async()=>{
 
             position:data.position,
 
-            department:data.department,
+            department_id:data.department_id,
+
+            level:data.level,
 
             gender:data.sex,
 
@@ -931,6 +946,33 @@ const settingsTabs = [
   { id: 'about', name: 'About Us', icon: Info }
 ]
 
+const departments = ref<
+  {
+    department_id: number;
+    department_name: string;
+    level: string;
+  }[]
+>([])
+
+const loadDepartments = async () => {
+  try {
+    const response = await axios.get(
+      "https://enhs-leave-management-system.onrender.com/api/departments",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    departments.value = response.data;
+  } catch (error) {
+    console.error(
+      "Failed to load departments:",
+      error
+    );
+  }
+};
+
 const userProfile = ref({
 
   first_name:'',
@@ -940,7 +982,8 @@ const userProfile = ref({
   name:'',
   employeeId:'',
   position:'',
-  department:'',
+  department_id: null as number | null,
+  level:'',
   gender:'',
   phone:''
 
@@ -1002,6 +1045,7 @@ const showConfirmPassword = ref(false)
 onMounted(()=>{
     loadProfile()
     loadLeaveRules()
+    loadDepartments()
 })
 
 const expandedFAQ = ref<number | null>(null)
@@ -1052,8 +1096,11 @@ await updateMyProfile({
     sex:
     userProfile.value.gender,
 
-    department:
-    userProfile.value.department,
+    department_id:
+    userProfile.value.department_id,
+
+    level:
+    userProfile.value.level,
 
     position:
     userProfile.value.position

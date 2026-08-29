@@ -19,6 +19,7 @@ use App\Http\Controllers\ApprovalSettingController;
 use App\Http\Controllers\API\SystemSettingController;
 use App\Http\Controllers\API\BackupController;
 use App\Http\Controllers\API\LocationController;
+use App\Http\Controllers\API\DepartmentController;
 
 
 /*
@@ -26,7 +27,7 @@ use App\Http\Controllers\API\LocationController;
 | AUTH
 |--------------------------------------------------------------------------
 */
-
+Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 

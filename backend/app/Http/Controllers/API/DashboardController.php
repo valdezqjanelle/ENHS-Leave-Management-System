@@ -88,7 +88,7 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $leaveByDepartment = LeaveApplication::with('employee')
+        $leaveByDepartment = LeaveApplication::with('employee.department')
             ->select(
                 'employee_id',
                 DB::raw('count(*) as total')
@@ -97,7 +97,7 @@ class DashboardController extends Controller
             ->get()
             ->groupBy(function($leave){
 
-                return $leave->employee->department;
+                return $leave->employee->department?->department_name ?? 'Unknown';
 
             })
             ->map(function($department, $name){
@@ -157,15 +157,15 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | EMPLOYEE CATEGORY
+        | EMPLOYEE LEVEL
         |--------------------------------------------------------------------------
         */
 
         $employeeCategory = EmployeeRecord::select(
-                'employee_category',
+                'level',
                 DB::raw('count(*) as count')
             )
-            ->groupBy('employee_category')
+            ->groupBy('level')
             ->get();
 
 
@@ -482,8 +482,8 @@ class DashboardController extends Controller
                 "email" =>
                     $employee->email ?? '',
 
-                "department" =>
-                    $employee->department,
+                "department_name" =>
+                    $employee->department?->department_name ?? '',
 
                 "position" =>
                     $employee->positionInfo->name ?? '',
