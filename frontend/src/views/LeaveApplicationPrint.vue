@@ -44,9 +44,16 @@
       <!-- Loading preview -->
       <div
         v-if="loadingPreview"
-        class="flex items-center justify-center py-24 text-gray-500 text-sm sm:text-base"
+        class="flex flex-col items-center justify-center gap-2 py-24 text-gray-500 text-sm sm:text-base text-center px-4"
       >
-        Loading form preview...
+        <span>
+          {{ previewRetryAttempt > 0
+            ? "Waking up the server — this can take up to a minute on the first load..."
+            : "Loading form preview..." }}
+        </span>
+        <span v-if="previewRetryAttempt > 0" class="text-xs text-gray-400">
+          Attempt {{ previewRetryAttempt }} of {{ MAX_RETRIES + 1 }}
+        </span>
       </div>
 
       <!-- Preview failed -->
@@ -228,8 +235,48 @@ const printingPdf = ref(false);
 
 const loadingPreview = ref(true);
 const previewError = ref(false);
+const previewRetryAttempt = ref(0);
 const pdfBlob = ref<Blob | null>(null);
 const pdfUrl = ref<string | null>(null);
+
+/*
+ * Render's free tier spins down the backend after inactivity, and the
+ * first request after that can take 50+ seconds to wake it up. A single
+ * quick retry isn't enough for that, so this retries with increasing
+ * delays (3s, 8s, 15s) — about 26s of backoff across 4 total attempts,
+ * covering most cold starts without making the user wait forever on a
+ * genuinely broken request.
+ */
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [3000, 8000, 15000];
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const fetchPdfBlobWithRetry = async (
+  onRetry?: (attemptNumber: number) => void
+): Promise<File> => {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const blob = await downloadLeavePdf(leave.value.leave_id);
+      if (!blob || blob.size === 0) throw new Error("Empty PDF response.");
+      return new File([blob], buildFileName(), { type: "application/pdf" });
+    } catch (error) {
+      lastError = error;
+      if (attempt < MAX_RETRIES) {
+        console.warn(
+          `PDF fetch attempt ${attempt + 1} failed, retrying in ${RETRY_DELAYS_MS[attempt]}ms...`,
+          error
+        );
+        onRetry?.(attempt + 2); // report the upcoming attempt number (1-indexed)
+        await wait(RETRY_DELAYS_MS[attempt]);
+      }
+    }
+  }
+
+  throw lastError;
+};
 
 /* Shared filename used everywhere a PDF is saved (preview, toolbar, custom buttons) */
 const buildFileName = () => {
@@ -320,13 +367,11 @@ const getAttachmentUrl = (attachment: any) => {
   if (attachment.file_url) return attachment.file_url;
   if (attachment.url) return attachment.url;
   if (attachment.download_url) return attachment.download_url;
-
-  if (attachment.file_path) {
-    return `https://enhs-leave-management-system.onrender.com/storage/${attachment.file_path}`;
-  }
-
+  if (attachment.file_path) return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
   return "";
+
 };
+
 const getAttachmentName = (attachment: any) => {
   return (attachment.file_name || attachment.name || attachment.original_name || "").toLowerCase();
 };
@@ -341,35 +386,34 @@ const isImage = (attachment: any) => {
   return attachment.file_type?.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp)$/i.test(name);
 };
 
-/* PDF PREVIEW - fetch once, reuse for download + print */
+/* PDF PREVIEW - fetch once (with retries), reuse for download + print */
 const loadPdfPreview = async () => {
   if (!leave.value?.leave_id) return;
 
   loadingPreview.value = true;
   previewError.value = false;
+  previewRetryAttempt.value = 0;
 
   try {
-    const blob = await downloadLeavePdf(leave.value.leave_id);
-    if (!blob || blob.size === 0) throw new Error("Empty PDF response.");
-
-    const namedFile = new File([blob], buildFileName(), { type: "application/pdf" });
+    const namedFile = await fetchPdfBlobWithRetry((attemptNumber) => {
+      previewRetryAttempt.value = attemptNumber;
+    });
     pdfBlob.value = namedFile;
 
     if (pdfUrl.value) window.URL.revokeObjectURL(pdfUrl.value);
     pdfUrl.value = window.URL.createObjectURL(namedFile);
   } catch (error) {
-    console.error("Failed to load PDF preview:", error);
+    console.error("Failed to load PDF preview after retries:", error);
     previewError.value = true;
   } finally {
     loadingPreview.value = false;
+    previewRetryAttempt.value = 0;
   }
 };
 
 const ensurePdfBlob = async (): Promise<Blob> => {
   if (pdfBlob.value) return pdfBlob.value;
-  const blob = await downloadLeavePdf(leave.value.leave_id);
-  if (!blob || blob.size === 0) throw new Error("Empty PDF response.");
-  const namedFile = new File([blob], buildFileName(), { type: "application/pdf" });
+  const namedFile = await fetchPdfBlobWithRetry();
   pdfBlob.value = namedFile;
   return namedFile;
 };
