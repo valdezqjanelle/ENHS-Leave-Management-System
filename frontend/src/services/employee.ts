@@ -137,3 +137,15 @@ export const getDeletedEmployees = async () => {
 
   return response.data;
 };
+
+export const getDepartments = async (level?: string) => {
+  const response = await axios.get(
+    `${API}/departments`,
+    {
+      ...authHeader(),
+      params: level ? { level } : {}
+    }
+  );
+
+  return response.data;
+};

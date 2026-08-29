@@ -127,6 +127,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
         Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
+        Route::get('/departments', [EmployeeController::class, 'listDepartments']);
 
 
         Route::get('/leave-applications', [LeaveController::class, 'index']);

@@ -24,14 +24,15 @@ export const getAdminPositions = async () => {
   return response.data;
 };
 
-// Update admin profile
 export const updateAdminProfile = async (data: {
   first_name: string;
   middle_name: string;
   last_name: string;
   sex: string;
   position: string;
-  department: string;
+  department_id: number | null;
+  department_name: string;
+  level: string;
   contact_number: string;
 }) => {
   const response = await axios.put(

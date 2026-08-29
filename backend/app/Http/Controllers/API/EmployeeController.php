@@ -92,6 +92,19 @@ class EmployeeController extends Controller
         ]);
     }
 
+    public function listDepartments(Request $request)
+{
+    $query = \App\Models\Department::query()
+        ->orderBy('department_name');
+
+    // Optional: only show departments belonging to the selected level
+    if ($request->filled('level')) {
+        $query->where('level', $request->level);
+    }
+
+    return response()->json($query->get());
+}
+
     public function salaryInfo(Request $request)
     {
         $request->validate([
