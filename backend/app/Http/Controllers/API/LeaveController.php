@@ -261,15 +261,16 @@ class LeaveController extends Controller
     /*
 | ADMIN: VIEW ONE
 */
-    public function show($id)
+public function show($id)
 {
-    return response()->json([
-        'success' => true,
-        'message' => 'SHOW METHOD IS WORKING',
-        'id' => $id,
-    ]);
-}
+    $leave = LeaveApplication::with([
+        'employee',
+        'leaveType',
+        'attachments'
+    ])->findOrFail($id);
 
+    return response()->json($leave);
+}
 
 
 public function downloadPdf(Request $request, $id)
