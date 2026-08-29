@@ -90,9 +90,9 @@
                 </td>
 
                 <td class="px-2 sm:px-3 py-4 text-white break-words">
-                  {{ employee.department_name }}
+                  {{ employee.department_name || employee.department?.department_name || '—' }}
                 </td>
-
+                
                 <td class="px-2 sm:px-3 py-4 text-white break-words">
                   {{ employee.position?.name || "-" }}
                 </td>
@@ -908,10 +908,7 @@
 
       <!-- Footer -->
       <div class="bg-gray-100 px-6 py-4 flex justify-end">
-        <button
-          @click="showDeletedModal = false"
-          class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
-        >
+        <button @click="showDeletedModal = false" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
           Close
         </button>
       </div>
