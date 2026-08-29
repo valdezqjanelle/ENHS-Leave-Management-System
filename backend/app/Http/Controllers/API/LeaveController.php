@@ -271,7 +271,6 @@ class LeaveController extends Controller
 }
 
 
-
 public function downloadPdf(Request $request, $id)
 {
     \Log::info('PDF METHOD REACHED', [
@@ -302,12 +301,14 @@ public function downloadPdf(Request $request, $id)
             [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'inline; filename="test.pdf"',
+                'Access-Control-Allow-Origin' => $request->header('Origin'),
+                'Access-Control-Allow-Credentials' => 'true',
             ]
         );
 
     } catch (\Throwable $e) {
 
-        \Log::error('PDF TEST FAILED', [
+        \Log::error('PDF GENERATION FAILED', [
             'id' => $id,
             'message' => $e->getMessage(),
             'file' => $e->getFile(),
@@ -315,13 +316,14 @@ public function downloadPdf(Request $request, $id)
         ]);
 
         return response()->json([
-            'message' => 'PDF test failed.',
+            'message' => 'PDF generation failed.',
             'error' => $e->getMessage(),
             'file' => basename($e->getFile()),
             'line' => $e->getLine(),
         ], 500);
     }
 }
+
     public function downloadAttachment(Request $request, $leave_id, $attachment_id)
     {
         $attachment = LeaveAttachment::where('leave_id', $leave_id)
