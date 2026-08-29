@@ -1175,12 +1175,14 @@ const loadDepartments = async () => {
         },
       },
     );
-    departments.value = response.data.data;
+
+    departments.value = response.data;
+
+    console.log("Departments:", departments.value);
   } catch (error) {
     console.error("Failed to load departments:", error);
   }
 };
-
 /* ========================================================= */
 /* CATEGORY MAPPING */
 /* ========================================================= */
