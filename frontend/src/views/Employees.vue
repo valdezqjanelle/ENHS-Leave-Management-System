@@ -999,7 +999,7 @@
                   {{ employee.user?.email || "-" }}
                 </td>
 
-                <td class="px-2 sm:px-3 py-4 text-white break-words">
+                <td class="px-2 sm:px-3 py-4 text-gray-800 break-words">
                   {{
                     employee.department?.department_name ||
                     employee.department_name ||
