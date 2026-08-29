@@ -273,7 +273,7 @@ class LeaveController extends Controller
     }
 
 
-    public function downloadPdf($id)
+    public function downloadPdf(Request $request, $id)
     {
         \Log::info('PDF METHOD REACHED', [
             'id' => $id,
@@ -658,14 +658,30 @@ class LeaveController extends Controller
 
         $pdf->SetTitle($filename);
 
-        return response(
-        $pdf->Output($filename, 'S'),
-        200,
-        [
+        $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => "inline; filename=\"{$filename}\"",
-        ]
-    );
+        ];
+
+        // Explicitly attach CORS headers on this response. The global
+        // HandleCors middleware normally does this automatically, but this
+        // binary/PDF response has been observed losing its CORS headers
+        // between Laravel and the browser on Render — only reflect
+        // origins already in our allow-list, never echo back arbitrary ones.
+        $origin = $request->header('Origin');
+        $allowedOrigins = config('cors.allowed_origins', []);
+
+        if ($origin && in_array($origin, $allowedOrigins, true)) {
+            $headers['Access-Control-Allow-Origin'] = $origin;
+            $headers['Access-Control-Allow-Credentials'] = 'true';
+            $headers['Vary'] = 'Origin';
+        }
+
+        return response(
+            $pdf->Output($filename, 'S'),
+            200,
+            $headers
+        );
 
     } catch (\Throwable $e) {
 
@@ -683,7 +699,7 @@ class LeaveController extends Controller
     }
     }
 
-    public function downloadAttachment($leave_id, $attachment_id)
+    public function downloadAttachment(Request $request, $leave_id, $attachment_id)
     {
         $attachment = LeaveAttachment::where('leave_id', $leave_id)
             ->where('attachment_id', $attachment_id)
@@ -697,7 +713,17 @@ class LeaveController extends Controller
 
         $path = Storage::disk('public')->path($attachment->file_path);
 
-        return response()->file($path);
+        $headers = [];
+        $origin = $request->header('Origin');
+        $allowedOrigins = config('cors.allowed_origins', []);
+
+        if ($origin && in_array($origin, $allowedOrigins, true)) {
+            $headers['Access-Control-Allow-Origin'] = $origin;
+            $headers['Access-Control-Allow-Credentials'] = 'true';
+            $headers['Vary'] = 'Origin';
+        }
+
+        return response()->file($path, $headers);
     }
 
 
