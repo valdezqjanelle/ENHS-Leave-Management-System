@@ -272,11 +272,15 @@ class LeaveController extends Controller
 
 
 
-
-    public function downloadPdf(Request $request, $id)
+public function downloadPdf(Request $request, $id)
 {
-    try {
+    \Log::info('PDF METHOD REACHED', [
+        'id' => $id,
+        'user_id' => auth()->user()?->user_id,
+        'email' => auth()->user()?->email,
+    ]);
 
+    try {
         $pdf = new Fpdi('P', 'pt', 'A4');
 
         $pdf->setPrintHeader(false);
@@ -297,12 +301,18 @@ class LeaveController extends Controller
             200,
             [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' =>
-                    'inline; filename="test.pdf"',
+                'Content-Disposition' => 'inline; filename="test.pdf"',
             ]
         );
 
     } catch (\Throwable $e) {
+
+        \Log::error('PDF TEST FAILED', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
 
         return response()->json([
             'message' => 'PDF test failed.',
@@ -312,7 +322,6 @@ class LeaveController extends Controller
         ], 500);
     }
 }
-
     public function downloadAttachment(Request $request, $leave_id, $attachment_id)
     {
         $attachment = LeaveAttachment::where('leave_id', $leave_id)
