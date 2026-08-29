@@ -262,15 +262,28 @@ class LeaveController extends Controller
 | ADMIN: VIEW ONE
 */
     public function show($id)
-    {
-        $leave = LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])->findOrFail($id);
+{
+    try {
+        // $leave = LeaveApplication::with('employee')->findOrFail($id);
+        $leave = LeaveApplication::with('leaveType')->findOrFail($id);
 
         return response()->json($leave);
+
+    } catch (\Throwable $e) {
+
+        \Log::error('SHOW LEAVE FAILED', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json([
+            'message' => 'Failed to load leave application.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
 
     public function downloadPdf(Request $request, $id)
