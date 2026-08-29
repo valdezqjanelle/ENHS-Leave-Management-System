@@ -110,11 +110,11 @@
     >
 
       <div class="border-b pb-3 mb-4">
-        <h2 class="text-base sm:text-lg font-bold text-center mb-2">
+        <h2 class="text-base text-black sm:text-lg font-bold text-center mb-2">
           SUPPORTING DOCUMENTS
         </h2>
 
-        <div class="text-xs sm:text-sm space-y-1">
+        <div class="text-xs sm:text-sm text-black space-y-1">
           <div><strong>Leave Application ID:</strong> {{ leave.leave_id }}</div>
           <div>
             <strong>Employee:</strong>
