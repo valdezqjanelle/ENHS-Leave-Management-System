@@ -11,7 +11,7 @@ api.interceptors.request.use((config) => {
 
   console.log("API REQUEST:", config.url)
   console.log("TOKEN EXISTS:", !!token)
-  console.log("TOKEN:", token)
+  // console.log("TOKEN:", token)
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`

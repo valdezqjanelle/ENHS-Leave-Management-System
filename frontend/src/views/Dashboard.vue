@@ -133,7 +133,7 @@
         <div class="neo-card p-6">
 
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-red-400">
+            <h3 class="text-lg font-semibold text-white">
               Recent Leave Applications
             </h3>
 
