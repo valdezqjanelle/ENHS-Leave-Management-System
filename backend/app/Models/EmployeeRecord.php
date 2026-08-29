@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class EmployeeRecord extends Model
 {
@@ -35,6 +36,7 @@ class EmployeeRecord extends Model
         'date_hired',
         'department_id',
         'position_id',
+        'level',
         'supervisor_id',
         'salary_step',
         'salary',
@@ -56,14 +58,14 @@ class EmployeeRecord extends Model
         return $this->department?->department_name;
     }
 
- public function getYearsOfServiceAttribute()
-{
-    if (!$this->date_hired) {
-        return null;
-    }
+    public function getYearsOfServiceAttribute()
+    {
+        if (!$this->date_hired) {
+            return null;
+        }
 
-    return (int) Carbon::parse($this->date_hired)->diffInYears(now());
-}
+        return (int) Carbon::parse($this->date_hired)->diffInYears(now());
+    }
 
     public function user()
     {
@@ -123,6 +125,24 @@ class EmployeeRecord extends Model
     {
         return $this->hasOne(
             LeaveBalance::class,
+            'employee_id'
+        );
+    }
+
+    public function teachingPersonnelRecord(): HasOne
+    {
+        return $this->hasOne(
+            TeachingPersonnelRecord::class,
+            'employee_id',
+            'employee_id'
+        );
+    }
+
+    public function nonTeachingPersonnelRecord(): HasOne
+    {
+        return $this->hasOne(
+            NonTeachingPersonnelRecord::class,
+            'employee_id',
             'employee_id'
         );
     }

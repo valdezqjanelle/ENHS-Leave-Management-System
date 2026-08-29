@@ -20,6 +20,8 @@ use App\Http\Controllers\API\SystemSettingController;
 use App\Http\Controllers\API\BackupController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\DepartmentController;
+use App\Http\Controllers\API\TeachingPersonnelRecordController;
+use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
 
 
 /*
@@ -27,6 +29,7 @@ use App\Http\Controllers\API\DepartmentController;
 | AUTH
 |--------------------------------------------------------------------------
 */
+
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -110,7 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'role' => $request->user()->role,
         ]);
     });
-    
+
 
     Route::middleware('role:admin')->group(function () {
 
@@ -195,6 +198,56 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/backups', [BackupController::class, 'index']);
         Route::get('/backups/{id}/download', [BackupController::class, 'download']);
         Route::post('/backups/restore', [BackupController::class, 'restore']);
+
+        Route::get('/teaching-personnel-records', [
+            TeachingPersonnelRecordController::class,
+            'index'
+        ]);
+
+        Route::get('/teaching-personnel-records/{id}', [
+            TeachingPersonnelRecordController::class,
+            'show'
+        ]);
+
+        Route::post('/teaching-personnel-records', [
+            TeachingPersonnelRecordController::class,
+            'store'
+        ]);
+
+        Route::put('/teaching-personnel-records/{id}', [
+            TeachingPersonnelRecordController::class,
+            'update'
+        ]);
+
+        Route::delete('/teaching-personnel-records/{id}', [
+            TeachingPersonnelRecordController::class,
+            'destroy'
+        ]);
+
+        Route::get('/non-teaching-personnel-records', [
+            NonTeachingPersonnelRecordController::class,
+            'index'
+        ]);
+
+        Route::get('/non-teaching-personnel-records/{id}', [
+            NonTeachingPersonnelRecordController::class,
+            'show'
+        ]);
+
+        Route::post('/non-teaching-personnel-records', [
+            NonTeachingPersonnelRecordController::class,
+            'store'
+        ]);
+
+        Route::put('/non-teaching-personnel-records/{id}', [
+            NonTeachingPersonnelRecordController::class,
+            'update'
+        ]);
+
+        Route::delete('/non-teaching-personnel-records/{id}', [
+            NonTeachingPersonnelRecordController::class,
+            'destroy'
+        ]);
     });
 
 

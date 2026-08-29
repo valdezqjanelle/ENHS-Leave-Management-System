@@ -149,3 +149,4 @@ export const getDepartments = async (level?: string) => {
 
   return response.data;
 };
+
