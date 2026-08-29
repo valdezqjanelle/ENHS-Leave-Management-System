@@ -9,12 +9,34 @@ app.use(cors({
 
 app.use(express.json());
 
-app.get("/api/test", (req, res) => {
-    res.json({
-        message: "CORS test is working!"
-    });
+const LARAVEL_API = "https://enhs-leave-management-system.onrender.com";
+
+app.get("/api/test", async (req, res) => {
+    try {
+        const response = await fetch(
+            `${LARAVEL_API}/api/leave-applications/deleted`,
+            {
+                headers: {
+                    Authorization: req.headers.authorization || "",
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        const data = await response.text();
+
+        res.status(response.status).send(data);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Proxy request failed",
+            error: error.message
+        });
+    }
 });
 
 app.listen(3000, () => {
-    console.log("CORS test server running on port 3000");
+    console.log("CORS proxy running on port 3000");
 });

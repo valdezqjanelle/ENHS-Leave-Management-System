@@ -213,7 +213,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
+import { getLeave, getMyLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
 
 const route = useRoute();
 const router = useRouter();
@@ -465,14 +465,25 @@ const printForm = async () => {
 /* LOAD LEAVE */
 const loadLeave = async () => {
   try {
-    leave.value = await getLeave(Number(route.params.id));
+    const user = JSON.parse(
+      localStorage.getItem("user") || "{}"
+    );
+
+    const leaveId = Number(route.params.id);
+
+    if (user.role === "admin") {
+      leave.value = await getLeave(leaveId);
+    } else {
+      leave.value = await getMyLeave(leaveId);
+    }
+
     leaveTypes.value = await getLeaveTypes();
+
   } catch (error) {
     console.error("Failed loading leave:", error);
   } finally {
     loading.value = false;
   }
-
 };
 
 onMounted(async () => {
