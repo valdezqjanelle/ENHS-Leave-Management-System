@@ -271,13 +271,7 @@ class LeaveController extends Controller
 }
 
 
-    public function downloadPdf(Request $request, $id)
-{
-    \Log::info('PDF METHOD REACHED', [
-        'id' => $id,
-        'user_id' => auth()->user()?->user_id,
-        'email' => auth()->user()?->email,
-    ]);
+
 
     public function downloadPdf(Request $request, $id)
 {
