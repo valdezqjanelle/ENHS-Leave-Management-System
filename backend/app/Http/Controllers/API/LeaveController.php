@@ -263,15 +263,51 @@ class LeaveController extends Controller
 */
     public function show($id)
 {
-    return response()->json([
-        'success' => true,
-        'message' => 'SHOW METHOD IS WORKING',
-        'id' => $id,
-    ]);
+    try {
+
+        $leave = LeaveApplication::with([
+            'employee',
+            'leaveType',
+            'attachments'
+        ])->findOrFail($id);
+
+        return response()->json([
+            'id' => $leave->id,
+            'employee_id' => $leave->employee_id,
+            'date_filed' => $leave->date_filed,
+            'start_date' => $leave->start_date,
+            'end_date' => $leave->end_date,
+            'number_of_days' => $leave->number_of_days,
+
+            'employee' => $leave->employee,
+            'leave_type' => $leave->leaveType,
+            'attachments' => $leave->attachments,
+        ]);
+
+    } catch (\Throwable $e) {
+
+        \Log::error('SHOW LEAVE FAILED', [
+            'id' => $id,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json([
+            'message' => 'Failed to load leave application.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
 
 
-
+    public function downloadPdf(Request $request, $id)
+{
+    \Log::info('PDF METHOD REACHED', [
+        'id' => $id,
+        'user_id' => auth()->user()?->user_id,
+        'email' => auth()->user()?->email,
+    ]);
 
     public function downloadPdf(Request $request, $id)
 {
