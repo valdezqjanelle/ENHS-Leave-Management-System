@@ -113,7 +113,7 @@
           <div class="space-y-3">
             <div class="flex items-center text-sm">
               <Building class="w-4 h-4 mr-2 text-gray-400" />
-              <span class="text-gray-600">{{ faculty.department }}</span>
+              <span class="text-gray-600">{{ faculty.department_name }}</span>
             </div>
             
             <div class="flex items-center text-sm">
@@ -168,7 +168,7 @@
                 </div>
                 <h4 class="text-lg font-semibold text-gray-900">{{ selectedFaculty.name }}</h4>
                 <p class="text-sm text-gray-600">{{ selectedFaculty.position }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ selectedFaculty.department }}</p>
+                <p class="text-sm text-gray-500 mt-1">{{ selectedFaculty.department_name }}</p>
                 
                 <div class="mt-4 text-left space-y-2">
                   <div class="flex items-center text-sm">
@@ -306,7 +306,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <select
-                v-model="newFaculty.department"
+                v-model="newFaculty.department_name"
                 required
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -407,7 +407,7 @@
             <div class="flex-1">
               <h3 class="text-2xl font-semibold text-gray-900">{{ personalProfile.name }}</h3>
               <p class="text-lg text-gray-600">{{ personalProfile.position }}</p>
-              <p class="text-sm text-gray-500 mt-1">{{ personalProfile.department }}</p>
+<p class="text-sm text-gray-500 mt-1">{{ personalProfile.department_name }}</p>
               
               <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="flex items-center text-sm">
@@ -569,7 +569,7 @@ interface Faculty {
   id: string
   name: string
   position: string
-  department: string
+  department_name: string
   email: string
   phone: string
   status: 'active' | 'on-leave' | 'inactive'
@@ -610,7 +610,7 @@ const showEditProfileModal = ref(false)
 const personalProfile = ref({
   name: 'Jane Doe',
   position: 'Assistant Professor',
-  department: 'Computer Science',
+  department_name: 'Computer Science',
   email: 'jane.doe@university.edu',
   phone: '+1 234-567-8902',
   status: 'active' as 'active' | 'on-leave' | 'inactive',
@@ -644,7 +644,7 @@ const personalProfile = ref({
       status: 'Approved'
     }
   ]
-})
+}))
 
 const exportPersonalRecords = () => {
   // Export personal records functionality
@@ -660,7 +660,7 @@ const updateProfile = () => {
 const newFaculty = ref({
   name: '',
   position: '',
-  department: '',
+  department_name: '',
   email: '',
   phone: '',
   employeeId: ''
@@ -671,7 +671,7 @@ const mockFaculty: Faculty[] = [
     id: '1',
     name: 'John Smith',
     position: 'Professor',
-    department: 'Computer Science',
+    department_name: 'Computer Science',
     email: 'john.smith@university.edu',
     phone: '+1 234-567-8901',
     status: 'active',
@@ -700,7 +700,7 @@ const mockFaculty: Faculty[] = [
     id: '2',
     name: 'Sarah Johnson',
     position: 'Assistant Professor',
-    department: 'Mathematics',
+    department_name: 'Mathematics',
     email: 'sarah.johnson@university.edu',
     phone: '+1 234-567-8902',
     status: 'on-leave',
@@ -731,11 +731,11 @@ const filteredFaculty = computed(() => {
   return mockFaculty.filter(faculty => {
     const matchesSearch = searchQuery.value === '' || 
                          faculty.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         faculty.department.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                         faculty.department_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
                          faculty.position.toLowerCase().includes(searchQuery.value.toLowerCase())
     
     const matchesDept = filterDepartment.value === '' || 
-                       faculty.department.toLowerCase().includes(filterDepartment.value.toLowerCase())
+                       faculty.department_name.toLowerCase().includes(filterDepartment.value.toLowerCase())
     
     const matchesStatus = filterStatus.value === '' || 
                          faculty.status === filterStatus.value

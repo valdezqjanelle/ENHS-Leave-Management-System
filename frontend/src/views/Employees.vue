@@ -1,13 +1,9 @@
 <template>
   <div class="w-full min-h-screen">
-    <div
-      class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6"
-    >
+    <div class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6">
       <!-- ================= HEADER ================= -->
       <div class="neo-card w-full p-6">
-        <div
-          class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
-        >
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           <!-- LEFT: TITLE -->
           <div class="min-w-0">
             <h2 class="text-2xl font-bold text-white">
@@ -20,20 +16,14 @@
           </div>
 
           <!-- RIGHT: BUTTONS -->
-          <div
-            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-          >
-            <button
-              @click="openDeletedEmployees"
-              class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            >
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button @click="openDeletedEmployees"
+              class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
               Deleted Employees
             </button>
 
-            <button
-              @click="showCreateModal = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            >
+            <button @click="showCreateModal = true"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
               + Create Employee
             </button>
           </div>
@@ -42,12 +32,8 @@
 
       <!-- ================= SEARCH ================= -->
       <div class="neo-card w-full p-6">
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search employee..."
-          class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-        />
+        <input v-model="search" type="text" placeholder="Search employee..."
+          class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black" />
       </div>
 
       <!-- ================= EMPLOYEE TABLE ================= -->
@@ -87,76 +73,52 @@
             </thead>
 
             <tbody>
-              <tr
-                v-for="employee in filteredEmployees"
-                :key="employee.employee_id"
-                class="border-t hover:bg-gray-800 transition-colors duration-200"
-              >
-                <td
-                  class="px-2 sm:px-3 py-4 text-white font-semibold break-words"
-                >
+              <tr v-for="employee in filteredEmployees" :key="employee.employee_id"
+                class="border-t hover:bg-gray-800 transition-colors duration-200">
+                <td class="px-2 sm:px-3 py-4 text-white font-semibold break-words">
                   {{ employee.employee_code }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-white font-medium break-words"
-                >
+                <td class="px-2 sm:px-3 py-4 text-white font-medium break-words">
                   {{ employee.last_name }},
                   {{ employee.first_name }}
                   {{ employee.middle_name }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-white break-all"
-                >
+                <td class="px-2 sm:px-3 py-4 text-white break-all">
                   {{ employee.user.email }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-white break-words"
-                >
-                  {{ employee.department }}
+                <td class="px-2 sm:px-3 py-4 text-white break-words">
+                  {{ employee.department_name }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-white break-words"
-                >
+                <td class="px-2 sm:px-3 py-4 text-white break-words">
                   {{ employee.position?.name || "-" }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-white"
-                >
+                <td class="px-2 sm:px-3 py-4 text-white">
                   <span
-                    class="inline-block bg-green-300 text-green-700 px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                  >
+                    class="inline-block bg-green-300 text-green-700 px-2 py-1 rounded-full text-xs whitespace-nowrap">
                     {{ employee.employment_status }}
                   </span>
                 </td>
 
                 <!-- ================= ACTION BUTTONS ================= -->
                 <td class="px-2 sm:px-3 py-4">
-                  <div
-                    class="flex flex-wrap items-center justify-center gap-1"
-                  >
-                    <button
-                      @click="viewEmployee(employee)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                  <div class="flex flex-wrap items-center justify-center gap-1">
+                    <button @click="viewEmployee(employee)"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       View
                     </button>
 
-                    <button
-                      @click="editEmployee(employee)"
-                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                    <button @click="editEmployee(employee)"
+                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       Edit
                     </button>
 
-                    <button
-                      @click="deleteEmployee(employee)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                    <button @click="deleteEmployee(employee)"
+                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       Delete
                     </button>
                   </div>
@@ -165,10 +127,7 @@
 
               <!-- ================= EMPTY STATE ================= -->
               <tr v-if="filteredEmployees.length === 0">
-                <td
-                  colspan="7"
-                  class="text-center py-10 text-white"
-                >
+                <td colspan="7" class="text-center py-10 text-white">
                   No employees found.
                 </td>
               </tr>
@@ -182,13 +141,8 @@
     <!-- CREATE EMPLOYEE MODAL -->
     <!-- ========================================================= -->
 
-    <div
-      v-if="showCreateModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden"
-      >
+    <div v-if="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden">
         <!-- Header -->
         <div class="bg-blue-600 text-white px-6 py-4">
           <h3 class="text-xl font-semibold">
@@ -201,9 +155,7 @@
         </div>
 
         <!-- Body -->
-        <div
-          class="p-6 space-y-6 max-h-[75vh] overflow-y-auto"
-        >
+        <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
           <!-- Account Information -->
           <div>
             <h4 class="font-semibold text-gray-700 mb-4">
@@ -212,18 +164,13 @@
 
             <div class="grid grid-cols-1">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Email
                 </label>
 
-                <input
-                  v-model="form.email"
-                  type="email"
+                <input v-model="form.email" type="email"
                   class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500"
-                  placeholder="employee@email.com"
-                />
+                  placeholder="employee@email.com" />
               </div>
             </div>
           </div>
@@ -236,55 +183,35 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   First Name
                 </label>
 
-                <input
-                  v-model="form.first_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="form.first_name" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Middle Name
                 </label>
 
-                <input
-                  v-model="form.middle_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="form.middle_name" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Last Name
                 </label>
 
-                <input
-                  v-model="form.last_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="form.last_name" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Sex
                 </label>
 
-                <select
-                  v-model="form.sex"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
+                <select v-model="form.sex" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
                   <option value="">
                     Select
                   </option>
@@ -300,22 +227,14 @@
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Contact Number
                 </label>
 
-                <input
-                  v-model="form.contact_number"
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="11"
-                  pattern="[0-9]{11}"
+                <input v-model="form.contact_number" type="tel" inputmode="numeric" maxlength="11" pattern="[0-9]{11}"
                   @input="form.contact_number = form.contact_number.replace(/\D/g, '').slice(0, 11)"
                   class="text-black w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter 11-digit contact number"
-                />
+                  placeholder="Enter 11-digit contact number" />
               </div>
             </div>
           </div>
@@ -328,105 +247,53 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Department
-                </label>
-
-                <input
-                  v-model="form.department"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Level</label>
+                <select v-model="form.level" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option value="">Select</option>
+                  <option value="JHS">JHS</option>
+                  <option value="SHS">SHS</option>
+                  <option value="Non-Teaching">Non-Teaching</option>
+                </select>
               </div>
 
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Position
-                </label>
-
-                <select
-                  v-model="form.position_id"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option :value="null">
-                    Select
-                  </option>
-
-                  <option
-                    v-for="pos in positions"
-                    :key="pos.id"
-                    :value="pos.id"
-                  >
-                    {{ pos.name }}
+              <div v-if="form.level">
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Department</label>
+                <select v-model="form.department_id" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option :value="null">Select Department</option>
+                  <option v-for="dept in filteredDepartmentsForCreate" :key="dept.department_id"
+                    :value="dept.department_id">
+                    {{ dept.department_name }}
                   </option>
                 </select>
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Employee Category
-                </label>
-
-                <select
-                  v-model="form.employee_category"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option value="">
-                    Select
-                  </option>
-
-                  <option value="Teaching">
-                    Teaching
-                  </option>
-
-                  <option value="Non-Teaching">
-                    Non-Teaching
-                  </option>
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Position</label>
+                <select v-model="form.position_id" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option :value="null">Select</option>
+                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">{{ pos.name }}</option>
                 </select>
               </div>
 
               <!-- Salary Grade -->
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Salary Grade
-                </label>
-
-                <input
-                  :value="selectedCreateSalaryGrade || '-'"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100"
-                />
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Salary Grade</label>
+                <input :value="selectedCreateSalaryGrade || '-'" type="text" readonly
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100" />
               </div>
 
               <!-- Salary Step -->
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Salary Step
                 </label>
 
-                <select
-                  v-model="form.salary_step"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
+                <select v-model="form.salary_step" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
                   <option :value="null">
                     Select Step
                   </option>
 
-                  <option
-                    v-for="step in 8"
-                    :key="step"
-                    :value="step"
-                  >
+                  <option v-for="step in 8" :key="step" :value="step">
                     Step {{ step }}
                   </option>
                 </select>
@@ -434,38 +301,26 @@
 
               <!-- Current Salary -->
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Current Salary
                 </label>
 
-                <input
-                  :value="formattedCreateSalary"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100 font-semibold"
-                />
+                <input :value="formattedCreateSalary" type="text" readonly
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100 font-semibold" />
               </div>
             </div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div
-          class="bg-gray-100 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3"
-        >
-          <button
-            @click="showCreateModal = false"
-            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg border text-black"
-          >
+        <div class="bg-gray-100 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
+          <button @click="showCreateModal = false"
+            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg border text-black">
             Cancel
           </button>
 
-          <button
-            @click="saveEmployee"
-            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
+          <button @click="saveEmployee"
+            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
             Create Employee
           </button>
         </div>
@@ -476,13 +331,8 @@
     <!-- EMPLOYEE CREATED CREDENTIALS MODAL -->
     <!-- ========================================================= -->
 
-    <div
-      v-if="showCredentialsModal"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden"
-      >
+    <div v-if="showCredentialsModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden">
         <div class="bg-green-600 text-white p-5">
           <h3 class="text-xl font-bold">
             Employee Created Successfully
@@ -499,9 +349,7 @@
               Email
             </label>
 
-            <div
-              class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 break-all"
-            >
+            <div class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 break-all">
               {{ generatedCredentials.email }}
             </div>
           </div>
@@ -511,16 +359,12 @@
               Temporary Password
             </label>
 
-            <div
-              class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 font-mono break-all"
-            >
+            <div class="bg-gray-100 rounded-lg px-3 py-2 text-black font-bold mt-1 font-mono break-all">
               {{ generatedCredentials.password }}
             </div>
           </div>
 
-          <div
-            class="bg-yellow-50 border border-yellow-200 rounded-lg p-3"
-          >
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
             <p class="text-sm text-yellow-800">
               Keep these credentials safe. The employee will use
               them to log in.
@@ -528,13 +372,9 @@
           </div>
         </div>
 
-        <div
-          class="bg-gray-100 p-4 flex justify-end"
-        >
-          <button
-            @click="showCredentialsModal = false"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
-          >
+        <div class="bg-gray-100 p-4 flex justify-end">
+          <button @click="showCredentialsModal = false"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
             Close
           </button>
         </div>
@@ -545,17 +385,11 @@
     <!-- VIEW EMPLOYEE MODAL -->
     <!-- ========================================================= -->
 
-    <div
-      v-if="showViewModal && selectedEmployee"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden"
-      >
+    <div v-if="showViewModal && selectedEmployee"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden">
         <!-- Header -->
-        <div
-          class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center"
-        >
+        <div class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center">
           <div class="min-w-0">
             <h2 class="text-2xl font-bold">
               Employee Profile
@@ -566,24 +400,17 @@
             </p>
           </div>
 
-          <button
-            @click="showViewModal = false"
-            class="text-white text-3xl ml-4 flex-shrink-0"
-          >
+          <button @click="showViewModal = false" class="text-white text-3xl ml-4 flex-shrink-0">
             &times;
           </button>
         </div>
 
         <!-- Body -->
-        <div
-          class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[75vh] overflow-y-auto"
-        >
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[75vh] overflow-y-auto">
           <!-- LEFT -->
           <div class="space-y-6 min-w-0">
             <div>
-              <h3
-                class="font-semibold text-blue-600 border-b pb-2"
-              >
+              <h3 class="font-semibold text-blue-600 border-b pb-2">
                 Account Information
               </h3>
 
@@ -625,9 +452,7 @@
 
                   <br />
 
-                  <span
-                    class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-                  >
+                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                     {{ selectedEmployee.employment_status }}
                   </span>
                 </div>
@@ -648,9 +473,7 @@
           <!-- RIGHT -->
           <div class="space-y-6 min-w-0">
             <div>
-              <h3
-                class="font-semibold text-blue-600 border-b pb-2"
-              >
+              <h3 class="font-semibold text-blue-600 border-b pb-2">
                 Personal Information
               </h3>
 
@@ -710,22 +533,18 @@
 
           <!-- Employment -->
           <div class="md:col-span-2">
-            <h3
-              class="font-semibold text-blue-600 border-b pb-2"
-            >
+            <h3 class="font-semibold text-blue-600 border-b pb-2">
               Employment Information
             </h3>
 
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5 text-black"
-            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5 text-black">
               <div class="min-w-0">
                 <span class="font-medium">
                   Department
                 </span>
 
                 <p class="mt-1 break-words">
-                  {{ selectedEmployee.department }}
+                  {{ selectedEmployee.department_name }}
                 </p>
               </div>
 
@@ -741,11 +560,11 @@
 
               <div class="min-w-0">
                 <span class="font-medium">
-                  Category
+                  Level
                 </span>
 
                 <p class="mt-1 break-words">
-                  {{ selectedEmployee.employee_category }}
+                  {{ selectedEmployee.level }}
                 </p>
               </div>
 
@@ -763,13 +582,8 @@
         </div>
 
         <!-- Footer -->
-        <div
-          class="bg-gray-100 px-6 py-4 flex justify-end"
-        >
-          <button
-            @click="showViewModal = false"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
+        <div class="bg-gray-100 px-6 py-4 flex justify-end">
+          <button @click="showViewModal = false" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
             Close
           </button>
         </div>
@@ -780,17 +594,10 @@
     <!-- EDIT EMPLOYEE MODAL -->
     <!-- ========================================================= -->
 
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden"
-      >
+    <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden">
         <!-- Header -->
-        <div
-          class="bg-yellow-500 text-white px-6 py-4"
-        >
+        <div class="bg-yellow-500 text-white px-6 py-4">
           <h3 class="text-xl font-semibold">
             Edit Employee
           </h3>
@@ -801,95 +608,63 @@
         </div>
 
         <!-- Body -->
-        <div
-          class="p-6 space-y-6 max-h-[75vh] overflow-y-auto"
-        >
+        <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
           <!-- Account -->
           <div>
-            <h4
-              class="font-semibold text-gray-700 mb-4"
-            >
+            <h4 class="font-semibold text-gray-700 mb-4">
               Account Information
             </h4>
 
             <div class="grid grid-cols-1">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Email
                 </label>
 
-                <input
-                  v-model="editForm.email"
-                  type="email"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-yellow-500"
-                />
+                <input v-model="editForm.email" type="email"
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-yellow-500" />
               </div>
             </div>
           </div>
 
           <!-- Personal -->
           <div>
-            <h4
-              class="font-semibold text-gray-700 mb-4"
-            >
+            <h4 class="font-semibold text-gray-700 mb-4">
               Personal Information
             </h4>
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   First Name
                 </label>
 
-                <input
-                  v-model="editForm.first_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="editForm.first_name" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Middle Name
                 </label>
 
-                <input
-                  v-model="editForm.middle_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="editForm.middle_name"
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Last Name
                 </label>
 
-                <input
-                  v-model="editForm.last_name"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="editForm.last_name" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Sex
                 </label>
 
-                <select
-                  v-model="editForm.sex"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
+                <select v-model="editForm.sex" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
                   <option value="Male">
                     Male
                   </option>
@@ -901,359 +676,244 @@
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
+                <label class="block mb-2 text-sm text-gray-800 font-medium">
                   Contact Number
                 </label>
 
-                <input
-                  v-model="editForm.contact_number"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <input v-model="editForm.contact_number"
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800" />
               </div>
             </div>
           </div>
 
           <!-- Employment -->
           <div>
-            <h4
-              class="font-semibold text-gray-700 mb-4"
-            >
+            <h4 class="font-semibold text-gray-700 mb-4">
               Employment Information
             </h4>
 
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Department
-                </label>
-
-                <input
-                  v-model="editForm.department"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Level</label>
+                <select v-model="editForm.level" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option value="">Select</option>
+                  <option value="JHS">JHS</option>
+                  <option value="SHS">SHS</option>
+                  <option value="Non-Teaching">Non-Teaching</option>
+                </select>
               </div>
 
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Position
-                </label>
-
-                <select
-                  v-model="editForm.position_id"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option :value="null">
-                    Select
-                  </option>
-
-                  <option
-                    v-for="pos in positions"
-                    :key="pos.id"
-                    :value="pos.id"
-                  >
-                    {{ pos.name }}
+              <div v-if="editForm.level">
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Department</label>
+                <select v-model="editForm.department_id"
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option :value="null">Select Department</option>
+                  <option v-for="dept in filteredDepartmentsForEdit" :key="dept.department_id"
+                    :value="dept.department_id">
+                    {{ dept.department_name }}
                   </option>
                 </select>
               </div>
 
               <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Employee Category
-                </label>
-
-                <select
-                  v-model="editForm.employee_category"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option value="Teaching">
-                    Teaching
-                  </option>
-
-                  <option value="Non-Teaching">
-                    Non-Teaching
-                  </option>
-                </select>
-              </div>
-
-              <!-- Salary Grade -->
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Salary Grade
-                </label>
-
-                <input
-                  :value="selectedSalaryGrade || '-'"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100"
-                />
-              </div>
-
-              <!-- Salary Step -->
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Salary Step
-                </label>
-
-                <select
-                  v-model="editForm.salary_step"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option :value="null">
-                    Select Step
-                  </option>
-
-                  <option
-                    v-for="step in 8"
-                    :key="step"
-                    :value="step"
-                  >
-                    Step {{ step }}
-                  </option>
-                </select>
-              </div>
-
-              <!-- Current Salary -->
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Current Salary
-                </label>
-
-                <input
-                  :value="formattedSalary"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100 font-semibold"
-                />
-              </div>
-
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Employment Status
-                </label>
-
-                <select
-                  v-model="editForm.employment_status"
-                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
-                >
-                  <option value="active">
-                    Active
-                  </option>
-
-                  <option value="inactive">
-                    Inactive
-                  </option>
+                <label class="block mb-2 text-sm text-gray-800 font-medium">Position</label>
+                <select v-model="editForm.position_id" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                  <option :value="null">Select</option>
+                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">{{ pos.name }}</option>
                 </select>
               </div>
             </div>
+
+            <!-- Salary Grade -->
+            <div>
+              <label class="block mb-2 text-sm text-gray-800 font-medium">Salary Grade</label>
+              <input :value="selectedSalaryGrade || '-'" type="text" readonly
+                class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100" />
+            </div>
+
+            <!-- Salary Step -->
+            <div>
+              <label class="block mb-2 text-sm text-gray-800 font-medium">
+                Salary Step
+              </label>
+
+              <select v-model="editForm.salary_step" class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                <option :value="null">
+                  Select Step
+                </option>
+
+                <option v-for="step in 8" :key="step" :value="step">
+                  Step {{ step }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Current Salary -->
+            <div>
+              <label class="block mb-2 text-sm text-gray-800 font-medium">
+                Current Salary
+              </label>
+
+              <input :value="formattedSalary" type="text" readonly
+                class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800 bg-gray-100 font-semibold" />
+            </div>
+
+            <div>
+              <label class="block mb-2 text-sm text-gray-800 font-medium">
+                Employment Status
+              </label>
+
+              <select v-model="editForm.employment_status"
+                class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800">
+                <option value="active">
+                  Active
+                </option>
+
+                <option value="inactive">
+                  Inactive
+                </option>
+              </select>
+            </div>
           </div>
-        </div>
-
-        <!-- Footer -->
-        <div
-          class="bg-gray-100 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3"
-        >
-          <button
-            @click="showEditModal = false"
-            class="w-full sm:w-auto px-5 py-2 rounded-lg border"
-          >
-            Cancel
-          </button>
-
-          <button
-            @click="updateEmployee"
-            class="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg"
-          >
-            Save Changes
-          </button>
         </div>
       </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-100 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
+        <button @click="showEditModal = false" class="w-full sm:w-auto px-5 py-2 rounded-lg border">
+          Cancel
+        </button>
+
+        <button @click="updateEmployee"
+          class="w-full sm:w-auto bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg">
+          Save Changes
+        </button>
+      </div>
     </div>
+  </div>
 
-    <!-- ========================================================= -->
-    <!-- DELETED EMPLOYEES MODAL -->
-    <!-- ========================================================= -->
+  <!-- ========================================================= -->
+  <!-- DELETED EMPLOYEES MODAL -->
+  <!-- ========================================================= -->
 
-    <div
-      v-if="showDeletedModal"
-      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-auto overflow-hidden"
-      >
-        <!-- Header -->
-        <div
-          class="bg-gray-700 text-white px-6 py-5 flex justify-between items-center"
-        >
-          <div class="min-w-0">
-            <h2 class="text-2xl font-bold">
-              Deleted Employees
-            </h2>
+  <div v-if="showDeletedModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl mx-auto overflow-hidden">
+      <!-- Header -->
+      <div class="bg-gray-700 text-white px-6 py-5 flex justify-between items-center">
+        <div class="min-w-0">
+          <h2 class="text-2xl font-bold">
+            Deleted Employees
+          </h2>
 
-            <p class="text-gray-200 text-sm mt-1">
-              View and restore previously deleted employee records.
-            </p>
-          </div>
-
-          <button
-            @click="showDeletedModal = false"
-            class="text-white text-3xl hover:text-gray-300 ml-4 flex-shrink-0"
-          >
-            &times;
-          </button>
+          <p class="text-gray-200 text-sm mt-1">
+            View and restore previously deleted employee records.
+          </p>
         </div>
 
-        <!-- Body -->
-        <div
-          class="p-6 max-h-[70vh] overflow-y-auto"
-        >
-          <!-- Empty State -->
-          <div
-            v-if="deletedEmployees.length === 0"
-            class="text-center py-12 text-gray-500"
-          >
-            <p class="text-lg font-semibold">
-              No deleted employees found.
-            </p>
+        <button @click="showDeletedModal = false" class="text-white text-3xl hover:text-gray-300 ml-4 flex-shrink-0">
+          &times;
+        </button>
+      </div>
 
-            <p class="text-sm mt-1">
-              Deleted employee records will appear here.
-            </p>
-          </div>
+      <!-- Body -->
+      <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <!-- Empty State -->
+        <div v-if="deletedEmployees.length === 0" class="text-center py-12 text-gray-500">
+          <p class="text-lg font-semibold">
+            No deleted employees found.
+          </p>
 
-          <!-- Deleted Employees Table -->
-          <div
-            v-else
-            class="border rounded-lg overflow-hidden"
-          >
-            <table class="deleted-table">
-              <thead class="bg-gray-100">
-                <tr
-                  class="text-left text-black font-semibold"
-                >
-                  <th class="px-2 sm:px-4 py-3">
-                    Employee Code
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3">
-                    Employee
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3">
-                    Email
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3">
-                    Department
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3">
-                    Position
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3">
-                    Deleted At
-                  </th>
-
-                  <th class="px-2 sm:px-4 py-3 text-center">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr
-                  v-for="employee in deletedEmployees"
-                  :key="employee.employee_id"
-                  class="border-t hover:bg-gray-50"
-                >
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 font-semibold break-words"
-                  >
-                    {{ employee.employee_code }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
-                  >
-                    {{ employee.last_name }},
-                    {{ employee.first_name }}
-                    {{ employee.middle_name }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 break-all"
-                  >
-                    {{ employee.user?.email || "-" }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
-                  >
-                    {{ employee.department }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
-                  >
-                    {{ employee.position?.name || "-" }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-gray-800 break-words"
-                  >
-                    {{ formatDate(employee.deleted_at) }}
-                  </td>
-
-                  <td
-                    class="px-2 sm:px-4 py-4 text-center"
-                  >
-                    <button
-                      @click="
-                        restoreEmployeeRecord(
-                          employee.employee_id
-                        )
-                      "
-                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg whitespace-nowrap"
-                    >
-                      Restore
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <p class="text-sm mt-1">
+            Deleted employee records will appear here.
+          </p>
         </div>
 
-        <!-- Footer -->
-        <div
-          class="bg-gray-100 px-6 py-4 flex justify-end"
-        >
-          <button
-            @click="showDeletedModal = false"
-            class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
-          >
-            Close
-          </button>
+        <!-- Deleted Employees Table -->
+        <div v-else class="border rounded-lg overflow-hidden">
+          <table class="deleted-table">
+            <thead class="bg-gray-100">
+              <tr class="text-left text-black font-semibold">
+                <th class="px-2 sm:px-4 py-3">
+                  Employee Code
+                </th>
+
+                <th class="px-2 sm:px-4 py-3">
+                  Employee
+                </th>
+
+                <th class="px-2 sm:px-4 py-3">
+                  Email
+                </th>
+
+                <th class="px-2 sm:px-4 py-3">
+                  Department
+                </th>
+
+                <th class="px-2 sm:px-4 py-3">
+                  Position
+                </th>
+
+                <th class="px-2 sm:px-4 py-3">
+                  Deleted At
+                </th>
+
+                <th class="px-2 sm:px-4 py-3 text-center">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="employee in deletedEmployees" :key="employee.employee_id" class="border-t hover:bg-gray-50">
+                <td class="px-2 sm:px-4 py-4 text-gray-800 font-semibold break-words">
+                  {{ employee.employee_code }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
+                  {{ employee.last_name }},
+                  {{ employee.first_name }}
+                  {{ employee.middle_name }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-gray-800 break-all">
+                  {{ employee.user?.email || "-" }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
+                  {{ employee.department_name }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
+                  {{ employee.position?.name || "-" }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
+                  {{ formatDate(employee.deleted_at) }}
+                </td>
+
+                <td class="px-2 sm:px-4 py-4 text-center">
+                  <button @click="
+                    restoreEmployeeRecord(
+                      employee.employee_id
+                    )
+                    " class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg whitespace-nowrap">
+                    Restore
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-100 px-6 py-4 flex justify-end">
+        <button
+          @click="showDeletedModal = false"
+          class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
+        >
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -1293,7 +953,8 @@ interface Employee {
   middle_name: string;
   last_name: string;
 
-  department: string;
+  department_id: number | null;
+  department_name?: string;
 
   position_id: number;
 
@@ -1305,7 +966,7 @@ interface Employee {
     salary_grade: string | null;
   } | null;
 
-  employee_category: string;
+  level: string;
   salary_step: number | null;
   salary: number;
 
@@ -1356,6 +1017,21 @@ const positions = ref<
   }[]
 >([]);
 
+const departments = ref<
+  {
+    department_id: number;
+    department_name: string;
+    level: string;
+  }[]
+>([]);
+
+const filteredDepartmentsForCreate = computed(() =>
+  departments.value.filter((d) => d.level === form.value.level)
+);
+
+const filteredDepartmentsForEdit = computed(() =>
+  departments.value.filter((d) => d.level === editForm.value.level)
+);
 /* ========================================================= */
 /* LOAD POSITIONS */
 /* ========================================================= */
@@ -1372,17 +1048,40 @@ const loadPositions = async () => {
 };
 
 /* ========================================================= */
+/* LOAD DEPARTMENTS */
+/* ========================================================= */
+
+const loadDepartments = async () => {
+  try {
+    const response = await axios.get(
+      "https://enhs-leave-management-system.onrender.com/api/departments",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    departments.value = response.data.data;
+  } catch (error) {
+    console.error(
+      "Failed to load departments:",
+      error
+    );
+  }
+};
+
+/* ========================================================= */
 /* CATEGORY MAPPING */
 /* ========================================================= */
 
-const mapPositionTypeToCategory = (
-  type: string
+const watchPositionForLevel = (
+  newId: number | null,
+  formRef: { value: { level: string } }
 ) => {
-  if (type === "Non-Teaching") {
-    return "Non-Teaching";
+  const selected = positions.value.find((p) => p.id === newId);
+  if (selected?.type === "Non-Teaching") {
+    formRef.value.level = "Non-Teaching";
   }
-
-  return "Teaching";
 };
 
 /* ========================================================= */
@@ -1398,11 +1097,11 @@ const form = ref({
 
   sex: "",
 
-  department: "",
+  department_id: null as number | null,
+
+  level: "",
 
   position_id: null as number | null,
-
-  employee_category: "",
 
   salary_step: null as number | null,
 
@@ -1503,24 +1202,7 @@ const formattedCreateSalary =
 /* ========================================================= */
 /* AUTO CATEGORY - CREATE */
 /* ========================================================= */
-
-watch(
-  () => form.value.position_id,
-
-  (newId) => {
-    const selected =
-      positions.value.find(
-        (p) => p.id === newId
-      );
-
-    if (selected) {
-      form.value.employee_category =
-        mapPositionTypeToCategory(
-          selected.type
-        );
-    }
-  }
-);
+watch(() => form.value.position_id, (newId) => watchPositionForLevel(newId, form));
 
 /* ========================================================= */
 /* GENERATED CREDENTIALS */
@@ -1546,11 +1228,11 @@ const editForm = ref({
 
   sex: "",
 
-  department: "",
+  department_id: null as number | null,
+
+  level: "",
 
   position_id: null as number | null,
-
-  employee_category: "",
 
   salary_step: null as number | null,
 
@@ -1656,23 +1338,10 @@ watch(
 /* AUTO CATEGORY - EDIT */
 /* ========================================================= */
 
-watch(
-  () => editForm.value.position_id,
+watch(() => editForm.value.position_id, (newId) => watchPositionForLevel(newId, editForm));
 
-  (newId) => {
-    const selected =
-      positions.value.find(
-        (p) => p.id === newId
-      );
-
-    if (selected) {
-      editForm.value.employee_category =
-        mapPositionTypeToCategory(
-          selected.type
-        );
-    }
-  }
-);
+watch(() => form.value.level, () => { form.value.department_id = null; });
+watch(() => editForm.value.level, () => { editForm.value.department_id = null; });
 
 /* ========================================================= */
 /* FORMAT DATE */
@@ -1761,15 +1430,15 @@ const filteredEmployees =
             ?.toLowerCase() || "";
 
         const department =
-          employee.department
+          employee.department_name
             ?.toLowerCase() || "";
 
         const position =
           employee.position?.name
             ?.toLowerCase() || "";
 
-        const category =
-          employee.employee_category
+        const level =
+          employee.level
             ?.toLowerCase() || "";
 
         return (
@@ -1801,7 +1470,7 @@ const filteredEmployees =
             keyword
           ) ||
 
-          category.includes(
+          level.includes(
             keyword
           )
         );
@@ -1837,14 +1506,14 @@ const editEmployee = (
     sex:
       employee.sex || "",
 
-    department:
-      employee.department || "",
+    department_id:
+      employee.department_id || null,
+
+    level:
+      employee.level || "",
 
     position_id:
       employee.position_id || null,
-
-    employee_category:
-      employee.employee_category || "",
 
     salary_step:
       employee.salary_step || null,
@@ -2036,13 +1705,13 @@ const saveEmployee =
         );
 
       generatedCredentials.value =
-        {
-          email:
-            response.email,
+      {
+        email:
+          response.email,
 
-          password:
-            response.password,
-        };
+        password:
+          response.password,
+      };
 
       showCreateModal.value =
         false;
@@ -2064,11 +1733,11 @@ const saveEmployee =
 
         sex: "",
 
-        department: "",
+        department_id: null,
+
+        level: "",
 
         position_id: null,
-
-        employee_category: "",
 
         salary_step: null,
 
@@ -2094,6 +1763,7 @@ onMounted(
     await Promise.all([
       loadEmployees(),
       loadPositions(),
+      loadDepartments(),
     ]);
   }
 );
@@ -2113,8 +1783,7 @@ onMounted(
   border: 1px solid #1e293b;
   border-radius: 1.4rem;
   box-shadow:
-    0 10px 22px
-    rgba(15, 23, 42, 0.04);
+    0 10px 22px rgba(15, 23, 42, 0.04);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
@@ -2127,8 +1796,7 @@ onMounted(
 
 .neo-card:hover {
   box-shadow:
-    0 14px 26px
-    rgba(15, 23, 42, 0.06);
+    0 14px 26px rgba(15, 23, 42, 0.06);
 }
 
 .stats-card {
@@ -2282,6 +1950,7 @@ onMounted(
 /* ========================================================= */
 
 @media (max-width: 1024px) {
+
   .employee-table th,
   .employee-table td {
     padding-left: 0.5rem;

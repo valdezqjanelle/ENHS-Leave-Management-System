@@ -219,7 +219,7 @@
           <label class="text-gray-400 text-sm"> Department </label>
 
           <p class="font-medium text-white">
-            {{ employee.department }}
+            {{ employee.department_name }}
           </p>
         </div>
 
@@ -232,10 +232,10 @@
         </div>
 
         <div>
-          <label class="text-gray-400 text-sm"> Employee Category </label>
+          <label class="text-gray-400 text-sm"> Level </label>
 
           <p class="font-medium text-white">
-            {{ employee.employee_category }}
+            {{ employee.level }}
           </p>
         </div>
 
@@ -269,9 +269,10 @@ const employee = ref({
   last_name: "",
 
   sex: "",
-  department: "",
+  department_id: null,
+  department_name: "",
   position: "",
-  employee_category: "",
+  level: "",
 
   salary: "",
   contact_number: "",

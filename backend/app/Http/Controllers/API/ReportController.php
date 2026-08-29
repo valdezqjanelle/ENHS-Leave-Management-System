@@ -28,7 +28,7 @@ class ReportController extends Controller
     public function leaveSummary(Request $request)
     {
         $leaves = LeaveApplication::with([
-            'employee',
+            'employee.department',
             'leaveType'
         ])
             ->whereNotNull('leave_type_id')
@@ -38,7 +38,7 @@ class ReportController extends Controller
 
         foreach ($leaves as $leave) {
 
-            $department = $leave->employee->department ?? 'Unknown';
+            $department = $leave->employee->department?->department_name ?? 'Unknown';
 
             if (!isset($summary[$department])) {
 
@@ -94,7 +94,7 @@ class ReportController extends Controller
 
     public function leaveCredits()
     {
-        $balances = LeaveBalance::with('employee')->get();
+        $balances = LeaveBalance::with('employee.department')->get();
 
         $employees = [];
 
@@ -116,7 +116,7 @@ class ReportController extends Controller
                 $employee->first_name . ' ' .
                     $employee->last_name,
 
-                'department' => $employee->department,
+                'department' => $employee->department?->department_name,
 
                 'vacation_earned' => $balance->vacation_earned,
                 'sick_earned' => $balance->sick_earned,
@@ -193,6 +193,7 @@ class ReportController extends Controller
 {
     $employees = \App\Models\EmployeeRecord::with([
         'position',
+        'department',
         'leaveApplications.leaveType',
         'leaveBalance'
     ])->get();
@@ -221,7 +222,7 @@ class ReportController extends Controller
                 $employee->first_name . ' ' .
                 $employee->last_name,
 
-            'department' => $employee->department,
+            'department' => $employee->department?->department_name,
 
             'position' => $employee->position
                 ? [

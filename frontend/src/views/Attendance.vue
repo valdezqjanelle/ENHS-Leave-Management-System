@@ -195,7 +195,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                  {{ faculty.department }}
+                  {{ faculty.department_name }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                   {{ faculty.today.checkIn || '-' }}
@@ -552,7 +552,7 @@ import {
 interface Faculty {
   id: string
   name: string
-  department: string
+  department_name: string;
   position: string
   today: {
     checkIn: string
@@ -624,7 +624,7 @@ const mockFaculty: Faculty[] = [
   {
     id: '1',
     name: 'John Smith',
-    department: 'Computer Science',
+    department_name: 'Computer Science',
     position: 'Professor',
     today: {
       checkIn: '8:00 AM',
@@ -646,7 +646,7 @@ const mockFaculty: Faculty[] = [
   {
     id: '2',
     name: 'Sarah Johnson',
-    department: 'Mathematics',
+    department_name: 'Mathematics',
     position: 'Assistant Professor',
     today: {
       checkIn: '8:30 AM',
@@ -671,10 +671,10 @@ const filteredFaculty = computed(() => {
   return mockFaculty.filter(faculty => {
     const matchesSearch = searchQuery.value === '' ||
                          faculty.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                         faculty.department.toLowerCase().includes(searchQuery.value.toLowerCase())
+                         faculty.department_name.toLowerCase().includes(searchQuery.value.toLowerCase())
 
     const matchesDept = filterDepartment.value === '' ||
-                       faculty.department.toLowerCase().includes(filterDepartment.value.toLowerCase())
+                       faculty.department_name.toLowerCase().includes(filterDepartment.value.toLowerCase())
 
     const matchesStatus = filterStatus.value === '' ||
                          faculty.today.status === filterStatus.value

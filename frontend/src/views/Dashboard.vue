@@ -719,10 +719,10 @@
             </h2>
 
             <p class="text-gray-300 mt-2">
-              {{ employeeInfo.department }}
+              {{ employeeInfo.department_name }}
 
               <span
-                v-if="employeeInfo.department && employeeInfo.position"
+                v-if="employeeInfo.department_name && employeeInfo.position"
               >
                 •
               </span>
@@ -1265,7 +1265,8 @@ const recentActivities = ref<any[]>([]);
 const employeeInfo = ref({
   name: "",
   email: "",
-  department: "",
+  department_name: "",
+  level: "",
   position: "",
 });
 
@@ -2134,7 +2135,8 @@ const loadEmployeeDashboard =
         data?.employee || {
           name: "",
           email: "",
-          department: "",
+          department_name: "",
+          level: "",
           position: "",
         };
 

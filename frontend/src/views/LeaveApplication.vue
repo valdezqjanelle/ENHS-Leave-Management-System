@@ -54,7 +54,7 @@
               </label>
 
               <input
-                :value="employee.department"
+                :value="employee.department_name"
                 type="text"
                 readonly
                 class="input-field"
@@ -807,7 +807,8 @@ const employee = ref({
   first_name: "",
   middle_name: "",
   last_name: "",
-  department: "",
+  department_name: "",
+  level: "",
   position: "",
   contact_number: "",
 
