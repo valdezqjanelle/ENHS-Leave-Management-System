@@ -685,17 +685,17 @@ class LeaveController extends Controller
 
     } catch (\Throwable $e) {
 
-        \Log::error('PDF GENERATION FAILED', [
-            'id' => $id,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
+    \Log::error('PDF GENERATION FAILED', [
+        'id' => $id,
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+    ]);
 
-        return response()->json([
-            'message' => 'PDF generation failed',
-            'error' => $e->getMessage(),
-        ], 500);
+    return response()->json([
+        'message' => 'PDF generation failed.',
+        'error' => $e->getMessage(),
+    ], 500);
     }
     }
 
