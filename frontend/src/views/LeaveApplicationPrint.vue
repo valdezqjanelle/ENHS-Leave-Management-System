@@ -367,7 +367,8 @@ const getAttachmentUrl = (attachment: any) => {
   if (attachment.file_url) return attachment.file_url;
   if (attachment.url) return attachment.url;
   if (attachment.download_url) return attachment.download_url;
-  if (attachment.file_path) return `http://127.0.0.1:8000/storage/${attachment.file_path}`;
+  if (attachment.file_path) return `https://enhs-leave-management-system.onrender.com/storage/${attachment.file_path}`;
+  
   return "";
 
 };
