@@ -264,7 +264,8 @@ class LeaveController extends Controller
     public function show($id)
 {
     try {
-        $leave = LeaveApplication::with('employee')->findOrFail($id);
+        // $leave = LeaveApplication::with('employee')->findOrFail($id);
+        $leave = LeaveApplication::with('leaveType')->findOrFail($id);
 
         return response()->json($leave);
 
