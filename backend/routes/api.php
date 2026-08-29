@@ -72,7 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
     | EMPLOYEE ROUTES
     |--------------------------------------------------------------------------
     */
-    Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
 
     Route::middleware('role:employee')->group(function () {
 
@@ -138,7 +137,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/leave-applications/deleted', [LeaveController::class, 'deletedLeaves']);
         Route::get('/leave-applications/{id}', [LeaveController::class, 'show']);
         Route::put('/leave-applications/{id}', [LeaveController::class, 'updateStatus']);
-
+        Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
         Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
         Route::post('/leave-applications/{id}/restore', [LeaveController::class, 'restoreLeave']);
         Route::delete('/leave-applications/{id}', [LeaveController::class, 'destroy']);
