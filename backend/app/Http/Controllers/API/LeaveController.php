@@ -263,27 +263,11 @@ class LeaveController extends Controller
 */
     public function show($id)
 {
-    try {
-        // $leave = LeaveApplication::with('employee')->findOrFail($id);
-        // $leave = LeaveApplication::with('leaveType')->findOrFail($id);
-        $leave = LeaveApplication::with('attachments')->findOrFail($id);
-
-        return response()->json($leave);
-
-    } catch (\Throwable $e) {
-
-        \Log::error('SHOW LEAVE FAILED', [
-            'id' => $id,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
-
-        return response()->json([
-            'message' => 'Failed to load leave application.',
-            'error' => $e->getMessage(),
-        ], 500);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'SHOW METHOD IS WORKING',
+        'id' => $id,
+    ]);
 }
 
 
