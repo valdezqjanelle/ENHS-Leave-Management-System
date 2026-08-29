@@ -65,11 +65,15 @@ export const downloadLeavePdf = async (leaveId: number) => {
     `/leave-applications/${leaveId}/pdf`,
     {
       responseType: "blob",
+      headers: {
+        Accept: "application/pdf",
+      },
     }
   );
 
   return response.data;
 };
+
  export const deleteLeaveApplication = async (leaveId: number) => {
   const response = await api.delete(
     `/leave-applications/${leaveId}`
