@@ -1026,11 +1026,11 @@ const departments = ref<
 >([]);
 
 const filteredDepartmentsForCreate = computed(() =>
-  departments.value.filter((d) => d.level === form.value.level)
+  (departments.value ?? []).filter((d) => d.level === form.value.level)
 );
 
 const filteredDepartmentsForEdit = computed(() =>
-  departments.value.filter((d) => d.level === editForm.value.level)
+  (departments.value ?? []).filter((d) => d.level === editForm.value.level)
 );
 /* ========================================================= */
 /* LOAD POSITIONS */

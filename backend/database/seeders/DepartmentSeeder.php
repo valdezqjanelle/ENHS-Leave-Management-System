@@ -35,7 +35,9 @@ class DepartmentSeeder extends Seeder
 
             // Non-Teaching
             ['department_name' => 'School Administration', 'level' => 'Non-Teaching'],
-            ['department_name' => 'ADAS / Bookkeeping', 'level' => 'Non-Teaching'],
+            ['department_name' => 'Senior Bookeeper', 'level' => 'Non-Teaching'],
+            ['department_name' => 'Clerk', 'level' => 'Non-Teaching'],
+            ['department_name' => 'Disbursing Officer', 'level' => 'Non-Teaching'],
             ['department_name' => 'Utility / Job Order', 'level' => 'Non-Teaching'],
         ];
 
