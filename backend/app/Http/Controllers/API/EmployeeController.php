@@ -18,11 +18,26 @@ class EmployeeController extends Controller
     {
         $request->validate([
             'email' => 'required|email|unique:users,email',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'extension_name' => 'nullable|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'sex' => 'required|string|max:50',
+            'civil_status' => 'nullable|string|max:50',
+            'nationality' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'contact_number' => 'nullable|string|max:50',
+            'personal_email' => 'nullable|email|max:255',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:50',
+            'personnel_type' => 'required|in:Teaching,Non-Teaching,School Head',
+            'employment_status' => 'required|string|max:100',
+            'employment_category' => 'nullable|string|max:100',
+            'date_hired' => 'required|date',
             'department_id' => 'required|exists:departments,department_id',
-            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => 'required|exists:positions,id',
+            'supervisor_id' => 'nullable|exists:employee_records,employee_id',
             'salary_step' => 'required|integer|min:1|max:8',
         ]);
 
@@ -34,14 +49,8 @@ class EmployeeController extends Controller
             ], 422);
         }
 
-        $salary = SalarySchedule::where(
-            'salary_grade',
-            $position->salary_grade
-        )
-            ->where(
-                'step',
-                $request->salary_step
-            )
+        $salary = SalarySchedule::where('salary_grade', $position->salary_grade)
+            ->where('step', $request->salary_step)
             ->value('salary');
 
         if (!$salary) {
@@ -68,15 +77,26 @@ class EmployeeController extends Controller
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
+            'date_of_birth' => $request->date_of_birth,
             'sex' => $request->sex,
-            'level' => $request->level,
+            'civil_status' => $request->civil_status,
+            'nationality' => $request->nationality,
+            'address' => $request->address,
+            'contact_number' => $request->contact_number,
+            'personal_email' => $request->personal_email,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_number' => $request->emergency_contact_number,
+            'personnel_type' => $request->personnel_type,
+            'employment_status' => $request->employment_status,
+            'employment_category' => $request->employment_category,
+            'date_hired' => $request->date_hired,
             'department_id' => $request->department_id,
             'position_id' => $position->id,
+            'supervisor_id' => $request->supervisor_id,
             'salary_step' => $request->salary_step,
             'salary' => $salary,
-            'contact_number' => $request->contact_number,
-            'employment_status' => $request->employment_status ?? 'active',
-            'date_hired' => now(),
+            'level' => $request->level,
         ]);
 
         AuditLogger::log(
@@ -88,22 +108,26 @@ class EmployeeController extends Controller
             'message' => 'Employee created successfully',
             'email' => $user->email,
             'password' => $plainPassword,
-            'employee' => $employee->load('position')
+            'employee' => $employee->load([
+                'user',
+                'position',
+                'department',
+                'supervisor'
+            ])
         ]);
     }
 
     public function listDepartments(Request $request)
-{
-    $query = \App\Models\Department::query()
-        ->orderBy('department_name');
+    {
+        $query = \App\Models\Department::query()
+            ->orderBy('department_name');
 
-    // Optional: only show departments belonging to the selected level
-    if ($request->filled('level')) {
-        $query->where('level', $request->level);
+        if ($request->filled('level')) {
+            $query->where('level', $request->level);
+        }
+
+        return response()->json($query->get());
     }
-
-    return response()->json($query->get());
-}
 
     public function salaryInfo(Request $request)
     {
@@ -122,14 +146,8 @@ class EmployeeController extends Controller
             ]);
         }
 
-        $salary = SalarySchedule::where(
-            'salary_grade',
-            $position->salary_grade
-        )
-            ->where(
-                'step',
-                $request->salary_step
-            )
+        $salary = SalarySchedule::where('salary_grade', $position->salary_grade)
+            ->where('step', $request->salary_step)
             ->value('salary');
 
         return response()->json([
@@ -141,7 +159,13 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $employees = EmployeeRecord::with(['user', 'createdBy', 'position', 'department'])
+        $employees = EmployeeRecord::with([
+            'user',
+            'createdBy',
+            'position',
+            'department',
+            'supervisor'
+        ])
             ->latest()
             ->get();
 
@@ -157,16 +181,32 @@ class EmployeeController extends Controller
 
     public function update(Request $request, $id)
     {
+        $employee = EmployeeRecord::findOrFail($id);
+
         $request->validate([
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'extension_name' => 'nullable|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'sex' => 'required|string|max:50',
+            'civil_status' => 'nullable|string|max:50',
+            'nationality' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'contact_number' => 'nullable|string|max:50',
+            'personal_email' => 'nullable|email|max:255',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:50',
+            'personnel_type' => 'required|in:Teaching,Non-Teaching,School Head',
+            'employment_status' => 'required|string|max:100',
+            'employment_category' => 'nullable|string|max:100',
+            'date_hired' => 'required|date',
             'department_id' => 'required|exists:departments,department_id',
-            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => 'required|exists:positions,id',
+            'supervisor_id' => 'nullable|exists:employee_records,employee_id',
             'salary_step' => 'required|integer|min:1|max:8',
         ]);
 
-        $employee = EmployeeRecord::findOrFail($id);
         $position = Position::findOrFail($request->position_id);
 
         if (!$position->salary_grade) {
@@ -175,14 +215,8 @@ class EmployeeController extends Controller
             ], 422);
         }
 
-        $salary = SalarySchedule::where(
-            'salary_grade',
-            $position->salary_grade
-        )
-            ->where(
-                'step',
-                $request->salary_step
-            )
+        $salary = SalarySchedule::where('salary_grade', $position->salary_grade)
+            ->where('step', $request->salary_step)
             ->value('salary');
 
         if (!$salary) {
@@ -198,14 +232,27 @@ class EmployeeController extends Controller
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
+            'date_of_birth' => $request->date_of_birth,
             'sex' => $request->sex,
-            'level' => $request->level,
+            'civil_status' => $request->civil_status,
+            'nationality' => $request->nationality,
+            'address' => $request->address,
+            'contact_number' => $request->contact_number,
+            'personal_email' => $request->personal_email,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_number' => $request->emergency_contact_number,
+            'personnel_type' => $request->personnel_type,
+            'employment_status' => $request->employment_status,
+            'employment_category' => $request->employment_category,
+            'date_hired' => $request->date_hired,
             'department_id' => $request->department_id,
+            'level' => 'required|in:JHS,SHS,Non-Teaching',
             'position_id' => $position->id,
+            'supervisor_id' => $request->supervisor_id,
             'salary_step' => $request->salary_step,
             'salary' => $salary,
-            'contact_number' => $request->contact_number,
-            'employment_status' => $request->employment_status,
+            'level' => $request->level,
         ]);
 
         if (
@@ -228,13 +275,23 @@ class EmployeeController extends Controller
 
         return response()->json([
             'message' => 'Employee updated successfully.',
-            'employee' => $employee->fresh()->load(['user', 'position'])
+            'employee' => $employee->fresh()->load([
+                'user',
+                'position',
+                'department',
+                'supervisor'
+            ])
         ]);
     }
 
     public function myProfile(Request $request)
     {
-        $employee = EmployeeRecord::with(['user', 'position', 'department'])
+        $employee = EmployeeRecord::with([
+            'user',
+            'position',
+            'department',
+            'supervisor'
+        ])
             ->where('user_id', $request->user()->user_id)
             ->first();
 
@@ -250,17 +307,32 @@ class EmployeeController extends Controller
             'first_name' => $employee->first_name,
             'middle_name' => $employee->middle_name,
             'last_name' => $employee->last_name,
+            'extension_name' => $employee->extension_name,
+            'date_of_birth' => $employee->date_of_birth,
             'sex' => $employee->sex,
+            'civil_status' => $employee->civil_status,
+            'nationality' => $employee->nationality,
+            'address' => $employee->address,
+            'contact_number' => $employee->contact_number,
+            'personal_email' => $employee->personal_email,
+            'emergency_contact_name' => $employee->emergency_contact_name,
+            'emergency_contact_number' => $employee->emergency_contact_number,
+            'personnel_type' => $employee->personnel_type,
+            'employment_status' => $employee->employment_status,
+            'employment_category' => $employee->employment_category,
+            'date_hired' => $employee->date_hired,
+            'years_of_service' => $employee->years_of_service,
             'department_id' => $employee->department_id,
             'department_name' => $employee->department?->department_name,
             'position_id' => $employee->position_id,
-            'position' => $employee->position->name ?? null,
+            'position' => $employee->position?->name,
+            'supervisor_id' => $employee->supervisor_id,
+            'supervisor' => $employee->supervisor
+                ? $employee->supervisor->first_name . ' ' . $employee->supervisor->last_name
+                : null,
             'level' => $employee->level,
             'salary_step' => $employee->salary_step,
             'salary' => $employee->salary,
-            'contact_number' => $employee->contact_number,
-            'employment_status' => $employee->employment_status,
-            'date_hired' => $employee->date_hired,
             'email' => $employee->user->email,
             'role' => $employee->user->role,
         ]);
@@ -274,23 +346,35 @@ class EmployeeController extends Controller
         )->firstOrFail();
 
         $request->validate([
-            'first_name' => 'required|string',
-            'middle_name' => 'nullable|string',
-            'last_name' => 'required|string',
-            'sex' => 'required|string',
-            'department_id' => 'required|exists:departments,department_id',
-            'level' => 'required|in:JHS,SHS,Non-Teaching',
-            'position_id' => 'required|exists:positions,id',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'extension_name' => 'nullable|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'sex' => 'required|string|max:50',
+            'civil_status' => 'nullable|string|max:50',
+            'nationality' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'contact_number' => 'nullable|string|max:50',
+            'personal_email' => 'nullable|email|max:255',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:50',
         ]);
 
         $employee->update([
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
+            'date_of_birth' => $request->date_of_birth,
             'sex' => $request->sex,
-            'level' => $request->level,
-            'department_id' => $request->department_id,
-            'position_id' => $request->position_id,
+            'civil_status' => $request->civil_status,
+            'nationality' => $request->nationality,
+            'address' => $request->address,
+            'contact_number' => $request->contact_number,
+            'personal_email' => $request->personal_email,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_number' => $request->emergency_contact_number,
         ]);
 
         AuditLogger::log(
@@ -300,7 +384,7 @@ class EmployeeController extends Controller
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'employee' => $employee
+            'employee' => $employee->fresh()
         ]);
     }
 
@@ -371,44 +455,50 @@ class EmployeeController extends Controller
     }
 
     public function destroy($id)
-{
-    $employee = EmployeeRecord::findOrFail($id);
+    {
+        $employee = EmployeeRecord::findOrFail($id);
 
-    $employee->delete();
+        $employee->delete();
 
-    AuditLogger::log(
-        'Employee deleted',
-        "Soft deleted employee {$employee->first_name} {$employee->last_name}"
-    );
+        AuditLogger::log(
+            'Employee deleted',
+            "Soft deleted employee {$employee->first_name} {$employee->last_name}"
+        );
 
-    return response()->json([
-        'message' => 'Employee deleted successfully.'
-    ]);
-}
+        return response()->json([
+            'message' => 'Employee deleted successfully.'
+        ]);
+    }
 
-public function restore($id)
-{
-    $employee = EmployeeRecord::withTrashed()->findOrFail($id);
+    public function restore($id)
+    {
+        $employee = EmployeeRecord::withTrashed()->findOrFail($id);
 
-    $employee->restore();
+        $employee->restore();
 
-    AuditLogger::log(
-        'Employee restored',
-        "Restored employee {$employee->first_name} {$employee->last_name}"
-    );
+        AuditLogger::log(
+            'Employee restored',
+            "Restored employee {$employee->first_name} {$employee->last_name}"
+        );
 
-    return response()->json([
-        'message' => 'Employee restored successfully.'
-    ]);
-}
+        return response()->json([
+            'message' => 'Employee restored successfully.'
+        ]);
+    }
 
-public function deleted()
-{
-    $employees = EmployeeRecord::onlyTrashed()
-        ->with(['user', 'createdBy', 'position'])
-        ->latest('deleted_at')
-        ->get();
+    public function deleted()
+    {
+        $employees = EmployeeRecord::onlyTrashed()
+            ->with([
+                'user',
+                'createdBy',
+                'position',
+                'department',
+                'supervisor'
+            ])
+            ->latest('deleted_at')
+            ->get();
 
-    return response()->json($employees);
-}
+        return response()->json($employees);
+    }
 }
