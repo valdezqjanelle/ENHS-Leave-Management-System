@@ -298,10 +298,10 @@
                 <label class="block mb-2 text-sm text-gray-800 font-medium"
                   >Department</label
                 >
-                <select v-model="form.department_id"
-                class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
+                <select
+                  v-model="form.department_id"
+                  class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
                 >
-                  
                   <option :value="null">Select Department</option>
 
                   <option
@@ -999,8 +999,12 @@
                   {{ employee.user?.email || "-" }}
                 </td>
 
-                <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
-                  {{ employee.department_name }}
+                <td class="px-2 sm:px-3 py-4 text-white break-words">
+                  {{
+                    employee.department?.department_name ||
+                    employee.department_name ||
+                    "—"
+                  }}
                 </td>
 
                 <td class="px-2 sm:px-4 py-4 text-gray-800 break-words">
