@@ -263,52 +263,13 @@ class LeaveController extends Controller
 */
     public function show($id)
 {
-    try {
-
-        $leave = LeaveApplication::with([
-            'employee',
-            'leaveType',
-            'attachments'
-        ])->findOrFail($id);
-
-        return response()->json([
-            'id' => $leave->id,
-            'employee_id' => $leave->employee_id,
-            'date_filed' => $leave->date_filed,
-            'start_date' => $leave->start_date,
-            'end_date' => $leave->end_date,
-            'number_of_days' => $leave->number_of_days,
-
-            'employee' => $leave->employee,
-            'leave_type' => $leave->leaveType,
-            'attachments' => $leave->attachments,
-        ]);
-
-    } catch (\Throwable $e) {
-
-        \Log::error('SHOW LEAVE FAILED', [
-            'id' => $id,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
-
-        return response()->json([
-            'message' => 'Failed to load leave application.',
-            'error' => $e->getMessage(),
-        ], 500);
-    }
-}
-
-
-    public function downloadPdf(Request $request, $id)
-{
-    \Log::info('PDF METHOD REACHED', [
+    return response()->json([
+        'success' => true,
+        'message' => 'SHOW METHOD IS WORKING',
         'id' => $id,
-        'user_id' => auth()->user()?->user_id,
-        'email' => auth()->user()?->email,
     ]);
 }
+
 
 
 public function downloadPdf(Request $request, $id)
@@ -341,14 +302,12 @@ public function downloadPdf(Request $request, $id)
             [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'inline; filename="test.pdf"',
-                'Access-Control-Allow-Origin' => $request->header('Origin'),
-                'Access-Control-Allow-Credentials' => 'true',
             ]
         );
 
     } catch (\Throwable $e) {
 
-        \Log::error('PDF GENERATION FAILED', [
+        \Log::error('PDF TEST FAILED', [
             'id' => $id,
             'message' => $e->getMessage(),
             'file' => $e->getFile(),
@@ -356,14 +315,13 @@ public function downloadPdf(Request $request, $id)
         ]);
 
         return response()->json([
-            'message' => 'PDF generation failed.',
+            'message' => 'PDF test failed.',
             'error' => $e->getMessage(),
             'file' => basename($e->getFile()),
             'line' => $e->getLine(),
         ], 500);
     }
 }
-
     public function downloadAttachment(Request $request, $leave_id, $attachment_id)
     {
         $attachment = LeaveAttachment::where('leave_id', $leave_id)
