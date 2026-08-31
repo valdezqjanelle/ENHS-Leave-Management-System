@@ -138,11 +138,12 @@ export const getDeletedEmployees = async () => {
   return response.data;
 };
 
-export const forceDeleteEmployee = async (id: number) => {
+export const permanentlyDeleteEmployee = async (id: number) => {
   const response = await axios.delete(
     `${API}/employees/${id}/force`,
     authHeader()
   );
+
   return response.data;
 };
 
