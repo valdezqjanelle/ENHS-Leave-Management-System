@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminProfile extends Model
 {
+    protected $primaryKey = 'admin_profile_id';
     protected $fillable = [
         'user_id',
         'first_name',
