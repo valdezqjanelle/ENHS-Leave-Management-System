@@ -11,6 +11,21 @@ class SalaryScheduleSeeder extends Seeder
     {
         $salarySchedules = [
 
+        [ 'salary_grade' => 1, 'steps' => [
+                14634,
+                  14730,
+                14,849,
+                  14968,
+                  15089,
+                  15211,
+                  15333,
+                  15456,
+        ], ],
+         [ 'salary_grade' => 2, 'steps' => [
+
+
+         ], ],
+
             // Salary Grade 8
             [
                 'salary_grade' => 8,

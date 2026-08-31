@@ -129,6 +129,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/salary-info', [EmployeeController::class, 'salaryInfo']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
         Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
+        Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
+
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
         Route::get('/departments', [EmployeeController::class, 'listDepartments']);
 

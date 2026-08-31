@@ -56,7 +56,7 @@
                 <th class="px-3 py-3">Employee</th>
                 <th class="px-3 py-3">Position</th>
                 <th class="px-3 py-3">Specialization</th>
-                <th class="px-3 py-3">Grade Level</th>
+              
                 <th class="px-3 py-3">Advisory Class</th>
                 <th class="px-3 py-3">Teaching Hours</th>
                 <th class="px-3 py-3 text-center">Action</th>
@@ -66,7 +66,7 @@
             <tbody>
               <tr
                 v-for="record in filteredRecords"
-                :key="record.id"
+                :key="record.teaching_record_id"
                 class="border-t hover:bg-gray-800 transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold break-words">
@@ -85,9 +85,6 @@
                   {{ record.subject_specialization || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
-                  {{ record.grade_level_handled || "-" }}
-                </td>
 
                 <td class="px-3 py-4 text-white break-words">
                   {{ record.advisory_class || "-" }}
@@ -502,7 +499,7 @@ interface Employee {
 }
 
 interface TeachingRecord {
-  id: number;
+  teaching_record_id: number; 
 
   employee_id: number;
 
@@ -767,7 +764,7 @@ const saveRecord = async () => {
 
     if (editingRecord.value) {
       await updateTeachingPersonnelRecord(
-        editingRecord.value.id,
+        editingRecord.value.teaching_record_id,
         payload
       );
 
@@ -825,7 +822,7 @@ const deleteRecord = async (record: TeachingRecord) => {
   }
 
   try {
-    await deleteTeachingPersonnelRecord(record.id);
+    await deleteTeachingPersonnelRecord(record.teaching_record_id);
 
     alert(
       "Teaching personnel record deleted successfully."
