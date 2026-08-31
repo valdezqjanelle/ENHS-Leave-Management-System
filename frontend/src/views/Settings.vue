@@ -30,422 +30,6 @@
 
 
     <!-- ========================================================= -->
-    <!-- EMPLOYEE PROFILE TAB -->
-    <!-- ========================================================= -->
-
-    <div
-      v-if="activeTab === 'profile'"
-      class="neo-card p-6"
-    >
-
-      <div class="mb-6">
-        <h2 class="text-xl font-semibold text-white">
-          Employee Profile
-        </h2>
-
-        <p class="text-sm text-gray-400 mt-1">
-          View your employee information and update your personal contact details.
-        </p>
-      </div>
-
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <!-- ===================================================== -->
-        <!-- PROFILE SUMMARY -->
-        <!-- ===================================================== -->
-
-        <div class="lg:col-span-1">
-
-          <div class="border border-[#1e293b] rounded-xl p-6 text-center">
-
-            <div
-              class="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-semibold mx-auto mb-4"
-            >
-              {{ initials }}
-            </div>
-
-            <h3 class="text-lg font-semibold text-white">
-              {{ fullName || userProfile.first_name }}
-            </h3>
-
-            <p class="text-sm text-gray-400 mt-1">
-              {{ userProfile.position || 'Employee' }}
-            </p>
-
-            <span
-              v-if="userProfile.employment_status"
-              class="inline-block mt-3 px-3 py-1 rounded-full text-xs bg-green-500/10 text-green-400"
-            >
-              {{ userProfile.employment_status }}
-            </span>
-
-            <div class="mt-5 pt-5 border-t border-[#1e293b]">
-              <p class="text-xs text-gray-500">
-                Employee Code
-              </p>
-
-              <p class="text-sm text-gray-300 font-mono mt-1">
-                {{ userProfile.employeeId || '—' }}
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ===================================================== -->
-        <!-- EMPLOYEE INFORMATION + CONTACT + EMERGENCY -->
-        <!-- ===================================================== -->
-
-        <div class="lg:col-span-2">
-
-          <div class="space-y-6">
-
-            <!-- HR CONTROLLED INFORMATION (read-only) -->
-
-            <div>
-
-              <div class="flex items-center gap-2 mb-4">
-
-                <div
-                  class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
-                >
-                  <Building2 class="w-4 h-4" />
-                </div>
-
-                <div>
-                  <h3 class="text-lg font-medium text-white">
-                    Employee Information
-                  </h3>
-
-                  <p class="text-xs text-gray-500">
-                    These details are managed by the administrator.
-                  </p>
-                </div>
-
-              </div>
-
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 border border-[#1e293b] rounded-xl p-5">
-
-                <div>
-                  <p class="text-sm text-gray-400">Sex</p>
-                  <p class="font-medium text-white mt-1">
-                    {{ userProfile.gender || '—' }}
-                  </p>
-                </div>
-
-                <div>
-                  <p class="text-sm text-gray-400">Department</p>
-                  <p class="font-medium text-white mt-1">
-                    {{ userProfile.department_name || '—' }}
-                  </p>
-                </div>
-
-                <div>
-                  <p class="text-sm text-gray-400">Position</p>
-                  <p class="font-medium text-white mt-1">
-                    {{ userProfile.position || '—' }}
-                  </p>
-                </div>
-
-                <div>
-                  <p class="text-sm text-gray-400">Level</p>
-                  <p class="font-medium text-white mt-1">
-                    {{ userProfile.level || '—' }}
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <!-- PERSONAL INFORMATION -->
-
-            <div>
-
-              <div class="flex items-center gap-2 mb-4">
-
-                <div
-                  class="w-8 h-8 bg-green-500/10 text-yellow-400 rounded-lg flex items-center justify-center"
-                >
-                  <User class="w-4 h-4" />
-                </div>
-
-                <h3 class="text-lg font-medium text-white">
-                  Personal Information
-                </h3>
-
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Nationality
-                  </label>
-
-                  <select
-                    v-model="userProfile.nationality"
-                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Filipino">Filipino</option>
-                    <option value="Other">Other</option>
-                  </select>
-
-                </div>
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Civil Status
-                  </label>
-
-                  <select
-                    v-model="userProfile.civil_status"
-                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="Single">Single</option>
-                    <option value="Married">Married</option>
-                    <option value="Widowed">Widowed</option>
-                    <option value="Separated">Separated</option>
-                    <option value="Divorce">Divorce</option>
-                  </select>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <!-- ================================================= -->
-            <!-- PERSONAL CONTACT INFORMATION -->
-            <!-- ================================================= -->
-
-            <form
-              @submit.prevent="updateProfile"
-              class="border-t border-[#1e293b] pt-6"
-            >
-
-              <div class="flex items-center gap-2 mb-4">
-
-                <div
-                  class="w-8 h-8 bg-green-500/10 text-green-400 rounded-lg flex items-center justify-center"
-                >
-                  <Phone class="w-4 h-4" />
-                </div>
-
-                <div>
-                  <h3 class="text-lg font-medium text-white">
-                    Contact Information
-                  </h3>
-
-                  <p class="text-xs text-gray-500">
-                    You can update your personal contact information.
-                  </p>
-                </div>
-
-              </div>
-
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <!-- Contact Number -->
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Contact Number
-                  </label>
-
-                  <input
-                    v-model="userProfile.phone"
-                    type="tel"
-                    placeholder="Enter contact number"
-                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                </div>
-
-
-                <!-- Email -->
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Email
-                  </label>
-
-                  <input
-                    :value="accountSettings.email.current"
-                    type="email"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
-                  <p class="text-xs text-gray-500 mt-1">
-                    To change your email, use Account Settings.
-                  </p>
-
-                </div>
-
-                <!-- Personal Email -->
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Personal Email
-                  </label>
-
-                  <input
-                    v-model="userProfile.personal_email"
-                    type="email"
-                    placeholder="Personal Email"
-                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                </div>
-
-
-                <!-- Address -->
-
-                <div class="md:col-span-2">
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Address
-                  </label>
-
-                  <textarea
-                    v-model="userProfile.address"
-                    rows="3"
-                    placeholder="Enter your complete address"
-                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                  ></textarea>
-
-                </div>
-
-              </div>
-
-
-              <!-- ================================================= -->
-              <!-- EMERGENCY CONTACT -->
-              <!-- ================================================= -->
-
-              <div class="border-t border-[#1e293b] pt-6 mt-6">
-
-                <div class="flex items-center gap-2 mb-4">
-
-                  <div
-                    class="w-8 h-8 bg-red-500/10 text-red-400 rounded-lg flex items-center justify-center"
-                  >
-                    <ShieldAlert class="w-4 h-4" />
-                  </div>
-
-                  <div>
-
-                    <h3 class="text-lg font-medium text-white">
-                      Emergency Contact
-                    </h3>
-
-                    <p class="text-xs text-gray-500">
-                      Provide someone who can be contacted in case of emergency.
-                    </p>
-
-                  </div>
-
-                </div>
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                  <!-- Emergency Contact Name -->
-
-                  <div>
-
-                    <label class="block text-sm font-medium text-gray-400 mb-1">
-                      Contact Name
-                    </label>
-
-                    <input
-                      v-model="userProfile.emergency_contact_name"
-                      type="text"
-                      placeholder="Enter emergency contact name"
-                      class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                  </div>
-
-
-                  <!-- Relationship -->
-
-                  <div>
-
-                    <label class="block text-sm font-medium text-gray-400 mb-1">
-                      Relationship
-                    </label>
-
-                    <input
-                      v-model="userProfile.emergency_contact_relationship"
-                      type="text"
-                      placeholder="e.g. Spouse, Parent, Sibling"
-                      class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                  </div>
-
-
-                  <!-- Emergency Contact Number -->
-
-                  <div class="md:col-span-2">
-
-                    <label class="block text-sm font-medium text-gray-400 mb-1">
-                      Contact Number
-                    </label>
-
-                    <input
-                      v-model="userProfile.emergency_contact_number"
-                      type="tel"
-                      placeholder="Enter emergency contact number"
-                      class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-
-              <!-- SAVE PROFILE -->
-
-              <div class="flex justify-end mt-6">
-
-                <button
-                  type="submit"
-                  class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition"
-                >
-                  Save Changes
-                </button>
-
-              </div>
-
-            </form>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <!-- ========================================================= -->
     <!-- ACCOUNT SETTINGS TAB -->
     <!-- ========================================================= -->
 
@@ -1419,9 +1003,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 
 import {
   User,
@@ -1431,15 +1014,11 @@ import {
   ChevronDown,
   FileText,
   Eye,
-  EyeOff,
-  Building2,
-  Phone,
-  ShieldAlert
+  EyeOff
 } from 'lucide-vue-next'
 
 import {
   getMyProfile,
-  updateMyProfile,
   updateEmail as updateEmailAPI,
   updatePassword as updatePasswordAPI,
   updatePhone as updatePhoneAPI
@@ -1449,35 +1028,13 @@ import { getLeaveSettings } from '@/services/leaveSettings'
 
 const router = useRouter()
 
-const fullName = computed(() => {
-  return [
-    userProfile.value.first_name,
-    userProfile.value.middle_name,
-    userProfile.value.last_name
-  ]
-    .filter(Boolean)
-    .join(' ')
-})
-
-const initials = computed(() => {
-  return (
-    userProfile.value.first_name.charAt(0) +
-    userProfile.value.last_name.charAt(0)
-  ).toUpperCase()
-})
-
 /* =========================================================
    SETTINGS NAVIGATION
 ========================================================= */
 
-const activeTab = ref('profile')
+const activeTab = ref('account')
 
 const settingsTabs = [
-  {
-    id: 'profile',
-    name: 'Employee Profile',
-    icon: User
-  },
   {
     id: 'account',
     name: 'Account',
@@ -1501,180 +1058,9 @@ const settingsTabs = [
 ]
 
 /* =========================================================
-   DEPARTMENTS
-========================================================= */
-
-interface Department {
-  department_id: number
-  department_name: string
-  level: string
-}
-
-const departments = ref<Department[]>([])
-
-const loadDepartments = async () => {
-  try {
-    const response = await axios.get(
-      'https://enhs-leave-management-system.onrender.com/api/departments',
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    )
-
-    departments.value = response.data
-  } catch (error) {
-    console.error('Failed to load departments:', error)
-  }
-}
-
-/* =========================================================
-   EMPLOYEE PROFILE
-   Only employee-editable personal/contact information
-========================================================= */
-
-const userProfile = ref({
-  first_name: '',
-  middle_name: '',
-  last_name: '',
-
-  employeeId: '',
-
-  position: '',
-  department_id: null as number | null,
-  department_name: '',
-  level: '',
-  gender: '',
-  employment_status: '',
-
-  phone: '',
-  nationality: '',
-  civil_status: '',
-  address: '',
-  personal_email: '',
-  emergency_contact_name: '',
-  emergency_contact_number: '',
-  emergency_contact_relationship: ''
-})
-
-/* =========================================================
-   LOAD PROFILE
-========================================================= */
-
-const loadProfile = async () => {
-  try {
-    const data = await getMyProfile()
-
-    userProfile.value = {
-      first_name: data.first_name ?? '',
-      middle_name: data.middle_name ?? '',
-      last_name: data.last_name ?? '',
-
-      employeeId: data.employee_code ?? '',
-
-      /*
-       * These are displayed for reference.
-       * They should not be modified by the employee.
-       */
-      position: data.position ?? '',
-      department_id: data.department_id ?? null,
-      department_name: data.department_name ?? '',
-      level: data.level ?? '',
-      gender: data.sex ?? '',
-      employment_status: data.employment_status ?? '',
-      personal_email: data.personal_email ?? '',
-      nationality: data.nationality ?? '',
-      civil_status: data.civil_status ?? '',
-
-      phone: data.contact_number ?? '',
-
-      address: data.address ?? '',
-      emergency_contact_name:
-        data.emergency_contact_name ?? '',
-      emergency_contact_number:
-        data.emergency_contact_number ?? '',
-      emergency_contact_relationship:
-        data.emergency_contact_relationship ?? ''
-    }
-
-    accountSettings.value.email.current =
-      data.email ?? ''
-
-    accountSettings.value.phone.current =
-      data.contact_number ?? ''
-
-    accountSettings.value.position.current =
-      data.position ?? ''
-
-  } catch (error) {
-    console.error('Failed to load employee profile:', error)
-  }
-}
-
-/* =========================================================
-   UPDATE EMPLOYEE PROFILE
-========================================================= */
-
-const updateProfile = async () => {
-  try {
-    await updateMyProfile({
-      first_name: userProfile.value.first_name,
-      middle_name: userProfile.value.middle_name,
-      last_name: userProfile.value.last_name,
-
-      sex: userProfile.value.gender,
-
-      contact_number:
-        userProfile.value.phone,
-
-      nationality:
-        userProfile.value.nationality,
-
-      civil_status:
-        userProfile.value.civil_status,
-
-      address:
-        userProfile.value.address,
-
-      personal_email:
-        userProfile.value.personal_email,
-
-      emergency_contact_name:
-        userProfile.value.emergency_contact_name,
-
-      emergency_contact_number:
-        userProfile.value.emergency_contact_number,
-
-      emergency_contact_relationship:
-        userProfile.value.emergency_contact_relationship
-    })
-
-    alert('Profile updated successfully.')
-
-    await loadProfile()
-
-  } catch (error: any) {
-    console.error('Profile update failed:', error)
-
-    if (error.response?.data?.message) {
-      alert(error.response.data.message)
-    } else if (error.response?.data?.errors) {
-      const errors = error.response.data.errors
-
-      const messages = Object.values(errors)
-        .flat()
-        .join('\n')
-
-      alert(messages)
-    } else {
-      alert('Failed to update profile.')
-    }
-  }
-}
-
-/* =========================================================
    ACCOUNT SETTINGS
+   Employee profile fields now live in Profile.vue; this view
+   only tracks the current values needed for the Account tab.
 ========================================================= */
 
 const accountSettings = ref({
@@ -1701,6 +1087,22 @@ const accountSettings = ref({
     reason: ''
   }
 })
+
+/* =========================================================
+   LOAD CURRENT ACCOUNT VALUES
+========================================================= */
+
+const loadAccountInfo = async () => {
+  try {
+    const data = await getMyProfile()
+
+    accountSettings.value.email.current = data.email ?? ''
+    accountSettings.value.phone.current = data.contact_number ?? ''
+    accountSettings.value.position.current = data.position ?? ''
+  } catch (error) {
+    console.error('Failed to load account info:', error)
+  }
+}
 
 /* =========================================================
    EMAIL
@@ -1731,7 +1133,7 @@ const updateEmail = async () => {
     accountSettings.value.email.new = ''
     accountSettings.value.email.confirm = ''
 
-    await loadProfile()
+    await loadAccountInfo()
 
   } catch (error: any) {
     console.error('Email update failed:', error)
@@ -1844,7 +1246,7 @@ const updatePhone = async () => {
 
     accountSettings.value.phone.new = ''
 
-    await loadProfile()
+    await loadAccountInfo()
 
   } catch (error: any) {
 
@@ -1998,9 +1400,8 @@ const logout = () => {
 onMounted(async () => {
 
   await Promise.all([
-    loadProfile(),
-    loadLeaveRules(),
-    loadDepartments()
+    loadAccountInfo(),
+    loadLeaveRules()
   ])
 
 })
