@@ -129,7 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/salary-info', [EmployeeController::class, 'salaryInfo']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
         Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
-        Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
+       Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
 
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
         Route::get('/departments', [EmployeeController::class, 'listDepartments']);
@@ -193,25 +193,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Settings - Update
         Route::put('/leave-settings', [LeaveSettingController::class, 'update']);
-        Route::get('/leave-types', [
-            LeaveTypeController::class,
-            'index'
-        ]);
-
-        Route::post('/leave-types', [
-            LeaveTypeController::class,
-            'store'
-        ]);
-
-        Route::put('/leave-types/{id}', [
-            LeaveTypeController::class,
-            'update'
-        ]);
-
-        Route::delete('/leave-types/{id}', [
-            LeaveTypeController::class,
-            'destroy'
-        ]);
         Route::put('/approval-settings', [ApprovalSettingController::class, 'update']);
         Route::put('/system-settings', [SystemSettingController::class, 'update']);
 
@@ -278,4 +259,14 @@ Route::middleware('auth:sanctum')->group(function () {
     | LEAVE TYPES
     |--------------------------------------------------------------------------
     */
+
+    // Both Employee and Admin can view leave types
+    Route::get('/leave-types', [LeaveTypeController::class, 'index']);
+
+    // Only Admin can manage leave types
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/leave-types', [LeaveTypeController::class, 'store']);
+        Route::put('/leave-types/{id}', [LeaveTypeController::class, 'update']);
+        Route::delete('/leave-types/{id}', [LeaveTypeController::class, 'destroy']);
+    });
 });
