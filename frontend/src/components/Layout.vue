@@ -55,17 +55,6 @@
           Dashboard
         </router-link>
 
-<<<<<<< HEAD
-        <router-link
-            v-if="currentUser.role === 'admin'"
-            to="/employees"
-            class="nav-item"
-        >
-            <Users class="icon" />
-            Employees
-        </router-link>
-        
-=======
         <div v-if="currentUser.role === 'admin'">
           <button
             @click="togglePersonnelMenu"
@@ -102,7 +91,6 @@
           </div>
         </div>
 
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
         <router-link
           v-if="currentUser.role === 'admin'"
           to="/admin-applications"
@@ -148,18 +136,11 @@
           My Applications
         </router-link>
 
-<<<<<<< HEAD
-        <router-link 
-        v-if="currentUser.role === 'employee'"
-        to="/records" 
-        class="nav-item">
-=======
         <router-link
           v-if="currentUser.role === 'employee'"
           to="/records"
           class="nav-item"
         >
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
           <Users class="icon" />
           Records
         </router-link>
@@ -190,15 +171,14 @@
           <Settings class="icon" />
           Settings
         </router-link>
-<<<<<<< HEAD
       </nav>
 
       <!--
         Profile + Logout pinned to the bottom of the sidebar.
-        FIX: added @click="sidebarOpen = false" here too, mirroring
-        the <nav> handler above — this block lives outside <nav>,
-        so without its own handler, clicking Profile (or Logout)
-        left the sidebar open on mobile.
+        @click="sidebarOpen = false" lives here too, mirroring the
+        <nav> handler above — this block lives outside <nav>, so
+        without its own handler, clicking Profile (or Logout) would
+        leave the sidebar open on mobile.
       -->
       <div
         class="px-3 pb-6 pt-2 border-t border-white/5 space-y-1"
@@ -216,10 +196,6 @@
         </router-link>
 
         <button @click="logout" class="nav-item logout-item w-full">
-=======
-
-        <button @click="logout" class="nav-item text-red-600 w-full">
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
           <LogOut class="icon" />
           Logout
         </button>
@@ -229,15 +205,10 @@
     <!-- MAIN -->
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
-<<<<<<< HEAD
       <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
-        <h2 class="text-blue-600 font-bold text-xl tracking-tight">{{ pageTitle }}</h2>
-=======
-      <header class="topbar flex items-center justify-between px-6 py-4">
         <h2 class="text-blue-600 font-bold text-xl tracking-tight">
           {{ pageTitle }}
         </h2>
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
 
         <div class="flex items-center gap-4"></div>
       </header>
@@ -270,12 +241,9 @@ import {
   X,
   Wallet,
   Scale,
-<<<<<<< HEAD
   UserCircle2,
-=======
   ChevronDown,
   GraduationCap,
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -413,7 +381,6 @@ const logout = async () => {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
-<<<<<<< HEAD
 /* ============================================================
    SIDEBAR CLOSE BUTTON — sits at the right of the sidebar's own
    header row (next to "E-LMS"), only shown on mobile while open.
@@ -482,8 +449,13 @@ const logout = async () => {
   color: #fca5a5;
   transform: translateX(2px);
 }
-</style>
-=======
+
+/* ============================================================
+   NAV SUB-ITEMS — indented links inside the collapsible
+   "Employee Management" submenu (Employees / Teaching Personnel /
+   Non-Teaching Personnel).
+   ============================================================ */
+
 .nav-subitem {
   @apply flex items-center gap-3 px-4 py-2 rounded-lg text-white/80 text-sm font-medium transition-all duration-200;
   margin: 0.15rem 0;
@@ -500,4 +472,3 @@ const logout = async () => {
   font-weight: 600;
 }
 </style>
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf

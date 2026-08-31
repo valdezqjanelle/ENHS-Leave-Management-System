@@ -140,7 +140,6 @@ const router = createRouter({
           },
         },
 
-<<<<<<< HEAD
         {
           path: "/profile",
           name: "profile",
@@ -150,9 +149,6 @@ const router = createRouter({
           },
         },
 
-
-=======
->>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
         {
           path: "/reports",
           name: "reports",
