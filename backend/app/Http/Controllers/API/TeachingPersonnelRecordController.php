@@ -10,9 +10,7 @@ use App\Support\AuditLogger;
 
 class TeachingPersonnelRecordController extends Controller
 {
-    /**
-     * Display all teaching personnel records.
-     */
+ 
     public function index()
     {
         $records = TeachingPersonnelRecord::with([
@@ -27,9 +25,7 @@ class TeachingPersonnelRecordController extends Controller
         return response()->json($records);
     }
 
-    /**
-     * Display a specific teaching personnel record.
-     */
+  
     public function show($id)
     {
         $record = TeachingPersonnelRecord::with([
@@ -42,9 +38,7 @@ class TeachingPersonnelRecordController extends Controller
         return response()->json($record);
     }
 
-    /**
-     * Store a new teaching personnel record.
-     */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -98,9 +92,6 @@ class TeachingPersonnelRecordController extends Controller
         ], 201);
     }
 
-    /**
-     * Update a teaching personnel record.
-     */
     public function update(Request $request, $id)
     {
         $record = TeachingPersonnelRecord::findOrFail($id);
@@ -137,9 +128,7 @@ class TeachingPersonnelRecordController extends Controller
         ]);
     }
 
-    /**
-     * Delete a teaching personnel record.
-     */
+
     public function destroy($id)
     {
         $record = TeachingPersonnelRecord::findOrFail($id);

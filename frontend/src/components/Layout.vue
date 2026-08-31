@@ -39,20 +39,6 @@
         </button>
       </div>
 
-      <!--
-        NOTE: @click="sidebarOpen = false" added on the <nav> wrapper.
-        Clicks on any router-link inside bubble up to this handler,
-        so tapping/choosing a nav item auto-closes the sidebar on
-        mobile. Harmless on desktop since the sidebar's transform
-        class forces translate-x-0 there regardless of sidebarOpen.
-
-        EXCEPTION: the "Employee Management" toggle button below uses
-        @click.stop so that opening/closing its submenu does NOT
-        bubble up and close the sidebar. The submenu's own
-        router-links (Employees / Teaching Personnel / Non-Teaching
-        Personnel) do NOT have .stop, so clicking one of those still
-        bubbles up and closes the sidebar as before.
-      -->
       <nav
         class="mt-4 space-y-1 px-3 flex-1 overflow-y-auto"
         @click="sidebarOpen = false"
@@ -98,32 +84,41 @@
           </div>
         </div>
 
-        <router-link
-          v-if="currentUser.role === 'admin'"
-          to="/admin-applications"
-          class="nav-item"
-        >
-          <FileCheck class="icon" />
-          Applications
-        </router-link>
+        <!-- Leave Management Dropdown -->
+        <div v-if="currentUser.role === 'admin'">
+          <button
+            @click.stop="toggleLeaveMenu"
+            class="nav-item w-full justify-between"
+            :class="{ 'router-link-active': isLeaveRouteActive }"
+          >
+            <span class="flex items-center gap-3">
+              <FileCheck class="icon" />
+              Leave Management
+            </span>
 
-        <router-link
-          v-if="currentUser.role === 'admin'"
-          to="/leave-credits"
-          class="nav-item"
-        >
-          <FilePlus class="icon" />
-          Leave Credits
-        </router-link>
+            <ChevronDown
+              class="icon transition-transform duration-200"
+              :class="{ 'rotate-180': leaveMenuOpen }"
+            />
+          </button>
 
-        <router-link
-          v-if="currentUser.role === 'admin'"
-          to="/leave-balances"
-          class="nav-item"
-        >
-          <Wallet class="icon" />
-          Leave Balances
-        </router-link>
+          <div
+            v-show="leaveMenuOpen || isLeaveRouteActive"
+            class="pl-4 space-y-1 mt-1"
+          >
+            <router-link to="/admin-applications" class="nav-subitem">
+              Leave Applications
+            </router-link>
+
+            <router-link to="/leave-credits" class="nav-subitem">
+              Leave Credits
+            </router-link>
+
+            <router-link to="/leave-balances" class="nav-subitem">
+              Leave Balances
+            </router-link>
+          </div>
+        </div>
 
         <router-link
           v-if="currentUser.role === 'employee'"
@@ -246,7 +241,6 @@ import {
   LogOut,
   Menu,
   X,
-  Wallet,
   Scale,
   UserCircle2,
   ChevronDown,
@@ -258,8 +252,14 @@ const router = useRouter();
 
 const sidebarOpen = ref(false);
 const personnelMenuOpen = ref(false);
+const leaveMenuOpen = ref(false);
+
 const togglePersonnelMenu = () => {
   personnelMenuOpen.value = !personnelMenuOpen.value;
+};
+
+const toggleLeaveMenu = () => {
+  leaveMenuOpen.value = !leaveMenuOpen.value;
 };
 
 const isPersonnelRouteActive = computed(() => {
@@ -267,6 +267,14 @@ const isPersonnelRouteActive = computed(() => {
     "/employees",
     "/teaching-personnel",
     "/non-teaching-personnel",
+  ].includes(route.path);
+});
+
+const isLeaveRouteActive = computed(() => {
+  return [
+    "/admin-applications",
+    "/leave-credits",
+    "/leave-balances",
   ].includes(route.path);
 });
 // Logged-in user

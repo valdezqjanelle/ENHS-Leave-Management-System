@@ -35,7 +35,6 @@ class LeaveCreditController extends Controller
             'recorded_by' => auth()->user()->user_id,
         ]);
 
-        // OPTIONAL: auto update leave balance (we will refine later)
 
 
         AuditLogger::log(
@@ -171,12 +170,6 @@ public function apply(Request $request, $id)
         ], 422);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY VACATION CREDIT
-    |--------------------------------------------------------------------------
-    */
-
     if ($creditType === 'vacation') {
 
         $balance->vacation_earned +=
@@ -186,11 +179,6 @@ public function apply(Request $request, $id)
             $credit->equivalent_leave_days;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY SICK CREDIT
-    |--------------------------------------------------------------------------
-    */
 
     elseif ($creditType === 'sick') {
 
@@ -201,11 +189,7 @@ public function apply(Request $request, $id)
             $credit->equivalent_leave_days;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLY SERVICE CREDITS
-    |--------------------------------------------------------------------------
-    */
+
 
     elseif ($isServiceCredit) {
 
@@ -224,11 +208,7 @@ public function apply(Request $request, $id)
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | INVALID CREDIT TYPE
-    |--------------------------------------------------------------------------
-    */
+
 
     else {
         return response()->json([
@@ -239,11 +219,7 @@ public function apply(Request $request, $id)
     $balance->last_updated = now();
     $balance->save();
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARK CREDIT AS APPLIED
-    |--------------------------------------------------------------------------
-    */
+
 
     $credit->status = 'Applied';
     $credit->save();

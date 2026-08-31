@@ -11,11 +11,7 @@ use App\Support\AuditLogger;
 
 class AttendanceController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: RECORD ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -46,11 +42,7 @@ class AttendanceController extends Controller
         ], 201);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: VIEW ALL ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+
     public function index()
     {
         return AttendanceRecord::with('employee')
@@ -58,22 +50,14 @@ class AttendanceController extends Controller
             ->get();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: VIEW SINGLE ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+ 
     public function show($id)
     {
         return AttendanceRecord::with('employee')
             ->findOrFail($id);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: UPDATE ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+
     public function update(Request $request, $id)
     {
         $attendance = AttendanceRecord::findOrFail($id);
@@ -97,11 +81,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE: VIEW OWN ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+  
     public function myAttendance(Request $request)
     {
         $employee = EmployeeRecord::where(
@@ -117,11 +97,7 @@ class AttendanceController extends Controller
             ->get();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE: VIEW SINGLE OWN ATTENDANCE
-    |--------------------------------------------------------------------------
-    */
+ 
     public function myAttendanceRecord($id, Request $request)
     {
         $employee = EmployeeRecord::where(

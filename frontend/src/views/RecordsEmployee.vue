@@ -29,95 +29,6 @@
       </div>
     </div>
 
-    <!-- employee stats -->
-
-<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-
-    <!-- Total -->
-    <div class="neo-card stats-card border-blue-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
-
-      <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
-        <FileCheck class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
-      </div>
-
-      <div class="mt-2 md:mt-0 md:ml-5">
-
-        <h3 class="text-xs md:text-sm text-white">
-          Total Applications
-        </h3>
-
-        <p class="text-lg md:text-2xl font-semibold text-white">
-          {{ totalEmployeeApplications }}
-        </p>
-
-      </div>
-
-    </div>
-
-    <!-- Pending -->
-    <div class="neo-card stats-card border-orange-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
-
-      <div class="p-2 md:p-3 bg-yellow-100 rounded-lg">
-        <Clock class="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
-      </div>
-
-      <div class="mt-2 md:mt-0 md:ml-4">
-
-        <h3 class="text-xs md:text-sm text-white">
-          Pending
-        </h3>
-
-        <p class="text-lg md:text-2xl font-semibold text-white">
-          {{ totalPendingLeaves }}
-        </p>
-
-      </div>
-
-    </div>
-
-    <!-- Approved -->
-    <div class="neo-card stats-card border-green-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
-
-      <div class="p-2 md:p-3 bg-green-100 rounded-lg">
-        <CheckCircle class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
-      </div>
-
-      <div class="mt-2 md:mt-0 md:ml-4">
-
-        <h3 class="text-xs md:text-sm text-white">
-          Approved
-        </h3>
-
-        <p class="text-lg md:text-2xl font-semibold text-white">
-          {{ totalApprovedLeaves }}
-        </p>
-
-      </div>
-
-    </div>
-
-    <!-- Disapproved -->
-    <div class="neo-card stats-card border-red-700 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
-
-      <div class="p-2 md:p-3 bg-red-100 rounded-lg">
-        <AlertCircle class="w-5 h-5 md:w-6 md:h-6 text-red-600" />
-      </div>
-
-      <div class="mt-2 md:mt-0 md:ml-4">
-
-        <h3 class="text-xs md:text-sm text-white">
-          Disapproved
-        </h3>
-
-        <p class="text-lg md:text-2xl font-semibold text-white">
-          {{ totalDisapprovedLeaves }}
-        </p>
-
-      </div>
-
-    </div>
-
-  </div>
     <!-- Recent Leave Applications -->
 
     <div class="neo-card">
@@ -188,12 +99,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
-import {
-  FileCheck,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-vue-next";
 
 const employee = ref({
   employee_id: "",
@@ -230,21 +135,6 @@ interface LeaveApplication {
 }
 
 const recentLeaves = ref<LeaveApplication[]>([]);
-
-const leaveBalance = ref({
-  vacation_balance: 0,
-  sick_balance: 0,
-  used_leave: 0,
-  service_credits: 0,
-  last_updated: "",
-});
-
-// employee stats — counts across ALL leave applications, not just the
-// 5 shown in the "Recent Leave Applications" table
-const totalEmployeeApplications = ref(0);
-const totalPendingLeaves = ref(0);
-const totalApprovedLeaves = ref(0);
-const totalDisapprovedLeaves = ref(0);
 
 const fullName = computed(() => {
   return [
@@ -307,46 +197,6 @@ const loadRecentLeaves = async () => {
   );
 
   recentLeaves.value = sorted.slice(0, 5);
-
-  // employee stats — derived from the full list, before slicing
-  totalEmployeeApplications.value = applications.length;
-
-  totalApprovedLeaves.value = applications.filter(
-    (app) => normalizeStatus(app.final_status) === "approved",
-  ).length;
-
-  totalPendingLeaves.value = applications.filter((app) => {
-    const status = normalizeStatus(app.final_status);
-    return (
-      status === "pending" ||
-      status === "for approval" ||
-      status === "for_approval"
-    );
-  }).length;
-
-  totalDisapprovedLeaves.value = applications.filter((app) => {
-    const status = normalizeStatus(app.final_status);
-    return (
-      status === "disapproved" ||
-      status === "rejected" ||
-      status === "denied"
-    );
-  }).length;
-};
-
-const loadLeaveBalance = async () => {
-  const token = localStorage.getItem("token");
-
-  const response = await axios.get(
-    "https://enhs-leave-management-system.onrender.com/api/my-leave-balance",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
-  leaveBalance.value = response.data;
 };
 
 const formatDate = (dateString: string) => {
@@ -381,9 +231,6 @@ const statusClass = (status: string) => {
 
 onMounted(async () => {
   await loadProfile();
-
-  await loadLeaveBalance();
-
   await loadRecentLeaves();
 });
 </script>
