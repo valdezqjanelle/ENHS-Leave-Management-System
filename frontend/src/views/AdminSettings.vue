@@ -1564,7 +1564,6 @@ const actionBadgeClass = (action: string) => {
   return "bg-gray-500/15 text-gray-400";
 };
 
-
 const formatAuditDate = (dateStr: string) => {
   const d = new Date(dateStr);
   return d.toLocaleString("en-US", {
@@ -1961,14 +1960,13 @@ const saveLeaveType = async () => {
   console.log("LEAVE TYPE PAYLOAD:", payload);
 
   try {
-    if (
-      isEditMode.value &&
-      leaveForm.value.leave_type_id !== null
-    ) {
-      await updateLeaveType(
+    if (isEditMode.value && leaveForm.value.leave_type_id !== null) {
+      const updated = await updateLeaveType(
         leaveForm.value.leave_type_id,
         payload,
       );
+
+      console.log("UPDATED LEAVE TYPE RESPONSE:", updated);
 
       alert("Leave type updated successfully.");
     } else {
@@ -1980,15 +1978,9 @@ const saveLeaveType = async () => {
     closeLeaveModal();
     await loadLeaveTypes();
   } catch (error: any) {
-    console.error(
-      "Failed saving leave type:",
-      error.response?.data || error,
-    );
+    console.error("Failed saving leave type:", error.response?.data || error);
 
-    alert(
-      error.response?.data?.message ||
-        "Failed to save leave type.",
-    );
+    alert(error.response?.data?.message || "Failed to save leave type.");
   }
 };
 
