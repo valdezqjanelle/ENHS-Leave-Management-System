@@ -1,12 +1,12 @@
 <template>
   <div class="app-shell">
-    <!-- Mobile Menu Toggle -->
+    <!-- Mobile Menu Toggle (hamburger only — hidden once sidebar is open) -->
     <button
-      @click="sidebarOpen = !sidebarOpen"
+      v-if="!sidebarOpen"
+      @click="sidebarOpen = true"
       class="mobile-toggle lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl"
     >
-      <Menu v-if="!sidebarOpen" class="w-5 h-5 text-gray-600" />
-      <X v-else class="w-5 h-5 text-gray-600" />
+      <Menu class="w-5 h-5 text-white" />
     </button>
 
     <!-- Overlay -->
@@ -18,30 +18,51 @@
 
     <!-- Sidebar -->
     <aside
-      class="sidebar fixed lg:relative h-full w-64 z-40 transition-transform duration-300"
+      class="sidebar fixed lg:relative h-full w-64 z-40 transition-transform duration-300 flex flex-col"
       :class="
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       "
     >
-      <div class="p-6">
-        <h1 class="text-2xl font-bold text-blue-600">E-LMS</h1>
-        <p class="text-white-600">System</p>
+      <div class="p-6 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-blue-600">ELS</h1>
+          <p class="text-white-600">System</p>
+        </div>
+
+        <!-- Close button lives inside the sidebar's own header, right-aligned -->
+        <button
+          v-if="sidebarOpen"
+          @click="sidebarOpen = false"
+          class="sidebar-close-btn lg:hidden p-2 rounded-xl"
+        >
+          <X class="w-5 h-5" />
+        </button>
       </div>
 
-      <nav class="mt-4 space-y-1 px-3">
+      <!--
+        NOTE: @click="sidebarOpen = false" added on the <nav> wrapper.
+        Clicks on any router-link inside bubble up to this handler,
+        so tapping/choosing a nav item auto-closes the sidebar on
+        mobile. Harmless on desktop since the sidebar's transform
+        class forces translate-x-0 there regardless of sidebarOpen.
+      -->
+      <nav
+        class="mt-4 space-y-1 px-3 flex-1 overflow-y-auto"
+        @click="sidebarOpen = false"
+      >
         <router-link to="/dashboard" class="nav-item">
           <LayoutDashboard class="icon" />
           Dashboard
         </router-link>
 
-<router-link
-    v-if="currentUser.role === 'admin'"
-    to="/employees"
-    class="nav-item"
->
-    <Users class="icon" />
-    Employees
-</router-link>
+        <router-link
+            v-if="currentUser.role === 'admin'"
+            to="/employees"
+            class="nav-item"
+        >
+            <Users class="icon" />
+            Employees
+        </router-link>
         
         <router-link
           v-if="currentUser.role === 'admin'"
@@ -51,8 +72,6 @@
           <FileCheck class="icon" />
           Applications
         </router-link>
-
-    
 
         <router-link
           v-if="currentUser.role === 'admin'"
@@ -90,8 +109,6 @@
           My Applications
         </router-link>
 
-        
-
         <router-link 
         v-if="currentUser.role === 'employee'"
         to="/records" 
@@ -100,7 +117,11 @@
           Records
         </router-link>
 
-        <router-link to="/reports" class="nav-item">
+        <router-link
+          v-if="currentUser.role === 'admin'"
+          to="/reports"
+          class="nav-item"
+        >
           <BarChart class="icon" />
           Reports
         </router-link>
@@ -120,18 +141,41 @@
           <Settings class="icon" />
           Settings
         </router-link>
-        
-        <button @click="logout" class="nav-item text-red-600 w-full">
+      </nav>
+
+      <!--
+        Profile + Logout pinned to the bottom of the sidebar.
+        FIX: added @click="sidebarOpen = false" here too, mirroring
+        the <nav> handler above — this block lives outside <nav>,
+        so without its own handler, clicking Profile (or Logout)
+        left the sidebar open on mobile.
+      -->
+      <div
+        class="px-3 pb-6 pt-2 border-t border-white/5 space-y-1"
+        @click="sidebarOpen = false"
+      >
+        <router-link
+          v-if="currentUser.role === 'employee'"
+          to="/profile"
+          class="nav-item profile-item"
+        >
+          <span class="profile-avatar">
+            <UserCircle2 class="icon" />
+          </span>
+          Profile
+        </router-link>
+
+        <button @click="logout" class="nav-item logout-item w-full">
           <LogOut class="icon" />
           Logout
         </button>
-      </nav>
+      </div>
     </aside>
 
     <!-- MAIN -->
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
-      <header class="topbar flex items-center justify-between px-6 py-4">
+      <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
         <h2 class="text-blue-600 font-bold text-xl tracking-tight">{{ pageTitle }}</h2>
 
         <div class="flex items-center gap-4">
@@ -171,6 +215,7 @@ import {
   X,
   Wallet,
   Scale,
+  UserCircle2,
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -202,6 +247,7 @@ const pageTitle = computed(() => {
     "/records": "Records",
     "/reports": "Reports",
     "/settings": "Settings",
+    "/profile": "Profile",
   };
 
   return titles[route.path] || "Dashboard";
@@ -253,8 +299,7 @@ const logout = async () => {
 .search-input,
 .bell-wrap,
 .user-pill {
-  background: #ffffff;
-  border: 1px solid #e7edf7;
+  background: #020914;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
@@ -291,5 +336,74 @@ const logout = async () => {
   outline: none;
   border-color: rgba(59, 130, 246, 0.55);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+}
+
+/* ============================================================
+   SIDEBAR CLOSE BUTTON — sits at the right of the sidebar's own
+   header row (next to "E-LMS"), only shown on mobile while open.
+   ============================================================ */
+
+.sidebar-close-btn {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.sidebar-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ============================================================
+   PROFILE — sits directly above Logout in the pinned footer
+   section. The icon is wrapped in a circular badge (rounded-full)
+   so it echoes the round avatar used on the Profile page itself,
+   instead of the square icon treatment used by the other nav items.
+   ============================================================ */
+
+.profile-item {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.profile-item:hover {
+  background: rgba(59, 130, 246, 0.16);
+  color: #bfdbfe;
+  transform: translateX(2px);
+}
+
+.profile-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9999px;
+  background: rgba(59, 130, 246, 0.18);
+  flex-shrink: 0;
+}
+
+.profile-avatar .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================================
+   LOGOUT — pinned at bottom via the wrapping div in the template,
+   styled red to signal a destructive/exit action. Declared after
+   .nav-item's rules so it wins the color/hover overrides.
+   ============================================================ */
+
+.logout-item {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.15);
+}
+
+.logout-item:hover {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fca5a5;
+  transform: translateX(2px);
 }
 </style>

@@ -49,35 +49,46 @@
       </div>
 
 
-      <!-- ===================================================== -->
-      <!-- PROFILE HEADER -->
-      <!-- ===================================================== -->
-
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        <!-- Profile Picture -->
+        <!-- ===================================================== -->
+        <!-- PROFILE SUMMARY -->
+        <!-- ===================================================== -->
 
         <div class="lg:col-span-1">
 
-          <div class="text-center">
+          <div class="border border-[#1e293b] rounded-xl p-6 text-center">
 
             <div
-              class="w-32 h-32 bg-blue-500 rounded-full flex items-center justify-center text-white text-4xl font-semibold mx-auto mb-4"
+              class="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-semibold mx-auto mb-4"
             >
-              {{ userProfile.first_name.charAt(0) }}
+              {{ initials }}
             </div>
 
             <h3 class="text-lg font-semibold text-white">
-              {{ userProfile.first_name }}
+              {{ fullName || userProfile.first_name }}
             </h3>
 
             <p class="text-sm text-gray-400 mt-1">
               {{ userProfile.position || 'Employee' }}
             </p>
 
-            <p class="text-sm text-gray-500 mt-1">
-              {{ userProfile.employeeId }}
-            </p>
+            <span
+              v-if="userProfile.employment_status"
+              class="inline-block mt-3 px-3 py-1 rounded-full text-xs bg-green-500/10 text-green-400"
+            >
+              {{ userProfile.employment_status }}
+            </span>
+
+            <div class="mt-5 pt-5 border-t border-[#1e293b]">
+              <p class="text-xs text-gray-500">
+                Employee Code
+              </p>
+
+              <p class="text-sm text-gray-300 font-mono mt-1">
+                {{ userProfile.employeeId || '—' }}
+              </p>
+            </div>
 
           </div>
 
@@ -85,14 +96,14 @@
 
 
         <!-- ===================================================== -->
-        <!-- EMPLOYEE INFORMATION -->
+        <!-- EMPLOYEE INFORMATION + CONTACT + EMERGENCY -->
         <!-- ===================================================== -->
 
         <div class="lg:col-span-2">
 
           <div class="space-y-6">
 
-            <!-- HR CONTROLLED INFORMATION -->
+            <!-- HR CONTROLLED INFORMATION (read-only) -->
 
             <div>
 
@@ -101,7 +112,7 @@
                 <div
                   class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
                 >
-                  <User class="w-4 h-4" />
+                  <Building2 class="w-4 h-4" />
                 </div>
 
                 <div>
@@ -117,113 +128,34 @@
               </div>
 
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                <!-- Employee Code -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 border border-[#1e293b] rounded-xl p-5">
 
                 <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Employee Code
-                  </label>
-
-                  <input
-                    :value="userProfile.employeeId"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
+                  <p class="text-sm text-gray-400">Sex</p>
+                  <p class="font-medium text-white mt-1">
+                    {{ userProfile.gender || '—' }}
+                  </p>
                 </div>
 
-
-                <!-- Full Name -->
-
                 <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Full Name
-                  </label>
-
-                  <input
-                    :value="fullName"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
+                  <p class="text-sm text-gray-400">Department</p>
+                  <p class="font-medium text-white mt-1">
+                    {{ userProfile.department_name || '—' }}
+                  </p>
                 </div>
 
-
-                <!-- Sex -->
-
                 <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Sex
-                  </label>
-
-                  <input
-                    :value="userProfile.gender"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
+                  <p class="text-sm text-gray-400">Position</p>
+                  <p class="font-medium text-white mt-1">
+                    {{ userProfile.position || '—' }}
+                  </p>
                 </div>
 
-
-                <!-- Department -->
-
                 <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Department
-                  </label>
-
-                  <input
-                    :value="userProfile.department_name"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
-                </div>
-
-
-                <!-- Position -->
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Position
-                  </label>
-
-                  <input
-                    :value="userProfile.position"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
-                </div>
-
-
-                <!-- Level -->
-
-                <div>
-
-                  <label class="block text-sm font-medium text-gray-400 mb-1">
-                    Level
-                  </label>
-
-                  <input
-                    :value="userProfile.level"
-                    type="text"
-                    disabled
-                    class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
-                  />
-
+                  <p class="text-sm text-gray-400">Level</p>
+                  <p class="font-medium text-white mt-1">
+                    {{ userProfile.level || '—' }}
+                  </p>
                 </div>
 
               </div>
@@ -245,7 +177,7 @@
                 <div
                   class="w-8 h-8 bg-green-500/10 text-green-400 rounded-lg flex items-center justify-center"
                 >
-                  <User class="w-4 h-4" />
+                  <Phone class="w-4 h-4" />
                 </div>
 
                 <div>
@@ -334,7 +266,7 @@
                   <div
                     class="w-8 h-8 bg-red-500/10 text-red-400 rounded-lg flex items-center justify-center"
                   >
-                    <User class="w-4 h-4" />
+                    <ShieldAlert class="w-4 h-4" />
                   </div>
 
                   <div>
@@ -1458,7 +1390,10 @@ import {
   ChevronDown,
   FileText,
   Eye,
-  EyeOff
+  EyeOff,
+  Building2,
+  Phone,
+  ShieldAlert
 } from 'lucide-vue-next'
 
 import {
@@ -1481,6 +1416,13 @@ const fullName = computed(() => {
   ]
     .filter(Boolean)
     .join(' ')
+})
+
+const initials = computed(() => {
+  return (
+    userProfile.value.first_name.charAt(0) +
+    userProfile.value.last_name.charAt(0)
+  ).toUpperCase()
 })
 
 /* =========================================================
@@ -1563,6 +1505,7 @@ const userProfile = ref({
   department_name:'',
   level: '',
   gender: '',
+  employment_status: '',
 
   phone: '',
 
@@ -1596,6 +1539,7 @@ const loadProfile = async () => {
       department_name: data.department_name ?? '',
       level: data.level ?? '',
       gender: data.sex ?? '',
+      employment_status: data.employment_status ?? '',
 
       phone: data.contact_number ?? '',
 

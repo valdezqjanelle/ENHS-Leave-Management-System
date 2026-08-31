@@ -40,41 +40,95 @@
       </div>
     </div>
 
-    <!-- Leave Balance -->
+    <!-- employee stats -->
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-       <div class="neo-card stats-card border-blue-500 p-5">
-        <h4 class="text-gray-400 text-sm">Service Credits</h4>
+<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
 
-        <p class="text-3xl font-bold text-blue-400 mt-2">
-          {{ leaveBalance.service_credits }}
-        </p>
-      </div>
-      <div class="neo-card stats-card border-blue-500 p-5">
-        <h4 class="text-gray-400 text-sm">Vacation Leave</h4>
+    <!-- Total -->
+    <div class="neo-card stats-card border-blue-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
 
-        <p class="text-3xl font-bold text-blue-400 mt-2">
-          {{ leaveBalance.vacation_balance }}
-        </p>
+      <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
+        <FileCheck class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
       </div>
 
-      <div class="neo-card stats-card border-red-700 p-5">
-        <h4 class="text-gray-400 text-sm">Sick Leave</h4>
+      <div class="mt-2 md:mt-0 md:ml-5">
 
-        <p class="text-3xl font-bold text-red-400 mt-2">
-          {{ leaveBalance.sick_balance }}
+        <h3 class="text-xs md:text-sm text-white">
+          Total Applications
+        </h3>
+
+        <p class="text-lg md:text-2xl font-semibold text-white">
+          {{ totalEmployeeApplications }}
         </p>
+
       </div>
 
-      <div class="neo-card stats-card border-green-500 p-5">
-        <h4 class="text-gray-400 text-sm">Used Leave</h4>
-
-        <p class="text-3xl font-bold text-green-400 mt-2">
-          {{ leaveBalance.used_leave }}
-        </p>
-      </div>
     </div>
 
+    <!-- Pending -->
+    <div class="neo-card stats-card border-orange-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+
+      <div class="p-2 md:p-3 bg-yellow-100 rounded-lg">
+        <Clock class="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
+      </div>
+
+      <div class="mt-2 md:mt-0 md:ml-4">
+
+        <h3 class="text-xs md:text-sm text-white">
+          Pending
+        </h3>
+
+        <p class="text-lg md:text-2xl font-semibold text-white">
+          {{ totalPendingLeaves }}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- Approved -->
+    <div class="neo-card stats-card border-green-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+
+      <div class="p-2 md:p-3 bg-green-100 rounded-lg">
+        <CheckCircle class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+      </div>
+
+      <div class="mt-2 md:mt-0 md:ml-4">
+
+        <h3 class="text-xs md:text-sm text-white">
+          Approved
+        </h3>
+
+        <p class="text-lg md:text-2xl font-semibold text-white">
+          {{ totalApprovedLeaves }}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- Disapproved -->
+    <div class="neo-card stats-card border-red-700 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+
+      <div class="p-2 md:p-3 bg-red-100 rounded-lg">
+        <AlertCircle class="w-5 h-5 md:w-6 md:h-6 text-red-600" />
+      </div>
+
+      <div class="mt-2 md:mt-0 md:ml-4">
+
+        <h3 class="text-xs md:text-sm text-white">
+          Disapproved
+        </h3>
+
+        <p class="text-lg md:text-2xl font-semibold text-white">
+          {{ totalDisapprovedLeaves }}
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
     <!-- Recent Leave Applications -->
 
     <div class="neo-card">
@@ -140,125 +194,17 @@
         </table>
       </div>
     </div>
-
-    <!-- Personal Information -->
-
-    <div class="neo-card">
-      <div class="border-b border-[#1e293b] px-6 py-4">
-        <h3 class="text-lg font-semibold text-white">Personal Information</h3>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <div>
-          <label class="text-gray-400 text-sm"> Employee Code </label>
-
-          <p class="font-medium text-white">
-            {{ employee.employee_code }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Email </label>
-
-          <p class="font-medium text-white">
-            {{ employee.email }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> First Name </label>
-
-          <p class="font-medium text-white">
-            {{ employee.first_name }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Middle Name </label>
-
-          <p class="font-medium text-white">
-            {{ employee.middle_name || "-" }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Last Name </label>
-
-          <p class="font-medium text-white">
-            {{ employee.last_name }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Sex </label>
-
-          <p class="font-medium text-white">
-            {{ employee.sex }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Contact Number </label>
-
-          <p class="font-medium text-white">
-            {{ employee.contact_number }}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Employment -->
-
-    <div class="neo-card">
-      <div class="border-b border-[#1e293b] px-6 py-4">
-        <h3 class="text-lg font-semibold text-white">Employment Information</h3>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <div>
-          <label class="text-gray-400 text-sm"> Department </label>
-
-          <p class="font-medium text-white">
-            {{ employee.department_name }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Position </label>
-
-          <p class="font-medium text-white">
-            {{ employee.position }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Level </label>
-
-          <p class="font-medium text-white">
-            {{ employee.level }}
-          </p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Salary </label>
-
-          <p class="font-medium text-white">₱{{ employee.salary }}</p>
-        </div>
-
-        <div>
-          <label class="text-gray-400 text-sm"> Date Hired </label>
-
-          <p class="font-medium text-white">
-            {{ employee.date_hired }}
-          </p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import {
+  FileCheck,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-vue-next";
 
 const employee = ref({
   employee_id: "",
@@ -295,14 +241,21 @@ interface LeaveApplication {
 }
 
 const recentLeaves = ref<LeaveApplication[]>([]);
+
 const leaveBalance = ref({
-  
   vacation_balance: 0,
   sick_balance: 0,
   used_leave: 0,
   service_credits: 0,
   last_updated: "",
 });
+
+// employee stats — counts across ALL leave applications, not just the
+// 5 shown in the "Recent Leave Applications" table
+const totalEmployeeApplications = ref(0);
+const totalPendingLeaves = ref(0);
+const totalApprovedLeaves = ref(0);
+const totalDisapprovedLeaves = ref(0);
 
 const fullName = computed(() => {
   return [
@@ -319,6 +272,14 @@ const initials = computed(() => {
     employee.value.first_name.charAt(0) + employee.value.last_name.charAt(0)
   ).toUpperCase();
 });
+
+const normalizeStatus = (status: unknown): string => {
+  if (status === null || status === undefined) {
+    return "";
+  }
+
+  return String(status).trim().toLowerCase();
+};
 
 const loadProfile = async () => {
   const token = localStorage.getItem("token");
@@ -344,13 +305,44 @@ const loadRecentLeaves = async () => {
     },
   );
 
-  recentLeaves.value = response.data
-    .sort((a: LeaveApplication, b: LeaveApplication) => {
+  const applications: LeaveApplication[] = Array.isArray(response.data)
+    ? response.data
+    : [];
+
+  const sorted = [...applications].sort(
+    (a: LeaveApplication, b: LeaveApplication) => {
       return (
         new Date(b.date_filed).getTime() - new Date(a.date_filed).getTime()
       );
-    })
-    .slice(0, 5);
+    },
+  );
+
+  recentLeaves.value = sorted.slice(0, 5);
+
+  // employee stats — derived from the full list, before slicing
+  totalEmployeeApplications.value = applications.length;
+
+  totalApprovedLeaves.value = applications.filter(
+    (app) => normalizeStatus(app.final_status) === "approved",
+  ).length;
+
+  totalPendingLeaves.value = applications.filter((app) => {
+    const status = normalizeStatus(app.final_status);
+    return (
+      status === "pending" ||
+      status === "for approval" ||
+      status === "for_approval"
+    );
+  }).length;
+
+  totalDisapprovedLeaves.value = applications.filter((app) => {
+    const status = normalizeStatus(app.final_status);
+    return (
+      status === "disapproved" ||
+      status === "rejected" ||
+      status === "denied"
+    );
+  }).length;
 };
 
 const loadLeaveBalance = async () => {
@@ -379,14 +371,18 @@ const formatDate = (dateString: string) => {
 }
 
 const statusClass = (status: string) => {
-  switch (status) {
+  switch (normalizeStatus(status)) {
     case "approved":
       return "bg-green-500/10 text-green-400";
 
     case "pending":
+    case "for approval":
+    case "for_approval":
       return "bg-yellow-500/10 text-yellow-400";
 
     case "disapproved":
+    case "rejected":
+    case "denied":
       return "bg-red-500/10 text-red-400";
 
     default:
