@@ -14,7 +14,6 @@
           <div class="min-w-0">
             <h2 class="text-2xl font-bold text-white">Employee Management</h2>
 
-            ```
             <p class="text-white mt-1">Create and manage employee accounts.</p>
           </div>
 
@@ -1648,7 +1647,7 @@
           </div>
 
           <!-- Table -->
-          <div v-else class="border rounded-lg overflow-hidden">
+          <div v-else class="table-wrapper border rounded-lg">
             <table class="deleted-table">
               <thead class="bg-gray-100">
                 <tr class="text-left text-black font-semibold">
@@ -1743,7 +1742,6 @@
         </div>
       </div>
     </div>
-    ```
   </div>
 </template>
 
@@ -2658,7 +2656,6 @@ onMounted(async () => {
 
 .stats-card {
   border-left: 4px solid currentColor;
-
   padding: 1.35rem;
 }
 
@@ -2674,37 +2671,33 @@ onMounted(async () => {
 }
 
 /* ========================================================= */
-/* IMPORTANT: TABLE DOES NOT SCROLL */
+/* TABLE WRAPPER                                              */
 /* ========================================================= */
 
 .table-wrapper {
   width: 100%;
   max-width: 100%;
-  overflow: visible;
 }
+
+/* ========================================================= */
+/* EMPLOYEE TABLE - DESKTOP DESIGN STAYS THE SAME            */
+/* ========================================================= */
 
 .employee-table {
   width: 100%;
   max-width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
 }
 
-/*
- * Allow text to wrap instead of forcing
- * the table wider than the screen.
- */
-
 .employee-table th,
 .employee-table td {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
-/* ========================================================= */
-/* TABLE COLUMN WIDTHS */
-/* ========================================================= */
-
+/* Desktop column widths */
 .employee-table th:nth-child(1),
 .employee-table td:nth-child(1) {
   width: 11%;
@@ -2741,20 +2734,21 @@ onMounted(async () => {
 }
 
 /* ========================================================= */
-/* DELETED EMPLOYEES TABLE */
+/* DELETED EMPLOYEES TABLE                                   */
 /* ========================================================= */
 
 .deleted-table {
   width: 100%;
   max-width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
 }
 
 .deleted-table th,
 .deleted-table td {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .deleted-table th:nth-child(1),
@@ -2792,8 +2786,8 @@ onMounted(async () => {
   width: 18%;
 }
 
-/* ======================================================== */
-/* FLEX / GRID CHILDREN */
+/* ========================================================= */
+/* FLEX / GRID CHILDREN                                      */
 /* ========================================================= */
 
 .dashboard-shell *,
@@ -2802,7 +2796,7 @@ onMounted(async () => {
 }
 
 /* ========================================================= */
-/* SMALLER SCREENS */
+/* TABLET                                                    */
 /* ========================================================= */
 
 @media (max-width: 1024px) {
@@ -2823,6 +2817,10 @@ onMounted(async () => {
   }
 }
 
+/* ========================================================= */
+/* MOBILE - HORIZONTAL TABLE SCROLL                          */
+/* ========================================================= */
+
 @media (max-width: 768px) {
   .dashboard-shell {
     padding-left: 0.75rem;
@@ -2833,44 +2831,122 @@ onMounted(async () => {
     border-radius: 1rem;
   }
 
-  .employee-table,
-  .deleted-table {
-    font-size: 0.75rem;
+  /* Keep the card inside the phone screen while letting only
+     the table itself scroll sideways. */
+  .table-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
   }
 
+  /* Do NOT squeeze seven columns into the phone width. */
+  .employee-table {
+    width: 900px;
+    min-width: 900px;
+    max-width: none;
+    table-layout: auto;
+    font-size: 0.875rem;
+  }
+
+  .deleted-table {
+    width: 980px;
+    min-width: 980px;
+    max-width: none;
+    table-layout: auto;
+    font-size: 0.875rem;
+  }
+
+  /* Prevent the letter-by-letter wrapping shown in the screenshot. */
   .employee-table th,
   .employee-table td,
   .deleted-table th,
   .deleted-table td {
-    padding-left: 0.35rem;
-    padding-right: 0.35rem;
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Name can use two lines naturally when needed. */
+  .employee-table td:nth-child(2),
+  .deleted-table td:nth-child(2) {
+    white-space: normal;
+    min-width: 170px;
+  }
+
+  /* Email can wrap at sensible points instead of crushing the column. */
+  .employee-table td:nth-child(3),
+  .deleted-table td:nth-child(3) {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    min-width: 210px;
+  }
+
+  .employee-table th:nth-child(1),
+  .employee-table td:nth-child(1) {
+    min-width: 120px;
+  }
+
+  .employee-table th:nth-child(4),
+  .employee-table td:nth-child(4) {
+    min-width: 140px;
+  }
+
+  .employee-table th:nth-child(5),
+  .employee-table td:nth-child(5) {
+    min-width: 140px;
+  }
+
+  .employee-table th:nth-child(6),
+  .employee-table td:nth-child(6) {
+    min-width: 100px;
+  }
+
+  .employee-table th:nth-child(7),
+  .employee-table td:nth-child(7) {
+    min-width: 180px;
+  }
+
+  .employee-table td:last-child > div {
+    flex-wrap: nowrap;
   }
 
   .employee-table button,
   .deleted-table button {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.65rem;
+    white-space: nowrap;
   }
 }
 
-@media (max-width: 640px) {
+/* ========================================================= */
+/* SMALL PHONES                                              */
+/* ========================================================= */
+
+@media (max-width: 480px) {
+  .dashboard-shell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
   .neo-card {
     border-radius: 0.9rem;
   }
 
-  .employee-table,
-  .deleted-table {
-    font-size: 0.7rem;
+  .employee-table {
+    width: 880px;
+    min-width: 880px;
   }
 
-  .employee-table th,
-  .employee-table td,
-  .deleted-table th,
-  .deleted-table td {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+  .deleted-table {
+    width: 950px;
+    min-width: 950px;
   }
 }
 </style>

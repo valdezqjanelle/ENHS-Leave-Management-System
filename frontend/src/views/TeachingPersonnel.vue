@@ -56,7 +56,6 @@
                 <th class="px-3 py-3">Employee</th>
                 <th class="px-3 py-3">Position</th>
                 <th class="px-3 py-3">Specialization</th>
-              
                 <th class="px-3 py-3">Advisory Class</th>
                 <th class="px-3 py-3">Teaching Hours</th>
                 <th class="px-3 py-3 text-center">Action</th>
@@ -69,24 +68,23 @@
                 :key="record.teaching_record_id"
                 class="border-t hover:bg-gray-800 transition-colors duration-200"
               >
-                <td class="px-3 py-4 text-white font-semibold break-words">
+                <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white font-medium break-words">
+                <td class="px-3 py-4 text-white font-medium">
                   {{ employeeName(record) }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.employee?.position?.name || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.subject_specialization || "-" }}
                 </td>
 
-
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.advisory_class || "-" }}
                 </td>
 
@@ -96,25 +94,25 @@
 
                 <td class="px-3 py-4">
                   <div
-                    class="flex flex-wrap items-center justify-center gap-1"
+                    class="action-buttons flex flex-nowrap items-center justify-center gap-1"
                   >
                     <button
                       @click="viewRecord(record)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       View
                     </button>
 
                     <button
                       @click="editRecord(record)"
-                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       Edit
                     </button>
 
                     <button
                       @click="deleteRecord(record)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       Delete
                     </button>
@@ -123,7 +121,7 @@
               </tr>
 
               <tr v-if="filteredRecords.length === 0">
-                <td colspan="8" class="text-center py-10 text-white">
+                <td colspan="7" class="text-center py-10 text-white">
                   No teaching personnel records found.
                 </td>
               </tr>
@@ -499,8 +497,7 @@ interface Employee {
 }
 
 interface TeachingRecord {
-  teaching_record_id: number; 
-
+  teaching_record_id: number;
   employee_id: number;
 
   subject_specialization: string;
@@ -517,17 +514,14 @@ interface TeachingRecord {
 /* ========================================================= */
 
 const records = ref<TeachingRecord[]>([]);
-
 const employees = ref<Employee[]>([]);
 
 const search = ref("");
 
 const showFormModal = ref(false);
-
 const showViewModal = ref(false);
 
 const selectedRecord = ref<TeachingRecord | null>(null);
-
 const editingRecord = ref<TeachingRecord | null>(null);
 
 /* ========================================================= */
@@ -536,15 +530,10 @@ const editingRecord = ref<TeachingRecord | null>(null);
 
 const form = ref({
   employee_id: null as number | null,
-
   subject_specialization: "",
-
   grade_level_handled: "",
-
   advisory_class: "",
-
   teaching_load: "",
-
   teaching_hours: null as number | null,
 });
 
@@ -626,7 +615,10 @@ const loadRecords = async () => {
   try {
     records.value = await getTeachingPersonnelRecords();
 
-    console.log("Teaching Personnel Records:", records.value);
+    console.log(
+      "Teaching Personnel Records:",
+      records.value
+    );
   } catch (error) {
     console.error(
       "Failed to load teaching personnel records:",
@@ -647,7 +639,10 @@ const loadEmployees = async () => {
 
     console.log("Employees:", employees.value);
   } catch (error) {
-    console.error("Failed to load employees:", error);
+    console.error(
+      "Failed to load employees:",
+      error
+    );
   }
 };
 
@@ -822,7 +817,9 @@ const deleteRecord = async (record: TeachingRecord) => {
   }
 
   try {
-    await deleteTeachingPersonnelRecord(record.teaching_record_id);
+    await deleteTeachingPersonnelRecord(
+      record.teaching_record_id
+    );
 
     alert(
       "Teaching personnel record deleted successfully."
@@ -854,6 +851,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ========================================================= */
+/* MAIN PAGE                                                  */
+/* ========================================================= */
+
 .dashboard-shell {
   background: #080d14;
   min-height: 100vh;
@@ -861,14 +862,20 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
+/* ========================================================= */
+/* CARDS                                                      */
+/* ========================================================= */
+
 .neo-card {
   background: #111d2e;
   border: 1px solid #1e293b;
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+
   width: 100%;
   max-width: none;
   min-width: 0;
+
   box-sizing: border-box;
 }
 
@@ -876,24 +883,48 @@ onMounted(async () => {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
 }
 
+/* ========================================================= */
+/* TABLE WRAPPER                                               */
+/* ========================================================= */
+
+/*
+ * IMPORTANT:
+ * Desktop remains unchanged.
+ *
+ * On mobile the wrapper becomes the horizontal
+ * scrolling area instead of forcing the table
+ * to squeeze into the phone width.
+ */
+
 .table-wrapper {
   width: 100%;
   max-width: 100%;
-  overflow: visible;
+
+  overflow-x: visible;
+  overflow-y: hidden;
+
+  box-sizing: border-box;
 }
+
+/* ========================================================= */
+/* TEACHING TABLE - DESKTOP                                   */
+/* ========================================================= */
 
 .teaching-table {
   width: 100%;
   max-width: 100%;
+
   table-layout: fixed;
   border-collapse: collapse;
 }
 
 .teaching-table th,
 .teaching-table td {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
 }
+
+/* Keep existing desktop sizing */
 
 .teaching-table th:nth-child(1),
 .teaching-table td:nth-child(1) {
@@ -930,15 +961,26 @@ onMounted(async () => {
   width: 9%;
 }
 
-.teaching-table th:nth-child(8),
-.teaching-table td:nth-child(8) {
-  width: 14%;
-}
+/* ========================================================= */
+/* GLOBAL MIN-WIDTH FIX                                       */
+/* ========================================================= */
 
 .dashboard-shell *,
 .neo-card * {
   min-width: 0;
 }
+
+/*
+ * Do NOT allow the table itself to shrink on mobile.
+ */
+
+.teaching-table {
+  min-width: 0;
+}
+
+/* ========================================================= */
+/* TABLET                                                     */
+/* ========================================================= */
 
 @media (max-width: 1024px) {
   .teaching-table th,
@@ -958,34 +1000,188 @@ onMounted(async () => {
   }
 }
 
+/* ========================================================= */
+/* MOBILE TABLE                                               */
+/* ========================================================= */
+
 @media (max-width: 768px) {
+  /*
+   * The card stays within the phone.
+   * Only the table becomes wider and scrolls.
+   */
+
+  .table-wrapper {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    scrollbar-width: thin;
+
+    padding-bottom: 6px;
+  }
+
+  /*
+   * Give the table enough room for all columns.
+   * This prevents headers from becoming individual
+   * letters.
+   */
+
   .teaching-table {
+    width: 980px;
+    min-width: 980px;
+    max-width: none;
+
+    table-layout: fixed;
+
+    font-size: 0.8rem;
+  }
+
+  /*
+   * Mobile column widths.
+   *
+   * These are deliberately wider than the phone.
+   * The user can swipe horizontally.
+   */
+
+  .teaching-table th:nth-child(1),
+  .teaching-table td:nth-child(1) {
+    width: 110px;
+  }
+
+  .teaching-table th:nth-child(2),
+  .teaching-table td:nth-child(2) {
+    width: 180px;
+  }
+
+  .teaching-table th:nth-child(3),
+  .teaching-table td:nth-child(3) {
+    width: 130px;
+  }
+
+  .teaching-table th:nth-child(4),
+  .teaching-table td:nth-child(4) {
+    width: 180px;
+  }
+
+  .teaching-table th:nth-child(5),
+  .teaching-table td:nth-child(5) {
+    width: 140px;
+  }
+
+  .teaching-table th:nth-child(6),
+  .teaching-table td:nth-child(6) {
+    width: 120px;
+  }
+
+  .teaching-table th:nth-child(7),
+  .teaching-table td:nth-child(7) {
+    width: 120px;
+  }
+
+  /*
+   * Never break headers or normal table values
+   * into individual characters.
+   */
+
+  .teaching-table th,
+  .teaching-table td {
+    white-space: nowrap;
+
+    word-break: normal;
+    overflow-wrap: normal;
+
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  /*
+   * Employee names can still be long, but they
+   * remain inside their proper column.
+   */
+
+  .teaching-table td:nth-child(2) {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  /*
+   * Keep View / Edit / Delete together.
+   */
+
+  .teaching-table .action-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.35rem;
+
+    white-space: nowrap;
+  }
+
+  .teaching-table button {
+    flex-shrink: 0;
+
+    font-size: 0.7rem;
+
+    padding: 0.3rem 0.5rem;
+
+    white-space: nowrap;
+  }
+}
+
+/* ========================================================= */
+/* SMALL PHONES                                               */
+/* ========================================================= */
+
+@media (max-width: 640px) {
+  .table-wrapper {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .teaching-table {
+    width: 980px;
+    min-width: 980px;
+
     font-size: 0.75rem;
   }
 
   .teaching-table th,
   .teaching-table td {
-    padding-left: 0.35rem;
-    padding-right: 0.35rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
   }
 
   .teaching-table button {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
+
+    padding: 0.3rem 0.5rem;
   }
 }
 
-@media (max-width: 640px) {
+/* ========================================================= */
+/* VERY SMALL PHONES                                          */
+/* ========================================================= */
+
+@media (max-width: 400px) {
   .teaching-table {
-    font-size: 0.7rem;
+    width: 980px;
+    min-width: 980px;
   }
 
-  .teaching-table th,
-  .teaching-table td {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>

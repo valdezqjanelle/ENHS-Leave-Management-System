@@ -45,6 +45,13 @@
         so tapping/choosing a nav item auto-closes the sidebar on
         mobile. Harmless on desktop since the sidebar's transform
         class forces translate-x-0 there regardless of sidebarOpen.
+
+        EXCEPTION: the "Employee Management" toggle button below uses
+        @click.stop so that opening/closing its submenu does NOT
+        bubble up and close the sidebar. The submenu's own
+        router-links (Employees / Teaching Personnel / Non-Teaching
+        Personnel) do NOT have .stop, so clicking one of those still
+        bubbles up and closes the sidebar as before.
       -->
       <nav
         class="mt-4 space-y-1 px-3 flex-1 overflow-y-auto"
@@ -57,7 +64,7 @@
 
         <div v-if="currentUser.role === 'admin'">
           <button
-            @click="togglePersonnelMenu"
+            @click.stop="togglePersonnelMenu"
             class="nav-item w-full justify-between"
             :class="{ 'router-link-active': isPersonnelRouteActive }"
           >

@@ -1,9 +1,12 @@
-```vue
 <template>
   <div class="w-full min-h-screen">
     <div
       class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6"
     >
+      <!-- ========================================================= -->
+      <!-- HEADER -->
+      <!-- ========================================================= -->
+
       <div class="neo-card w-full p-6">
         <div
           class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
@@ -27,6 +30,10 @@
         </div>
       </div>
 
+      <!-- ========================================================= -->
+      <!-- SEARCH -->
+      <!-- ========================================================= -->
+
       <div class="neo-card w-full p-6">
         <input
           v-model="search"
@@ -35,6 +42,10 @@
           class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
         />
       </div>
+
+      <!-- ========================================================= -->
+      <!-- TABLE -->
+      <!-- ========================================================= -->
 
       <div class="neo-card w-full p-6">
         <div class="table-wrapper">
@@ -57,49 +68,51 @@
                 :key="record.non_teaching_record_id"
                 class="border-t hover:bg-gray-800 transition-colors duration-200"
               >
-                <td class="px-3 py-4 text-white font-semibold break-words">
+                <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white font-medium break-words">
+                <td class="px-3 py-4 text-white font-medium">
                   {{ employeeName(record) }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.employee?.position?.name || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.employee?.department?.department_name || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.office_assignment || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white break-words">
+                <td class="px-3 py-4 text-white">
                   {{ record.job_assignment || "-" }}
                 </td>
 
                 <td class="px-3 py-4">
-                  <div class="flex flex-wrap items-center justify-center gap-1">
+                  <div
+                    class="action-buttons flex flex-nowrap items-center justify-center gap-1"
+                  >
                     <button
                       @click="viewRecord(record)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       View
                     </button>
 
                     <button
                       @click="editRecord(record)"
-                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       Edit
                     </button>
 
                     <button
                       @click="deleteRecord(record)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs"
+                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
                     >
                       Delete
                     </button>
@@ -117,6 +130,10 @@
         </div>
       </div>
     </div>
+
+    <!-- ========================================================= -->
+    <!-- CREATE / EDIT MODAL -->
+    <!-- ========================================================= -->
 
     <div
       v-if="showFormModal"
@@ -161,6 +178,8 @@
         </div>
 
         <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+          <!-- EMPLOYEE -->
+
           <div>
             <h4 class="font-semibold text-gray-800 mb-4">
               Employee
@@ -191,6 +210,8 @@
               </option>
             </select>
           </div>
+
+          <!-- JOB INFORMATION -->
 
           <div>
             <h4 class="font-semibold text-gray-800 mb-4">
@@ -230,6 +251,8 @@
             </div>
           </div>
 
+          <!-- JOB DESCRIPTION -->
+
           <div>
             <label
               class="block mb-2 text-sm text-gray-800 font-medium"
@@ -245,6 +268,8 @@
             ></textarea>
           </div>
         </div>
+
+        <!-- FOOTER -->
 
         <div
           class="bg-gray-100 px-6 py-4 flex flex-col sm:flex-row justify-end gap-3"
@@ -270,6 +295,10 @@
         </div>
       </div>
     </div>
+
+    <!-- ========================================================= -->
+    <!-- VIEW MODAL -->
+    <!-- ========================================================= -->
 
     <div
       v-if="showViewModal && selectedRecord"
@@ -386,8 +415,11 @@ import {
 
 import { getEmployees } from "../services/employee";
 
-interface Employee {
+/* ========================================================= */
+/* INTERFACES */
+/* ========================================================= */
 
+interface Employee {
   employee_id: number;
   employee_code: string;
   first_name: string;
@@ -419,19 +451,24 @@ interface NonTeachingRecord {
   employee?: Employee;
 }
 
-const records = ref<NonTeachingRecord[]>([]);
+/* ========================================================= */
+/* STATE */
+/* ========================================================= */
 
+const records = ref<NonTeachingRecord[]>([]);
 const employees = ref<Employee[]>([]);
 
 const search = ref("");
 
 const showFormModal = ref(false);
-
 const showViewModal = ref(false);
 
 const selectedRecord = ref<NonTeachingRecord | null>(null);
-
 const editingRecord = ref<NonTeachingRecord | null>(null);
+
+/* ========================================================= */
+/* FORM */
+/* ========================================================= */
 
 const form = ref({
   employee_id: null as number | null,
@@ -440,11 +477,19 @@ const form = ref({
   job_description: "",
 });
 
+/* ========================================================= */
+/* NON-TEACHING EMPLOYEES */
+/* ========================================================= */
+
 const nonTeachingEmployees = computed(() => {
   return employees.value.filter(
     (employee) => employee.personnel_type === "Non-Teaching"
   );
 });
+
+/* ========================================================= */
+/* SEARCH */
+/* ========================================================= */
 
 const filteredRecords = computed(() => {
   const keyword = search.value.toLowerCase().trim();
@@ -488,6 +533,10 @@ const filteredRecords = computed(() => {
   });
 });
 
+/* ========================================================= */
+/* EMPLOYEE NAME */
+/* ========================================================= */
+
 const employeeName = (record: NonTeachingRecord) => {
   const employee = record.employee;
 
@@ -502,9 +551,14 @@ const employeeName = (record: NonTeachingRecord) => {
   }`;
 };
 
+/* ========================================================= */
+/* LOAD RECORDS */
+/* ========================================================= */
+
 const loadRecords = async () => {
   try {
-    records.value = await getNonTeachingPersonnelRecords();
+    records.value =
+      await getNonTeachingPersonnelRecords();
 
     console.log(
       "Non-Teaching Personnel Records:",
@@ -522,11 +576,18 @@ const loadRecords = async () => {
   }
 };
 
+/* ========================================================= */
+/* LOAD EMPLOYEES */
+/* ========================================================= */
+
 const loadEmployees = async () => {
   try {
     employees.value = await getEmployees();
 
-    console.log("Employees:", employees.value);
+    console.log(
+      "Employees:",
+      employees.value
+    );
   } catch (error) {
     console.error(
       "Failed to load employees:",
@@ -534,6 +595,10 @@ const loadEmployees = async () => {
     );
   }
 };
+
+/* ========================================================= */
+/* RESET FORM */
+/* ========================================================= */
 
 const resetForm = () => {
   form.value = {
@@ -544,6 +609,10 @@ const resetForm = () => {
   };
 };
 
+/* ========================================================= */
+/* CREATE MODAL */
+/* ========================================================= */
+
 const openCreateModal = () => {
   editingRecord.value = null;
 
@@ -552,6 +621,10 @@ const openCreateModal = () => {
   showFormModal.value = true;
 };
 
+/* ========================================================= */
+/* EDIT */
+/* ========================================================= */
+
 const editRecord = (
   record: NonTeachingRecord
 ) => {
@@ -559,16 +632,23 @@ const editRecord = (
 
   form.value = {
     employee_id: record.employee_id,
+
     office_assignment:
       record.office_assignment || "",
+
     job_assignment:
       record.job_assignment || "",
+
     job_description:
       record.job_description || "",
   };
 
   showFormModal.value = true;
 };
+
+/* ========================================================= */
+/* CLOSE FORM */
+/* ========================================================= */
 
 const closeFormModal = () => {
   showFormModal.value = false;
@@ -577,6 +657,10 @@ const closeFormModal = () => {
 
   resetForm();
 };
+
+/* ========================================================= */
+/* SAVE */
+/* ========================================================= */
 
 const saveRecord = async () => {
   try {
@@ -594,10 +678,13 @@ const saveRecord = async () => {
 
     const payload = {
       employee_id: form.value.employee_id,
+
       office_assignment:
         form.value.office_assignment,
+
       job_assignment:
         form.value.job_assignment || null,
+
       job_description:
         form.value.job_description || null,
     };
@@ -638,6 +725,10 @@ const saveRecord = async () => {
   }
 };
 
+/* ========================================================= */
+/* VIEW */
+/* ========================================================= */
+
 const viewRecord = (
   record: NonTeachingRecord
 ) => {
@@ -645,6 +736,10 @@ const viewRecord = (
 
   showViewModal.value = true;
 };
+
+/* ========================================================= */
+/* DELETE */
+/* ========================================================= */
 
 const deleteRecord = async (
   record: NonTeachingRecord
@@ -681,6 +776,10 @@ const deleteRecord = async (
   }
 };
 
+/* ========================================================= */
+/* INITIAL LOAD */
+/* ========================================================= */
+
 onMounted(async () => {
   await Promise.all([
     loadRecords(),
@@ -690,6 +789,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ========================================================= */
+/* MAIN PAGE                                                  */
+/* ========================================================= */
+
 .dashboard-shell {
   background: #080d14;
   min-height: 100vh;
@@ -697,14 +800,20 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
+/* ========================================================= */
+/* CARDS                                                      */
+/* ========================================================= */
+
 .neo-card {
   background: #111d2e;
   border: 1px solid #1e293b;
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+
   width: 100%;
   max-width: none;
   min-width: 0;
+
   box-sizing: border-box;
 }
 
@@ -712,24 +821,39 @@ onMounted(async () => {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
 }
 
+/* ========================================================= */
+/* TABLE WRAPPER                                               */
+/* ========================================================= */
+
 .table-wrapper {
   width: 100%;
   max-width: 100%;
-  overflow: visible;
+
+  overflow-x: visible;
+  overflow-y: hidden;
+
+  box-sizing: border-box;
 }
+
+/* ========================================================= */
+/* NON-TEACHING TABLE - DESKTOP                               */
+/* ========================================================= */
 
 .non-teaching-table {
   width: 100%;
   max-width: 100%;
+
   table-layout: fixed;
   border-collapse: collapse;
 }
 
 .non-teaching-table th,
 .non-teaching-table td {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
 }
+
+/* Keep existing desktop sizing */
 
 .non-teaching-table th:nth-child(1),
 .non-teaching-table td:nth-child(1) {
@@ -766,10 +890,22 @@ onMounted(async () => {
   width: 14%;
 }
 
+/* ========================================================= */
+/* GLOBAL MIN-WIDTH FIX                                       */
+/* ========================================================= */
+
 .dashboard-shell *,
 .neo-card * {
   min-width: 0;
 }
+
+.non-teaching-table {
+  min-width: 0;
+}
+
+/* ========================================================= */
+/* TABLET                                                     */
+/* ========================================================= */
 
 @media (max-width: 1024px) {
   .non-teaching-table th,
@@ -784,40 +920,190 @@ onMounted(async () => {
 
   .non-teaching-table button {
     font-size: 0.7rem;
+
     padding-left: 0.45rem;
     padding-right: 0.45rem;
   }
 }
 
+/* ========================================================= */
+/* MOBILE TABLE                                               */
+/* ========================================================= */
+
 @media (max-width: 768px) {
+  /*
+   * The card remains responsive.
+   * The table becomes the horizontally scrollable
+   * element.
+   */
+
+  .table-wrapper {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    scrollbar-width: thin;
+
+    padding-bottom: 6px;
+  }
+
+  /*
+   * Make the table wider than the phone.
+   */
+
   .non-teaching-table {
+    width: 980px;
+    min-width: 980px;
+    max-width: none;
+
+    table-layout: fixed;
+
+    font-size: 0.8rem;
+  }
+
+  /*
+   * Mobile column widths.
+   */
+
+  .non-teaching-table th:nth-child(1),
+  .non-teaching-table td:nth-child(1) {
+    width: 110px;
+  }
+
+  .non-teaching-table th:nth-child(2),
+  .non-teaching-table td:nth-child(2) {
+    width: 180px;
+  }
+
+  .non-teaching-table th:nth-child(3),
+  .non-teaching-table td:nth-child(3) {
+    width: 130px;
+  }
+
+  .non-teaching-table th:nth-child(4),
+  .non-teaching-table td:nth-child(4) {
+    width: 140px;
+  }
+
+  .non-teaching-table th:nth-child(5),
+  .non-teaching-table td:nth-child(5) {
+    width: 180px;
+  }
+
+  .non-teaching-table th:nth-child(6),
+  .non-teaching-table td:nth-child(6) {
+    width: 160px;
+  }
+
+  .non-teaching-table th:nth-child(7),
+  .non-teaching-table td:nth-child(7) {
+    width: 120px;
+  }
+
+  /*
+   * IMPORTANT:
+   * Prevent words from being broken into individual
+   * characters.
+   */
+
+  .non-teaching-table th,
+  .non-teaching-table td {
+    white-space: nowrap;
+
+    word-break: normal;
+    overflow-wrap: normal;
+
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  /*
+   * Names can use multiple lines if needed.
+   */
+
+  .non-teaching-table td:nth-child(2) {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  /*
+   * Keep View / Edit / Delete in one row.
+   */
+
+  .non-teaching-table .action-buttons {
+    display: flex;
+    flex-wrap: nowrap;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.35rem;
+
+    white-space: nowrap;
+  }
+
+  .non-teaching-table button {
+    flex-shrink: 0;
+
+    font-size: 0.7rem;
+
+    padding: 0.3rem 0.5rem;
+
+    white-space: nowrap;
+  }
+}
+
+/* ========================================================= */
+/* SMALL PHONES                                               */
+/* ========================================================= */
+
+@media (max-width: 640px) {
+  .table-wrapper {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .non-teaching-table {
+    width: 980px;
+    min-width: 980px;
+
     font-size: 0.75rem;
   }
 
   .non-teaching-table th,
   .non-teaching-table td {
-    padding-left: 0.35rem;
-    padding-right: 0.35rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
   }
 
   .non-teaching-table button {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
+
+    padding: 0.3rem 0.5rem;
   }
 }
 
-@media (max-width: 640px) {
+/* ========================================================= */
+/* VERY SMALL PHONES                                          */
+/* ========================================================= */
+
+@media (max-width: 400px) {
   .non-teaching-table {
-    font-size: 0.7rem;
+    width: 980px;
+    min-width: 980px;
   }
 
-  .non-teaching-table th,
-  .non-teaching-table td {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 </style>
-```
