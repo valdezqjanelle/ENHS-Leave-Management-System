@@ -39,18 +39,6 @@
         </button>
       </div>
 
-      <!--
-        NOTE: @click="sidebarOpen = false" added on the <nav> wrapper.
-        Clicks on any router-link inside bubble up to this handler,
-        so tapping/choosing a nav item auto-closes the sidebar on
-        mobile. Harmless on desktop since the sidebar's transform
-        class forces translate-x-0 there regardless of sidebarOpen.
-
-        EXCEPTION: the Employee Management and Leave Management toggle
-        buttons use @click.stop so opening or closing a submenu does not
-        close the sidebar. Clicking an actual submenu link still closes
-        the sidebar on mobile.
-      -->
       <nav
         class="mt-4 space-y-1 px-3 flex-1 overflow-y-auto"
         @click="sidebarOpen = false"

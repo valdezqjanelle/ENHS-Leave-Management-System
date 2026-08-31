@@ -41,11 +41,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE STATUS CHART
-        |--------------------------------------------------------------------------
-        */
 
         $statusChart = [
             "approved" => $approvedLeaves,
@@ -55,11 +50,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE USAGE BY TYPE
-        |--------------------------------------------------------------------------
-        */
+    
 
         $leaveByType = LeaveApplication::with('leaveType')
             ->select(
@@ -82,11 +73,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE SUMMARY BY DEPARTMENT
-        |--------------------------------------------------------------------------
-        */
 
         $leaveByDepartment = LeaveApplication::with('employee.department')
             ->select(
@@ -114,11 +100,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | RECENT APPLICATIONS
-        |--------------------------------------------------------------------------
-        */
+   
 
         $recentApplications = LeaveApplication::with([
                 'employee',
@@ -155,12 +137,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | EMPLOYEE LEVEL
-        |--------------------------------------------------------------------------
-        */
-
+    
         $employeeCategory = EmployeeRecord::select(
                 'level',
                 DB::raw('count(*) as count')
@@ -170,11 +147,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE TREND
-        |--------------------------------------------------------------------------
-        */
 
         $leaveTrend = LeaveApplication::select(
 
@@ -255,14 +227,7 @@ class DashboardController extends Controller
 
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE DASHBOARD
-    |--------------------------------------------------------------------------
-    | NOTE: this assumes EmployeeRecord has a `user_id` column linking it to
-    | the logged-in user. If your schema links them differently, change the
-    | lookup below (the `$employee = ...` line) to match.
-    */
+
 
     public function employeeIndex(Request $request)
     {
@@ -304,12 +269,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE STATUS CHART
-        |--------------------------------------------------------------------------
-        */
-
         $statusChart = [
             "approved" => $approvedLeaves,
             "pending" => $pendingLeaves,
@@ -318,11 +277,6 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MY APPLICATIONS
-        |--------------------------------------------------------------------------
-        */
 
         $myApplications = LeaveApplication::with('leaveType')
             ->where('employee_id', $employee->id)
@@ -357,11 +311,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | UPCOMING (APPROVED, NOT YET STARTED) LEAVES
-        |--------------------------------------------------------------------------
-        */
+   
 
         $upcomingLeaves = LeaveApplication::with('leaveType')
             ->where('employee_id', $employee->id)
@@ -394,12 +344,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | LEAVE USAGE BY TYPE (THIS EMPLOYEE ONLY)
-        |--------------------------------------------------------------------------
-        */
-
+  
         $leaveByType = LeaveApplication::with('leaveType')
             ->where('employee_id', $employee->id)
             ->select(
@@ -422,11 +367,7 @@ class DashboardController extends Controller
 
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | RECENT ACTIVITIES (THIS EMPLOYEE ONLY)
-        |--------------------------------------------------------------------------
-        */
+    
 
         $recentActivities = LeaveApplication::where('employee_id', $employee->id)
             ->latest()

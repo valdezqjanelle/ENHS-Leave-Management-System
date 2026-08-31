@@ -91,15 +91,7 @@ class LeaveController extends Controller
             'sick'
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT:
-        | Do NOT deduct the employee's actual leave balance here.
-        |
-        | The balance will only be deducted when the admin approves
-        | the leave application.
-        |--------------------------------------------------------------------------
-        */
+
 
         $leave = LeaveApplication::create([
             'employee_id' => $employee->employee_id,
@@ -136,13 +128,7 @@ class LeaveController extends Controller
             // CERTIFICATION
             'certification_as_of' => $request->certification_as_of,
 
-            /*
-            |--------------------------------------------------------------------------
-            | These are application snapshot values only.
-            | They do NOT modify the actual leave_balances table.
-            |--------------------------------------------------------------------------
-            */
-
+        
             'vacation_total_earned' => null,
             'vacation_less_application' => $isVacation
                 ? $request->number_of_days
@@ -160,11 +146,7 @@ class LeaveController extends Controller
             'final_status' => 'pending',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | ATTACHMENTS
-        |--------------------------------------------------------------------------
-        */
+    
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store(
@@ -191,9 +173,6 @@ class LeaveController extends Controller
     }
 
 
-    /*
-    | EMPLOYEE: VIEW OWN LEAVES
-    */
     public function myLeaves(Request $request)
     {
         $employee = EmployeeRecord::where(
@@ -218,9 +197,6 @@ class LeaveController extends Controller
     }
 
 
-    /*
-    | EMPLOYEE: VIEW SINGLE
-    */
     public function myLeave($id, Request $request)
     {
         $employee = EmployeeRecord::where(
@@ -245,9 +221,6 @@ class LeaveController extends Controller
     }
 
 
-    /*
-    | ADMIN: VIEW ALL
-    */
     public function index()
     {
         return LeaveApplication::with([
@@ -259,9 +232,7 @@ class LeaveController extends Controller
             ->get();
     }
 
-    /*
-| ADMIN: VIEW ONE
-*/
+
     public function show($id)
     {
         $leave = LeaveApplication::with([
@@ -288,20 +259,12 @@ public function downloadPdf($id)
 
     $employee = $leave->employee;
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD COORDINATES
-    |--------------------------------------------------------------------------
-    */
+
 
     $coords = require config_path(
         'cs_form_6_coordinates.php'
     );
-    /*
-    |--------------------------------------------------------------------------
-    | FILE NAME
-    |--------------------------------------------------------------------------
-    */
+
 
     $employeeName = $employee
         ? "{$employee->last_name}_{$employee->first_name}"
@@ -312,11 +275,7 @@ public function downloadPdf($id)
 
     $filename = "Leave_Application_{$employeeName}_{$dateFiled}.pdf";
 
-    /*
-    |--------------------------------------------------------------------------
-    | CS FORM 6 TEMPLATE
-    |--------------------------------------------------------------------------
-    */
+
 
     $template = storage_path(
         'app/pdf-templates/cs-form-6.pdf'
@@ -335,11 +294,6 @@ public function downloadPdf($id)
         ], 500);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE A4 PDF
-    |--------------------------------------------------------------------------
-    */
 
     $pdf = new Fpdi(
         'P',
@@ -362,11 +316,6 @@ public function downloadPdf($id)
 
     $pdf->AddPage();
 
-    /*
-    |--------------------------------------------------------------------------
-    | IMPORT CS FORM 6
-    |--------------------------------------------------------------------------
-    */
 
     $pdf->setSourceFile($template);
 
@@ -382,27 +331,10 @@ public function downloadPdf($id)
     );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | NORMAL FONT
-    |--------------------------------------------------------------------------
-    */
 
     $pdf->SetTextColor(0, 0, 0);
     $pdf->SetFont('helvetica', '', 8);
 
-    /*
-    |--------------------------------------------------------------------------
-    | HELPER FOR COORDINATES
-    |--------------------------------------------------------------------------
-    |
-    | Instead of:
-    |     $pdf->Text(270, 125, $value);
-    |
-    | We can now use:
-    |     $this->pdfText($pdf, $coords['last_name'], $value);
-    |
-    */
 
     $text = function ($key, $value) use ($pdf, $coords) {
 
@@ -421,11 +353,7 @@ public function downloadPdf($id)
         );
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | HELPER FOR CHECKMARKS
-    |--------------------------------------------------------------------------
-    */
+    
 
     $check = function ($key, $condition) use ($pdf, $coords) {
 
@@ -481,11 +409,7 @@ public function downloadPdf($id)
         );
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | 1–5. EMPLOYEE INFORMATION
-    |--------------------------------------------------------------------------
-    */
+    
 
     $text(
         'office_department',
@@ -527,11 +451,7 @@ public function downloadPdf($id)
         )
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 6.A. TYPE OF LEAVE
-    |--------------------------------------------------------------------------
-    */
+
 
     $leaveName = strtolower(
         $leave->leaveType->leave_type_name ?? ''
@@ -609,11 +529,7 @@ public function downloadPdf($id)
         $leave->other_purpose ?? ''
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 6.B. DETAILS OF LEAVE
-    |--------------------------------------------------------------------------
-    */
+
 
     $check(
         'chk_within_philippines',
@@ -687,22 +603,14 @@ public function downloadPdf($id)
         (bool) $leave->terminal_leave
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 6.C. NUMBER OF DAYS
-    |--------------------------------------------------------------------------
-    */
+
 
     $text(
         'working_days_applied',
         $leave->number_of_days
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | INCLUSIVE DATES
-    |--------------------------------------------------------------------------
-    */
+
 
     $inclusiveDates =
         \Carbon\Carbon::parse(
@@ -718,11 +626,7 @@ public function downloadPdf($id)
         $inclusiveDates
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 6.D. COMMUTATION
-    |--------------------------------------------------------------------------
-    */
+
 
     $check(
         'chk_commutation_not_requested',
@@ -737,11 +641,7 @@ public function downloadPdf($id)
         $leave->commutation === 'requested'
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | APPLICANT SIGNATURE
-    |--------------------------------------------------------------------------
-    */
+
 
     if ($leave->applicants_signature) {
 
@@ -806,11 +706,7 @@ $text(
     $applicantSignatureName
 );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 7.A. CERTIFICATION OF LEAVE CREDITS
-    |--------------------------------------------------------------------------
-    */
+ 
 
     $text(
         'certification_as_of',
@@ -851,12 +747,7 @@ $text(
         $leave->sick_balance
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 7.B. RECOMMENDATION
-    |--------------------------------------------------------------------------
-    */
-
+  
     $check(
         'chk_for_approval',
         $leave->recommendation_status === 'approved'
@@ -878,11 +769,7 @@ $text(
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | 7.C. APPROVED FOR
-    |--------------------------------------------------------------------------
-    */
+  
 
     $text(
         'approved_days_with_pay',
@@ -899,23 +786,13 @@ $text(
         $leave->other_approval
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | 7.D. DISAPPROVED DUE TO
-    |--------------------------------------------------------------------------
-    */
+
 
         $textWrap(
         'disapproved_reason_l1',
         $leave->disapproval_reason,
         180
     );
-
-    /*
-    |--------------------------------------------------------------------------
-    | OUTPUT
-    |--------------------------------------------------------------------------
-    */
 
     return response(
         $pdf->Output('', 'S'),
@@ -945,11 +822,7 @@ $text(
     }
 
 
-    /*
-|--------------------------------------------------------------------------
-| ADMIN: UPDATE STATUS
-|--------------------------------------------------------------------------
-*/
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -989,11 +862,7 @@ $text(
 
         $previousStatus = strtolower($leave->final_status);
 
-        /*
-    |--------------------------------------------------------------------------
-    | UPDATE ONLY SUPPLIED FIELDS
-    |--------------------------------------------------------------------------
-    */
+  
 
         $updateData = [];
 
@@ -1074,11 +943,7 @@ $text(
 
         $leave->update($updateData);
 
-        /*
-    |--------------------------------------------------------------------------
-    | DEDUCT BALANCE ONLY IF ADMIN CHOSE YES
-    |--------------------------------------------------------------------------
-    */
+
 
         $newStatus = strtolower($leave->final_status);
 
@@ -1115,11 +980,7 @@ $text(
     }
 
 
-    /*
-|--------------------------------------------------------------------------
-| DEDUCT LEAVE BALANCE
-|--------------------------------------------------------------------------
-*/
+
     private function deductLeaveBalance(
         $leave,
         $vacationDeductDays,
@@ -1146,11 +1007,6 @@ $text(
             $sickDays +
             $serviceCreditsDays;
 
-        /*
-    |--------------------------------------------------------------------------
-    | TOTAL DEDUCTION CANNOT EXCEED DAYS APPLIED
-    |--------------------------------------------------------------------------
-    */
 
         if ($totalDeduction > (float) $leave->number_of_days) {
             throw new \Exception(
@@ -1158,11 +1014,7 @@ $text(
             );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | CHECK VACATION BALANCE
-    |--------------------------------------------------------------------------
-    */
+ 
 
         $currentVacationBalance =
             (float) $balance->vacation_balance;
@@ -1173,11 +1025,6 @@ $text(
             );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | CHECK SICK BALANCE
-    |--------------------------------------------------------------------------
-    */
 
         $currentSickBalance =
             (float) $balance->sick_balance;
@@ -1188,11 +1035,7 @@ $text(
             );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | CHECK SERVICE CREDITS
-    |--------------------------------------------------------------------------
-    */
+
 
         $currentServiceCredits =
             (float) ($balance->service_credits ?? 0);
@@ -1203,38 +1046,20 @@ $text(
             );
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | DEDUCT VACATION
-    |--------------------------------------------------------------------------
-    */
+
 
         $balance->vacation_balance =
             $currentVacationBalance - $vacationDays;
 
-        /*
-    |--------------------------------------------------------------------------
-    | DEDUCT SICK
-    |--------------------------------------------------------------------------
-    */
+
 
         $balance->sick_balance =
             $currentSickBalance - $sickDays;
 
-        /*
-    |--------------------------------------------------------------------------
-    | DEDUCT SERVICE CREDITS
-    |--------------------------------------------------------------------------
-    */
 
         $balance->service_credits =
             $currentServiceCredits - $serviceCreditsDays;
 
-        /*
-    |--------------------------------------------------------------------------
-    | USED LEAVE
-    |--------------------------------------------------------------------------
-    */
 
         $balance->used_leave =
             (float) ($balance->used_leave ?? 0)

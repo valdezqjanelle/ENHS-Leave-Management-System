@@ -24,30 +24,16 @@ use App\Http\Controllers\API\TeachingPersonnelRecordController;
 use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
 
 
-/*
-|--------------------------------------------------------------------------
-| AUTH
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-/*
-|--------------------------------------------------------------------------
-| AUTHENTICATED ROUTES
-|--------------------------------------------------------------------------
-*/
+
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTHENTICATION
-    |--------------------------------------------------------------------------
-    */
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -56,22 +42,12 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SETTINGS - READ ACCESS
-    |--------------------------------------------------------------------------
-    */
+
 
     Route::get('/leave-settings', [LeaveSettingController::class, 'index']);
     Route::get('/approval-settings', [ApprovalSettingController::class, 'index']);
     Route::get('/system-settings', [SystemSettingController::class, 'index']);
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE ROUTES
-    |--------------------------------------------------------------------------
-    */
 
     Route::middleware('role:employee')->group(function () {
 
@@ -100,11 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN ROUTES
-    |--------------------------------------------------------------------------
-    */
+
 
     Route::get('/debug-role', function (Request $request) {
         return response()->json([
@@ -129,7 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/salary-info', [EmployeeController::class, 'salaryInfo']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
         Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
-       Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
+        Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
 
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
         Route::get('/departments', [EmployeeController::class, 'listDepartments']);
@@ -202,63 +174,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/backups/{id}/download', [BackupController::class, 'download']);
         Route::post('/backups/restore', [BackupController::class, 'restore']);
 
-        Route::get('/teaching-personnel-records', [
-            TeachingPersonnelRecordController::class,
-            'index'
-        ]);
+        Route::get('/teaching-personnel-records', [TeachingPersonnelRecordController::class, 'index']);
 
-        Route::get('/teaching-personnel-records/{id}', [
-            TeachingPersonnelRecordController::class,
-            'show'
-        ]);
+        Route::get('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'show']);
 
-        Route::post('/teaching-personnel-records', [
-            TeachingPersonnelRecordController::class,
-            'store'
-        ]);
-
-        Route::put('/teaching-personnel-records/{id}', [
-            TeachingPersonnelRecordController::class,
-            'update'
-        ]);
-
-        Route::delete('/teaching-personnel-records/{id}', [
-            TeachingPersonnelRecordController::class,
-            'destroy'
-        ]);
-
-        Route::get('/non-teaching-personnel-records', [
-            NonTeachingPersonnelRecordController::class,
-            'index'
-        ]);
-
-        Route::get('/non-teaching-personnel-records/{id}', [
-            NonTeachingPersonnelRecordController::class,
-            'show'
-        ]);
-
-        Route::post('/non-teaching-personnel-records', [
-            NonTeachingPersonnelRecordController::class,
-            'store'
-        ]);
-
-        Route::put('/non-teaching-personnel-records/{id}', [
-            NonTeachingPersonnelRecordController::class,
-            'update'
-        ]);
-
-        Route::delete('/non-teaching-personnel-records/{id}', [
-            NonTeachingPersonnelRecordController::class,
-            'destroy'
-        ]);
+        Route::post('/teaching-personnel-records', [TeachingPersonnelRecordController::class, 'store']);
+        Route::put('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'update']);
+        Route::delete('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'destroy']);
+        Route::get('/non-teaching-personnel-records', [NonTeachingPersonnelRecordController::class, 'index']);
+        Route::get('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'show']);
+        Route::post('/non-teaching-personnel-records', [NonTeachingPersonnelRecordController::class, 'store']);
+        Route::put('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'update']);
+        Route::delete('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'destroy']);
     });
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LEAVE TYPES
-    |--------------------------------------------------------------------------
-    */
 
     // Both Employee and Admin can view leave types
     Route::get('/leave-types', [LeaveTypeController::class, 'index']);
