@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Position;
 
 class AdminProfile extends Model
 {
@@ -31,15 +30,19 @@ class AdminProfile extends Model
 
     protected $casts = [
         'date_of_birth' => 'date',
-        'salary' => 'decimal:2',
         'position_id' => 'integer',
         'salary_step' => 'integer',
+        'salary' => 'decimal:2',
         'department_id' => 'integer',
     ];
 
     public function position()
     {
-        return $this->belongsTo(Position::class, 'position_id');
+        return $this->belongsTo(
+            Position::class,
+            'position_id',
+            'id'
+        );
     }
 
     public function department()
