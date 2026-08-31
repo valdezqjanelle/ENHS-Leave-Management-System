@@ -51,7 +51,7 @@ export const updateEmployee = async (id: number, data: any) => {
 };
 
 export const getMyProfile = async () => {  
-    const response = await axios.get(`${API}/profile`, authHeader());
+    const response = await axios.get(`${API}/my-profile`, authHeader());
     return response.data;
 }; 
 

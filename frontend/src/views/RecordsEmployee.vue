@@ -163,7 +163,7 @@ const normalizeStatus = (status: unknown): string => {
 const loadProfile = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.get("https://enhs-leave-management-system.onrender.com/api/profile", {
+  const response = await axios.get("https://enhs-leave-management-system.onrender.com/api/my-profile", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
