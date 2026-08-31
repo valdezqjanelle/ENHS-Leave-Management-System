@@ -233,29 +233,73 @@ class LeaveController extends Controller
     }
 
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        $user = $request->user();
+
         $leave = LeaveApplication::with([
             'employee',
             'leaveType',
             'attachments'
         ])->findOrFail($id);
 
-        return response()->json($leave);
+        // Admin can view any leave application
+        if ($user->role === 'admin') {
+            return $leave;
+        }
+
+        // Employee can only view their own leave application
+        $employee = EmployeeRecord::where(
+            'user_id',
+            $user->user_id
+        )->first();
+
+        if (!$employee) {
+            return response()->json([
+                'message' => 'Employee record not found'
+            ], 404);
+        }
+
+        if ($leave->employee_id !== $employee->employee_id) {
+            return response()->json([
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
+        return $leave;
     }
 
-public function downloadPdf($id)
+public function downloadPdf($id, Request $request)
 {
-    \Log::info('PDF METHOD REACHED', [
-        'id' => $id,
-        'user_id' => auth()->user()?->user_id,
-        'email' => auth()->user()?->email,
-    ]);
+    $user = $request->user();
 
     $leave = LeaveApplication::with([
-        'employee.position',
-        'leaveType'
+        'employee',
+        'leaveType',
+        'attachments'
     ])->findOrFail($id);
+
+    // Admin can access any application
+    if ($user->role !== 'admin') {
+
+        $employee = EmployeeRecord::where(
+            'user_id',
+            $user->user_id
+        )->first();
+
+        if (!$employee) {
+            return response()->json([
+                'message' => 'Employee record not found'
+            ], 404);
+        }
+
+        // Employee can only access their own application
+        if ($leave->employee_id !== $employee->employee_id) {
+            return response()->json([
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+    }
 
     $employee = $leave->employee;
 

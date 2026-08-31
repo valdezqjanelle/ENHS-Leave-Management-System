@@ -41,9 +41,6 @@ export const getMyLeave = async (id: number) => {
   return data;
 };
 
-// =======================
-// ADMIN
-// =======================
 export const getLeave = async (id: number) => {
   const { data } = await api.get(`/leave-applications/${id}`);
   return data;

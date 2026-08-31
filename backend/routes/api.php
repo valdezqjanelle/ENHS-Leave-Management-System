@@ -23,17 +23,14 @@ use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\TeachingPersonnelRecordController;
 use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
 
-
-
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-
-
 Route::middleware('auth:sanctum')->group(function () {
 
+// AUTHENTICATION
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -41,42 +38,459 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    // SHARED - EMPLOYEE + ADMIN
 
+    // Leave Types
+    Route::get('/leave-types', [LeaveTypeController::class, 'index']);
 
-
+    // Leave Settings - viewing
     Route::get('/leave-settings', [LeaveSettingController::class, 'index']);
     Route::get('/approval-settings', [ApprovalSettingController::class, 'index']);
     Route::get('/system-settings', [SystemSettingController::class, 'index']);
 
+    // Leave Application - viewing
+    Route::get(
+        '/leave-applications/{id}',
+        [LeaveController::class, 'show']
+    );
+
+    // Leave Application PDF - viewing/downloading
+    Route::get(
+        '/leave-applications/{id}/pdf',
+        [LeaveController::class, 'downloadPdf']
+    );
+
+    // Supporting Documents
+    Route::get(
+        '/leaves/{leave_id}/attachments/{attachment_id}',
+        [LeaveController::class, 'downloadAttachment']
+    );
+
+    // EMPLOYEE ONLY
 
     Route::middleware('role:employee')->group(function () {
 
         // Dashboard
-        Route::get('/employee/dashboard', [DashboardController::class, 'employeeIndex']);
+        Route::get(
+            '/employee/dashboard',
+            [DashboardController::class, 'employeeIndex']
+        );
+
 
         // Profile
-        Route::get('/my-profile', [EmployeeController::class, 'myProfile']);
-        Route::get('/profile', [EmployeeController::class, 'myProfile']);
-        Route::put('/profile', [EmployeeController::class, 'updateProfile']);
-        Route::put('/profile/email', [EmployeeController::class, 'updateEmail']);
-        Route::put('/profile/password', [EmployeeController::class, 'updatePassword']);
-        Route::put('/profile/phone', [EmployeeController::class, 'updatePhone']);
+        Route::get(
+            '/profile',
+            [EmployeeController::class, 'myProfile']
+        );
+
+        Route::put(
+            '/profile',
+            [EmployeeController::class, 'updateProfile']
+        );
+
+        Route::put(
+            '/profile/email',
+            [EmployeeController::class, 'updateEmail']
+        );
+
+        Route::put(
+            '/profile/password',
+            [EmployeeController::class, 'updatePassword']
+        );
+
+        Route::put(
+            '/profile/phone',
+            [EmployeeController::class, 'updatePhone']
+        );
+
 
         // Leave Applications
-        Route::post('/leave-applications', [LeaveController::class, 'store']);
-        Route::get('/my-leave-applications', [LeaveController::class, 'myLeaves']);
-        Route::get('/my-leave-applications/{id}', [LeaveController::class, 'myLeave']);
+        Route::post(
+            '/leave-applications',
+            [LeaveController::class, 'store']
+        );
+
+        Route::get(
+            '/my-leave-applications',
+            [LeaveController::class, 'myLeaves']
+        );
+
+        Route::get(
+            '/my-leave-applications/{id}',
+            [LeaveController::class, 'myLeave']
+        );
+
 
         // Leave Balance
-        Route::get('/my-leave-balance', [LeaveBalanceController::class, 'myBalance']);
+        Route::get(
+            '/my-leave-balance',
+            [LeaveBalanceController::class, 'myBalance']
+        );
+
 
         // Attendance
-        Route::get('/my-attendance', [AttendanceController::class, 'myAttendance']);
-        Route::get('/my-attendance/{id}', [AttendanceController::class, 'myAttendanceRecord']);
+        Route::get(
+            '/my-attendance',
+            [AttendanceController::class, 'myAttendance']
+        );
+
+        Route::get(
+            '/my-attendance/{id}',
+            [AttendanceController::class, 'myAttendanceRecord']
+        );
+
     });
 
+    // ADMIN ONLY
 
+    Route::middleware('role:admin')->group(function () {
 
+        // Dashboard
+
+        Route::get(
+            '/admin/dashboard',
+            [DashboardController::class, 'index']
+        );
+
+        // Employee Management
+
+        Route::post(
+            '/employees',
+            [EmployeeController::class, 'store']
+        );
+
+        Route::get(
+            '/employees',
+            [EmployeeController::class, 'index']
+        );
+
+        Route::put(
+            '/employees/{id}',
+            [EmployeeController::class, 'update']
+        );
+
+        Route::delete(
+            '/employees/{id}',
+            [EmployeeController::class, 'destroy']
+        );
+
+        Route::post(
+            '/employees/{id}/restore',
+            [EmployeeController::class, 'restore']
+        );
+
+        Route::delete(
+            '/employees/{id}/force',
+            [EmployeeController::class, 'forceDestroy']
+        );
+
+        Route::get(
+            '/employees/deleted',
+            [EmployeeController::class, 'deleted']
+        );
+
+        Route::get(
+            '/positions',
+            [EmployeeController::class, 'listPositions']
+        );
+
+        Route::get(
+            '/salary-info',
+            [EmployeeController::class, 'salaryInfo']
+        );
+
+        // Leave Applications - Admin Management
+
+        Route::get(
+            '/leave-applications',
+            [LeaveController::class, 'index']
+        );
+
+        Route::get(
+            '/leave-applications/deleted',
+            [LeaveController::class, 'deletedLeaves']
+        );
+
+        Route::put(
+            '/leave-applications/{id}',
+            [LeaveController::class, 'updateStatus']
+        );
+
+        Route::post(
+            '/leave-applications/{id}/restore',
+            [LeaveController::class, 'restoreLeave']
+        );
+
+        Route::delete(
+            '/leave-applications/{id}',
+            [LeaveController::class, 'destroy']
+        );
+
+        // Leave Credits
+
+        Route::post(
+            '/leave-credits',
+            [LeaveCreditController::class, 'store']
+        );
+
+        Route::get(
+            '/leave-credits',
+            [LeaveCreditController::class, 'index']
+        );
+
+        Route::get(
+            '/leave-credits/{employee_id}',
+            [LeaveCreditController::class, 'show']
+        );
+
+        Route::put(
+            '/leave-credits/{id}',
+            [LeaveCreditController::class, 'update']
+        );
+
+        Route::post(
+            '/leave-credits/{id}/apply',
+            [LeaveCreditController::class, 'apply']
+        );
+
+        Route::delete(
+            '/leave-credits/{id}',
+            [LeaveCreditController::class, 'destroy']
+        );
+
+        // Leave Balances
+
+        Route::get(
+            '/leave-balances',
+            [LeaveBalanceController::class, 'index']
+        );
+
+        Route::get(
+            '/leave-balances/{employee_id}',
+            [LeaveBalanceController::class, 'show']
+        );
+
+        Route::put(
+            '/leave-balances/{employee_id}',
+            [LeaveBalanceController::class, 'update']
+        );
+
+        Route::delete(
+            '/leave-balances/{employee_id}',
+            [LeaveBalanceController::class, 'destroy']
+        );
+
+        // Attendance
+
+        Route::post(
+            '/attendance',
+            [AttendanceController::class, 'store']
+        );
+
+        Route::get(
+            '/attendance',
+            [AttendanceController::class, 'index']
+        );
+
+        Route::get(
+            '/attendance/{id}',
+            [AttendanceController::class, 'show']
+        );
+
+        Route::put(
+            '/attendance/{id}',
+            [AttendanceController::class, 'update']
+        );
+
+        // Reports
+
+        Route::get(
+            '/reports',
+            [ReportController::class, 'index']
+        );
+
+        Route::get(
+            '/reports/leave-summary',
+            [ReportController::class, 'leaveSummary']
+        );
+
+        Route::get(
+            '/reports/leave-credits',
+            [ReportController::class, 'leaveCredits']
+        );
+
+        Route::post(
+            '/reports/attendance',
+            [ReportController::class, 'generateAttendanceReport']
+        );
+
+        Route::get(
+            '/reports/download/{id}',
+            [ReportController::class, 'download']
+        );
+
+        Route::get(
+            '/reports/employees',
+            [ReportController::class, 'employeeReport']
+        );
+
+        // Admin Profile
+
+        Route::get(
+            '/admin/profile',
+            [AdminController::class, 'profile']
+        );
+
+        Route::put(
+            '/admin/profile',
+            [AdminController::class, 'updateProfile']
+        );
+
+        Route::put(
+            '/admin/email',
+            [AdminController::class, 'updateEmail']
+        );
+
+        Route::put(
+            '/admin/password',
+            [AdminController::class, 'updatePassword']
+        );
+
+        Route::get(
+            '/admin/positions',
+            [AdminController::class, 'positions']
+        );
+
+        Route::get(
+            '/admin/departments',
+            [AdminController::class, 'departments']
+        );
+
+        // Audit Logs
+
+        Route::get(
+            '/audit-logs',
+            [AuditLogController::class, 'index']
+        );
+
+        Route::get(
+            '/audit-logs/actions',
+            [AuditLogController::class, 'actions']
+        );
+
+        // Settings - Update
+
+        Route::put(
+            '/leave-settings',
+            [LeaveSettingController::class, 'update']
+        );
+
+        Route::put(
+            '/approval-settings',
+            [ApprovalSettingController::class, 'update']
+        );
+
+        Route::put(
+            '/system-settings',
+            [SystemSettingController::class, 'update']
+        );
+
+        // Leave Types - Admin Management
+
+        Route::post(
+            '/leave-types',
+            [LeaveTypeController::class, 'store']
+        );
+
+        Route::put(
+            '/leave-types/{id}',
+            [LeaveTypeController::class, 'update']
+        );
+
+        Route::delete(
+            '/leave-types/{id}',
+            [LeaveTypeController::class, 'destroy']
+        );
+
+        // Backups
+
+        Route::post(
+            '/backups',
+            [BackupController::class, 'create']
+        );
+
+        Route::get(
+            '/backups',
+            [BackupController::class, 'index']
+        );
+
+        Route::get(
+            '/backups/{id}/download',
+            [BackupController::class, 'download']
+        );
+
+        Route::post(
+            '/backups/restore',
+            [BackupController::class, 'restore']
+        );
+
+        // Teaching Personnel
+
+        Route::get(
+            '/teaching-personnel-records',
+            [TeachingPersonnelRecordController::class, 'index']
+        );
+
+        Route::get(
+            '/teaching-personnel-records/{id}',
+            [TeachingPersonnelRecordController::class, 'show']
+        );
+
+        Route::post(
+            '/teaching-personnel-records',
+            [TeachingPersonnelRecordController::class, 'store']
+        );
+
+        Route::put(
+            '/teaching-personnel-records/{id}',
+            [TeachingPersonnelRecordController::class, 'update']
+        );
+
+        Route::delete(
+            '/teaching-personnel-records/{id}',
+            [TeachingPersonnelRecordController::class, 'destroy']
+        );
+
+        // Non-Teaching Personnel
+
+        Route::get(
+            '/non-teaching-personnel-records',
+            [NonTeachingPersonnelRecordController::class, 'index']
+        );
+
+        Route::get(
+            '/non-teaching-personnel-records/{id}',
+            [NonTeachingPersonnelRecordController::class, 'show']
+        );
+
+        Route::post(
+            '/non-teaching-personnel-records',
+            [NonTeachingPersonnelRecordController::class, 'store']
+        );
+
+        Route::put(
+            '/non-teaching-personnel-records/{id}',
+            [NonTeachingPersonnelRecordController::class, 'update']
+        );
+
+        Route::delete(
+            '/non-teaching-personnel-records/{id}',
+            [NonTeachingPersonnelRecordController::class, 'destroy']
+        );
+
+    });
+
+    // DEBUG
 
     Route::get('/debug-role', function (Request $request) {
         return response()->json([
@@ -86,117 +500,4 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-
-    Route::middleware('role:admin')->group(function () {
-
-        // Dashboard
-        Route::get('/admin/dashboard', [DashboardController::class, 'index']);
-
-
-        // Employee Management
-        Route::post('/employees', [EmployeeController::class, 'store']);
-        Route::get('/employees', [EmployeeController::class, 'index']);
-        Route::put('/employees/{id}', [EmployeeController::class, 'update']);
-        Route::get('/positions', [EmployeeController::class, 'listPositions']);
-        Route::get('/salary-info', [EmployeeController::class, 'salaryInfo']);
-        Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
-        Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
-        Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
-
-        Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
-        Route::get('/departments', [EmployeeController::class, 'listDepartments']);
-
-
-        Route::get('/leave-applications', [LeaveController::class, 'index']);
-        Route::get('/leave-applications/deleted', [LeaveController::class, 'deletedLeaves']);
-        Route::get('/leave-applications/{id}', [LeaveController::class, 'show']);
-        Route::put('/leave-applications/{id}', [LeaveController::class, 'updateStatus']);
-        Route::get('/leave-applications/{id}/pdf', [LeaveController::class, 'downloadPdf']);
-        Route::get('/leaves/{leave_id}/attachments/{attachment_id}', [LeaveController::class, 'downloadAttachment']);
-        Route::post('/leave-applications/{id}/restore', [LeaveController::class, 'restoreLeave']);
-        Route::delete('/leave-applications/{id}', [LeaveController::class, 'destroy']);
-
-
-        // Leave Credits
-        Route::post('/leave-credits', [LeaveCreditController::class, 'store']);
-        Route::get('/leave-credits', [LeaveCreditController::class, 'index']);
-        Route::get('/leave-credits/{employee_id}', [LeaveCreditController::class, 'show']);
-        Route::put('/leave-credits/{id}', [LeaveCreditController::class, 'update']);
-        Route::post('/leave-credits/{id}/apply', [LeaveCreditController::class, 'apply']);
-        Route::delete('/leave-credits/{id}', [LeaveCreditController::class, 'destroy']);
-
-
-        // Leave Balances
-        Route::get('/leave-balances', [LeaveBalanceController::class, 'index']);
-        Route::get('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'show']);
-        Route::put('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'update']);
-        Route::delete('/leave-balances/{employee_id}', [LeaveBalanceController::class, 'destroy']);
-
-
-        // Attendance
-        Route::post('/attendance', [AttendanceController::class, 'store']);
-        Route::get('/attendance', [AttendanceController::class, 'index']);
-        Route::get('/attendance/{id}', [AttendanceController::class, 'show']);
-        Route::put('/attendance/{id}', [AttendanceController::class, 'update']);
-
-
-        // Reports
-        Route::get('/reports', [ReportController::class, 'index']);
-        Route::get('/reports/leave-summary', [ReportController::class, 'leaveSummary']);
-        Route::get('/reports/leave-credits', [ReportController::class, 'leaveCredits']);
-        Route::post('/reports/attendance', [ReportController::class, 'generateAttendanceReport']);
-        Route::get('/reports/download/{id}', [ReportController::class, 'download']);
-        Route::get('/reports/employees', [ReportController::class, 'employeeReport']);
-
-
-        // Admin Profile
-        Route::get('/admin/profile', [AdminController::class, 'profile']);
-        Route::put('/admin/profile', [AdminController::class, 'updateProfile']);
-        Route::put('/admin/email', [AdminController::class, 'updateEmail']);
-        Route::put('/admin/password', [AdminController::class, 'updatePassword']);
-        Route::get('/admin/positions', [AdminController::class, 'positions']);
-        Route::get('/admin/departments', [AdminController::class, 'departments']);
-
-
-        // Audit Logs
-        Route::get('/audit-logs', [AuditLogController::class, 'index']);
-        Route::get('/audit-logs/actions', [AuditLogController::class, 'actions']);
-
-
-        // Settings - Update
-        Route::put('/leave-settings', [LeaveSettingController::class, 'update']);
-        Route::put('/approval-settings', [ApprovalSettingController::class, 'update']);
-        Route::put('/system-settings', [SystemSettingController::class, 'update']);
-
-        // Backups
-        Route::post('/backups', [BackupController::class, 'create']);
-        Route::get('/backups', [BackupController::class, 'index']);
-        Route::get('/backups/{id}/download', [BackupController::class, 'download']);
-        Route::post('/backups/restore', [BackupController::class, 'restore']);
-
-        Route::get('/teaching-personnel-records', [TeachingPersonnelRecordController::class, 'index']);
-
-        Route::get('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'show']);
-
-        Route::post('/teaching-personnel-records', [TeachingPersonnelRecordController::class, 'store']);
-        Route::put('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'update']);
-        Route::delete('/teaching-personnel-records/{id}', [TeachingPersonnelRecordController::class, 'destroy']);
-        Route::get('/non-teaching-personnel-records', [NonTeachingPersonnelRecordController::class, 'index']);
-        Route::get('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'show']);
-        Route::post('/non-teaching-personnel-records', [NonTeachingPersonnelRecordController::class, 'store']);
-        Route::put('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'update']);
-        Route::delete('/non-teaching-personnel-records/{id}', [NonTeachingPersonnelRecordController::class, 'destroy']);
-    });
-
-
-
-    // Both Employee and Admin can view leave types
-    Route::get('/leave-types', [LeaveTypeController::class, 'index']);
-
-    // Only Admin can manage leave types
-    Route::middleware('role:admin')->group(function () {
-        Route::post('/leave-types', [LeaveTypeController::class, 'store']);
-        Route::put('/leave-types/{id}', [LeaveTypeController::class, 'update']);
-        Route::delete('/leave-types/{id}', [LeaveTypeController::class, 'destroy']);
-    });
 });

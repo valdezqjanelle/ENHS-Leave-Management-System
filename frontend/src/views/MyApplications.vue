@@ -173,8 +173,13 @@
               <div class="flex items-center gap-3">
 
                 <button @click="viewDetails(application)"
-                  class="text-blue-400 hover:text-blue-300 font-medium transition">
+                  class="btn-action bg-blue-600 hover:bg-blue-700">
                   View Details
+                </button>
+
+                <button @click="viewForm(application)"
+                  class="btn-action bg-yellow-600 hover:bg-yellow-700">
+                  View Form
                 </button>
 
                 <button v-if="application.status === 'Approved'" @click="downloadForm(application)"
@@ -540,6 +545,17 @@ const applications =
 
 const loading = ref(true);
 
+const viewForm = (application: any) => {
+  console.log("EMPLOYEE VIEW FORM:", {
+    leave_id: application.leave_id,
+    leave_type: application.leave_type?.leave_type_name,
+    start_date: application.start_date,
+    end_date: application.end_date,
+    date_filed: application.date_filed,
+  });
+
+  router.push(`/leave-print/${application.leave_id}`);
+};
 
 const loadApplications = async () => {
 
@@ -868,7 +884,23 @@ const downloadForm = (
   color: #f8fafc;
 }
 
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: #fff;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
 
+.btn-action:active {
+  transform: scale(0.97);
+}
 /* =========================================
    TABLE
 ========================================= */
