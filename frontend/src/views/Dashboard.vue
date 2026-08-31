@@ -43,23 +43,23 @@
     >
 
       <!-- ======================================================= -->
-      <!-- STATISTICS CARDS -->
+      <!-- stats card -->
       <!-- ======================================================= -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- Employees -->
-        <div class="neo-card stats-card border-blue-500 p-6">
-          <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-lg">
-              <Users class="w-6 h-6 text-blue-600" />
+        <div class="neo-card stats-card border-blue-500 p-4 md:p-6">
+          <div class="flex flex-col items-center text-center gap-2 md:flex-row md:items-center md:text-left md:gap-0">
+            <div class="p-2.5 md:p-3 bg-blue-100 rounded-lg">
+              <Users class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
             </div>
 
-            <div class="ml-5">
-              <h3 class="text-sm text-white">
+            <div class="md:ml-5">
+              <h3 class="text-xs md:text-sm text-white">
                 Total Employees
               </h3>
 
-              <p class="text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-white">
                 {{ totalEmployees }}
               </p>
             </div>
@@ -67,18 +67,18 @@
         </div>
 
         <!-- Pending -->
-        <div class="neo-card stats-card border-orange-500 p-6">
-          <div class="flex items-center">
-            <div class="p-3 bg-yellow-100 rounded-lg">
-              <Clock class="w-6 h-6 text-yellow-600" />
+        <div class="neo-card stats-card border-orange-500 p-4 md:p-6">
+          <div class="flex flex-col items-center text-center gap-2 md:flex-row md:items-center md:text-left md:gap-0">
+            <div class="p-2.5 md:p-3 bg-yellow-100 rounded-lg">
+              <Clock class="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
             </div>
 
-            <div class="ml-4">
-              <h3 class="text-sm text-white">
+            <div class="md:ml-4">
+              <h3 class="text-xs md:text-sm text-white">
                 Pending Leaves
               </h3>
 
-              <p class="text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-white">
                 {{ pendingLeaves }}
               </p>
             </div>
@@ -86,18 +86,18 @@
         </div>
 
         <!-- Approved -->
-        <div class="neo-card stats-card border-green-500 p-6">
-          <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-lg">
-              <CheckCircle class="w-6 h-6 text-green-600" />
+        <div class="neo-card stats-card border-green-500 p-4 md:p-6">
+          <div class="flex flex-col items-center text-center gap-2 md:flex-row md:items-center md:text-left md:gap-0">
+            <div class="p-2.5 md:p-3 bg-green-100 rounded-lg">
+              <CheckCircle class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
             </div>
 
-            <div class="ml-4">
-              <h3 class="text-sm text-white">
+            <div class="md:ml-4">
+              <h3 class="text-xs md:text-sm text-white">
                 Approved Leaves
               </h3>
 
-              <p class="text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-white">
                 {{ approvedLeaves }}
               </p>
             </div>
@@ -105,18 +105,18 @@
         </div>
 
         <!-- Disapproved -->
-        <div class="neo-card stats-card border-red-700 p-6">
-          <div class="flex items-center">
-            <div class="p-3 bg-red-100 rounded-lg">
-              <AlertCircle class="w-6 h-6 text-red-600" />
+        <div class="neo-card stats-card border-red-700 p-4 md:p-6">
+          <div class="flex flex-col items-center text-center gap-2 md:flex-row md:items-center md:text-left md:gap-0">
+            <div class="p-2.5 md:p-3 bg-red-100 rounded-lg">
+              <AlertCircle class="w-5 h-5 md:w-6 md:h-6 text-red-600" />
             </div>
 
-            <div class="ml-4">
-              <h3 class="text-sm text-white">
+            <div class="md:ml-4">
+              <h3 class="text-xs md:text-sm text-white">
                 Disapproved Leaves
               </h3>
 
-              <p class="text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-white">
                 {{ disapprovedLeaves }}
               </p>
             </div>
@@ -130,15 +130,15 @@
       <div class="grid lg:grid-cols-2 gap-6">
 
         <!-- Recent Applications -->
-        <div class="neo-card p-6">
+        <div class="neo-card p-4 md:p-6">
 
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-white">
+          <div class="flex justify-between items-start gap-3 mb-4">
+            <h3 class="text-base md:text-lg font-semibold text-white flex-1 min-w-0">
               Recent Leave Applications
             </h3>
 
             <span
-              class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300"
+              class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 whitespace-nowrap flex-shrink-0"
             >
               {{ recentApplications.length }}
             </span>
@@ -151,29 +151,29 @@
             <div
               v-for="app in recentApplications"
               :key="app.id"
-              class="application-item flex justify-between items-center p-4 rounded-xl"
+              class="application-item flex flex-col gap-3 p-3 md:p-4 rounded-xl md:flex-row md:justify-between md:items-center md:gap-0"
             >
 
               <div class="flex items-center min-w-0">
 
                 <div
-                  class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mr-4 flex-shrink-0 font-bold"
+                  class="w-9 h-9 md:w-10 md:h-10 bg-blue-500 text-white rounded-full flex items-center justify-center mr-3 md:mr-4 flex-shrink-0 font-bold"
                 >
                   {{ getEmployeeInitial(app) }}
                 </div>
 
                 <div class="min-w-0">
-                  <p class="font-medium text-white truncate">
+                  <p class="text-sm md:text-base font-medium text-white truncate">
                     {{ getEmployeeName(app) }}
                   </p>
 
-                  <p class="text-sm text-gray-300 truncate">
+                  <p class="text-xs md:text-sm text-gray-300 truncate">
                     {{ getLeaveType(app) }}
                   </p>
                 </div>
               </div>
 
-              <div class="text-right ml-4 flex-shrink-0">
+              <div class="flex items-center justify-between md:flex-col md:items-end md:text-right md:ml-4 md:flex-shrink-0">
 
                 <span
                   :class="getStatusClass(getAppStatus(app))"
@@ -182,7 +182,7 @@
                   {{ formatStatus(getAppStatus(app)) }}
                 </span>
 
-                <p class="text-xs text-gray-400 mt-1">
+                <p class="text-xs text-gray-400 md:mt-1">
                   {{ formatDateShort(app.date || app.created_at) }}
                 </p>
               </div>
@@ -198,17 +198,17 @@
         </div>
 
         <!-- Pending Requests -->
-        <div class="neo-card p-6">
+        <div class="neo-card p-4 md:p-6">
 
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-between items-start gap-3 mb-4">
 
-            <h3 class="text-lg font-semibold text-white">
+            <h3 class="text-base md:text-lg font-semibold text-white flex-1 min-w-0">
               Leave Requests Needing Action
             </h3>
 
             <span
               v-if="pendingRequests.length"
-              class="text-xs px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300"
+              class="text-xs px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 whitespace-nowrap flex-shrink-0"
             >
               {{ pendingRequests.length }} Pending
             </span>
@@ -223,7 +223,7 @@
             <div
               v-for="request in pendingRequests"
               :key="request.id"
-              class="request-item flex justify-between items-center p-4 rounded-xl"
+              class="request-item flex flex-col gap-3 p-3 md:p-4 rounded-xl md:flex-row md:justify-between md:items-center md:gap-0"
             >
 
               <div class="min-w-0">
@@ -260,7 +260,7 @@
 
               <button
                 @click="reviewRequest(request)"
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition flex-shrink-0 ml-4"
+                class="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition flex-shrink-0 md:ml-4"
               >
                 Review
               </button>
@@ -2418,7 +2418,6 @@ onMounted(
 
 .stats-card {
   border-left: 4px solid currentColor;
-  padding: 1.35rem;
 }
 
 .stats-card .p-3 {
