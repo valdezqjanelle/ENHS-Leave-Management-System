@@ -260,7 +260,7 @@ const fetchPdfBlobWithRetry = async (
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const blob = await downloadLeavePdf(
-        leave.value.leave_id
+        leave.value!.leave_id
       );
 
       if (!blob || blob.size === 0) {
@@ -277,17 +277,16 @@ const fetchPdfBlobWithRetry = async (
       lastError = error;
 
       if (attempt < MAX_RETRIES) {
+        const delay = RETRY_DELAYS_MS[attempt];
+
         console.warn(
-          `PDF fetch attempt ${attempt + 1} failed, retrying in ${
-            RETRY_DELAYS_MS[attempt]
-          }ms...`,
+          `PDF fetch attempt ${attempt + 1} failed, retrying in ${delay}ms...`,
           error
         );
 
-        // Report the upcoming attempt number
         onRetry?.(attempt + 2);
 
-        await wait(RETRY_DELAYS_MS[attempt]);
+        await wait(delay ?? 0);
       }
     }
   }

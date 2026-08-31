@@ -60,7 +60,9 @@ export const getMyLeaveBalance = async () => {
 // =======================
 // DDOWNLOAD LEAVE APPLICATION PDF
 // =======================
-export const downloadLeavePdf = async (leaveId: number): Promise<Blob> => {
+export const downloadLeavePdf = async (
+  leaveId: number
+): Promise<Blob> => {
   const response = await api.get(
     `/leave-applications/${leaveId}/pdf`,
     {
@@ -71,11 +73,11 @@ export const downloadLeavePdf = async (leaveId: number): Promise<Blob> => {
     }
   );
 
-  // Make sure Laravel actually returned a PDF.
-  const contentType =
+  const contentType = String(
     response.headers["content-type"] ||
-    response.headers["Content-Type"] ||
-    "";
+      response.headers["Content-Type"] ||
+      ""
+  );
 
   console.log("PDF response:", {
     status: response.status,
@@ -88,28 +90,31 @@ export const downloadLeavePdf = async (leaveId: number): Promise<Blob> => {
     throw new Error("The server returned an empty PDF.");
   }
 
-  // If Laravel returned an HTML error page, don't try to display it as PDF.
   if (
     contentType.includes("text/html") ||
     response.data.type === "text/html"
   ) {
     const text = await response.data.text();
 
-    console.error("Server returned HTML instead of PDF:", text);
+    console.error(
+      "Server returned HTML instead of a PDF:",
+      text
+    );
 
     throw new Error(
       "The server returned HTML instead of a PDF."
     );
   }
 
-  // Force the correct MIME type.
   return new Blob(
     [response.data],
-    { type: "application/pdf" }
+    {
+      type: "application/pdf",
+    }
   );
 };
 
- export const deleteLeaveApplication = async (leaveId: number) => {
+export const deleteLeaveApplication = async (leaveId: number) => {
   const response = await api.delete(
     `/leave-applications/${leaveId}`
   );
