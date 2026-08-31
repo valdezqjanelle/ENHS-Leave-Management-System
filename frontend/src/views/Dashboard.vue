@@ -1,3 +1,4 @@
+
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
 
@@ -43,7 +44,7 @@
     >
 
       <!-- ======================================================= -->
-      <!-- stats card -->
+      <!-- STATS CARDS -->
       <!-- ======================================================= -->
       <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
@@ -122,6 +123,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- ======================================================= -->
@@ -186,6 +188,7 @@
                   {{ formatDateShort(app.date || app.created_at) }}
                 </p>
               </div>
+
             </div>
           </div>
 
@@ -195,6 +198,7 @@
           >
             No recent applications.
           </p>
+
         </div>
 
         <!-- Pending Requests -->
@@ -288,6 +292,7 @@
           </div>
 
         </div>
+
       </div>
 
       <!-- ======================================================= -->
@@ -309,14 +314,9 @@
 
         </div>
 
-        <!-- ===================================================== -->
-        <!-- CHARTS -->
-        <!-- ===================================================== -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-          <!-- =================================================== -->
           <!-- PIE CHART -->
-          <!-- =================================================== -->
           <div class="chart-card">
 
             <h4 class="text-lg font-semibold text-white mb-6">
@@ -328,7 +328,6 @@
               class="flex flex-col md:flex-row items-center justify-center gap-8"
             >
 
-              <!-- PIE -->
               <div class="relative flex-shrink-0">
 
                 <svg
@@ -345,7 +344,6 @@
                     stroke-width="2"
                   />
 
-                  <!-- Center -->
                   <circle
                     cx="100"
                     cy="100"
@@ -378,7 +376,6 @@
 
               </div>
 
-              <!-- LEGEND -->
               <div class="space-y-3 w-full md:w-auto">
 
                 <div
@@ -418,7 +415,6 @@
 
             </div>
 
-            <!-- Empty -->
             <div
               v-else
               class="h-80 flex items-center justify-center text-gray-400"
@@ -428,9 +424,7 @@
 
           </div>
 
-          <!-- =================================================== -->
           <!-- BAR GRAPH -->
-          <!-- =================================================== -->
           <div class="chart-card">
 
             <h4 class="text-lg font-semibold text-white mb-6">
@@ -442,7 +436,6 @@
               class="department-chart"
             >
 
-              <!-- Y AXIS -->
               <div class="chart-y-axis">
 
                 <span>
@@ -465,10 +458,8 @@
 
               </div>
 
-              <!-- GRAPH -->
               <div class="chart-area">
 
-                <!-- GRID -->
                 <div class="chart-grid">
                   <div></div>
                   <div></div>
@@ -477,7 +468,6 @@
                   <div></div>
                 </div>
 
-                <!-- BARS -->
                 <div class="bars-container">
 
                   <div
@@ -513,7 +503,6 @@
 
             </div>
 
-            <!-- Empty -->
             <div
               v-else
               class="h-80 flex items-center justify-center text-gray-400"
@@ -525,9 +514,7 @@
 
         </div>
 
-        <!-- ===================================================== -->
         <!-- SUMMARY TABLE -->
-        <!-- ===================================================== -->
         <div class="mt-8">
 
           <h4 class="text-lg font-semibold text-white mb-4">
@@ -540,27 +527,11 @@
 
               <thead>
                 <tr>
-
-                  <th>
-                    Department
-                  </th>
-
-                  <th>
-                    Total Leaves
-                  </th>
-
-                  <th>
-                    Approved
-                  </th>
-
-                  <th>
-                    Pending
-                  </th>
-
-                  <th>
-                    Disapproved
-                  </th>
-
+                  <th>Department</th>
+                  <th>Total Leaves</th>
+                  <th>Approved</th>
+                  <th>Pending</th>
+                  <th>Disapproved</th>
                 </tr>
               </thead>
 
@@ -738,108 +709,155 @@
 
       </div>
 
-      <!-- leave credits -->
-<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+      <!-- ======================================================= -->
+      <!-- EMPLOYEE LEAVE BALANCE STATS -->
+      <!-- ======================================================= -->
+      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
 
-  <div class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
-    <h4 class="text-gray-400 text-xs md:text-sm">Service Credits</h4>
-    <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
-      {{ leaveBalance.service_credits }}
-    </p>
-  </div>
+        <!-- Service Credits -->
+        <div
+          class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
+        >
+          <h4 class="text-gray-400 text-xs md:text-sm">
+            Service Credits
+          </h4>
 
-  <div class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
-    <h4 class="text-gray-400 text-xs md:text-sm">Vacation Leave</h4>
-    <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
-      {{ leaveBalance.vacation_balance }}
-    </p>
-  </div>
+          <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+            {{ formatBalance(leaveBalance.service_credits) }}
+          </p>
 
-  <div class="neo-card stats-card border-red-700 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
-    <h4 class="text-gray-400 text-xs md:text-sm">Sick Leave</h4>
-    <p class="text-xl md:text-3xl font-bold text-red-400 mt-1 md:mt-2">
-      {{ leaveBalance.sick_balance }}
-    </p>
-  </div>
+          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+            Remaining
+          </span>
+        </div>
 
-  <div class="neo-card stats-card border-green-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
-    <h4 class="text-gray-400 text-xs md:text-sm">Used Leave</h4>
-    <p class="text-xl md:text-3xl font-bold text-green-400 mt-1 md:mt-2">
-      {{ leaveBalance.used_leave }}
-    </p>
-  </div>
+        <!-- Vacation Leave -->
+        <div
+          class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
+        >
+          <h4 class="text-gray-400 text-xs md:text-sm">
+            Vacation Leave
+          </h4>
 
-</div>
+          <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+            {{ formatBalance(leaveBalance.vacation_balance) }}
+          </p>
 
+          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+            Remaining
+          </span>
+        </div>
+
+        <!-- Sick Leave -->
+        <div
+          class="neo-card stats-card border-red-700 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
+        >
+          <h4 class="text-gray-400 text-xs md:text-sm">
+            Sick Leave
+          </h4>
+
+          <p class="text-xl md:text-3xl font-bold text-red-400 mt-1 md:mt-2">
+            {{ formatBalance(leaveBalance.sick_balance) }}
+          </p>
+
+          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+            Remaining
+          </span>
+        </div>
+
+        <!-- Used Leave -->
+        <div
+          class="neo-card stats-card border-green-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
+        >
+          <h4 class="text-gray-400 text-xs md:text-sm">
+            Used Leave
+          </h4>
+
+          <p class="text-xl md:text-3xl font-bold text-green-400 mt-1 md:mt-2">
+            {{ formatBalance(leaveBalance.used_leave) }}
+          </p>
+
+          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+            Total Used
+          </span>
+        </div>
+
+      </div>
 
       <!-- My Applications / Upcoming -->
       <div class="grid lg:grid-cols-2 gap-6">
 
-        <!-- My Applications -->
-        <div class="neo-card p-6">
+        <!-- Recent Leave Applications -->
+        <div class="neo-card">
 
-          <h3 class="text-lg font-semibold mb-4 text-white">
-            My Leave Applications
-          </h3>
-
-          <div
-            v-if="myApplications.length"
-            class="space-y-3"
-          >
-
-            <div
-              v-for="app in myApplications"
-              :key="app.id"
-              class="application-item p-4 rounded-lg"
-            >
-
-              <div class="flex justify-between items-start mb-2">
-
-                <div>
-
-                  <p class="font-medium text-white">
-                    {{ getLeaveType(app) }}
-                  </p>
-
-                  <p class="text-sm text-gray-400">
-                    {{ getDays(app) ?? 0 }} days
-                  </p>
-
-                </div>
-
-                <span
-                  :class="getStatusClass(getAppStatus(app))"
-                  class="px-3 py-1 rounded text-sm font-semibold"
-                >
-                  {{ formatStatus(getAppStatus(app)) }}
-                </span>
-
-              </div>
-
-              <p class="text-xs text-gray-500">
-
-                {{ formatDateShort(app.start_date) }}
-
-                <span
-                  v-if="app.start_date && app.end_date"
-                >
-                  -
-                </span>
-
-                {{ formatDateShort(app.end_date) }}
-
-              </p>
-
-            </div>
-
+          <div class="px-6 py-4 border-b border-[#1e293b]">
+            <h3 class="text-lg font-semibold text-white">
+              Recent Leave Applications
+            </h3>
           </div>
 
-          <p
-            v-else
-            class="text-white"
-          >
-            No leave applications yet.
-          </p>
+          <div class="overflow-x-auto">
+
+            <table class="min-w-full divide-y divide-[#1e293b]">
+
+              <thead class="bg-[#0d1520]">
+                <tr>
+
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                  >
+                    Leave Type
+                  </th>
+
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                  >
+                    Status
+                  </th>
+
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-[#1e293b]">
+
+                <tr
+                  v-for="leave in myApplications"
+                  :key="leave.leave_id || leave.id"
+                >
+
+                  <td class="px-6 py-4 text-white font-medium">
+                    {{ getLeaveType(leave) }}
+                  </td>
+
+                  <td class="px-6 py-4">
+
+                    <span
+                      class="px-3 py-1 rounded-full text-xs font-semibold"
+                      :class="getStatusClass(getAppStatus(leave))"
+                    >
+                      {{ formatStatus(getAppStatus(leave)) }}
+                    </span>
+
+                  </td>
+
+                </tr>
+
+                <tr v-if="!myApplications.length">
+
+                  <td
+                    colspan="2"
+                    class="text-center text-gray-400 py-8"
+                  >
+                    No leave applications yet.
+                  </td>
+
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
 
         </div>
 
@@ -1121,6 +1139,7 @@
 </template>
 
 <script setup lang="ts">
+
 import {
   ref,
   computed,
@@ -1132,7 +1151,6 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  FileCheck,
   Briefcase,
 } from "lucide-vue-next";
 
@@ -1199,6 +1217,12 @@ const employeeInfo = ref({
   position: "",
 });
 
+// IMPORTANT:
+// These are the actual remaining leave balances returned by
+// /my-leave-balance.
+//
+// The employee dashboard will load these directly from the API
+// instead of depending only on getEmployeeDashboard().
 const leaveBalance = ref({
   service_credits: 0,
   vacation_balance: 0,
@@ -1236,6 +1260,124 @@ const isEmployee = computed(
 );
 
 // ============================================================
+// BALANCE FORMATTER
+// ============================================================
+
+const formatBalance = (
+  value: unknown
+): string => {
+
+  const numberValue = Number(value);
+
+  if (
+    !Number.isFinite(numberValue)
+  ) {
+    return "0";
+  }
+
+  // Keep whole numbers clean.
+  if (
+    Number.isInteger(numberValue)
+  ) {
+    return String(numberValue);
+  }
+
+  // Leave balances can contain decimal values.
+  return numberValue
+    .toFixed(2)
+    .replace(/\.00$/, "")
+    .replace(/(\.\d)0$/, "$1");
+};
+
+// ============================================================
+// NORMALIZE LEAVE BALANCE
+// ============================================================
+
+const normalizeLeaveBalance = (
+  data: any
+) => {
+
+  if (!data) {
+    return {
+      service_credits: 0,
+      vacation_balance: 0,
+      sick_balance: 0,
+      used_leave: 0,
+    };
+  }
+
+  /*
+   * Supports all of these possible API shapes:
+   *
+   * {
+   *   vacation_balance: 10,
+   *   sick_balance: 5,
+   *   service_credits: 2,
+   *   used_leave: 3
+   * }
+   *
+   * OR:
+   *
+   * {
+   *   data: {
+   *     vacation_balance: 10,
+   *     ...
+   *   }
+   * }
+   *
+   * OR:
+   *
+   * {
+   *   leaveBalance: {
+   *     vacation_balance: 10,
+   *     ...
+   *   }
+   * }
+   */
+
+  const source =
+    data?.leaveBalance ??
+    data?.data ??
+    data;
+
+  return {
+    service_credits:
+      Number(
+        source?.service_credits ??
+        source?.serviceCredits ??
+        source?.service_credit ??
+        0
+      ) || 0,
+
+    vacation_balance:
+      Number(
+        source?.vacation_balance ??
+        source?.vacationBalance ??
+        source?.vacation_leave ??
+        source?.vacation ??
+        0
+      ) || 0,
+
+    sick_balance:
+      Number(
+        source?.sick_balance ??
+        source?.sickBalance ??
+        source?.sick_leave ??
+        source?.sick ??
+        0
+      ) || 0,
+
+    used_leave:
+      Number(
+        source?.used_leave ??
+        source?.usedLeave ??
+        source?.used ??
+        0
+      ) || 0,
+  };
+};
+
+// ============================================================
 // ERROR HANDLER
 // ============================================================
 
@@ -1245,6 +1387,7 @@ const extractErrorMessage = (
 ): string => {
 
   if (isAxiosError(error)) {
+
     return (
       error.response?.data?.error ||
       error.response?.data?.message ||
@@ -1525,17 +1668,24 @@ const formatDateShort = (
     return "";
   }
 
-  const date = new Date(dateString);
+  const date =
+    new Date(dateString);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(date.getTime())
+  ) {
     return "";
   }
 
   const month =
-    String(date.getUTCMonth() + 1).padStart(2, "0");
+    String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0");
 
   const day =
-    String(date.getUTCDate()).padStart(2, "0");
+    String(
+      date.getUTCDate()
+    ).padStart(2, "0");
 
   const year =
     date.getUTCFullYear();
@@ -1930,6 +2080,62 @@ const getCurrentUser = async () => {
 };
 
 // ============================================================
+// LOAD EMPLOYEE LEAVE BALANCE
+// ============================================================
+
+const loadEmployeeLeaveBalance = async (
+  fallbackBalance?: any
+) => {
+
+  try {
+
+    /*
+     * Use the same dedicated endpoint used by the
+     * Leave Application page:
+     *
+     * GET /my-leave-balance
+     *
+     * This is the source of truth for the employee's
+     * remaining leave balances.
+     */
+    const response =
+      await api.get(
+        "/my-leave-balance"
+      );
+
+    leaveBalance.value =
+      normalizeLeaveBalance(
+        response.data
+      );
+
+    console.log(
+      "Employee leave balance loaded:",
+      leaveBalance.value
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load employee leave balance:",
+      error
+    );
+
+    /*
+     * If the dedicated balance endpoint fails,
+     * don't immediately destroy the values returned
+     * by getEmployeeDashboard().
+     */
+    if (fallbackBalance) {
+
+      leaveBalance.value =
+        normalizeLeaveBalance(
+          fallbackBalance
+        );
+    }
+  }
+};
+
+// ============================================================
 // LOAD ADMIN DASHBOARD
 // ============================================================
 
@@ -2063,6 +2269,8 @@ const loadAdminDashboard = async () => {
 const loadEmployeeDashboard =
   async () => {
 
+    let dashboardBalance: any = null;
+
     try {
 
       const response =
@@ -2080,13 +2288,22 @@ const loadEmployeeDashboard =
           position: "",
         };
 
-      leaveBalance.value =
-        data?.leaveBalance || {
-          service_credits: 0,
-          vacation_balance: 0,
-          sick_balance: 0,
-          used_leave: 0,
-        };
+      /*
+       * Keep whatever balance the dashboard endpoint
+       * returned as a fallback.
+       */
+      dashboardBalance =
+        data?.leaveBalance ??
+        data?.leave_balance ??
+        null;
+
+      if (dashboardBalance) {
+
+        leaveBalance.value =
+          normalizeLeaveBalance(
+            dashboardBalance
+          );
+      }
 
     } catch (error) {
 
@@ -2095,6 +2312,23 @@ const loadEmployeeDashboard =
         error
       );
     }
+
+    /*
+     * IMPORTANT:
+     *
+     * Always load the dedicated balance endpoint after
+     * the dashboard request.
+     *
+     * This prevents the cards from staying at 0 when
+     * getEmployeeDashboard() doesn't include leaveBalance.
+     */
+    await loadEmployeeLeaveBalance(
+      dashboardBalance
+    );
+
+    // ========================================================
+    // MY LEAVE APPLICATIONS
+    // ========================================================
 
     const myLeaves =
       await getMyLeaves();
@@ -2122,6 +2356,10 @@ const loadEmployeeDashboard =
 
     myApplications.value =
       sorted;
+
+    // ========================================================
+    // APPLICATION COUNTS
+    // ========================================================
 
     totalEmployeeApplications.value =
       applications.length;
@@ -2179,6 +2417,10 @@ const loadEmployeeDashboard =
         totalDisapprovedLeaves.value,
     };
 
+    // ========================================================
+    // UPCOMING LEAVES
+    // ========================================================
+
     const today =
       new Date();
 
@@ -2222,6 +2464,10 @@ const loadEmployeeDashboard =
             ).getTime()
         );
 
+    // ========================================================
+    // LEAVE APPLICATIONS BY TYPE
+    // ========================================================
+
     const typeCounts =
       new Map<string, number>();
 
@@ -2247,6 +2493,10 @@ const loadEmployeeDashboard =
           count,
         })
       );
+
+    // ========================================================
+    // EMPLOYEE ACTIVITIES
+    // ========================================================
 
     employeeActivities.value =
       sorted
@@ -2379,9 +2629,11 @@ const retryLoad =
 onMounted(
   runLoad
 );
+
 </script>
 
 <style scoped>
+
 /* ============================================================
    DASHBOARD
    ============================================================ */
@@ -2399,6 +2651,7 @@ onMounted(
   background: #111d2e;
   border: 1px solid #1e293b;
   border-radius: 1.4rem;
+
   box-shadow:
     0 10px 22px rgba(15, 23, 42, 0.04);
 
@@ -2467,11 +2720,14 @@ onMounted(
 .chart-y-axis {
   width: 45px;
   height: 245px;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
+
   padding-right: 10px;
+
   color: #64748b;
   font-size: 11px;
 }
@@ -2486,9 +2742,11 @@ onMounted(
 .chart-grid {
   position: absolute;
   inset: 0 0 55px 0;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
   pointer-events: none;
 }
 
@@ -2499,18 +2757,22 @@ onMounted(
 
 .bars-container {
   position: absolute;
+
   left: 0;
   right: 0;
   bottom: 0;
+
   height: 250px;
 
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
+
   gap: 12px;
 
   overflow-x: auto;
   overflow-y: hidden;
+
   padding: 0 12px;
 }
 
@@ -2553,6 +2815,7 @@ onMounted(
 
 .bar-value {
   position: absolute;
+
   bottom: calc(
     var(--bar-height, 0%) + 8px
   );
@@ -2566,6 +2829,7 @@ onMounted(
 
 .bar-label {
   position: absolute;
+
   bottom: -42px;
 
   width: 70px;
@@ -2586,6 +2850,7 @@ onMounted(
 
 .summary-table {
   overflow-x: auto;
+
   border: 1px solid #1e293b;
   border-radius: 0.9rem;
 }
@@ -2601,6 +2866,7 @@ onMounted(
 
 .summary-table th {
   padding: 0.85rem 1.25rem;
+
   text-align: left;
 
   color: #94a3b8;
@@ -2654,6 +2920,7 @@ onMounted(
 .application-item:hover {
   background: #1b2a40;
   border-color: #334968;
+
   transform: translateY(-1px);
 }
 
@@ -2663,6 +2930,7 @@ onMounted(
 
 .request-item {
   background: #172337;
+
   border: 1px solid #3b3b27;
   border-left: 4px solid #eab308;
 
@@ -2675,6 +2943,7 @@ onMounted(
 .request-item:hover {
   background: #1b2a40;
   border-color: #5b5a31;
+
   transform: translateY(-1px);
 }
 
@@ -2737,5 +3006,8 @@ button:hover {
   .bar-wrapper {
     min-width: 60px;
   }
+
 }
+
 </style>
+

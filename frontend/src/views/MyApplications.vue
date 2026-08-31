@@ -100,10 +100,6 @@
           <tr>
 
             <th class="table-header">
-              Application ID
-            </th>
-
-            <th class="table-header">
               Leave Type
             </th>
 
@@ -134,10 +130,7 @@
           <tr v-for="application in displayedApplications" :key="application.leave_id"
             class="hover:bg-slate-800/40 transition">
 
-            <!-- ID -->
-            <td class="table-cell font-medium text-white">
-              #{{ application.leave_id }}
-            </td>
+            
 
 
             <!-- Leave Type -->
