@@ -1,17 +1,6 @@
 <template>
   <div class="records-shell p-8 min-h-screen space-y-6">
-    <!-- Header -->
-    <div class="neo-card p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-2xl font-semibold text-white">My Records</h2>
-
-          <p class="text-sm text-gray-400 mt-1">
-            View your employee information and leave balances.
-          </p>
-        </div>
-      </div>
-    </div>
+   
 
     <!-- Profile -->
     <div class="neo-card p-6">
