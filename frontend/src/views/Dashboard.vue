@@ -710,6 +710,59 @@
       </div>
 
       <!-- ======================================================= -->
+      <!-- EMPLOYEE APPLICATION STATS -->
+      <!-- ======================================================= -->
+      <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+        <div class="neo-card stats-card border-blue-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+          <div class="p-2 md:p-3 bg-blue-100 rounded-lg">
+            <FileCheck class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+          </div>
+          <div class="mt-2 md:mt-0 md:ml-5">
+            <h3 class="text-xs md:text-sm text-white">Total Applications</h3>
+            <p class="text-lg md:text-2xl font-semibold text-white">
+              {{ totalEmployeeApplications }}
+            </p>
+          </div>
+        </div>
+
+        <div class="neo-card stats-card border-orange-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+          <div class="p-2 md:p-3 bg-yellow-100 rounded-lg">
+            <Clock class="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
+          </div>
+          <div class="mt-2 md:mt-0 md:ml-4">
+            <h3 class="text-xs md:text-sm text-white">Pending</h3>
+            <p class="text-lg md:text-2xl font-semibold text-white">
+              {{ totalPendingLeaves }}
+            </p>
+          </div>
+        </div>
+
+        <div class="neo-card stats-card border-green-500 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+          <div class="p-2 md:p-3 bg-green-100 rounded-lg">
+            <CheckCircle class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+          </div>
+          <div class="mt-2 md:mt-0 md:ml-4">
+            <h3 class="text-xs md:text-sm text-white">Approved</h3>
+            <p class="text-lg md:text-2xl font-semibold text-white">
+              {{ totalApprovedLeaves }}
+            </p>
+          </div>
+        </div>
+
+        <div class="neo-card stats-card border-red-700 p-3 md:p-6 aspect-square md:aspect-auto flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left">
+          <div class="p-2 md:p-3 bg-red-100 rounded-lg">
+            <AlertCircle class="w-5 h-5 md:w-6 md:h-6 text-red-600" />
+          </div>
+          <div class="mt-2 md:mt-0 md:ml-4">
+            <h3 class="text-xs md:text-sm text-white">Disapproved</h3>
+            <p class="text-lg md:text-2xl font-semibold text-white">
+              {{ totalDisapprovedLeaves }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================= -->
       <!-- EMPLOYEE LEAVE BALANCE STATS -->
       <!-- ======================================================= -->
       <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
@@ -1152,6 +1205,7 @@ import {
   CheckCircle,
   AlertCircle,
   Briefcase,
+  FileCheck,
 } from "lucide-vue-next";
 
 import { isAxiosError } from "axios";
