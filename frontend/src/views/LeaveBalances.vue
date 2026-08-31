@@ -1,137 +1,198 @@
 <template>
   <div class="dashboard-shell min-h-screen p-8">
     <div class="dashboard-content w-full space-y-6">
+
       <!-- ===================================================== -->
       <!-- HEADER -->
       <!-- ===================================================== -->
 
       <div class="neo-card w-full p-6">
-        <h2 class="text-2xl font-bold text-white">Leave Balances</h2>
+        <h2 class="text-2xl font-bold text-white">
+          Leave Balances
+        </h2>
 
         <p class="text-gray-400 mt-1">
           View and manage employee leave balances.
         </p>
       </div>
 
+
       <!-- ===================================================== -->
       <!-- TABLE -->
       <!-- ===================================================== -->
 
       <div class="neo-card table-card w-full overflow-hidden">
-        <!--
-          Horizontal scrolling is only a fallback for very narrow
-          screens. On desktop/zoomed-out views the table remains
-          full width and stretches with the available space.
-        -->
+
         <div class="table-wrapper w-full overflow-x-auto">
+
           <table class="leave-balance-table w-full">
+
             <!-- ================================================= -->
             <!-- TABLE HEADER -->
             <!-- ================================================= -->
 
             <thead class="bg-[#0B1420]">
               <tr class="text-left text-white">
-                <th class="employee-column px-6 py-4">Employee</th>
 
-                <th class="balance-column px-6 py-4">Service Credits</th>
+                <th class="employee-column px-6 py-4">
+                  Employee
+                </th>
 
-                <th class="balance-column px-6 py-4">Vacation Balance</th>
+                <th class="balance-column px-6 py-4">
+                  Service Credits
+                </th>
 
-                <th class="balance-column px-6 py-4">Sick Balance</th>
+                <th class="balance-column px-6 py-4">
+                  Vacation Balance
+                </th>
 
-                <th class="total-column px-6 py-4">Total Available</th>
+                <th class="balance-column px-6 py-4">
+                  Sick Balance
+                </th>
 
-                <th class="used-column px-6 py-4">Used Leave</th>
+                <th class="total-column px-6 py-4">
+                  Total Available
+                </th>
 
-                <th class="action-column px-6 py-4">Action</th>
+                <th class="used-column px-6 py-4">
+                  Used Leave
+                </th>
+
+                <th class="action-column px-6 py-4">
+                  Action
+                </th>
+
               </tr>
             </thead>
+
 
             <!-- ================================================= -->
             <!-- TABLE BODY -->
             <!-- ================================================= -->
 
             <tbody>
+
               <tr
                 v-for="balance in balances"
-                :key="balance.balance_id"
+                :key="balance.employee_id"
                 class="balance-row border-t border-slate-800 hover:bg-white/5 transition"
               >
+
                 <!-- Employee -->
 
                 <td class="px-6 py-5 font-medium text-white employee-cell">
+
                   <div class="employee-name">
                     {{ balance.employee.last_name }},
                     {{ balance.employee.first_name }}
                   </div>
+
                 </td>
+
 
                 <!-- Service Credits -->
 
                 <td class="px-6 py-5">
+
                   <span :class="balanceColor(balance.service_credits)">
-                    {{ balance.service_credits }}
+                    {{ formatNumber(balance.service_credits) }}
                   </span>
+
                 </td>
+
 
                 <!-- Vacation Balance -->
 
                 <td class="px-6 py-5">
+
                   <span :class="balanceColor(balance.vacation_balance)">
-                    {{ balance.vacation_balance }}
+                    {{ formatNumber(balance.vacation_balance) }}
                   </span>
+
                 </td>
+
 
                 <!-- Sick Balance -->
 
                 <td class="px-6 py-5">
+
                   <span :class="balanceColor(balance.sick_balance)">
-                    {{ balance.sick_balance }}
+                    {{ formatNumber(balance.sick_balance) }}
                   </span>
+
                 </td>
+
 
                 <!-- Total Available -->
 
                 <td class="px-6 py-5 font-semibold text-blue-400">
+
                   {{ totalBalance(balance) }}
+
                 </td>
+
 
                 <!-- Used Leave -->
 
                 <td class="px-6 py-5 text-white font-semibold">
-                  {{ balance.used_leave }}
+
+                  {{ formatNumber(balance.used_leave) }}
+
                 </td>
+
 
                 <!-- Action -->
 
                 <td class="px-6 py-5">
+
                   <div class="flex items-center gap-2">
-                    <button @click="openModal(balance)" class="btn-action bg-blue-600 hover:bg-blue-700">
+
+                    <button
+                      @click="openModal(balance)"
+                      type="button"
+                      class="btn-action bg-blue-600 hover:bg-blue-700"
+                    >
                       Edit Balance
                     </button>
+
                     <button
                       @click="deleteBalance(balance.employee_id)"
+                      type="button"
                       class="btn-action bg-red-600 hover:bg-red-700"
                     >
                       Clear Balance
                     </button>
+
                   </div>
+
                 </td>
+
               </tr>
+
 
               <!-- ================================================= -->
               <!-- EMPTY STATE -->
               <!-- ================================================= -->
 
               <tr v-if="balances.length === 0">
-                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+
+                <td
+                  colspan="7"
+                  class="px-6 py-12 text-center text-gray-400"
+                >
                   No leave balance records found.
                 </td>
+
               </tr>
+
             </tbody>
+
           </table>
+
         </div>
+
       </div>
+
 
       <!-- ===================================================== -->
       <!-- EDIT MODAL -->
@@ -140,18 +201,22 @@
       <div
         v-if="showModal"
         class="modal-backdrop fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
-        @click.self="showModal = false"
+        @click.self="closeModal"
       >
+
         <div class="neo-card modal-card w-full max-w-lg p-6">
+
           <!-- Modal Header -->
 
-          <h3 class="text-xl font-bold text-white mb-5">Edit Leave Balance</h3>
+          <h3 class="text-xl font-bold text-white mb-5">
+            Edit Leave Balance
+          </h3>
 
-          <!-- ================================================= -->
-          <!-- EMPLOYEE -->
-          <!-- ================================================= -->
+
+          <!-- Employee -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Employee
             </label>
@@ -165,121 +230,146 @@
               "
               class="w-full border border-slate-700 rounded-full px-3 py-2 bg-[#0B1420] text-gray-400"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- SERVICE CREDITS -->
-          <!-- ================================================= -->
+
+          <!-- Service Credits -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Service Credits
             </label>
 
             <input
-              v-model="selectedBalance.service_credits"
+              v-model.number="selectedBalance.service_credits"
               type="number"
               step="0.25"
               min="0"
               class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- VACATION EARNED -->
-          <!-- ================================================= -->
+
+          <!-- Vacation Earned -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Vacation Earned
             </label>
 
             <input
-              v-model="selectedBalance.vacation_earned"
+              v-model.number="selectedBalance.vacation_earned"
               type="number"
               step="0.25"
+              min="0"
               class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- SICK EARNED -->
-          <!-- ================================================= -->
+
+          <!-- Sick Earned -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Sick Earned
             </label>
 
             <input
-              v-model="selectedBalance.sick_earned"
+              v-model.number="selectedBalance.sick_earned"
               type="number"
               step="0.25"
+              min="0"
               class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- VACATION BALANCE -->
-          <!-- ================================================= -->
+
+          <!-- Vacation Balance -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Vacation Balance
             </label>
 
             <input
-              v-model="selectedBalance.vacation_balance"
+              v-model.number="selectedBalance.vacation_balance"
               type="number"
               step="0.25"
+              min="0"
               class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- SICK BALANCE -->
-          <!-- ================================================= -->
+
+          <!-- Sick Balance -->
 
           <div class="mb-4">
+
             <label class="block text-sm font-semibold text-white mb-2">
               Sick Balance
             </label>
 
             <input
-              v-model="selectedBalance.sick_balance"
+              v-model.number="selectedBalance.sick_balance"
               type="number"
               step="0.25"
+              min="0"
               class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
           </div>
 
-          <!-- ================================================= -->
-          <!-- BUTTONS -->
-          <!-- ================================================= -->
+
+          <!-- Buttons -->
 
           <div class="flex justify-end gap-3 mt-6">
-            <button @click="showModal = false" class="btn-action-lg bg-slate-700 hover:bg-slate-600">
+
+            <button
+              @click="closeModal"
+              type="button"
+              class="btn-action-lg bg-slate-700 hover:bg-slate-600"
+            >
               Cancel
             </button>
 
-            <button @click="updateBalance" class="btn-action-lg bg-blue-600 hover:bg-blue-700">
+            <button
+              @click="updateBalance"
+              type="button"
+              class="btn-action-lg bg-blue-600 hover:bg-blue-700"
+            >
               Save
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
   </div>
 </template>
 
+
 <script setup lang="ts">
+
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
 
-// ============================================================
-// INTERFACES
-// ============================================================
+
+/* ============================================================
+   TYPES
+   ============================================================ */
 
 interface Employee {
   employee_id: number;
@@ -287,8 +377,9 @@ interface Employee {
   last_name: string;
 }
 
+
 interface LeaveBalance {
-  balance_id: number;
+  balance_id: number | null;
   employee_id: number;
 
   vacation_earned: number;
@@ -304,153 +395,431 @@ interface LeaveBalance {
   employee: Employee;
 }
 
-// ============================================================
-// DATA
-// ============================================================
+
+/* ============================================================
+   DATA
+   ============================================================ */
 
 const balances = ref<LeaveBalance[]>([]);
 
 const showModal = ref(false);
 
-const selectedBalance = ref<any>({
+const selectedBalance = ref<LeaveBalance>({
+  balance_id: null,
+
+  employee_id: 0,
+
+  vacation_earned: 0,
+  sick_earned: 0,
+
+  vacation_balance: 0,
+  sick_balance: 0,
+
+  service_credits: 0,
+
+  used_leave: 0,
+
   employee: {
+    employee_id: 0,
     first_name: "",
     last_name: "",
   },
 });
 
-// ============================================================
-// LOAD BALANCES
-// ============================================================
+
+/* ============================================================
+   API BASE URL
+   ============================================================ */
+
+const API_BASE =
+  "https://enhs-leave-management-system.onrender.com/api";
+
+
+/* ============================================================
+   LOAD BALANCES
+   ============================================================ */
 
 const loadBalances = async () => {
+
   try {
+
     const token = localStorage.getItem("token");
 
     const response = await axios.get(
-      "https://enhs-leave-management-system.onrender.com/api/leave-balances",
+      `${API_BASE}/leave-balances`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
 
-    balances.value = Array.isArray(response.data) ? response.data : [];
-  } catch (error) {
-    console.error("Failed loading balances", error);
+    const data = Array.isArray(response.data)
+      ? response.data
+      : [];
+
+    balances.value = data.map((balance: any) => ({
+      balance_id: balance.balance_id ?? null,
+
+      employee_id: Number(balance.employee_id),
+
+      vacation_earned:
+        Number(balance.vacation_earned ?? 0),
+
+      sick_earned:
+        Number(balance.sick_earned ?? 0),
+
+      vacation_balance:
+        Number(balance.vacation_balance ?? 0),
+
+      sick_balance:
+        Number(balance.sick_balance ?? 0),
+
+      service_credits:
+        Number(balance.service_credits ?? 0),
+
+      used_leave:
+        Number(balance.used_leave ?? 0),
+
+      employee: {
+        employee_id:
+          Number(
+            balance.employee?.employee_id ??
+            balance.employee_id
+          ),
+
+        first_name:
+          balance.employee?.first_name ?? "",
+
+        last_name:
+          balance.employee?.last_name ?? "",
+      },
+    }));
+
+  } catch (error: any) {
+
+    console.error(
+      "Failed loading balances:",
+      error.response?.data || error
+    );
+
   }
+
 };
 
-// ============================================================
-// OPEN EDIT MODAL
-// ============================================================
+
+/* ============================================================
+   OPEN EDIT MODAL
+   ============================================================ */
 
 const openModal = (balance: LeaveBalance) => {
-  selectedBalance.value = JSON.parse(JSON.stringify(balance));
+
+  selectedBalance.value = {
+    balance_id: balance.balance_id,
+
+    employee_id: balance.employee_id,
+
+    vacation_earned:
+      Number(balance.vacation_earned ?? 0),
+
+    sick_earned:
+      Number(balance.sick_earned ?? 0),
+
+    vacation_balance:
+      Number(balance.vacation_balance ?? 0),
+
+    sick_balance:
+      Number(balance.sick_balance ?? 0),
+
+    service_credits:
+      Number(balance.service_credits ?? 0),
+
+    used_leave:
+      Number(balance.used_leave ?? 0),
+
+    employee: {
+      employee_id:
+        balance.employee?.employee_id ??
+        balance.employee_id,
+
+      first_name:
+        balance.employee?.first_name ?? "",
+
+      last_name:
+        balance.employee?.last_name ?? "",
+    },
+  };
 
   showModal.value = true;
 };
 
-// ============================================================
-// UPDATE BALANCE
-// ============================================================
+
+/* ============================================================
+   CLOSE MODAL
+   ============================================================ */
+
+const closeModal = () => {
+
+  showModal.value = false;
+
+};
+
+
+/* ============================================================
+   UPDATE BALANCE
+   ============================================================ */
 
 const updateBalance = async () => {
+
   try {
+
     const token = localStorage.getItem("token");
 
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize all values before sending.
+    |--------------------------------------------------------------------------
+    */
+
+    const payload = {
+
+      vacation_earned:
+        Number(selectedBalance.value.vacation_earned ?? 0),
+
+      sick_earned:
+        Number(selectedBalance.value.sick_earned ?? 0),
+
+      vacation_balance:
+        Number(selectedBalance.value.vacation_balance ?? 0),
+
+      sick_balance:
+        Number(selectedBalance.value.sick_balance ?? 0),
+
+      service_credits:
+        Number(selectedBalance.value.service_credits ?? 0),
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client-side validation
+    |--------------------------------------------------------------------------
+    */
+
+    const values = Object.values(payload);
+
+    if (
+      values.some(
+        (value) =>
+          !Number.isFinite(value) ||
+          value < 0
+      )
+    ) {
+
+      alert(
+        "All leave balance values must be valid numbers greater than or equal to zero."
+      );
+
+      return;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update backend
+    |--------------------------------------------------------------------------
+    */
+
     await axios.put(
-      `https://enhs-leave-management-system.onrender.com/api/leave-balances/${selectedBalance.value.employee_id}`,
-      {
-        service_credits: selectedBalance.value.service_credits,
-
-        vacation_earned: selectedBalance.value.vacation_earned,
-
-        sick_earned: selectedBalance.value.sick_earned,
-
-        vacation_balance: selectedBalance.value.vacation_balance,
-
-        sick_balance: selectedBalance.value.sick_balance,
-      },
+      `${API_BASE}/leave-balances/${selectedBalance.value.employee_id}`,
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
-      },
+      }
     );
 
-    alert("Leave balance updated successfully");
 
-    showModal.value = false;
+    alert(
+      "Leave balance updated successfully."
+    );
+
+
+    closeModal();
 
     await loadBalances();
-  } catch (error) {
-    console.error(error);
 
-    alert("Failed updating balance");
+  } catch (error: any) {
+
+    console.error(
+      "Failed updating balance:",
+      error.response?.data || error
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show actual Laravel validation error
+    |--------------------------------------------------------------------------
+    */
+
+    const errors =
+      error.response?.data?.errors;
+
+    if (errors) {
+
+      const messages = Object.values(errors)
+        .flat()
+        .join("\n");
+
+      alert(messages);
+
+      return;
+    }
+
+
+    alert(
+      error.response?.data?.message ||
+      "Failed updating balance."
+    );
+
   }
+
 };
 
-const deleteBalance = async (employee_id: number) => {
-  if (
-    !confirm(
-      "Are you sure you want to clear this leave balance? The balance will be reset to zero."
-    )
-  ) {
+
+/* ============================================================
+   CLEAR BALANCE
+   ============================================================ */
+
+const deleteBalance = async (
+  employee_id: number
+) => {
+
+  const confirmed = confirm(
+    "Are you sure you want to clear this leave balance?\n\n" +
+    "Vacation, Sick, and Service Credit balances will be reset to zero."
+  );
+
+  if (!confirmed) {
     return;
   }
 
+
   try {
+
     await deleteLeaveBalance(employee_id);
 
-    alert("Leave balance cleared successfully");
+
+    alert(
+      "Leave balance cleared successfully."
+    );
+
 
     await loadBalances();
-  } catch (error) {
-    console.error(error);
 
-    alert("Failed clearing balance");
+  } catch (error: any) {
+
+    console.error(
+      "Failed clearing balance:",
+      error.response?.data || error
+    );
+
+
+    alert(
+      error.response?.data?.message ||
+      "Failed clearing balance."
+    );
+
   }
-};
-// ============================================================
-// TOTAL BALANCE
-// ============================================================
 
-const totalBalance = (balance: LeaveBalance) => {
+};
+
+
+/* ============================================================
+   TOTAL BALANCE
+   ============================================================ */
+
+const totalBalance = (
+  balance: LeaveBalance
+) => {
+
+  /*
+   * Total Available represents the employee's
+   * actual leave balances.
+   *
+   * Service Credits are displayed separately because
+   * they are not yet Vacation/Sick leave.
+   */
+
   return (
-    Number(balance.vacation_balance) + Number(balance.sick_balance)
+    Number(balance.vacation_balance ?? 0) +
+    Number(balance.sick_balance ?? 0)
   ).toFixed(2);
+
 };
 
-// ============================================================
-// BALANCE COLOR
-// ============================================================
 
-const balanceColor = (value: number | string) => {
-  const amount = Number(value);
+/* ============================================================
+   FORMAT NUMBER
+   ============================================================ */
+
+const formatNumber = (
+  value: number | string | null | undefined
+) => {
+
+  return Number(value ?? 0).toFixed(2);
+
+};
+
+
+/* ============================================================
+   BALANCE COLOR
+   ============================================================ */
+
+const balanceColor = (
+  value: number | string | null | undefined
+) => {
+
+  const amount = Number(value ?? 0);
 
   if (amount <= 0) {
+
     return "text-red-400 font-bold";
+
   }
 
   if (amount <= 5) {
+
     return "text-yellow-400 font-bold";
+
   }
 
   return "text-green-400 font-bold";
+
 };
 
-// ============================================================
-// INITIAL LOAD
-// ============================================================
+
+/* ============================================================
+   INITIAL LOAD
+   ============================================================ */
 
 onMounted(() => {
+
   loadBalances();
+
 });
+
 </script>
 
+
 <style scoped>
+
 /* ============================================================
    PAGE
    ============================================================ */
@@ -458,28 +827,20 @@ onMounted(() => {
 .dashboard-shell {
   background: #080d14;
 
-  /*
-   * IMPORTANT:
-   * Do NOT give this page a max-width.
-   *
-   * The dashboard itself expands according to the available
-   * sidebar/content width. This page now does the same.
-   */
   width: 100%;
+
   min-width: 0;
+
+  min-height: 100vh;
 }
 
-/*
- * This is intentionally NOT max-w-7xl.
- *
- * It allows the content to stretch all the way across the
- * available dashboard area.
- */
 
 .dashboard-content {
   width: 100%;
+
   min-width: 0;
 }
+
 
 /* ============================================================
    CARDS
@@ -492,22 +853,24 @@ onMounted(() => {
 
   border-radius: 1.4rem;
 
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.04);
 
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 
-  /*
-   * Critical for responsive layouts.
-   */
   width: 100%;
+
   min-width: 0;
 }
 
+
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 14px 26px rgba(15, 23, 42, 0.06);
 }
+
 
 /* ============================================================
    TABLE CARD
@@ -515,8 +878,10 @@ onMounted(() => {
 
 .table-card {
   width: 100%;
+
   min-width: 0;
 }
+
 
 /* ============================================================
    TABLE WRAPPER
@@ -524,90 +889,60 @@ onMounted(() => {
 
 .table-wrapper {
   width: 100%;
+
   min-width: 0;
 
-  /*
-   * Only activates horizontal scrolling when the actual
-   * viewport becomes too narrow.
-   *
-   * At normal desktop zoom and zoomed-out desktop views,
-   * the table uses the full available width.
-   */
   overflow-x: auto;
+
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
 }
 
+
 /* ============================================================
-   LEAVE BALANCE TABLE
+   TABLE
    ============================================================ */
 
 .leave-balance-table {
   width: 100%;
 
-  /*
-   * AUTO is important.
-   *
-   * It allows the browser to distribute the available width
-   * between columns instead of forcing a compressed layout.
-   */
   table-layout: auto;
 
-  /*
-   * Prevents the table from becoming ridiculously narrow.
-   * This is NOT a fixed desktop width.
-   *
-   * If the viewport has enough room, table = 100% width.
-   * If the viewport is genuinely too small, wrapper scrolls.
-   */
   min-width: 1050px;
 
   border-collapse: collapse;
 }
 
+
 /* ============================================================
    TABLE COLUMNS
    ============================================================ */
-
-/*
- * These are minimum widths, not fixed widths.
- *
- * This means:
- *
- * Zoom OUT
- *   ↓
- * More viewport space
- *   ↓
- * Table stretches
- *   ↓
- * Columns expand naturally
- *
- * Zoom IN
- *   ↓
- * Less viewport space
- *   ↓
- * Table shrinks until minimum width
- *   ↓
- * Then horizontal scrolling protects the layout.
- */
 
 .employee-column {
   min-width: 220px;
 }
 
+
 .balance-column {
   min-width: 150px;
 }
+
 
 .total-column {
   min-width: 155px;
 }
 
+
 .used-column {
   min-width: 130px;
 }
 
+
 .action-column {
   min-width: 190px;
 }
+
 
 /* ============================================================
    TABLE CELLS
@@ -617,78 +952,113 @@ onMounted(() => {
 .leave-balance-table td {
   vertical-align: middle;
 
-  /*
-   * Allows the table to distribute unused space.
-   */
   white-space: nowrap;
 }
 
+
 /* ============================================================
-   EMPLOYEE NAME
+   EMPLOYEE
    ============================================================ */
+
+.employee-cell {
+  min-width: 220px;
+}
+
 
 .employee-name {
   white-space: nowrap;
 }
+
 
 /* ============================================================
    ROW
    ============================================================ */
 
 .balance-row {
-  transition: background-color 0.2s ease;
+  transition:
+    background-color 0.2s ease;
 }
 
+
 /* ============================================================
-   ACTION BUTTONS (small, pill-shaped)
+   BUTTONS
    ============================================================ */
 
 .btn-action {
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
-  padding: 0.375rem 0.85rem;
+
+  padding:
+    0.375rem
+    0.85rem;
+
   font-size: 0.75rem;
+
   font-weight: 500;
+
   line-height: 1.25rem;
+
   color: #fff;
+
   border-radius: 9999px;
+
   white-space: nowrap;
+
   transition:
     background-color 0.15s ease,
     transform 0.1s ease;
 }
+
 
 .btn-action:hover {
   transform: translateY(-1px);
 }
 
+
 .btn-action:active {
   transform: scale(0.97);
 }
 
+
 .btn-action-lg {
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
-  padding: 0.5rem 1.1rem;
+
+  padding:
+    0.5rem
+    1.1rem;
+
   font-size: 0.8rem;
+
   font-weight: 500;
+
   color: #fff;
+
   border-radius: 9999px;
+
   white-space: nowrap;
+
   transition:
     background-color 0.15s ease,
     transform 0.1s ease;
 }
 
+
 .btn-action-lg:hover {
   transform: translateY(-1px);
 }
 
+
 .btn-action-lg:active {
   transform: scale(0.98);
 }
+
 
 /* ============================================================
    GENERAL BUTTONS
@@ -701,6 +1071,7 @@ button {
     box-shadow 0.2s ease;
 }
 
+
 /* ============================================================
    TYPOGRAPHY
    ============================================================ */
@@ -712,6 +1083,7 @@ button {
   letter-spacing: -0.01em;
 }
 
+
 /* ============================================================
    MODAL
    ============================================================ */
@@ -720,10 +1092,13 @@ button {
   overflow-y: auto;
 }
 
+
 .modal-card {
   max-height: calc(100vh - 2rem);
+
   overflow-y: auto;
 }
+
 
 /* ============================================================
    INPUTS
@@ -733,11 +1108,13 @@ button {
   min-width: 0;
 }
 
+
 /* ============================================================
    NARROW SCREEN
    ============================================================ */
 
 @media (max-width: 900px) {
+
   .dashboard-shell {
     padding: 1.25rem;
   }
@@ -745,13 +1122,16 @@ button {
   .leave-balance-table {
     min-width: 1000px;
   }
+
 }
+
 
 /* ============================================================
    VERY SMALL SCREEN
    ============================================================ */
 
 @media (max-width: 640px) {
+
   .dashboard-shell {
     padding: 1rem;
   }
@@ -759,5 +1139,7 @@ button {
   .neo-card {
     border-radius: 1rem;
   }
+
 }
+
 </style>
