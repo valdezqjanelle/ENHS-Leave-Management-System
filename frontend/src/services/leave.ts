@@ -114,6 +114,54 @@ export const downloadLeavePdf = async (
   );
 };
 
+export const downloadLeaveAttachment = async (
+  leaveId: number,
+  attachmentId: number
+): Promise<Blob> => {
+  const response = await api.get(
+    `/leaves/${leaveId}/attachments/${attachmentId}`,
+    {
+      responseType: "blob",
+      headers: {
+        Accept: "*/*",
+      },
+    }
+  );
+
+  if (!response.data || response.data.size === 0) {
+    throw new Error("The server returned an empty attachment.");
+  }
+
+  const contentType = String(
+    response.headers["content-type"] ||
+      response.headers["Content-Type"] ||
+      ""
+  );
+
+  // Laravel may return JSON when the file doesn't exist.
+  if (contentType.includes("application/json")) {
+    const text = await response.data.text();
+
+    let message = "Failed to load attachment.";
+
+    try {
+      const json = JSON.parse(text);
+      message = json.message || message;
+    } catch {
+      // Keep the default message.
+    }
+
+    throw new Error(message);
+  }
+
+  return new Blob([response.data], {
+    type:
+      contentType ||
+      response.data.type ||
+      "application/octet-stream",
+  });
+};
+
 export const deleteLeaveApplication = async (leaveId: number) => {
   const response = await api.delete(
     `/leave-applications/${leaveId}`

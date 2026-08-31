@@ -7,29 +7,18 @@
 
     <div class="flex flex-wrap justify-end items-center gap-2 sm:gap-3 mb-4">
 
-      <button
-        @click="goBack"
-        type="button"
-        class="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base"
-      >
+      <button @click="goBack" type="button"
+        class="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         Back
       </button>
 
-      <button
-        @click="downloadPdf"
-        :disabled="downloadingPdf"
-        type="button"
-        class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base"
-      >
+      <button @click="downloadPdf" :disabled="downloadingPdf" type="button"
+        class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         {{ downloadingPdf ? "Downloading..." : "Download PDF" }}
       </button>
 
-      <button
-        @click="printForm"
-        :disabled="printingPdf"
-        type="button"
-        class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base"
-      >
+      <button @click="printForm" :disabled="printingPdf" type="button"
+        class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         {{ printingPdf ? "Preparing..." : "Print Form" }}
       </button>
 
@@ -42,10 +31,8 @@
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow overflow-hidden">
 
       <!-- Loading preview -->
-      <div
-        v-if="loadingPreview"
-        class="flex flex-col items-center justify-center gap-2 py-24 text-gray-500 text-sm sm:text-base text-center px-4"
-      >
+      <div v-if="loadingPreview"
+        class="flex flex-col items-center justify-center gap-2 py-24 text-gray-500 text-sm sm:text-base text-center px-4">
         <span>
           {{ previewRetryAttempt > 0
             ? "Waking up the server — this can take up to a minute on the first load..."
@@ -57,41 +44,26 @@
       </div>
 
       <!-- Preview failed -->
-      <div
-        v-else-if="previewError"
-        class="flex flex-col items-center justify-center gap-3 py-16 px-4 text-center"
-      >
+      <div v-else-if="previewError" class="flex flex-col items-center justify-center gap-3 py-16 px-4 text-center">
         <p class="text-red-600 font-medium text-sm sm:text-base">
           Couldn't load the form preview.
         </p>
         <p class="text-gray-500 text-xs sm:text-sm">
           You can still download or print it using the buttons above.
         </p>
-        <button
-          @click="loadPdfPreview"
-          type="button"
-          class="mt-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm"
-        >
+        <button @click="loadPdfPreview" type="button"
+          class="mt-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">
           Try Again
         </button>
       </div>
 
       <!-- Embedded PDF -->
       <template v-else-if="pdfUrl">
-        <iframe
-          :src="previewSrc"
-          class="pdf-frame"
-          title="CS Form No. 6 Preview"
-        ></iframe>
+        <iframe :src="previewSrc" class="pdf-frame" title="CS Form No. 6 Preview"></iframe>
 
         <!-- Fallback for browsers/webviews that can't render PDF inline -->
         <div class="text-center py-2 border-t bg-gray-50">
-          <a
-            :href="pdfUrl"
-            target="_blank"
-            rel="noopener"
-            class="text-blue-600 hover:underline text-xs sm:text-sm"
-          >
+          <a :href="pdfUrl" target="_blank" rel="noopener" class="text-blue-600 hover:underline text-xs sm:text-sm">
             Not showing correctly? Open the PDF in a new tab
           </a>
         </div>
@@ -104,10 +76,8 @@
     <!-- ATTACHMENTS (responsive, no fixed mm sizing) -->
     <!-- ========================================= -->
 
-    <div
-      v-if="leave.attachments && leave.attachments.length > 0"
-      class="max-w-4xl mx-auto bg-white rounded-lg shadow mt-6 p-4 sm:p-6"
-    >
+    <div v-if="leave.attachments && leave.attachments.length > 0"
+      class="max-w-4xl mx-auto bg-white rounded-lg shadow mt-6 p-4 sm:p-6">
 
       <div class="border-b pb-3 mb-4">
         <h2 class="text-base text-black sm:text-lg font-bold text-center mb-2">
@@ -128,37 +98,57 @@
         </div>
       </div>
 
-      <div
-        v-for="(attachment, index) in leave.attachments"
-        :key="attachment.attachment_id || attachment.id || index"
-        class="mb-6 last:mb-0"
-      >
+      <div v-for="(attachment, index) in leave.attachments" :key="attachment.attachment_id || attachment.id || index"
+        class="mb-6 last:mb-0">
 
-        <div class="flex flex-wrap justify-between items-center gap-2 border rounded-t-lg px-3 py-2 bg-gray-100 font-bold text-xs sm:text-sm">
+        <div
+          class="flex flex-wrap justify-between items-center gap-2 border rounded-t-lg px-3 py-2 bg-gray-100 font-bold text-xs sm:text-sm">
           <span>Attachment {{ Number(index) + 1 }}</span>
           <span class="font-normal break-all">
             {{ attachment.file_name || attachment.name || attachment.original_name || "Supporting Document" }}
           </span>
         </div>
 
-        <iframe
-          v-if="isPdf(attachment)"
-          :src="getAttachmentUrl(attachment)"
-          class="attachment-frame"
-          title="Attachment"
-        ></iframe>
+        <!-- PDF -->
+        <div v-if="isPdf(attachment)">
+          <div v-if="attachmentLoading[attachment.attachment_id]"
+            class="border border-t-0 rounded-b-lg p-6 text-center">
+            Loading supporting document...
+          </div>
 
-        <img
-          v-else-if="isImage(attachment)"
-          :src="getAttachmentUrl(attachment)"
-          class="w-full h-auto max-h-[70vh] object-contain border border-t-0 rounded-b-lg"
-          alt="Supporting document"
-        />
+          <div v-else-if="attachmentErrors[attachment.attachment_id]"
+            class="border border-t-0 rounded-b-lg p-6 text-center text-red-600">
+            {{ attachmentErrors[attachment.attachment_id] }}
+          </div>
 
-        <div
-          v-else
-          class="flex flex-col sm:flex-row items-center gap-3 border border-t-0 rounded-b-lg p-6 text-center sm:text-left"
-        >
+          <iframe v-else-if="attachmentUrls[attachment.attachment_id]" :src="attachmentUrls[attachment.attachment_id]"
+            class="attachment-frame" title="Supporting document"></iframe>
+        </div>
+
+        <!-- DOCX -->
+        <div v-else-if="isDocx(attachment)" class="border border-t-0 rounded-b-lg bg-white">
+          <div v-if="attachmentLoading[attachment.attachment_id]" class="p-6 text-center text-gray-600">
+            Loading Word document...
+          </div>
+
+          <div v-else-if="attachmentErrors[attachment.attachment_id]" class="p-6 text-center text-red-600">
+            {{ attachmentErrors[attachment.attachment_id] }}
+          </div>
+
+          <div v-else-if="attachmentDocxHtml[attachment.attachment_id]" class="docx-preview"
+            v-html="attachmentDocxHtml[attachment.attachment_id]"></div>
+        </div>
+
+        <!-- IMAGE -->
+        <img v-else-if="
+          isImage(attachment) &&
+          attachmentUrls[attachment.attachment_id]
+        " :src="attachmentUrls[attachment.attachment_id]"
+          class="w-full h-auto max-h-[70vh] object-contain border border-t-0 rounded-b-lg" alt="Supporting document" />
+
+        <!-- OTHER -->
+        <div v-else
+          class="flex flex-col sm:flex-row items-center gap-3 border border-t-0 rounded-b-lg p-6 text-center sm:text-left">
           <div class="text-3xl sm:text-4xl">📄</div>
           <div>
             <div class="font-bold text-sm sm:text-base">
@@ -179,10 +169,7 @@
   <!-- LOADING -->
   <!-- ========================================= -->
 
-  <div
-    v-else-if="loading"
-    class="min-h-screen bg-gray-100 flex items-center justify-center px-4"
-  >
+  <div v-else-if="loading" class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
     <div class="text-gray-700 text-base sm:text-lg text-center">
       Loading leave application...
     </div>
@@ -192,10 +179,7 @@
   <!-- ERROR -->
   <!-- ========================================= -->
 
-  <div
-    v-else
-    class="min-h-screen bg-gray-100 flex items-center justify-center px-4"
-  >
+  <div v-else class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
     <div class="bg-white p-6 sm:p-8 rounded-lg shadow text-center w-full max-w-sm">
       <h2 class="text-lg sm:text-xl font-bold text-red-600 mb-2">
         Unable to load leave application
@@ -203,11 +187,7 @@
       <p class="text-gray-600 mb-4 text-sm sm:text-base">
         The leave application could not be found.
       </p>
-      <button
-        @click="goBack"
-        type="button"
-        class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg"
-      >
+      <button @click="goBack" type="button" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg">
         Back
       </button>
 
@@ -218,9 +198,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getLeave, getLeaveTypes, downloadLeavePdf } from "../services/leave";
+import { getLeave, getLeaveTypes, downloadLeavePdf, downloadLeaveAttachment } from "../services/leave";
+import mammoth from "mammoth";
 
 const route = useRoute();
 const router = useRouter();
@@ -238,6 +219,12 @@ const previewError = ref(false);
 const previewRetryAttempt = ref(0);
 const pdfBlob = ref<Blob | null>(null);
 const pdfUrl = ref<string | null>(null);
+
+const attachmentUrls = ref<Record<number, string>>({});
+const attachmentLoading = ref<Record<number, boolean>>({});
+const attachmentErrors = ref<Record<number, string>>({});
+const attachmentDocxHtml = ref<Record<number, string>>({});
+
 
 /*
  * Render's free tier spins down the backend after inactivity, and the
@@ -378,17 +365,6 @@ const formatDateForFilename = (date: string | null) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-/* ATTACHMENT HELPERS (unchanged) */
-const getAttachmentUrl = (attachment: any) => {
-  if (attachment.file_url) return attachment.file_url;
-  if (attachment.url) return attachment.url;
-  if (attachment.download_url) return attachment.download_url;
-  if (attachment.file_path) return `https://enhs-leave-management-system.onrender.com/storage/${attachment.file_path}`;
-  
-  return "";
-
-};
-
 const getAttachmentName = (attachment: any) => {
   return (attachment.file_name || attachment.name || attachment.original_name || "").toLowerCase();
 };
@@ -398,9 +374,85 @@ const isPdf = (attachment: any) => {
   return attachment.file_type === "application/pdf" || name.endsWith(".pdf");
 };
 
+const isDocx = (attachment: any) => {
+  const name = getAttachmentName(attachment);
+
+  return (
+    attachment.file_type ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    name.endsWith(".docx")
+  );
+};
+
 const isImage = (attachment: any) => {
   const name = getAttachmentName(attachment);
   return attachment.file_type?.startsWith("image/") || /\.(jpg|jpeg|png|gif|webp)$/i.test(name);
+};
+
+const loadAttachment = async (attachment: any) => {
+  const attachmentId =
+    attachment.attachment_id ?? attachment.id;
+
+  const leaveId = leave.value?.leave_id;
+
+  if (!attachmentId || !leaveId) {
+    console.error(
+      "Missing leave ID or attachment ID:",
+      attachment
+    );
+    return;
+  }
+
+  attachmentLoading.value[attachmentId] = true;
+  delete attachmentErrors.value[attachmentId];
+
+  try {
+    const blob = await downloadLeaveAttachment(
+      Number(leaveId),
+      Number(attachmentId)
+    );
+
+    // DOCX → HTML
+    if (isDocx(attachment)) {
+      const arrayBuffer = await blob.arrayBuffer();
+
+      const result = await mammoth.convertToHtml({
+        arrayBuffer,
+      });
+
+      attachmentDocxHtml.value[attachmentId] =
+        result.value;
+
+      // Mammoth may report non-fatal conversion warnings.
+      if (result.messages?.length) {
+        console.warn(
+          `DOCX conversion messages for attachment ${attachmentId}:`,
+          result.messages
+        );
+      }
+
+      return;
+    }
+
+    // PDF / image → Blob URL
+    if (attachmentUrls.value[attachmentId]) {
+      URL.revokeObjectURL(
+        attachmentUrls.value[attachmentId]
+      );
+    }
+
+    attachmentUrls.value[attachmentId] =
+      URL.createObjectURL(blob);
+
+  } catch (error) {
+
+    attachmentErrors.value[attachmentId] =
+      error instanceof Error
+        ? error.message
+        : "Failed to load supporting document.";
+  } finally {
+    attachmentLoading.value[attachmentId] = false;
+  }
 };
 
 /* PDF PREVIEW - fetch once (with retries), reuse for download + print */
@@ -527,13 +579,23 @@ const printForm = async () => {
 const loadLeave = async () => {
   try {
     leave.value = await getLeave(Number(route.params.id));
+
     leaveTypes.value = await getLeaveTypes();
+
+    // Load supporting documents after the leave application is loaded
+    if (leave.value?.attachments?.length) {
+      await Promise.all(
+        leave.value.attachments.map((attachment: any) =>
+          loadAttachment(attachment)
+        )
+      );
+    }
+
   } catch (error) {
     console.error("Failed loading leave:", error);
   } finally {
     loading.value = false;
   }
-
 };
 
 onMounted(async () => {
@@ -546,6 +608,12 @@ onMounted(async () => {
 onUnmounted(() => {
   if (pdfUrl.value) window.URL.revokeObjectURL(pdfUrl.value);
 });
+
+onBeforeUnmount(() => {
+  Object.values(attachmentUrls.value).forEach((url) => {
+    URL.revokeObjectURL(url);
+  });
+});
 </script>
 
 <style scoped>
@@ -555,7 +623,8 @@ onUnmounted(() => {
   min-height: 400px;
   border: none;
   display: block;
-  background: #525659; /* matches typical PDF viewer chrome */
+  background: #525659;
+  /* matches typical PDF viewer chrome */
 }
 
 @media (min-width: 768px) {
@@ -576,6 +645,59 @@ onUnmounted(() => {
 @media (min-width: 768px) {
   .attachment-frame {
     height: 75vh;
+  }
+}
+
+.docx-preview {
+  background: #ffffff;
+  padding: 40px;
+  min-height: 500px;
+  overflow-x: auto;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+.docx-preview p {
+  margin: 0 0 12px;
+}
+
+.docx-preview h1,
+.docx-preview h2,
+.docx-preview h3,
+.docx-preview h4 {
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.docx-preview ul,
+.docx-preview ol {
+  margin: 12px 0;
+  padding-left: 32px;
+}
+
+.docx-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.docx-preview td,
+.docx-preview th {
+  border: 1px solid #d1d5db;
+  padding: 8px;
+  vertical-align: top;
+}
+
+.docx-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 640px) {
+  .docx-preview {
+    padding: 20px;
   }
 }
 </style>

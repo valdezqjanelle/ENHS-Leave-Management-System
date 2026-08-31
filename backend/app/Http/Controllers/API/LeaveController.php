@@ -91,16 +91,6 @@ class LeaveController extends Controller
             'sick'
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | IMPORTANT:
-        | Do NOT deduct the employee's actual leave balance here.
-        |
-        | The balance will only be deducted when the admin approves
-        | the leave application.
-        |--------------------------------------------------------------------------
-        */
-
         $leave = LeaveApplication::create([
             'employee_id' => $employee->employee_id,
             'leave_type_id' => $request->leave_type_id,
@@ -135,13 +125,6 @@ class LeaveController extends Controller
 
             // CERTIFICATION
             'certification_as_of' => $request->certification_as_of,
-
-            /*
-            |--------------------------------------------------------------------------
-            | These are application snapshot values only.
-            | They do NOT modify the actual leave_balances table.
-            |--------------------------------------------------------------------------
-            */
 
             'vacation_total_earned' => null,
             'vacation_less_application' => $isVacation
