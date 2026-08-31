@@ -13,7 +13,8 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveType;
 use App\Support\AuditLogger;
 
-use Barryvdh\DomPDF\Facade\Pdf;
+// use Barryvdh\DomPDF\Facade\Pdf;
+use setasign\Fpdi\Tcpdf\Fpdi;
 
 class LeaveController extends Controller
 {
@@ -281,38 +282,648 @@ public function downloadPdf($id)
     ]);
 
     $leave = LeaveApplication::with([
-        'employee',
+        'employee.position',
         'leaveType'
     ])->findOrFail($id);
 
     $employee = $leave->employee;
 
-    // Get all leave types for the checkbox list in the Blade
-    $leaveTypes = LeaveType::orderBy('leave_type_id')->get();
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD COORDINATES
+    |--------------------------------------------------------------------------
+    */
+
+    $coords = require config_path(
+        'cs_form_6_coordinates.php'
+    );
+    /*
+    |--------------------------------------------------------------------------
+    | FILE NAME
+    |--------------------------------------------------------------------------
+    */
 
     $employeeName = $employee
         ? "{$employee->last_name}_{$employee->first_name}"
         : "employee_{$leave->employee_id}";
 
-    $dateFiled = optional($leave->date_filed)->format('Y-m-d')
-        ?? 'no-date';
+    $dateFiled = \Carbon\Carbon::parse($leave->date_filed)
+        ->format('Y-m-d');
 
     $filename = "Leave_Application_{$employeeName}_{$dateFiled}.pdf";
 
-    $pdf = Pdf::loadView('pdf.leave-application', [
-        'leave' => $leave,
-        'employee' => $employee,
-        'leaveTypes' => $leaveTypes,
+    /*
+    |--------------------------------------------------------------------------
+    | CS FORM 6 TEMPLATE
+    |--------------------------------------------------------------------------
+    */
+
+    $template = storage_path(
+        'app/pdf-templates/cs-form-6.pdf'
+    );
+
+    \Log::info('TCPDF TEMPLATE CHECK', [
+        'path' => $template,
+        'exists' => file_exists($template),
+        'readable' => is_readable($template),
     ]);
 
-    $pdf->setPaper('A4', 'portrait');
+    if (!file_exists($template)) {
+        return response()->json([
+            'message' => 'CS Form template not found.',
+            'path' => $template,
+        ], 500);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE A4 PDF
+    |--------------------------------------------------------------------------
+    */
+
+    $pdf = new Fpdi(
+        'P',
+        'pt',
+        'A4',
+        true,
+        'UTF-8',
+        false
+    );
+
+    $pdf->SetCreator('ENHS Leave System');
+    $pdf->SetAuthor('ENHS Leave System');
+    $pdf->SetTitle('Leave Application');
+
+    $pdf->SetMargins(0, 0, 0);
+    $pdf->SetAutoPageBreak(false, 0);
+
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+
+    $pdf->AddPage();
+
+    /*
+    |--------------------------------------------------------------------------
+    | IMPORT CS FORM 6
+    |--------------------------------------------------------------------------
+    */
+
+    $pdf->setSourceFile($template);
+
+    $tpl = $pdf->importPage(1);
+
+    // A4 = 595.28 × 841.89 pt
+    $pdf->useTemplate(
+        $tpl,
+        0,
+        0,
+        595.28,
+        841.89
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NORMAL FONT
+    |--------------------------------------------------------------------------
+    */
+
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetFont('helvetica', '', 8);
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPER FOR COORDINATES
+    |--------------------------------------------------------------------------
+    |
+    | Instead of:
+    |     $pdf->Text(270, 125, $value);
+    |
+    | We can now use:
+    |     $this->pdfText($pdf, $coords['last_name'], $value);
+    |
+    */
+
+    $text = function ($key, $value) use ($pdf, $coords) {
+
+        if (
+            !isset($coords[$key]) ||
+            $value === null ||
+            $value === ''
+        ) {
+            return;
+        }
+
+        $pdf->Text(
+            $coords[$key]['x'],
+            $coords[$key]['y'],
+            (string) $value
+        );
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPER FOR CHECKMARKS
+    |--------------------------------------------------------------------------
+    */
+
+    $check = function ($key, $condition) use ($pdf, $coords) {
+
+        if (
+            !$condition ||
+            !isset($coords[$key])
+        ) {
+            return;
+        }
+
+        $pdf->SetFont(
+            'dejavusans',
+            '',
+            8
+        );
+
+        $pdf->Text(
+            $coords[$key]['x'],
+            $coords[$key]['y'],
+            "\u{2713}"
+        );
+
+        $pdf->SetFont(
+            'helvetica',
+            '',
+            8
+        );
+    };
+
+        $textWrap = function ($key, $value, $width, $lineHeight = 10) use ($pdf, $coords) {
+
+        if (
+            !isset($coords[$key]) ||
+            $value === null ||
+            $value === ''
+        ) {
+            return;
+        }
+
+        $pdf->SetXY(
+            $coords[$key]['x'],
+            $coords[$key]['y']
+        );
+
+        $pdf->MultiCell(
+            $width,
+            $lineHeight,
+            (string) $value,
+            0,
+            'L',
+            false,
+            1
+        );
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1–5. EMPLOYEE INFORMATION
+    |--------------------------------------------------------------------------
+    */
+
+    $text(
+        'office_department',
+        'Echague National High School'
+    );
+
+    $text(
+        'last_name',
+        $employee->last_name ?? ''
+    );
+
+    $text(
+        'first_name',
+        $employee->first_name ?? ''
+    );
+
+    $text(
+        'middle_name',
+        $employee->middle_name ?? ''
+    );
+
+    $text(
+        'date_of_filing',
+        \Carbon\Carbon::parse(
+            $leave->date_filed
+        )->format('m/d/Y')
+    );
+
+    $text(
+        'position',
+        $employee->position->name ?? ''
+    );
+
+    $text(
+        'salary',
+        number_format(
+            $employee->salary ?? 0,
+            2
+        )
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6.A. TYPE OF LEAVE
+    |--------------------------------------------------------------------------
+    */
+
+    $leaveName = strtolower(
+        $leave->leaveType->leave_type_name ?? ''
+    );
+
+    $check(
+        'chk_vacation',
+        str_contains($leaveName, 'vacation')
+    );
+
+    $check(
+        'chk_mandatory_forced',
+        str_contains($leaveName, 'mandatory') ||
+        str_contains($leaveName, 'forced')
+    );
+
+    $check(
+        'chk_sick',
+        str_contains($leaveName, 'sick')
+    );
+
+    $check(
+        'chk_maternity',
+        str_contains($leaveName, 'maternity')
+    );
+
+    $check(
+        'chk_paternity',
+        str_contains($leaveName, 'paternity')
+    );
+
+    $check(
+        'chk_special_privilege',
+        str_contains($leaveName, 'special privilege')
+    );
+
+    $check(
+        'chk_solo_parent',
+        str_contains($leaveName, 'solo parent')
+    );
+
+    $check(
+        'chk_study',
+        str_contains($leaveName, 'study')
+    );
+
+    $check(
+        'chk_vawc',
+        str_contains($leaveName, 'vawc')
+    );
+
+    $check(
+        'chk_rehabilitation',
+        str_contains($leaveName, 'rehabilitation')
+    );
+
+    $check(
+        'chk_special_women',
+        str_contains($leaveName, 'women')
+    );
+
+    $check(
+        'chk_special_emergency',
+        str_contains($leaveName, 'emergency') ||
+        str_contains($leaveName, 'calamity')
+    );
+
+    $check(
+        'chk_adoption',
+        str_contains($leaveName, 'adoption')
+    );
+
+    $text(
+        'others_specify',
+        $leave->other_purpose ?? ''
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6.B. DETAILS OF LEAVE
+    |--------------------------------------------------------------------------
+    */
+
+    $check(
+        'chk_within_philippines',
+        $leave->vacation_location_type === 'within_philippines'
+    );
+
+    $text(
+        'within_philippines_text',
+        $leave->vacation_location_type === 'within_philippines'
+            ? $leave->vacation_location
+            : ''
+    );
+
+    $check(
+        'chk_abroad',
+        $leave->vacation_location_type === 'abroad'
+    );
+
+    $text(
+        'abroad_text',
+        $leave->vacation_location_type === 'abroad'
+            ? $leave->vacation_location
+            : ''
+    );
+
+    $check(
+        'chk_in_hospital',
+        $leave->sick_type === 'in_hospital'
+    );
+
+        $textWrap(
+        'in_hospital_illness',
+        $leave->sick_type === 'in_hospital' ? $leave->illness : '',
+        150
+    );
+
+    $check(
+        'chk_out_patient',
+        $leave->sick_type === 'out_patient'
+    );
+
+        $textWrap(
+        'out_patient_illness',
+        $leave->sick_type === 'out_patient' ? $leave->illness : '',
+        150
+    );
+
+    $textWrap(
+        'special_women_illness',
+        $leave->special_women_illness ?? '',
+        150
+    );
+
+    $check(
+        'chk_completion_masters',
+        (bool) $leave->masters_degree
+    );
+
+    $check(
+        'chk_bar_board_exam',
+        (bool) $leave->board_exam_review
+    );
+
+    $check(
+        'chk_monetization',
+        (bool) $leave->monetization
+    );
+
+    $check(
+        'chk_terminal_leave',
+        (bool) $leave->terminal_leave
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6.C. NUMBER OF DAYS
+    |--------------------------------------------------------------------------
+    */
+
+    $text(
+        'working_days_applied',
+        $leave->number_of_days
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | INCLUSIVE DATES
+    |--------------------------------------------------------------------------
+    */
+
+    $inclusiveDates =
+        \Carbon\Carbon::parse(
+            $leave->start_date
+        )->format('M d, Y')
+        . ' - ' .
+        \Carbon\Carbon::parse(
+            $leave->end_date
+        )->format('M d, Y');
+
+    $text(
+        'inclusive_dates',
+        $inclusiveDates
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 6.D. COMMUTATION
+    |--------------------------------------------------------------------------
+    */
+
+    $check(
+        'chk_commutation_not_requested',
+        in_array(
+            $leave->commutation,
+            ['not_requested', 'not requested']
+        )
+    );
+
+    $check(
+        'chk_commutation_requested',
+        $leave->commutation === 'requested'
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLICANT SIGNATURE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($leave->applicants_signature) {
+
+        $image = preg_replace(
+            '#^data:image/\w+;base64,#i',
+            '',
+            $leave->applicants_signature
+        );
+
+        $binary = base64_decode(
+            $image
+        );
+
+        if ($binary !== false) {
+
+            $tmp = tempnam(
+                sys_get_temp_dir(),
+                'sig'
+            );
+
+            file_put_contents(
+                $tmp,
+                $binary
+            );
+
+            if (isset($coords['applicant_signature'])) {
+
+                $pdf->Image(
+                    $tmp,
+                    $coords['applicant_signature']['x'],
+                    $coords['applicant_signature']['y'],
+                    90,
+                    28,
+                    'PNG'
+                );
+            }
+
+            @unlink($tmp);
+        }
+    }
+
+    $middleInitial = '';
+
+if (!empty($employee->middle_name)) {
+    $middleInitial = strtoupper(
+        substr(
+            trim($employee->middle_name),
+            0,
+            1
+        )
+    ) . '.';
+}
+
+$applicantSignatureName = trim(
+    ($employee->first_name ?? '') . ' ' .
+    ($middleInitial ? $middleInitial . ' ' : '') .
+    ($employee->last_name ?? '')
+);
+
+$text(
+    'applicant_signature_name',
+    $applicantSignatureName
+);
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7.A. CERTIFICATION OF LEAVE CREDITS
+    |--------------------------------------------------------------------------
+    */
+
+    $text(
+        'certification_as_of',
+        $leave->certification_as_of
+            ? \Carbon\Carbon::parse(
+                $leave->certification_as_of
+            )->format('m/d/Y')
+            : ''
+    );
+
+    $text(
+        'vl_total_earned',
+        $leave->vacation_total_earned
+    );
+
+    $text(
+        'sl_total_earned',
+        $leave->sick_total_earned
+    );
+
+    $text(
+        'vl_less_this_application',
+        $leave->vacation_less_application
+    );
+
+    $text(
+        'sl_less_this_application',
+        $leave->sick_less_application
+    );
+
+    $text(
+        'vl_balance',
+        $leave->vacation_balance
+    );
+
+    $text(
+        'sl_balance',
+        $leave->sick_balance
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7.B. RECOMMENDATION
+    |--------------------------------------------------------------------------
+    */
+
+    $check(
+        'chk_for_approval',
+        $leave->recommendation_status === 'approved'
+    );
+
+    $check(
+        'chk_for_disapproval',
+        $leave->recommendation_status === 'disapproved'
+    );
+
+    if (
+        $leave->recommendation_status === 'disapproved'
+    ) {
+
+        $textWrap(
+            'disapproval_reason_line',
+            $leave->recommendation_reason,
+            180
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7.C. APPROVED FOR
+    |--------------------------------------------------------------------------
+    */
+
+    $text(
+        'approved_days_with_pay',
+        $leave->days_with_pay
+    );
+
+    $text(
+        'approved_days_without_pay',
+        $leave->days_without_pay
+    );
+
+    $text(
+        'approved_days_others',
+        $leave->other_approval
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | 7.D. DISAPPROVED DUE TO
+    |--------------------------------------------------------------------------
+    */
+
+        $textWrap(
+        'disapproved_reason_l1',
+        $leave->disapproval_reason,
+        180
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | OUTPUT
+    |--------------------------------------------------------------------------
+    */
 
     return response(
-        $pdf->output(),
+        $pdf->Output('', 'S'),
         200,
         [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => "inline; filename=\"{$filename}\"",
+            'Content-Disposition' =>
+                "inline; filename=\"{$filename}\"",
         ]
     );
 }

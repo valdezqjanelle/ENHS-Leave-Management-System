@@ -253,25 +253,41 @@ const RETRY_DELAYS_MS = [3000, 8000, 15000];
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const fetchPdfBlobWithRetry = async (
-  onRetry?: (attemptNumber: number) => void
-): Promise<File> => {
+  onRetry?: (attempt: number) => void
+) => {
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
-      const blob = await downloadLeavePdf(leave.value.leave_id);
-      if (!blob || blob.size === 0) throw new Error("Empty PDF response.");
-      return new File([blob], buildFileName(), { type: "application/pdf" });
+      const blob = await downloadLeavePdf(
+        leave.value.leave_id
+      );
+
+      if (!blob || blob.size === 0) {
+        throw new Error("Empty PDF response.");
+      }
+
+      return new File(
+        [blob],
+        buildFileName(),
+        { type: "application/pdf" }
+      );
+
     } catch (error) {
       lastError = error;
+
       if (attempt < MAX_RETRIES) {
-        const delayMs = RETRY_DELAYS_MS[attempt] ?? 5000;
         console.warn(
-          `PDF fetch attempt ${attempt + 1} failed, retrying in ${delayMs}ms...`,
+          `PDF fetch attempt ${attempt + 1} failed, retrying in ${
+            RETRY_DELAYS_MS[attempt]
+          }ms...`,
           error
         );
-        onRetry?.(attempt + 2); // report the upcoming attempt number (1-indexed)
-        await wait(delayMs);
+
+        // Report the upcoming attempt number
+        onRetry?.(attempt + 2);
+
+        await wait(RETRY_DELAYS_MS[attempt]);
       }
     }
   }
