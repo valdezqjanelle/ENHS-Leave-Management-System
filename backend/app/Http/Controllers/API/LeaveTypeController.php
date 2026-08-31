@@ -38,6 +38,10 @@ class LeaveTypeController extends Controller
                 'nullable',
                 'string',
             ],
+            'requirements' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
         $validated['code'] = strtoupper(
@@ -84,6 +88,10 @@ class LeaveTypeController extends Controller
                 'nullable',
                 'string',
             ],
+            'requirements' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
         $validated['code'] = strtoupper(
@@ -114,7 +122,7 @@ class LeaveTypeController extends Controller
         if ($type->leaveApplications()->exists()) {
             return response()->json([
                 'message' =>
-                    'This leave type cannot be deleted because it is already used in a leave application.',
+                'This leave type cannot be deleted because it is already used in a leave application.',
             ], 422);
         }
 

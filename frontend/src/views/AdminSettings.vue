@@ -531,9 +531,9 @@
 
                 <th class="px-4 py-3 text-gray-300">Leave Type</th>
 
-                <th class="px-4 py-3 text-gray-300">
-                  Legal Basis / Requirements
-                </th>
+                <th class="px-4 py-3 text-gray-300">Legal Basis</th>
+
+                <th class="px-4 py-3 text-gray-300">Requirements</th>
 
                 <th class="px-4 py-3 text-gray-300 text-right">Actions</th>
               </tr>
@@ -557,11 +557,12 @@
                   {{ leave.leave_type_name }}
                 </td>
 
-                <td class="px-4 py-3 text-gray-400 max-w-xl">
-                  {{
-                    leave.legal_basis ||
-                    "No legal basis or requirements provided."
-                  }}
+                <td class="px-4 py-3 text-gray-400 max-w-md">
+                  {{ leave.legal_basis || "No legal basis provided." }}
+                </td>
+
+                <td class="px-4 py-3 text-gray-400 max-w-md">
+                  {{ leave.requirements || "No requirements provided." }}
                 </td>
 
                 <td class="px-4 py-3">
@@ -584,7 +585,7 @@
               </tr>
 
               <tr v-if="leaveTypes.length === 0">
-                <td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                <td colspan="5" class="px-4 py-8 text-center text-gray-400">
                   No leave types found.
                 </td>
               </tr>
@@ -1373,7 +1374,7 @@
       v-if="isLeaveModalOpen"
       class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
     >
-      <div class="neo-card w-full max-w-lg p-6">
+      <div class="neo-card w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
         <h2 class="text-xl font-semibold text-white mb-5">
           {{ isEditMode ? "Edit Leave Type" : "Add Leave Type" }}
         </h2>
@@ -1411,13 +1412,26 @@
 
           <div>
             <label class="block text-sm text-gray-300 mb-1">
-              Legal Basis / Requirements
+              Legal Basis
             </label>
 
             <textarea
               v-model="leaveForm.legal_basis"
               rows="6"
-              placeholder="Enter the applicable legal basis and requirements..."
+              placeholder="Example: CSC MC No. 41, s. 1998"
+              class="w-full border rounded-lg px-3 py-2 field-editable resize-none"
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">
+              Requirements
+            </label>
+
+            <textarea
+              v-model="leaveForm.requirements"
+              rows="6"
+              placeholder="Enter filing rules and documentary requirements..."
               class="w-full border rounded-lg px-3 py-2 field-editable resize-none"
             ></textarea>
           </div>
@@ -1549,6 +1563,7 @@ const actionBadgeClass = (action: string) => {
     return "bg-amber-500/15 text-amber-400";
   return "bg-gray-500/15 text-gray-400";
 };
+
 
 const formatAuditDate = (dateStr: string) => {
   const d = new Date(dateStr);
@@ -1859,6 +1874,7 @@ interface LeaveType {
   code: string;
   leave_type_name: string;
   legal_basis: string | null;
+  requirements: string | null;
 }
 
 const leaveTypes = ref<LeaveType[]>([]);
@@ -1871,6 +1887,7 @@ const leaveForm = ref({
   code: "",
   leave_type_name: "",
   legal_basis: "",
+  requirements: "",
 });
 
 const loadLeaveTypes = async () => {
@@ -1889,6 +1906,7 @@ const resetLeaveForm = () => {
     code: "",
     leave_type_name: "",
     legal_basis: "",
+    requirements: "",
   };
 };
 
@@ -1906,6 +1924,7 @@ const openEditLeaveModal = (leave: LeaveType) => {
     code: leave.code || "",
     leave_type_name: leave.leave_type_name || "",
     legal_basis: leave.legal_basis || "",
+    requirements: leave.requirements || "",
   };
 
   isLeaveModalOpen.value = true;
@@ -1921,6 +1940,7 @@ const saveLeaveType = async () => {
   const code = leaveForm.value.code.trim().toUpperCase();
   const leaveTypeName = leaveForm.value.leave_type_name.trim();
   const legalBasis = leaveForm.value.legal_basis.trim();
+  const requirements = leaveForm.value.requirements.trim();
 
   if (!code) {
     alert("Leave code is required.");
@@ -1936,11 +1956,19 @@ const saveLeaveType = async () => {
     code,
     leave_type_name: leaveTypeName,
     legal_basis: legalBasis,
+    requirements,
   };
+  console.log("LEAVE TYPE PAYLOAD:", payload);
 
   try {
-    if (isEditMode.value && leaveForm.value.leave_type_id !== null) {
-      await updateLeaveType(leaveForm.value.leave_type_id, payload);
+    if (
+      isEditMode.value &&
+      leaveForm.value.leave_type_id !== null
+    ) {
+      await updateLeaveType(
+        leaveForm.value.leave_type_id,
+        payload,
+      );
 
       alert("Leave type updated successfully.");
     } else {
@@ -1952,19 +1980,15 @@ const saveLeaveType = async () => {
     closeLeaveModal();
     await loadLeaveTypes();
   } catch (error: any) {
-    console.error("Failed saving leave type:", error.response?.data || error);
+    console.error(
+      "Failed saving leave type:",
+      error.response?.data || error,
+    );
 
-    const errors = error.response?.data?.errors;
-
-    if (errors) {
-      const firstError = Object.values(errors).flat().at(0);
-
-      alert(String(firstError || "Failed to save leave type."));
-
-      return;
-    }
-
-    alert(error.response?.data?.message || "Failed to save leave type.");
+    alert(
+      error.response?.data?.message ||
+        "Failed to save leave type.",
+    );
   }
 };
 

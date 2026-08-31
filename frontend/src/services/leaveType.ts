@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API =
-  "https://enhs-leave-management-system.onrender.com/api";
+const API = "https://enhs-leave-management-system.onrender.com/api";
 
 const authHeader = () => ({
   headers: {
@@ -14,6 +13,7 @@ export interface LeaveType {
   code: string;
   leave_type_name: string;
   legal_basis: string | null;
+  requirements: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -22,12 +22,11 @@ export interface LeaveTypePayload {
   code: string;
   leave_type_name: string;
   legal_basis: string;
+  requirements: string;
 }
 
 // GET ALL
-export const getLeaveTypes = async (): Promise<
-  LeaveType[]
-> => {
+export const getLeaveTypes = async (): Promise<LeaveType[]> => {
   const response = await axios.get<LeaveType[]>(
     `${API}/leave-types`,
     authHeader(),
@@ -40,11 +39,7 @@ export const getLeaveTypes = async (): Promise<
 export const createLeaveType = async (
   data: LeaveTypePayload,
 ): Promise<LeaveType> => {
-  const response = await axios.post(
-    `${API}/leave-types`,
-    data,
-    authHeader(),
-  );
+  const response = await axios.post(`${API}/leave-types`, data, authHeader());
 
   return response.data.data;
 };
@@ -64,11 +59,6 @@ export const updateLeaveType = async (
 };
 
 // DELETE
-export const deleteLeaveType = async (
-  id: number,
-): Promise<void> => {
-  await axios.delete(
-    `${API}/leave-types/${id}`,
-    authHeader(),
-  );
+export const deleteLeaveType = async (id: number): Promise<void> => {
+  await axios.delete(`${API}/leave-types/${id}`, authHeader());
 };

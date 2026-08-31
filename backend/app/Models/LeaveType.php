@@ -14,6 +14,7 @@ class LeaveType extends Model
         'code',
         'leave_type_name',
         'legal_basis',
+        'requirements',
     ];
 
     protected $casts = [
