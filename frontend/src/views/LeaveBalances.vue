@@ -105,18 +105,17 @@
                 <!-- Action -->
 
                 <td class="px-6 py-5">
-                  <button
-                    @click="openModal(balance)"
-                    class="edit-button bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-                  >
-                    Edit Balance
-                  </button>
-                  <button
-                    @click="deleteBalance(balance.employee_id)"
-                    class="edit-button bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition ml-2"
-                  >
-                    Clear Balance
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button @click="openModal(balance)" class="btn-action bg-blue-600 hover:bg-blue-700">
+                      Edit Balance
+                    </button>
+                    <button
+                      @click="deleteBalance(balance.employee_id)"
+                      class="btn-action bg-red-600 hover:bg-red-700"
+                    >
+                      Clear Balance
+                    </button>
+                  </div>
                 </td>
               </tr>
 
@@ -164,7 +163,7 @@
                 ', ' +
                 selectedBalance.employee.first_name
               "
-              class="w-full border border-slate-700 rounded-lg px-3 py-2 bg-[#0B1420] text-gray-400"
+              class="w-full border border-slate-700 rounded-full px-3 py-2 bg-[#0B1420] text-gray-400"
             />
           </div>
 
@@ -182,7 +181,7 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -199,7 +198,7 @@
               v-model="selectedBalance.vacation_earned"
               type="number"
               step="0.25"
-              class="balance-input w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -216,7 +215,7 @@
               v-model="selectedBalance.sick_earned"
               type="number"
               step="0.25"
-              class="balance-input w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -233,7 +232,7 @@
               v-model="selectedBalance.vacation_balance"
               type="number"
               step="0.25"
-              class="balance-input w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -250,7 +249,7 @@
               v-model="selectedBalance.sick_balance"
               type="number"
               step="0.25"
-              class="balance-input w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -259,17 +258,11 @@
           <!-- ================================================= -->
 
           <div class="flex justify-end gap-3 mt-6">
-            <button
-              @click="showModal = false"
-              class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition"
-            >
+            <button @click="showModal = false" class="btn-action-lg bg-slate-700 hover:bg-slate-600">
               Cancel
             </button>
 
-            <button
-              @click="updateBalance"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-            >
+            <button @click="updateBalance" class="btn-action-lg bg-blue-600 hover:bg-blue-700">
               Save
             </button>
           </div>
@@ -613,7 +606,7 @@ onMounted(() => {
 }
 
 .action-column {
-  min-width: 170px;
+  min-width: 190px;
 }
 
 /* ============================================================
@@ -647,20 +640,54 @@ onMounted(() => {
 }
 
 /* ============================================================
-   BUTTON
+   ACTION BUTTONS (small, pill-shaped)
    ============================================================ */
 
-.edit-button {
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: #fff;
+  border-radius: 9999px;
   white-space: nowrap;
-
   transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
-.edit-button:hover {
+.btn-action:hover {
   transform: translateY(-1px);
+}
+
+.btn-action:active {
+  transform: scale(0.97);
+}
+
+.btn-action-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.btn-action-lg:hover {
+  transform: translateY(-1px);
+}
+
+.btn-action-lg:active {
+  transform: scale(0.98);
 }
 
 /* ============================================================
@@ -672,10 +699,6 @@ button {
     background-color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-1px);
 }
 
 /* ============================================================

@@ -183,7 +183,7 @@
                 </span>
 
                 <p class="text-xs text-gray-400 mt-1">
-                  {{ app.date || app.created_at || "" }}
+                  {{ formatDateShort(app.date || app.created_at) }}
                 </p>
               </div>
             </div>
@@ -245,15 +245,15 @@
                   v-if="request.start_date || request.end_date"
                   class="text-xs text-gray-400 mt-1"
                 >
-                  {{ request.start_date || "" }}
+                  {{ formatDateShort(request.start_date) }}
 
                   <span
                     v-if="request.start_date && request.end_date"
                   >
-                    to
+                    -
                   </span>
 
-                  {{ request.end_date || "" }}
+                  {{ formatDateShort(request.end_date) }}
                 </p>
 
               </div>
@@ -738,110 +738,39 @@
 
       </div>
 
-      <!-- Employee Statistics -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- leave credits -->
+<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
 
-        <!-- Total -->
-        <div class="neo-card stats-card border-blue-500 p-6">
+  <div class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
+    <h4 class="text-gray-400 text-xs md:text-sm">Service Credits</h4>
+    <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+      {{ leaveBalance.service_credits }}
+    </p>
+  </div>
 
-          <div class="flex items-center">
+  <div class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
+    <h4 class="text-gray-400 text-xs md:text-sm">Vacation Leave</h4>
+    <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+      {{ leaveBalance.vacation_balance }}
+    </p>
+  </div>
 
-            <div class="p-3 bg-blue-100 rounded-lg">
-              <FileCheck class="w-6 h-6 text-blue-600" />
-            </div>
+  <div class="neo-card stats-card border-red-700 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
+    <h4 class="text-gray-400 text-xs md:text-sm">Sick Leave</h4>
+    <p class="text-xl md:text-3xl font-bold text-red-400 mt-1 md:mt-2">
+      {{ leaveBalance.sick_balance }}
+    </p>
+  </div>
 
-            <div class="ml-5">
+  <div class="neo-card stats-card border-green-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left">
+    <h4 class="text-gray-400 text-xs md:text-sm">Used Leave</h4>
+    <p class="text-xl md:text-3xl font-bold text-green-400 mt-1 md:mt-2">
+      {{ leaveBalance.used_leave }}
+    </p>
+  </div>
 
-              <h3 class="text-sm text-white">
-                Total Applications
-              </h3>
+</div>
 
-              <p class="text-2xl font-semibold text-white">
-                {{ totalEmployeeApplications }}
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- Pending -->
-        <div class="neo-card stats-card border-orange-500 p-6">
-
-          <div class="flex items-center">
-
-            <div class="p-3 bg-yellow-100 rounded-lg">
-              <Clock class="w-6 h-6 text-yellow-600" />
-            </div>
-
-            <div class="ml-4">
-
-              <h3 class="text-sm text-white">
-                Pending
-              </h3>
-
-              <p class="text-2xl font-semibold text-white">
-                {{ totalPendingLeaves }}
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- Approved -->
-        <div class="neo-card stats-card border-green-500 p-6">
-
-          <div class="flex items-center">
-
-            <div class="p-3 bg-green-100 rounded-lg">
-              <CheckCircle class="w-6 h-6 text-green-600" />
-            </div>
-
-            <div class="ml-4">
-
-              <h3 class="text-sm text-white">
-                Approved
-              </h3>
-
-              <p class="text-2xl font-semibold text-white">
-                {{ totalApprovedLeaves }}
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- Disapproved -->
-        <div class="neo-card stats-card border-red-700 p-6">
-
-          <div class="flex items-center">
-
-            <div class="p-3 bg-red-100 rounded-lg">
-              <AlertCircle class="w-6 h-6 text-red-600" />
-            </div>
-
-            <div class="ml-4">
-
-              <h3 class="text-sm text-white">
-                Disapproved
-              </h3>
-
-              <p class="text-2xl font-semibold text-white">
-                {{ totalDisapprovedLeaves }}
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
 
       <!-- My Applications / Upcoming -->
       <div class="grid lg:grid-cols-2 gap-6">
@@ -889,15 +818,15 @@
 
               <p class="text-xs text-gray-500">
 
-                {{ app.start_date || "" }}
+                {{ formatDateShort(app.start_date) }}
 
                 <span
                   v-if="app.start_date && app.end_date"
                 >
-                  to
+                  -
                 </span>
 
-                {{ app.end_date || "" }}
+                {{ formatDateShort(app.end_date) }}
 
               </p>
 
@@ -938,15 +867,15 @@
 
               <p class="text-sm text-gray-600 mt-1">
 
-                {{ leave.start_date || "" }}
+                {{ formatDateShort(leave.start_date) }}
 
                 <span
                   v-if="leave.start_date && leave.end_date"
                 >
-                  to
+                  -
                 </span>
 
-                {{ leave.end_date || "" }}
+                {{ formatDateShort(leave.end_date) }}
 
               </p>
 
@@ -1270,6 +1199,13 @@ const employeeInfo = ref({
   position: "",
 });
 
+const leaveBalance = ref({
+  service_credits: 0,
+  vacation_balance: 0,
+  sick_balance: 0,
+  used_leave: 0,
+});
+
 const myApplications = ref<any[]>([]);
 const upcomingLeaves = ref<any[]>([]);
 
@@ -1575,6 +1511,36 @@ const getDays = (
   }
 
   return null;
+};
+
+// ============================================================
+// DATE FORMATTER
+// ============================================================
+
+const formatDateShort = (
+  dateString?: string | null
+): string => {
+
+  if (!dateString) {
+    return "";
+  }
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const month =
+    String(date.getUTCMonth() + 1).padStart(2, "0");
+
+  const day =
+    String(date.getUTCDate()).padStart(2, "0");
+
+  const year =
+    date.getUTCFullYear();
+
+  return `${month}/${day}/${year}`;
 };
 
 // ============================================================
@@ -2088,32 +2054,6 @@ const loadAdminDashboard = async () => {
     )
       ? data.recentActivities
       : [];
-
-  // DEBUGGING
-  console.log(
-    "ADMIN DASHBOARD DATA:",
-    data
-  );
-
-  console.log(
-    "LEAVE BY TYPE:",
-    leaveByType.value
-  );
-
-  console.log(
-    "LEAVE BY DEPARTMENT:",
-    leaveByDepartment.value
-  );
-
-  console.log(
-    "PIE CHART:",
-    pieChartData.value
-  );
-
-  console.log(
-    "DEPARTMENT CHART:",
-    departmentChartData.value
-  );
 };
 
 // ============================================================
@@ -2138,6 +2078,14 @@ const loadEmployeeDashboard =
           department_name: "",
           level: "",
           position: "",
+        };
+
+      leaveBalance.value =
+        data?.leaveBalance || {
+          service_credits: 0,
+          vacation_balance: 0,
+          sick_balance: 0,
+          used_leave: 0,
         };
 
     } catch (error) {
