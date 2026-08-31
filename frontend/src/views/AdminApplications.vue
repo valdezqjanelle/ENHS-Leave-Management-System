@@ -27,7 +27,7 @@
                 : loadApplications();
             "
             :class="[
-              'px-3 sm:px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap',
+              'px-3 sm:px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap',
               activeTab === tab.key
                 ? 'bg-blue-100 text-blue-700'
                 : 'text-white hover:text-gray-700 hover:bg-gray-100',
@@ -55,14 +55,14 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search employee, leave type, status, or ID..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
+                class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
               />
             </div>
 
             <!-- Leave Type -->
             <select
               v-model="filterType"
-              class="w-full lg:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
+              class="w-full lg:w-auto px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
             >
               <option value="">All Leave Types</option>
               <option value="vacation">Vacation Leave</option>
@@ -81,7 +81,7 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="w-full lg:w-auto px-4 py-2 border border-gray-300 text-white rounded-lg hover:bg-gray-50 hover:text-gray-800 transition whitespace-nowrap"
+              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-white rounded-full hover:bg-gray-50 hover:text-gray-800 transition whitespace-nowrap"
             >
               Clear
             </button>
@@ -198,7 +198,7 @@
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded max-w-full break-all"
+                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full max-w-full break-all"
                     >
                       <svg
                         class="w-3 h-3 mr-1 flex-shrink-0"
@@ -232,7 +232,7 @@
                   <!-- View -->
                   <button
                     @click="viewApplication(application)"
-                    class="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
+                    class="btn-action bg-blue-600 hover:bg-blue-700"
                   >
                     View Details
                   </button>
@@ -241,14 +241,14 @@
                   <button
                     v-if="application.final_status?.toLowerCase() === 'pending'"
                     @click="openApprovalModal(application)"
-                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+                    class="btn-action bg-green-600 hover:bg-green-700"
                   >
                     Approve
                   </button>
                   <button
                     v-if="application.final_status?.toLowerCase() === 'pending'"
                     @click="openRejectModal(application.leave_id)"
-                    class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition whitespace-nowrap"
+                    class="btn-action bg-red-600 hover:bg-red-700"
                   >
                     Reject
                   </button>
@@ -256,7 +256,7 @@
                   <!-- Delete -->
                   <button
                     @click="deleteLeaveApplicationById(application.leave_id)"
-                    class="px-3 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition whitespace-nowrap"
+                    class="btn-action bg-gray-600 hover:bg-gray-700"
                   >
                     Delete
                   </button>
@@ -269,7 +269,7 @@
                 <template v-else>
                   <button
                     @click="restoreLeaveApplicationById(application.leave_id)"
-                    class="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition whitespace-nowrap"
+                    class="btn-action bg-green-600 hover:bg-green-700"
                   >
                     Restore
                   </button>
@@ -311,7 +311,7 @@
               <button
                 @click="previousPage"
                 :disabled="currentPage === 1"
-                class="px-3 py-2 text-sm rounded-lg border transition"
+                class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
                 :class="
                   currentPage === 1
                     ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
@@ -323,7 +323,7 @@
 
               <!-- Page Number -->
               <span
-                class="min-w-[40px] text-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg"
+                class="w-8 h-8 flex items-center justify-center text-xs font-medium text-white bg-blue-600 rounded-full"
               >
                 {{ currentPage }}
               </span>
@@ -332,7 +332,7 @@
               <button
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
-                class="px-3 py-2 text-sm rounded-lg border transition"
+                class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
                 :class="
                   currentPage === totalPages
                     ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
@@ -481,7 +481,7 @@
           >
             <button
               @click="downloadApplication(selectedApplication)"
-              class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
+              class="btn-action-lg bg-green-600 hover:bg-green-700"
             >
               Download PDF
             </button>
@@ -491,7 +491,7 @@
                 selectedApplication.final_status?.toLowerCase() === 'pending'
               "
               @click="openApprovalModal(selectedApplication)"
-              class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap"
+              class="btn-action-lg bg-green-600 hover:bg-green-700"
             >
               Approve
             </button>
@@ -500,7 +500,7 @@
                 selectedApplication.final_status?.toLowerCase() === 'pending'
               "
               @click="openRejectModal(selectedApplication.leave_id)"
-              class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap"
+              class="btn-action-lg bg-red-600 hover:bg-red-700"
             >
               Reject
             </button>
@@ -574,7 +574,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
           />
 
           <p class="text-xs text-white mt-1">
@@ -594,7 +594,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
           />
 
           <p class="text-xs text-white mt-1">
@@ -614,7 +614,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
           />
 
           <p class="text-xs text-white mt-1">
@@ -662,14 +662,14 @@
       <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
         <button
           @click="showApprovalModal = false"
-          class="w-full sm:w-auto px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-800 whitespace-nowrap"
+          class="btn-action-lg bg-red-900 hover:bg-red-800"
         >
           Cancel
         </button>
 
         <button
           @click="confirmApproval"
-          class="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 whitespace-nowrap"
+          class="btn-action-lg bg-green-600 hover:bg-green-700"
         >
           Confirm Approval
         </button>
@@ -734,7 +734,7 @@
       <button
         @click="cancelReject"
         :disabled="isRejecting"
-        class="w-full sm:w-auto px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
+        class="btn-action-lg bg-gray-600 hover:bg-gray-700 disabled:opacity-50"
       >
         Cancel
       </button>
@@ -742,7 +742,7 @@
       <button
         @click="confirmReject"
         :disabled="isRejecting || !rejectionReason.trim()"
-        class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="btn-action-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ isRejecting ? "Disapproving..." : "Confirm Disapproval" }}
       </button>
@@ -1426,6 +1426,52 @@ onMounted(() => {
 .neo-card span,
 .neo-card button {
   letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   ACTION BUTTONS (small, pill-shaped)
+========================================================= */
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: #fff;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-action:active {
+  transform: scale(0.97);
+}
+
+.btn-action-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+@media (min-width: 640px) {
+  .btn-action-lg {
+    width: auto;
+  }
+}
+
+.btn-action-lg:active {
+  transform: scale(0.98);
 }
 
 /* =========================================================
