@@ -129,7 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/salary-info', [EmployeeController::class, 'salaryInfo']);
         Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
         Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore']);
-        Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
+       Route::delete('/employees/{id}/force', [EmployeeController::class, 'forceDestroy']);
 
         Route::get('/employees/deleted', [EmployeeController::class, 'deleted']);
         Route::get('/departments', [EmployeeController::class, 'listDepartments']);
@@ -183,6 +183,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/email', [AdminController::class, 'updateEmail']);
         Route::put('/admin/password', [AdminController::class, 'updatePassword']);
         Route::get('/admin/positions', [AdminController::class, 'positions']);
+        Route::get('/admin/departments', [AdminController::class, 'departments']);
 
 
         // Audit Logs

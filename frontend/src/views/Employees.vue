@@ -1719,7 +1719,7 @@
                       </button>
 
                       <button
-                        @click="permanentlyDeleteEmployee(employee)"
+                        @click="permanentlyDeleteEmployeeRecord(employee)"
                         class="bg-red-700 hover:bg-red-800 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs"
                       >
                         Delete Permanently
@@ -1758,7 +1758,7 @@ import {
   deleteEmployee as deleteEmployeeAPI,
   getDeletedEmployees,
   restoreEmployee,
-  forceDeleteEmployee,
+  permanentlyDeleteEmployee,
   getPositions,
 } from "../services/employee";
 
@@ -2524,7 +2524,7 @@ const restoreEmployeeRecord = async (id: number) => {
   }
 };
 
-const permanentlyDeleteEmployee = async (employee: Employee) => {
+const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
   const confirmed = confirm(
     `Are you sure you want to PERMANENTLY delete ${employee.first_name} ${employee.last_name}? This action cannot be undone and will remove all related records.`,
   );
@@ -2534,7 +2534,7 @@ const permanentlyDeleteEmployee = async (employee: Employee) => {
   }
 
   try {
-    await forceDeleteEmployee(employee.employee_id);
+    await permanentlyDeleteEmployee(employee.employee_id);
 
     alert("Employee permanently deleted.");
 

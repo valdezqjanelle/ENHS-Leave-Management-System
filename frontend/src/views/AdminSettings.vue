@@ -153,57 +153,267 @@
             </select>
           </div>
 
+          <!-- Extension Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
-              Position
-            </label>
-
+            <label class="block text-sm font-medium text-gray-300"
+              >Extension Name</label
+            >
             <select
-              v-model="adminProfile.position"
+              v-model="adminProfile.extension_name"
               :disabled="!isEditingProfile"
               :class="[
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
             >
-              <option value="">Select Position</option>
+              <option value="">None</option>
+              <option value="Jr.">Jr.</option>
+              <option value="Sr.">Sr.</option>
+              <option value="II">II</option>
+              <option value="III">III</option>
+              <option value="IV">IV</option>
+              <option value="V">V</option>
+            </select>
+          </div>
+
+          <!-- Date of Birth -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Date of Birth</label
+            >
+            <input
+              v-model="adminProfile.date_of_birth"
+              type="date"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            />
+          </div>
+
+          <!-- Civil Status -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Civil Status</label
+            >
+            <select
+              v-model="adminProfile.civil_status"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            >
+              <option value="">Select</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Widowed">Widowed</option>
+              <option value="Separated">Separated</option>
+              <option value="Divorced">Divorced</option>
+            </select>
+          </div>
+
+          <!-- Nationality -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Nationality</label
+            >
+            <input
+              v-model="adminProfile.nationality"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            />
+          </div>
+
+          <!-- Personal Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Personal Email</label
+            >
+            <input
+              v-model="adminProfile.personal_email"
+              type="email"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            />
+          </div>
+
+          <!-- Address -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-300"
+              >Address</label
+            >
+            <textarea
+              v-model="adminProfile.address"
+              rows="2"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2 resize-none',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            ></textarea>
+          </div>
+
+          <!-- Emergency Contact Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Emergency Contact Name</label
+            >
+            <input
+              v-model="adminProfile.emergency_contact_name"
+              type="text"
+              :readonly="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            />
+          </div>
+
+          <!-- Emergency Contact Number -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Emergency Contact Number</label
+            >
+            <input
+              v-model="adminProfile.emergency_contact_number"
+              type="tel"
+              inputmode="numeric"
+              maxlength="11"
+              :readonly="!isEditingProfile"
+              @input="
+                adminProfile.emergency_contact_number =
+                  adminProfile.emergency_contact_number
+                    .replace(/\D/g, '')
+                    .slice(0, 11)
+              "
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300">Level</label>
+
+            <select
+              v-model="adminProfile.level"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            >
+              <option value="">Select Level</option>
+              <option value="JHS">Junior High School (JHS)</option>
+              <option value="SHS">Senior High School (SHS)</option>
+              <option value="Non-Teaching">Non-Teaching</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Position</label
+            >
+
+            <select
+              v-model="adminProfile.position_id"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            >
+              <option :value="null">Select Position</option>
 
               <option
                 v-for="position in positions"
-                :key="position.code"
-                :value="position.name"
+                :key="position.id"
+                :value="Number(position.id)"
               >
                 {{ position.name }}
               </option>
             </select>
           </div>
 
-          <!-- Department -->
+          <!-- Salary Grade (readonly, derived from position) -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
-              Department
-            </label>
-
+            <label class="block text-sm font-medium text-gray-300"
+              >Salary Grade</label
+            >
             <input
-              v-model="adminProfile.department_name"
+              :value="selectedAdminSalaryGrade || '-'"
               type="text"
               readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+              class="mt-1 w-full border rounded-lg px-3 py-2 field-readonly"
             />
           </div>
 
-          <!-- Level -->
+          <!-- Salary Step -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
-              Level
-            </label>
+            <label class="block text-sm font-medium text-gray-300"
+              >Salary Step</label
+            >
+            <select
+              v-model="adminProfile.salary_step"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            >
+              <option :value="null">Select Step</option>
+              <option v-for="step in 8" :key="step" :value="step">
+                Step {{ step }}
+              </option>
+            </select>
+          </div>
 
+          <!-- Current Salary (readonly, auto-computed) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Current Salary</label
+            >
             <input
-              v-model="adminProfile.level"
+              :value="formattedAdminSalary"
               type="text"
               readonly
-              class="mt-1 w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-600"
+              class="mt-1 w-full border rounded-lg px-3 py-2 field-readonly font-semibold"
             />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300"
+              >Department</label
+            >
+
+            <select
+              v-model="adminProfile.department_id"
+              :disabled="!isEditingProfile"
+              :class="[
+                'mt-1 w-full border rounded-lg px-3 py-2',
+                isEditingProfile ? 'field-editable' : 'field-readonly',
+              ]"
+            >
+              <option :value="null">Select Department</option>
+
+              <option
+                v-for="dept in filteredAdminDepartments"
+                :key="dept.department_id"
+                :value="dept.department_id"
+              >
+                {{ dept.department_name }}
+              </option>
+            </select>
           </div>
 
           <!-- Contact Number -->
@@ -1125,11 +1335,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-
+import { onMounted, ref, computed, watch } from "vue";
 import {
   getAdminProfile,
   getAdminPositions,
+  getAdminDepartments,
+  getAdminSalaryInfo,
   updateAdminEmail,
   updateAdminPassword,
   updateAdminProfile,
@@ -1277,15 +1488,35 @@ const adminProfile = ref({
   first_name: "",
   middle_name: "",
   last_name: "",
+  extension_name: "",
+  date_of_birth: "",
   sex: "",
-  position: "",
-  department_id: null as number | null,
-  department_name: "",
+  civil_status: "",
+  nationality: "",
+  address: "",
+  personal_email: "",
   level: "",
+  position_id: null as number | null,
+  salary_step: null as number | null,
+  salary: "" as string | number,
+  department_id: null as number | null,
   contact_number: "",
+  emergency_contact_name: "",
+  emergency_contact_number: "",
 });
 
 const positions = ref<any[]>([]);
+
+const departments = ref<any[]>([]);
+
+const loadDepartments = async () => {
+  try {
+    const data = await getAdminDepartments();
+    departments.value = Array.isArray(data) ? data : [];
+  } catch (error: any) {
+    console.error("Failed to load departments:", error.response?.data || error);
+  }
+};
 
 const loadPositions = async () => {
   try {
@@ -1312,11 +1543,15 @@ const cancelEditProfile = () => {
 };
 
 const saveAdminProfile = async () => {
+  console.log(
+    "ADMIN PROFILE PAYLOAD:",
+    JSON.stringify(adminProfile.value, null, 2),
+  );
+
   try {
     await updateAdminProfile(adminProfile.value);
 
     alert("Profile updated successfully");
-
     isEditingProfile.value = false;
 
     await loadAdmin();
@@ -1324,6 +1559,11 @@ const saveAdminProfile = async () => {
     console.error(
       "Failed to update admin profile:",
       error.response?.data || error,
+    );
+
+    console.error(
+      "VALIDATION ERRORS:",
+      error.response?.data?.errors,
     );
 
     alert(error.response?.data?.message || "Failed to update profile.");
@@ -1341,19 +1581,29 @@ const loadAdmin = async () => {
     const data = await getAdminProfile();
 
     adminEmail.value = data.email;
-    positions.value = data.positions ?? [];
 
     if (data.profile) {
       adminProfile.value = {
         first_name: data.profile.first_name || "",
         middle_name: data.profile.middle_name || "",
         last_name: data.profile.last_name || "",
+        extension_name: data.profile.extension_name || "",
+        date_of_birth: data.profile.date_of_birth
+          ? data.profile.date_of_birth.substring(0, 10)
+          : "",
         sex: data.profile.sex || "",
-        position: data.profile.position || "",
-        department_id: data.profile.department_id || null,
-        department_name: data.profile.department_name || "",
+        civil_status: data.profile.civil_status || "",
+        nationality: data.profile.nationality || "",
+        address: data.profile.address || "",
+        personal_email: data.profile.personal_email || "",
         level: data.profile.level || "",
+        position_id: data.profile.position_id || null,
+        salary_step: data.profile.salary_step || null,
+        salary: data.profile.salary != null ? String(data.profile.salary) : "",
+        department_id: data.profile.department_id || null,
         contact_number: data.profile.contact_number || "",
+        emergency_contact_name: data.profile.emergency_contact_name || "",
+        emergency_contact_number: data.profile.emergency_contact_number || "",
       };
 
       adminProfileBackup.value = { ...adminProfile.value };
@@ -1366,6 +1616,77 @@ const loadAdmin = async () => {
   }
 };
 
+const selectedAdminSalaryGrade = computed(() => {
+  const selected = positions.value.find(
+    (position) =>
+      Number(position.id) === Number(adminProfile.value.position_id),
+  );
+
+  return selected?.salary_grade ?? null;
+});
+
+const filteredAdminDepartments = computed(() => {
+  if (!adminProfile.value.level) {
+    return departments.value;
+  }
+
+  return departments.value.filter(
+    (department) => department.level === adminProfile.value.level,
+  );
+});
+
+const calculateAdminSalary = async () => {
+  const positionId = Number(adminProfile.value.position_id);
+  const salaryStep = Number(adminProfile.value.salary_step);
+
+  if (!positionId || !salaryStep) {
+    adminProfile.value.salary = "";
+    return;
+  }
+
+  try {
+    const data = await getAdminSalaryInfo(positionId, salaryStep);
+
+    if (data.salary === null || data.salary === undefined) {
+      adminProfile.value.salary = "";
+      console.error("No salary schedule found:", data);
+      return;
+    }
+
+    adminProfile.value.salary = Number(data.salary);
+  } catch (error: any) {
+    console.error(
+      "Failed to calculate admin salary:",
+      error.response?.data || error,
+    );
+
+    adminProfile.value.salary = "";
+  }
+};
+
+watch(
+  [
+    () => adminProfile.value.position_id,
+    () => adminProfile.value.salary_step,
+  ],
+  () => {
+    calculateAdminSalary();
+  },
+);
+const formattedAdminSalary = computed(() => {
+  if (
+    adminProfile.value.salary === "" ||
+    adminProfile.value.salary === null ||
+    adminProfile.value.salary === undefined
+  ) {
+    return "-";
+  }
+
+  return `₱${Number(adminProfile.value.salary).toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+});
 const updateEmail = async () => {
   try {
     await updateAdminEmail(adminEmail.value);
@@ -1822,6 +2143,7 @@ const handleRestoreFile = async (event: Event) => {
 onMounted(() => {
   loadAdmin();
   loadPositions();
+  loadDepartments(); // idagdag ito
   loadLeaveTypes();
   loadLeaveRules();
   loadApprovalSettings();

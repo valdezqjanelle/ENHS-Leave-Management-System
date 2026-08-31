@@ -17,33 +17,50 @@ export const getAdminProfile = async () => {
 
 export const getAdminPositions = async () => {
   const response = await axios.get(
-    `${API}/admin/positions`,
+    `${API}/positions`,
     authHeader()
   );
 
   return response.data;
 };
+
+export const getAdminDepartments = async () => {
+  const response = await axios.get(
+    `${API}/departments`,
+    authHeader(),
+  );
+
+  return response.data;
+};
+
 
 export const updateAdminProfile = async (data: {
   first_name: string;
   middle_name: string;
   last_name: string;
+  extension_name: string;
+  date_of_birth: string;
   sex: string;
-  position: string;
-  department_id: number | null;
-  department_name: string;
+  civil_status: string;
+  nationality: string;
+  address: string;
+  personal_email: string;
   level: string;
+  position_id: number | null;
+  salary_step: number | null;
+  department_id: number | null;
   contact_number: string;
+  emergency_contact_name: string;
+  emergency_contact_number: string;
 }) => {
   const response = await axios.put(
     `${API}/admin/profile`,
     data,
-    authHeader()
+    authHeader(),
   );
 
   return response.data;
 };
-// Update email
 export const updateAdminEmail = async (email: string) => {
   const response = await axios.put(
     `${API}/admin/email`,
@@ -123,5 +140,14 @@ export const deleteLeaveType = async(id:number)=>{
 
     return response.data;
 
+};
+
+export const getAdminSalaryInfo = async (position_id: number, salary_step: number) => {
+  const response = await axios.get(`${API}/salary-info`, {
+    ...authHeader(),
+    params: { position_id, salary_step },
+  });
+
+  return response.data;
 };
 

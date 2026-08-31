@@ -12,15 +12,43 @@ class AdminProfile extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'extension_name',
+        'date_of_birth',
         'sex',
+        'civil_status',
+        'nationality',
+        'address',
+        'personal_email',
+        'level',
         'position_id',
-        'department',
+        'salary_step',
+        'salary',
+        'department_id',
         'contact_number',
+        'emergency_contact_name',
+        'emergency_contact_number',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'salary' => 'decimal:2',
+        'position_id' => 'integer',
+        'salary_step' => 'integer',
+        'department_id' => 'integer',
     ];
 
     public function position()
     {
         return $this->belongsTo(Position::class, 'position_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(
+            Department::class,
+            'department_id',
+            'department_id'
+        );
     }
 
     public function user()
