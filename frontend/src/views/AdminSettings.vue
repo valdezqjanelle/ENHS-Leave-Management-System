@@ -505,6 +505,93 @@
       <p class="text-gray-400 mt-1 mb-6">
         Manage leave types, requirements, and rules for employees.
       </p>
+      <div class="inner-card p-5">
+        <div class="flex items-center justify-between gap-4 mb-5">
+          <div>
+            <h3 class="text-lg font-semibold text-white">Leave Types</h3>
+
+            <p class="text-sm text-gray-400">
+              Manage the leave types available to employees.
+            </p>
+          </div>
+
+          <button
+            @click="openAddLeaveModal"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          >
+            Add Leave Type
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#1e293b] text-left">
+                <th class="px-4 py-3 text-gray-300">Code</th>
+
+                <th class="px-4 py-3 text-gray-300">Leave Type</th>
+
+                <th class="px-4 py-3 text-gray-300">
+                  Legal Basis / Requirements
+                </th>
+
+                <th class="px-4 py-3 text-gray-300 text-right">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr
+                v-for="leave in leaveTypes"
+                :key="leave.leave_type_id"
+                class="border-b border-[#1e293b]"
+              >
+                <td class="px-4 py-3">
+                  <span
+                    class="inline-flex px-2 py-1 rounded bg-blue-500/10 text-blue-400 font-semibold"
+                  >
+                    {{ leave.code }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-white font-medium">
+                  {{ leave.leave_type_name }}
+                </td>
+
+                <td class="px-4 py-3 text-gray-400 max-w-xl">
+                  {{
+                    leave.legal_basis ||
+                    "No legal basis or requirements provided."
+                  }}
+                </td>
+
+                <td class="px-4 py-3">
+                  <div class="flex justify-end gap-2">
+                    <button
+                      @click="openEditLeaveModal(leave)"
+                      class="px-3 py-1.5 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/10"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      @click="removeLeaveType(leave.leave_type_id)"
+                      class="px-3 py-1.5 text-red-400 border border-red-500/40 rounded hover:bg-red-500/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr v-if="leaveTypes.length === 0">
+                <td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                  No leave types found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- Leave Rules -->
 
@@ -1282,41 +1369,63 @@
       </div>
     </div>
 
-    <!-- Leave Type Modal -->
-
     <div
       v-if="isLeaveModalOpen"
-      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
     >
-      <div class="neo-card w-full max-w-md p-6">
+      <div class="neo-card w-full max-w-lg p-6">
         <h2 class="text-xl font-semibold text-white mb-5">
           {{ isEditMode ? "Edit Leave Type" : "Add Leave Type" }}
         </h2>
 
         <div class="space-y-4">
           <div>
-            <label class="text-sm text-gray-300"> Leave Type Name </label>
+            <label class="block text-sm text-gray-300 mb-1"> Leave Code </label>
+
+            <input
+              v-model="leaveForm.code"
+              type="text"
+              maxlength="20"
+              placeholder="Example: VL"
+              class="w-full border rounded-lg px-3 py-2 field-editable uppercase"
+              @input="
+                leaveForm.code = leaveForm.code
+                  .replace(/[^a-zA-Z0-9-]/g, '')
+                  .toUpperCase()
+              "
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-1">
+              Leave Type Name
+            </label>
 
             <input
               v-model="leaveForm.leave_type_name"
+              type="text"
+              placeholder="Example: Vacation Leave"
               class="w-full border rounded-lg px-3 py-2 field-editable"
             />
           </div>
 
           <div>
-            <label class="text-sm text-gray-300"> Description </label>
+            <label class="block text-sm text-gray-300 mb-1">
+              Legal Basis / Requirements
+            </label>
 
             <textarea
-              v-model="leaveForm.description"
-              rows="3"
-              class="w-full border rounded-lg px-3 py-2 field-editable"
+              v-model="leaveForm.legal_basis"
+              rows="6"
+              placeholder="Enter the applicable legal basis and requirements..."
+              class="w-full border rounded-lg px-3 py-2 field-editable resize-none"
             ></textarea>
           </div>
         </div>
 
         <div class="flex justify-end gap-3 mt-6">
           <button
-            @click="isLeaveModalOpen = false"
+            @click="closeLeaveModal"
             class="px-4 py-2 text-gray-300 border border-[#1e293b] rounded-lg hover:bg-[#0b1420]"
           >
             Cancel
@@ -1326,7 +1435,7 @@
             @click="saveLeaveType"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
           >
-            Save
+            {{ isEditMode ? "Update" : "Add" }}
           </button>
         </div>
       </div>
@@ -1561,10 +1670,7 @@ const saveAdminProfile = async () => {
       error.response?.data || error,
     );
 
-    console.error(
-      "VALIDATION ERRORS:",
-      error.response?.data?.errors,
-    );
+    console.error("VALIDATION ERRORS:", error.response?.data?.errors);
 
     alert(error.response?.data?.message || "Failed to update profile.");
   }
@@ -1665,10 +1771,7 @@ const calculateAdminSalary = async () => {
 };
 
 watch(
-  [
-    () => adminProfile.value.position_id,
-    () => adminProfile.value.salary_step,
-  ],
+  [() => adminProfile.value.position_id, () => adminProfile.value.salary_step],
   () => {
     calculateAdminSalary();
   },
@@ -1751,88 +1854,138 @@ const saveLeaveRules = async () => {
     alert(error.response?.data?.message || "Failed to save leave rules.");
   }
 };
-const leaveTypes = ref<any[]>([]);
+interface LeaveType {
+  leave_type_id: number;
+  code: string;
+  leave_type_name: string;
+  legal_basis: string | null;
+}
+
+const leaveTypes = ref<LeaveType[]>([]);
+
+const isLeaveModalOpen = ref(false);
+const isEditMode = ref(false);
+
+const leaveForm = ref({
+  leave_type_id: null as number | null,
+  code: "",
+  leave_type_name: "",
+  legal_basis: "",
+});
 
 const loadLeaveTypes = async () => {
   try {
     const data = await getLeaveTypes();
 
     leaveTypes.value = data;
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    console.error("Failed to load leave types:", error.response?.data || error);
   }
 };
 
-const isLeaveModalOpen = ref(false);
-const isEditMode = ref(false);
-const leaveForm = ref({
-  leave_type_id: null,
-  leave_type_name: "",
-  description: "",
-});
-const openAddLeaveModal = () => {
-  isEditMode.value = false;
-
+const resetLeaveForm = () => {
   leaveForm.value = {
     leave_type_id: null,
+    code: "",
     leave_type_name: "",
-    description: "",
+    legal_basis: "",
   };
+};
 
+const openAddLeaveModal = () => {
+  isEditMode.value = false;
+  resetLeaveForm();
   isLeaveModalOpen.value = true;
 };
 
-const openEditLeaveModal = (leave: any) => {
+const openEditLeaveModal = (leave: LeaveType) => {
   isEditMode.value = true;
 
   leaveForm.value = {
     leave_type_id: leave.leave_type_id,
-    leave_type_name: leave.leave_type_name,
-    description: leave.description,
+    code: leave.code || "",
+    leave_type_name: leave.leave_type_name || "",
+    legal_basis: leave.legal_basis || "",
   };
 
   isLeaveModalOpen.value = true;
 };
 
-const removeLeaveType = async (id: number) => {
-  try {
-    await deleteLeaveType(id);
-
-    alert("Leave type deleted successfully");
-
-    loadLeaveTypes();
-  } catch (error) {
-    console.log(error);
-
-    alert("Delete failed");
-  }
+const closeLeaveModal = () => {
+  isLeaveModalOpen.value = false;
+  isEditMode.value = false;
+  resetLeaveForm();
 };
 
 const saveLeaveType = async () => {
+  const code = leaveForm.value.code.trim().toUpperCase();
+  const leaveTypeName = leaveForm.value.leave_type_name.trim();
+  const legalBasis = leaveForm.value.legal_basis.trim();
+
+  if (!code) {
+    alert("Leave code is required.");
+    return;
+  }
+
+  if (!leaveTypeName) {
+    alert("Leave type name is required.");
+    return;
+  }
+
+  const payload = {
+    code,
+    leave_type_name: leaveTypeName,
+    legal_basis: legalBasis,
+  };
+
   try {
-    if (isEditMode.value) {
-      await updateLeaveType(leaveForm.value.leave_type_id!, {
-        leave_type_name: leaveForm.value.leave_type_name,
-        description: leaveForm.value.description,
-      });
+    if (isEditMode.value && leaveForm.value.leave_type_id !== null) {
+      await updateLeaveType(leaveForm.value.leave_type_id, payload);
 
-      alert("Leave type updated successfully");
+      alert("Leave type updated successfully.");
     } else {
-      await createLeaveType({
-        leave_type_name: leaveForm.value.leave_type_name,
-        description: leaveForm.value.description,
-      });
+      await createLeaveType(payload);
 
-      alert("Leave type created successfully");
+      alert("Leave type created successfully.");
     }
 
-    isLeaveModalOpen.value = false;
+    closeLeaveModal();
+    await loadLeaveTypes();
+  } catch (error: any) {
+    console.error("Failed saving leave type:", error.response?.data || error);
+
+    const errors = error.response?.data?.errors;
+
+    if (errors) {
+      const firstError = Object.values(errors).flat().at(0);
+
+      alert(String(firstError || "Failed to save leave type."));
+
+      return;
+    }
+
+    alert(error.response?.data?.message || "Failed to save leave type.");
+  }
+};
+
+const removeLeaveType = async (id: number) => {
+  const confirmed = confirm("Are you sure you want to delete this leave type?");
+
+  if (!confirmed) return;
+
+  try {
+    await deleteLeaveType(id);
+
+    alert("Leave type deleted successfully.");
 
     await loadLeaveTypes();
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    console.error(
+      "Failed to delete leave type:",
+      error.response?.data || error,
+    );
 
-    alert("Failed saving leave type");
+    alert(error.response?.data?.message || "Failed to delete leave type.");
   }
 };
 
