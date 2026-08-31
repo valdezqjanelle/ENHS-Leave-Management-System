@@ -265,12 +265,13 @@ const fetchPdfBlobWithRetry = async (
     } catch (error) {
       lastError = error;
       if (attempt < MAX_RETRIES) {
+        const delayMs = RETRY_DELAYS_MS[attempt] ?? 5000;
         console.warn(
-          `PDF fetch attempt ${attempt + 1} failed, retrying in ${RETRY_DELAYS_MS[attempt]}ms...`,
+          `PDF fetch attempt ${attempt + 1} failed, retrying in ${delayMs}ms...`,
           error
         );
         onRetry?.(attempt + 2); // report the upcoming attempt number (1-indexed)
-        await wait(RETRY_DELAYS_MS[attempt]);
+        await wait(delayMs);
       }
     }
   }

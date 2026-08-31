@@ -84,8 +84,9 @@
         border: 1px solid #000;
         text-align: center;
         line-height: 8px;
-        font-size: 6.5px;
+        font-size: 7px;
         font-weight: bold;
+        font-family: 'DejaVu Sans', sans-serif;
         vertical-align: middle;
         margin-right: 3px;
     }
@@ -94,7 +95,7 @@
 <body>
 
 @php
-    $checked = fn($isChecked) => $isChecked ? 'X' : '';
+    $checked = fn($isChecked) => $isChecked ? "\u{2713}" : '';
 @endphp
 
 <table class="outer">
@@ -127,18 +128,18 @@
                 </tr>
                 <tr>
                     <td style="width:34%; padding:1px 8px 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">Echague National High School</div>
                     </td>
                     <td style="width:22%; padding:1px 8px 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ $employee->last_name ?? '' }}</div>
                         <div class="center small">(Last)</div>
                     </td>
                     <td style="width:22%; padding:1px 8px 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ $employee->first_name ?? '' }}</div>
                         <div class="center small">(First)</div>
                     </td>
                     <td style="width:22%; padding:1px 0 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ $employee->middle_name ?? '' }}</div>
                         <div class="center small">(Middle)</div>
                     </td>
                 </tr>
@@ -157,13 +158,13 @@
                 </tr>
                 <tr>
                     <td style="width:30%; padding:3px 8px 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ optional($leave->date_filed)->format('m/d/Y') }}</div>
                     </td>
                     <td style="width:35%; padding:3px 8px 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ $employee->position->name ?? '' }}</div>
                     </td>
                     <td style="width:35%; padding:3px 0 0 0;">
-                        <div class="line" style="width:100%;">&nbsp;</div>
+                        <div class="line" style="width:100%;">{{ $employee->salary ? 'PHP ' . number_format($employee->salary, 2) : '' }}</div>
                     </td>
                 </tr>
             </table>
@@ -253,7 +254,7 @@
         <td class="box-right box-bottom" style="width:50%; vertical-align:top;">
             <div class="bold">7.A CERTIFICATION OF LEAVE CREDITS</div>
             <div style="margin-top:3px;">As of
-                <span class="line" style="width:130px;">{{ now()->format('F j, Y') }}</span>
+                <span class="line" style="width:130px;">{{ optional($leave->certification_as_of)->format('F j, Y') }}</span>
             </div>
             <table style="margin-top:5px; border:1px solid #000;">
                 <tr class="bold" style="border-bottom:1px solid #000;">
@@ -290,7 +291,8 @@
             <div class="line" style="width:100%; margin-top:6px;">&nbsp;</div>
             <div class="line" style="width:100%; margin-top:6px;">&nbsp;</div>
             <div class="sig-line" style="width:100%; margin-top:14px;"></div>
-            <div class="center italic">School Principal I</div>
+            <div class="center bold small">Emily O. Benitez, EdD</div>
+            <div class="center italic small">School Principal II</div>
         </td>
     </tr>
 
