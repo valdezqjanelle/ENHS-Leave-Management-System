@@ -138,6 +138,14 @@ export const getDeletedEmployees = async () => {
   return response.data;
 };
 
+export const forceDeleteEmployee = async (id: number) => {
+  const response = await axios.delete(
+    `${API}/employees/${id}/force`,
+    authHeader()
+  );
+  return response.data;
+};
+
 export const getDepartments = async (level?: string) => {
   const response = await axios.get(
     `${API}/departments`,

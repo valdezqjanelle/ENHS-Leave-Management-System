@@ -161,6 +161,83 @@
               </div>
 
             </div>
+            
+
+          
+              <div class="flex items-center gap-2 mb-4">
+
+                <div
+                  class="w-8 h-8 bg-green-500/10 text-yellow-400 rounded-lg flex items-center justify-center"
+                >
+                  <User class="w-4 h-4" />
+                </div>
+                <h3 class="text-lg font-medium text-white">
+                  Personal Information
+                </h3>
+                  <div>
+                  <h3 class="text-lg font-medium text-white">
+                  
+                  </h3>
+                  </div>
+                  </div>
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        
+
+                <div>
+
+                  <label class="block text-sm font-medium text-gray-400 mb-1">
+                    Nationality
+                  </label>
+
+                  <select
+                    v-model="userProfile.nationality"
+                    type="tel"
+                    placeholder="Enter Nationality"
+                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              
+                <option value="Filipino">Filipino
+                </option>
+                <option value="Other">Other
+
+                </option>
+             
+                  </select>
+
+
+
+                </div>
+                <div>
+
+                  <label class="block text-sm font-medium text-gray-400 mb-1">
+                    Civil Status
+                      <select
+                    v-model="userProfile.civil_status"
+                    type="tel"
+                    placeholder="Enter Civil Status"
+                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <option value="Filipino">Single
+                </option>
+                <option value="Married">Married
+
+                </option>
+                 <option value="Widowed">Widowed
+
+                </option>
+                 <option value="Separated">Separated
+
+                </option>
+                 <option value="Divorce">Divorce
+
+                </option>
+                
+             
+                  </select>
+                  </label>
+                </div>
+                </div>
 
 
             <!-- ================================================= -->
@@ -231,6 +308,22 @@
                   <p class="text-xs text-gray-500 mt-1">
                     To change your email, use Account Settings.
                   </p>
+
+                </div>
+
+                 <div>
+
+                  <label class="block text-sm font-medium text-gray-400 mb-1">
+                    Personal Email
+                  </label>
+
+                
+                  <input
+                    v-model="userProfile.personal_email"
+                    type="tel"
+                    placeholder="Personal Email"
+                    class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
 
                 </div>
 
@@ -306,56 +399,7 @@
 
                   <!-- Relationship -->
 
-                  <div>
-
-                    <label class="block text-sm font-medium text-gray-400 mb-1">
-                      Relationship
-                    </label>
-
-                    <select
-                      v-model="userProfile.emergency_contact_relationship"
-                      class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-
-                      <option value="">
-                        Select relationship
-                      </option>
-
-                      <option value="Parent">
-                        Parent
-                      </option>
-
-                      <option value="Spouse">
-                        Spouse
-                      </option>
-
-                      <option value="Sibling">
-                        Sibling
-                      </option>
-
-                      <option value="Child">
-                        Child
-                      </option>
-
-                      <option value="Relative">
-                        Relative
-                      </option>
-
-                      <option value="Friend">
-                        Friend
-                      </option>
-
-                      <option value="Guardian">
-                        Guardian
-                      </option>
-
-                      <option value="Other">
-                        Other
-                      </option>
-
-                    </select>
-
-                  </div>
+                  
 
 
                   <!-- Emergency Contact Number -->
@@ -1508,8 +1552,10 @@ const userProfile = ref({
   employment_status: '',
 
   phone: '',
-
+  nationality:'',
+  civil_status:'',
   address: '',
+  personal_email:'',
   emergency_contact_name: '',
   emergency_contact_number: '',
   emergency_contact_relationship: ''
@@ -1539,8 +1585,14 @@ const loadProfile = async () => {
       department_name: data.department_name ?? '',
       level: data.level ?? '',
       gender: data.sex ?? '',
+<<<<<<< HEAD
       employment_status: data.employment_status ?? '',
 
+=======
+      personal_email: data.personal_email ?? '',
+      nationality: data.nationality ?? '',
+       civil_status: data.civil_status ?? '',
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
       phone: data.contact_number ?? '',
 
       address: data.address ?? '',
@@ -1581,9 +1633,16 @@ const updateProfile = async () => {
 
       contact_number:
         userProfile.value.phone,
+      nationality: 
+      userProfile.value.nationality,
+        civil_status: 
+      userProfile.value.civil_status,
 
       address:
         userProfile.value.address,
+
+      personal_email:
+      userProfile.value.personal_email,
 
       emergency_contact_name:
         userProfile.value.emergency_contact_name,

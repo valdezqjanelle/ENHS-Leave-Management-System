@@ -5,13 +5,11 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
 
   routes: [
-
     // Default route
     {
       path: "/",
       redirect: "/login",
     },
-
 
     // Standalone print route (no dashboard layout wrapper)
     {
@@ -23,14 +21,12 @@ const router = createRouter({
       },
     },
 
-
     // Main Layout
     {
       path: "/",
       component: () => import("../components/Layout.vue"),
 
       children: [
-
         {
           path: "/dashboard",
           name: "dashboard",
@@ -39,7 +35,6 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
-
 
         {
           path: "/leave-application",
@@ -51,13 +46,11 @@ const router = createRouter({
           },
         },
 
-
         {
           path: "/simple-leave",
           name: "simple-leave",
           component: () => import("../views/LeaveApplication.vue"),
         },
-
 
         {
           path: "/admin-applications",
@@ -69,7 +62,6 @@ const router = createRouter({
           },
         },
 
-
         {
           path: "/employees",
           name: "employees",
@@ -80,7 +72,25 @@ const router = createRouter({
           },
         },
 
+        {
+          path: "/teaching-personnel",
+          name: "teaching-personnel",
+          component: () => import("../views/TeachingPersonnel.vue"),
+          meta: {
+            requiresAuth: true,
+            role: "admin",
+          },
+        },
 
+        {
+          path: "/non-teaching-personnel",
+          name: "non-teaching-personnel",
+          component: () => import("../views/NonTeachingPersonnel.vue"),
+          meta: {
+            requiresAuth: true,
+            role: "admin",
+          },
+        },
 
         {
           path: "/my-applications",
@@ -92,7 +102,6 @@ const router = createRouter({
           },
         },
 
-
         {
           path: "/attendance",
           name: "attendance",
@@ -101,7 +110,6 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
-
 
         {
           path: "/leave-credits",
@@ -113,7 +121,6 @@ const router = createRouter({
           },
         },
 
-
         {
           path: "/leave-balances",
           name: "leave-balances",
@@ -124,7 +131,6 @@ const router = createRouter({
           },
         },
 
-
         {
           path: "/records",
           name: "records",
@@ -134,6 +140,7 @@ const router = createRouter({
           },
         },
 
+<<<<<<< HEAD
         {
           path: "/profile",
           name: "profile",
@@ -144,6 +151,8 @@ const router = createRouter({
         },
 
 
+=======
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
         {
           path: "/reports",
           name: "reports",
@@ -152,7 +161,6 @@ const router = createRouter({
             requiresAuth: true,
           },
         },
-
 
         {
           path: "/settings",
@@ -168,12 +176,9 @@ const router = createRouter({
           path: "/admin-settings",
           name: "admin-settings",
           component: () => import("../views/AdminSettings.vue"),
-        }
-
-
+        },
       ],
     },
-
 
     // Login
     {
@@ -181,47 +186,32 @@ const router = createRouter({
       name: "login",
       component: () => import("../views/Login.vue"),
     },
-
-
   ],
 });
-
-
 
 // Authentication Guard
 
 router.beforeEach((to, from, next) => {
-
   const token = localStorage.getItem("token");
 
-  const user = JSON.parse(
-    localStorage.getItem("user") || "{}"
-  );
-
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   // Need login
   if (to.meta.requiresAuth && !token) {
     return next("/login");
   }
 
-
   // Already logged in cannot go back to login
   if (to.path === "/login" && token) {
     return next("/dashboard");
   }
 
-
   // Role checking
   if (to.meta.role && user.role !== to.meta.role) {
-
     return next("/dashboard");
-
   }
 
-
   next();
-
 });
-
 
 export default router;

@@ -503,4 +503,27 @@ return response()->json([
 
         return response()->json($employees);
     }
+
+    public function forceDestroy($id)
+{
+    $employee = EmployeeRecord::withTrashed()->findOrFail($id);
+
+    $employeeName = $employee->first_name . ' ' . $employee->last_name;
+    $userId = $employee->user_id;
+
+    $employee->forceDelete();
+
+    if ($userId) {
+        User::where('user_id', $userId)->delete();
+    }
+
+    AuditLogger::log(
+        'Employee permanently deleted',
+        "Permanently deleted employee {$employeeName}"
+    );
+
+    return response()->json([
+        'message' => 'Employee permanently deleted.'
+    ]);
+}
 }

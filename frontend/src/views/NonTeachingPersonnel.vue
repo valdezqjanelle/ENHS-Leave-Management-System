@@ -54,7 +54,7 @@
             <tbody>
               <tr
                 v-for="record in filteredRecords"
-                :key="record.id"
+                :key="record.non_teaching_record_id"
                 class="border-t hover:bg-gray-800 transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold break-words">
@@ -387,6 +387,7 @@ import {
 import { getEmployees } from "../services/employee";
 
 interface Employee {
+
   employee_id: number;
   employee_code: string;
   first_name: string;
@@ -410,7 +411,7 @@ interface Employee {
 }
 
 interface NonTeachingRecord {
-  id: number;
+  non_teaching_record_id: number;
   employee_id: number;
   office_assignment: string;
   job_assignment?: string | null;
@@ -603,7 +604,7 @@ const saveRecord = async () => {
 
     if (editingRecord.value) {
       await updateNonTeachingPersonnelRecord(
-        editingRecord.value.id,
+        editingRecord.value.non_teaching_record_id,
         payload
       );
 
@@ -660,7 +661,7 @@ const deleteRecord = async (
 
   try {
     await deleteNonTeachingPersonnelRecord(
-      record.id
+      record.non_teaching_record_id
     );
 
     alert(

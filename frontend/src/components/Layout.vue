@@ -55,6 +55,7 @@
           Dashboard
         </router-link>
 
+<<<<<<< HEAD
         <router-link
             v-if="currentUser.role === 'admin'"
             to="/employees"
@@ -64,6 +65,44 @@
             Employees
         </router-link>
         
+=======
+        <div v-if="currentUser.role === 'admin'">
+          <button
+            @click="togglePersonnelMenu"
+            class="nav-item w-full justify-between"
+            :class="{ 'router-link-active': isPersonnelRouteActive }"
+          >
+            <span class="flex items-center gap-3">
+              <Users class="icon" />
+              Employee Management
+            </span>
+
+            <ChevronDown
+              class="icon transition-transform duration-200"
+              :class="{ 'rotate-180': personnelMenuOpen }"
+            />
+          </button>
+
+          <!-- SUB-MENU -->
+          <div
+            v-show="personnelMenuOpen || isPersonnelRouteActive"
+            class="pl-4 space-y-1 mt-1"
+          >
+            <router-link to="/employees" class="nav-subitem">
+              Employees
+            </router-link>
+
+            <router-link to="/teaching-personnel" class="nav-subitem">
+              Teaching Personnel
+            </router-link>
+
+            <router-link to="/non-teaching-personnel" class="nav-subitem">
+              Non-Teaching Personnel
+            </router-link>
+          </div>
+        </div>
+
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
         <router-link
           v-if="currentUser.role === 'admin'"
           to="/admin-applications"
@@ -109,10 +148,18 @@
           My Applications
         </router-link>
 
+<<<<<<< HEAD
         <router-link 
         v-if="currentUser.role === 'employee'"
         to="/records" 
         class="nav-item">
+=======
+        <router-link
+          v-if="currentUser.role === 'employee'"
+          to="/records"
+          class="nav-item"
+        >
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
           <Users class="icon" />
           Records
         </router-link>
@@ -126,21 +173,24 @@
           Reports
         </router-link>
 
-        <router-link 
-        v-if="currentUser.role === 'employee'"
-        to="/settings" 
-        class="nav-item">
+        <router-link
+          v-if="currentUser.role === 'employee'"
+          to="/settings"
+          class="nav-item"
+        >
           <Settings class="icon" />
           Settings
         </router-link>
 
-         <router-link 
-        v-if="currentUser.role === 'admin'"
-        to="/admin-settings" 
-        class="nav-item">
+        <router-link
+          v-if="currentUser.role === 'admin'"
+          to="/admin-settings"
+          class="nav-item"
+        >
           <Settings class="icon" />
           Settings
         </router-link>
+<<<<<<< HEAD
       </nav>
 
       <!--
@@ -166,6 +216,10 @@
         </router-link>
 
         <button @click="logout" class="nav-item logout-item w-full">
+=======
+
+        <button @click="logout" class="nav-item text-red-600 w-full">
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
           <LogOut class="icon" />
           Logout
         </button>
@@ -175,16 +229,17 @@
     <!-- MAIN -->
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
+<<<<<<< HEAD
       <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
         <h2 class="text-blue-600 font-bold text-xl tracking-tight">{{ pageTitle }}</h2>
+=======
+      <header class="topbar flex items-center justify-between px-6 py-4">
+        <h2 class="text-blue-600 font-bold text-xl tracking-tight">
+          {{ pageTitle }}
+        </h2>
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
 
-        <div class="flex items-center gap-4">
-          
-
-          
-
-          
-        </div>
+        <div class="flex items-center gap-4"></div>
       </header>
 
       <!-- CONTENT -->
@@ -215,14 +270,30 @@ import {
   X,
   Wallet,
   Scale,
+<<<<<<< HEAD
   UserCircle2,
+=======
+  ChevronDown,
+  GraduationCap,
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
 } from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
 
 const sidebarOpen = ref(false);
+const personnelMenuOpen = ref(false);
+const togglePersonnelMenu = () => {
+  personnelMenuOpen.value = !personnelMenuOpen.value;
+};
 
+const isPersonnelRouteActive = computed(() => {
+  return [
+    "/employees",
+    "/teaching-personnel",
+    "/non-teaching-personnel",
+  ].includes(route.path);
+});
 // Logged-in user
 const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -277,17 +348,17 @@ const logout = async () => {
 }
 
 .sidebar {
-  background: #0B1628;
+  background: #0b1628;
   box-shadow: 0 0 0 1px rgba(12, 29, 75, 0.15);
 }
 
 .main-shell {
-  background: #080D14;
+  background: #080d14;
 }
 
 .topbar {
-  background: #0B1628;
-  border-bottom: 1px solid #080D14;
+  background: #0b1628;
+  border-bottom: 1px solid #080d14;
   box-shadow: 0 1px 0 rgba(148, 163, 184, 0.08);
 }
 
@@ -316,7 +387,11 @@ const logout = async () => {
 }
 
 .nav-item.router-link-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(96, 165, 250, 0.09));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.18),
+    rgba(96, 165, 250, 0.09)
+  );
   box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
   color: #ffffff;
 }
@@ -338,6 +413,7 @@ const logout = async () => {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
+<<<<<<< HEAD
 /* ============================================================
    SIDEBAR CLOSE BUTTON — sits at the right of the sidebar's own
    header row (next to "E-LMS"), only shown on mobile while open.
@@ -407,3 +483,21 @@ const logout = async () => {
   transform: translateX(2px);
 }
 </style>
+=======
+.nav-subitem {
+  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-white/80 text-sm font-medium transition-all duration-200;
+  margin: 0.15rem 0;
+}
+
+.nav-subitem:hover {
+  background: rgba(147, 197, 253, 0.1);
+  color: #ffffff;
+}
+
+.nav-subitem.router-link-active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(96, 165, 250, 0.1));
+  color: #ffffff;
+  font-weight: 600;
+}
+</style>
+>>>>>>> ea44f5d7694703c59424d36c3ab3fe669e89b8bf
