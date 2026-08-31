@@ -293,12 +293,6 @@ const buildFileName = () => {
 
 const goBack = () => {
 
-  /*
-   * ADMIN
-   * If this page was opened from an admin route,
-   * return to the Admin Applications page.
-   */
-
   const routeName =
     String(route.name || "").toLowerCase();
 
@@ -318,21 +312,10 @@ const goBack = () => {
 
   }
 
-  /*
-   * EMPLOYEE
-   * Employees should return to Apply Leave.
-   */
-
-  router.push("/leave-application");
+  router.push("/my-applications");
 
 };
 
-/*
- * Appends standard PDF "open parameters" to hide the built-in viewer chrome
- * on desktop (toolbar, side nav, scrollbar). Chrome/Edge honor these on
- * blob: URLs; Firefox partially supports them; Safari ignores them and
- * keeps its own toolbar (harmless — our own buttons still work everywhere).
- */
 const previewSrc = computed(() => {
   if (!pdfUrl.value) return "";
   return `${pdfUrl.value}#toolbar=0&navpanes=0&scrollbar=0`;
