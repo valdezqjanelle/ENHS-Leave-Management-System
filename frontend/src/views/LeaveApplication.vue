@@ -16,10 +16,7 @@
       </div>
 
       <!-- Form -->
-      <form
-        @submit.prevent="submitApplication"
-        class="p-6 space-y-6"
-      >
+      <form @submit.prevent="submitApplication" class="p-6 space-y-6">
 
         <!-- =============================== -->
         <!-- PERSONAL INFORMATION -->
@@ -38,13 +35,7 @@
                 Full Name <span class="text-red-400">*</span>
               </label>
 
-              <input
-                :value="fullName"
-                type="text"
-                readonly
-                class="input-field"
-                placeholder="Enter your full name"
-              />
+              <input :value="fullName" type="text" readonly class="input-field" placeholder="Enter your full name" />
             </div>
 
             <!-- Department -->
@@ -53,12 +44,7 @@
                 Department <span class="text-red-400">*</span>
               </label>
 
-              <input
-                :value="employee.department_name"
-                type="text"
-                readonly
-                class="input-field"
-              />
+              <input :value="employee.department_name" type="text" readonly class="input-field" />
             </div>
 
             <!-- Position -->
@@ -67,13 +53,8 @@
                 Position <span class="text-red-400">*</span>
               </label>
 
-              <input
-                :value="employee.position"
-                type="text"
-                readonly
-                class="input-field"
-                placeholder="e.g., Professor, Assistant Professor"
-              />
+              <input :value="employee.position" type="text" readonly class="input-field"
+                placeholder="e.g., Professor, Assistant Professor" />
             </div>
 
             <!-- Employee ID -->
@@ -82,13 +63,8 @@
                 Employee ID <span class="text-red-400">*</span>
               </label>
 
-              <input
-                :value="employee.employee_code"
-                type="text"
-                readonly
-                class="input-field"
-                placeholder="Enter your employee ID"
-              />
+              <input :value="employee.employee_code" type="text" readonly class="input-field"
+                placeholder="Enter your employee ID" />
             </div>
 
           </div>
@@ -113,91 +89,61 @@
                 Leave Type <span class="text-red-400">*</span>
               </label>
 
-              <select
-                v-model="form.leave_type_id"
-                required
-                class="input-field"
-              >
+              <select v-model="form.leave_type_id" required class="input-field">
                 <option value="">Select Leave Type</option>
 
-                <option
-                  v-for="type in leaveTypes"
-                  :key="type.leave_type_id"
-                  :value="type.leave_type_id"
-                >
+                <option v-for="type in leaveTypes" :key="type.leave_type_id" :value="type.leave_type_id">
                   {{ type.leave_type_name }}
                 </option>
               </select>
             </div>
 
 
-<!-- Vacation Details -->
-<div
-  v-if="selectedLeaveName?.includes('Vacation')"
-  class="detail-box"
->
+            <!-- Vacation Details -->
+            <div v-if="selectedLeaveName === 'Vacation Leave'" class="detail-box">
+              <div>
+                <label class="form-label">
+                  Vacation Location Type
+                </label>
 
-  <div>
-    <label class="form-label">
-      Vacation Location Type
-    </label>
+                <select v-model="form.vacation_location_type" class="input-field">
+                  <option value="">Select</option>
 
-    <select
-      v-model="form.vacation_location_type"
-      class="input-field"
-    >
-      <option value="">Select</option>
+                  <option value="within_philippines">
+                    Within Philippines
+                  </option>
 
-      <option value="within_philippines">
-        Within Philippines
-      </option>
+                  <option value="abroad">
+                    Abroad
+                  </option>
+                </select>
+              </div>
 
-      <option value="abroad">
-        Abroad
-      </option>
-    </select>
-  </div>
+              <div>
+                <label class="form-label">
+                  Specify Location
+                </label>
 
-  <div>
-    <label class="form-label">
-      Specify Location
-    </label>
+                <LocationAutocomplete v-if="form.vacation_location_type === 'within_philippines'"
+                  v-model="form.vacation_location" />
 
-    <LocationAutocomplete
-      v-if="form.vacation_location_type === 'within_philippines'"
-      v-model="form.vacation_location"
-    />
+                <CountryAutocomplete v-else-if="form.vacation_location_type === 'abroad'"
+                  v-model="form.vacation_location" />
 
-    <CountryAutocomplete
-      v-else-if="form.vacation_location_type === 'abroad'"
-      v-model="form.vacation_location"
-    />
+                <input v-else v-model="form.vacation_location" type="text" class="input-field" disabled
+                  placeholder="Select a location type first" />
+              </div>
+            </div>
 
-    <input
-      v-else
-      v-model="form.vacation_location"
-      type="text"
-      class="input-field"
-      disabled
-      placeholder="Select a location type first"
-    />
-  </div>
 
-</div>            <!-- Sick Details -->
-            <div
-              v-if="selectedLeaveName?.includes('Sick')"
-              class="detail-box"
-            >
-
+            <!-- Sick Details -->
+            <div v-if="selectedLeaveName === 'Sick Leave'" class="detail-box">
               <div>
                 <label class="form-label">
                   Treatment
                 </label>
 
-                <select
-                  v-model="form.sick_type"
-                  class="input-field"
-                >
+                <select v-model="form.sick_type" class="input-field">
                   <option value="">Select</option>
 
                   <option value="in_hospital">
@@ -215,80 +161,49 @@
                   Illness
                 </label>
 
-                <input
-                  v-model="form.illness"
-                  type="text"
-                  class="input-field"
-                />
+                <input v-model="form.illness" type="text" class="input-field" />
               </div>
-
             </div>
 
 
             <!-- Study Leave -->
-            <div
-              v-if="selectedLeaveName?.includes('Study')"
-              class="option-box"
-            >
-
+            <div v-if="selectedLeaveName === 'Study Leave'" class="option-box">
               <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  v-model="form.masters_degree"
-                  class="checkbox-input"
-                />
+                <input type="checkbox" v-model="form.masters_degree" class="checkbox-input" />
 
                 <span>Masters Degree</span>
               </label>
 
               <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  v-model="form.board_exam_review"
-                  class="checkbox-input"
-                />
+                <input type="checkbox" v-model="form.board_exam_review" class="checkbox-input" />
 
                 <span>Board Examination Review</span>
               </label>
-
             </div>
 
 
-            <!-- Special / Mandatory -->
-            <div
-              v-if="
-                selectedLeaveName?.includes('Special') ||
-                selectedLeaveName?.includes('Mandatory')
-              "
-              class="option-box"
-            >
+            <!-- Special Leave Benefits for Women -->
+            <div v-if="selectedLeaveName === 'Special Leave Benefits for Women'" class="detail-box">
+              <div>
+                <label class="form-label">
+                  Specify Illness
+                </label>
 
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  v-model="form.monetization"
-                  class="checkbox-input"
-                />
+                <input v-model="form.illness" type="text" class="input-field" placeholder="Specify illness" />
+              </div>
+            </div>
 
-                <span>Monetization</span>
-              </label>
 
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  v-model="form.terminal_leave"
-                  class="checkbox-input"
-                />
+            <!-- Others -->
+            <div v-if="selectedLeaveName === 'Others'" class="option-box">
+              <div>
+                <label class="form-label">
+                  Other Purpose
+                </label>
 
-                <span>Terminal Leave</span>
-              </label>
-
-              <input
-                v-model="form.other_purpose"
-                placeholder="Other purpose"
-                class="input-field mt-3"
-              />
-
+                <input v-model="form.other_purpose" type="text" class="input-field"
+                  placeholder="Specify other purpose" />
+              </div>
             </div>
 
 
@@ -298,10 +213,7 @@
                 Commutation <span class="text-red-400">*</span>
               </label>
 
-              <select
-                v-model="form.commutation"
-                class="input-field"
-              >
+              <select v-model="form.commutation" class="input-field">
                 <option value="">Select</option>
 
                 <option value="requested">
@@ -321,12 +233,7 @@
                 Contact Number <span class="text-red-400">*</span>
               </label>
 
-              <input
-                :value="employee.contact_number"
-                type="text"
-                readonly
-                class="input-field"
-              />
+              <input :value="employee.contact_number" type="text" readonly class="input-field" />
             </div>
 
           </div>
@@ -351,13 +258,7 @@
                 Start Date <span class="text-red-400">*</span>
               </label>
 
-              <input
-                v-model="form.startDate"
-                type="date"
-                required
-                :min="minDate"
-                class="input-field"
-              />
+              <input v-model="form.startDate" type="date" required :min="minDate" class="input-field" />
             </div>
 
 
@@ -367,13 +268,7 @@
                 End Date <span class="text-red-400">*</span>
               </label>
 
-              <input
-                v-model="form.endDate"
-                type="date"
-                required
-                :min="form.startDate || minDate"
-                class="input-field"
-              />
+              <input v-model="form.endDate" type="date" required :min="form.startDate || minDate" class="input-field" />
             </div>
 
 
@@ -451,13 +346,8 @@
             <span class="text-red-400">*</span>
           </label>
 
-          <textarea
-            v-model="form.reason"
-            required
-            rows="5"
-            class="input-field resize-none"
-            placeholder="Please provide a detailed reason for your leave application..."
-          ></textarea>
+          <textarea v-model="form.reason" required rows="5" class="input-field resize-none"
+            placeholder="Please provide a detailed reason for your leave application..."></textarea>
 
         </div>
 
@@ -474,9 +364,7 @@
 
           <div class="upload-box">
 
-            <Upload
-              class="mx-auto h-12 w-12 text-slate-500 mb-4"
-            />
+            <Upload class="mx-auto h-12 w-12 text-slate-500 mb-4" />
 
             <p class="text-sm text-slate-300 mb-2">
               Click to upload or drag and drop
@@ -486,20 +374,11 @@
               PDF, DOC, DOCX files up to 10MB
             </p>
 
-            <input
-              type="file"
-              multiple
-              accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-              @change="handleFileUpload"
-              class="hidden"
-              ref="fileInput"
-            />
+            <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" @change="handleFileUpload"
+              class="hidden" ref="fileInput" />
 
-            <button
-              type="button"
-              @click="fileInput?.click()"
-              class="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-500 transition"
-            >
+            <button type="button" @click="fileInput?.click()"
+              class="mt-4 px-5 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-500 transition">
               Select Files
             </button>
 
@@ -507,42 +386,26 @@
 
 
           <!-- Uploaded Files -->
-          <div
-            v-if="form.attachments.length > 0"
-            class="mt-4 space-y-3"
-          >
+          <div v-if="form.attachments.length > 0" class="mt-4 space-y-3">
 
-            <div
-              v-for="(file, index) in form.attachments"
-              :key="index"
-              class="flex items-center justify-between p-4 bg-slate-900/70 border border-slate-700 rounded-xl"
-            >
+            <div v-for="(file, index) in form.attachments" :key="index"
+              class="flex items-center justify-between p-4 bg-slate-900/70 border border-slate-700 rounded-xl">
 
               <div class="flex items-center min-w-0">
 
-                <FileText
-                  class="w-5 h-5 mr-3 text-slate-400 flex-shrink-0"
-                />
+                <FileText class="w-5 h-5 mr-3 text-slate-400 flex-shrink-0" />
 
-                <span
-                  class="text-sm text-slate-200 truncate"
-                >
+                <span class="text-sm text-slate-200 truncate">
                   {{ file.name }}
                 </span>
 
-                <span
-                  class="text-xs text-slate-500 ml-2 flex-shrink-0"
-                >
+                <span class="text-xs text-slate-500 ml-2 flex-shrink-0">
                   ({{ formatFileSize(file.size) }})
                 </span>
 
               </div>
 
-              <button
-                type="button"
-                @click="removeFile(index)"
-                class="text-red-400 hover:text-red-300 transition ml-4"
-              >
+              <button type="button" @click="removeFile(index)" class="text-red-400 hover:text-red-300 transition ml-4">
                 <X class="w-4 h-4" />
               </button>
 
@@ -569,33 +432,21 @@
           </p>
 
           <div class="signature-box">
-            <canvas
-              ref="signatureCanvas"
-              class="signature-canvas"
-            ></canvas>
+            <canvas ref="signatureCanvas" class="signature-canvas"></canvas>
           </div>
 
           <div class="flex items-center justify-between mt-3">
 
-            <span
-              v-if="signatureData"
-              class="text-xs text-green-400"
-            >
+            <span v-if="signatureData" class="text-xs text-green-400">
               ✓ Signature provided
             </span>
 
-            <span
-              v-else
-              class="text-xs text-slate-500"
-            >
+            <span v-else class="text-xs text-slate-500">
               Sign using your mouse, trackpad, touchscreen, or stylus.
             </span>
 
-            <button
-              type="button"
-              @click="clearSignature"
-              class="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm"
-            >
+            <button type="button" @click="clearSignature"
+              class="px-4 py-2 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm">
               Clear Signature
             </button>
 
@@ -612,12 +463,7 @@
 
           <label class="flex items-start gap-3 cursor-pointer">
 
-            <input
-              v-model="form.declaration"
-              type="checkbox"
-              required
-              class="checkbox-input mt-1"
-            />
+            <input v-model="form.declaration" type="checkbox" required class="checkbox-input mt-1" />
 
             <span class="text-sm text-slate-300 leading-relaxed">
               I hereby certify that the information provided in this leave
@@ -636,23 +482,15 @@
         <!-- BUTTONS -->
         <!-- =============================== -->
 
-        <div
-          class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-700"
-        >
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-700">
 
-          <button
-            type="button"
-            @click="resetForm"
-            class="w-full sm:w-auto px-6 py-2.5 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm"
-          >
+          <button type="button" @click="resetForm"
+            class="w-full sm:w-auto px-6 py-2.5 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm">
             Reset Form
           </button>
 
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <button type="submit" :disabled="isSubmitting"
+            class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
             {{ isSubmitting ? "Submitting..." : "Submit Application" }}
           </button>
 
@@ -666,51 +504,36 @@
     <!-- SUCCESS MODAL -->
     <!-- =============================== -->
 
-    <div
-      v-if="showSuccessModal"
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6"
-    >
+    <div v-if="showSuccessModal"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6">
 
-      <div
-        class="relative w-full max-w-lg shadow-2xl rounded-2xl bg-[#111D2E] border border-slate-700 p-8"
-      >
+      <div class="relative w-full max-w-lg shadow-2xl rounded-2xl bg-[#111D2E] border border-slate-700 p-8">
 
         <div class="text-center">
 
           <div
-            class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-500/10 border border-green-500/20 mb-5"
-          >
-            <CheckCircle
-              class="h-8 w-8 text-green-400"
-            />
+            class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-500/10 border border-green-500/20 mb-5">
+            <CheckCircle class="h-8 w-8 text-green-400" />
           </div>
 
-          <h3
-            class="text-xl font-semibold text-white mb-3"
-          >
+          <h3 class="text-xl font-semibold text-white mb-3">
             Application Submitted Successfully!
           </h3>
 
-          <p
-            class="text-sm text-slate-400 mb-6 leading-relaxed"
-          >
+          <p class="text-sm text-slate-400 mb-6 leading-relaxed">
             Your leave application has been submitted to ADAS for review.
             You will receive a notification once there's an update.
           </p>
 
           <div class="flex flex-col sm:flex-row justify-center gap-3">
 
-            <button
-              @click="showSuccessModal = false"
-              class="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition text-sm"
-            >
+            <button @click="showSuccessModal = false"
+              class="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition text-sm">
               Close
             </button>
 
-            <button
-              @click="viewApplicationStatus"
-              class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm"
-            >
+            <button @click="viewApplicationStatus"
+              class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm">
               View Application
             </button>
 
@@ -986,8 +809,8 @@ const initializeSignaturePad = async () => {
   }
 
   // Preserve existing signature data URL if resizing
-  const existingData = signaturePad.value && !signaturePad.value.isEmpty() 
-    ? signaturePad.value.toDataURL() 
+  const existingData = signaturePad.value && !signaturePad.value.isEmpty()
+    ? signaturePad.value.toDataURL()
     : null;
 
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -1488,7 +1311,6 @@ const resetForm = () => {
 
 
 <style scoped>
-
 /* =========================================
    DASHBOARD THEME
 ========================================= */
@@ -1869,5 +1691,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 
 }
-
 </style>

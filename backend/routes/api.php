@@ -83,6 +83,11 @@ Route::middleware('auth:sanctum')->group(function () {
             [EmployeeController::class, 'myProfile']
         );
 
+        Route::get(
+            '/my-profile',
+            [EmployeeController::class, 'myProfile']
+        );
+
         Route::put(
             '/profile',
             [EmployeeController::class, 'updateProfile']
