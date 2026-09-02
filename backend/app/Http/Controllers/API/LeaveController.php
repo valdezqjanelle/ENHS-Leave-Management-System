@@ -1135,7 +1135,9 @@ $text(
         try {
             $deletedLeaves = LeaveApplication::onlyTrashed()
                 ->with([
-                    'employee',
+                    'employee' => function ($query) {
+                        $query->withTrashed();
+                    },
                     'leaveType',
                     'attachments'
                 ])

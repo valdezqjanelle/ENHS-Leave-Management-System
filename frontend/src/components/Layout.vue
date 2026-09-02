@@ -24,9 +24,9 @@
       "
     >
       <div class="p-6 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-blue-600">ELS</h1>
-          <p class="text-white-600">System</p>
+        <div class="brand-block">
+          <h1 class="text-xl font-bold text-white">ENHS</h1>
+          <p class="text-sm text-blue-100">Leave Management System</p>
         </div>
 
         <!-- Close button lives inside the sidebar's own header, right-aligned -->
@@ -212,7 +212,13 @@
           {{ pageTitle }}
         </h2>
 
-        <div class="flex items-center gap-4"></div>
+        <div class="user-summary" aria-label="Current user">
+          <span class="user-avatar">{{ currentUser.name.charAt(0).toUpperCase() }}</span>
+          <span class="hidden sm:block">
+            <strong>{{ currentUser.name }}</strong>
+            <small>{{ currentUser.role }}</small>
+          </span>
+        </div>
       </header>
 
       <!-- CONTENT -->
@@ -327,26 +333,27 @@ const logout = async () => {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background: #010307;
+  background: var(--app-bg);
 }
 
 .sidebar {
-  background: #0b1628;
-  box-shadow: 0 0 0 1px rgba(12, 29, 75, 0.15);
+  background: linear-gradient(180deg, #12355b 0%, #0e2b4b 100%);
+  box-shadow: 2px 0 18px rgba(15, 47, 82, 0.14);
 }
 
 .main-shell {
-  background: #080d14;
+  background: var(--app-bg);
 }
 
 .topbar {
-  background: #0b1628;
-  border-bottom: 1px solid #080d14;
-  box-shadow: 0 1px 0 rgba(148, 163, 184, 0.08);
+  min-height: 72px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 10px rgba(23, 32, 51, 0.05);
 }
 
 .content-panel {
-  background: #000000;
+  background: var(--app-bg);
 }
 
 .mobile-toggle,
@@ -382,6 +389,56 @@ const logout = async () => {
 .icon {
   width: 18px;
   height: 18px;
+}
+
+.brand-block {
+  min-width: 0;
+}
+
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.user-summary strong,
+.user-summary small {
+  display: block;
+  line-height: 1.25;
+}
+
+.user-summary strong {
+  font-size: 0.875rem;
+}
+
+.user-summary small {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.user-avatar {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .content-panel {
+    padding: 1rem;
+  }
+
+  .topbar {
+    padding-right: 1rem;
+  }
 }
 
 .search-input {

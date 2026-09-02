@@ -20,12 +20,7 @@
           <button
             v-for="tab in tabs"
             :key="tab.key"
-            @click="
-              activeTab = tab.key;
-              tab.key === 'deleted'
-                ? getDeletedApplications()
-                : loadApplications();
-            "
+            @click="handleTabChange(tab.key)"
             :class="[
               'px-3 sm:px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap',
               activeTab === tab.key
@@ -132,9 +127,7 @@
               <div class="flex-1 min-w-0">
                 <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                   <h3 class="text-lg font-medium text-white break-words">
-                    {{ application.employee.last_name }},
-                    {{ application.employee.first_name }}
-                    {{ application.employee.middle_name }}
+                    {{ getEmployeeName(application.employee) }}
                   </h3>
 
                   <span
@@ -154,13 +147,13 @@
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Office: </span>
 
-                    {{ application.employee.department_name }}
+                    {{ application.employee?.department_name ?? "Not available" }}
                   </div>
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Position: </span>
 
-                    {{ application.employee.position }}
+                    {{ application.employee?.position ?? "Not available" }}
                   </div>
 
                   <div class="min-w-0 break-words">
@@ -875,6 +868,15 @@ const tabs = [
   },
 ];
 
+const handleTabChange = async (tabKey: string) => {
+  activeTab.value = tabKey;
+  currentPage.value = 1;
+
+  if (tabKey === "deleted") {
+    await getDeletedApplications();
+  }
+};
+
 /* =========================================================
    FILTERED APPLICATIONS
 ========================================================= */
@@ -1065,6 +1067,21 @@ const getStatusClass = (status: string) => {
 
 const getLeaveType = (leaveType: any) => {
   return leaveType?.leave_type_name ?? "Not specified";
+};
+
+const getEmployeeName = (employee: any) => {
+  if (!employee) {
+    return "Employee record unavailable";
+  }
+
+  const givenName = [employee.first_name, employee.middle_name]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    [employee.last_name, givenName].filter(Boolean).join(", ") ||
+    "Employee record unavailable"
+  );
 };
 
 /* =========================================================
@@ -1347,11 +1364,23 @@ const getDeletedApplications = async () => {
   try {
     const response = await getDeletedLeaveApplications();
 
-    deletedApplications.value = Array.isArray(response) ? response : [];
+    deletedApplications.value = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.data)
+        ? response.data
+        : [];
+
+    currentPage.value = 1;
 
     console.log("DELETED APPLICATIONS:", deletedApplications.value);
-  } catch (error) {
+  } catch (error: any) {
+    deletedApplications.value = [];
     console.error("Failed to fetch deleted leave applications", error);
+
+    alert(
+      error.response?.data?.message ??
+        "Failed to load removed leave applications.",
+    );
   }
 };
 

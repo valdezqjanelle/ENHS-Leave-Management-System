@@ -52,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(
         '/leave-applications/{id}',
         [LeaveController::class, 'show']
-    );
+    )->whereNumber('id');
 
     // Leave Application PDF - viewing/downloading
     Route::get(

@@ -5,7 +5,7 @@
     <div class="neo-card w-full max-w-none mx-auto overflow-hidden">
 
       <!-- Header -->
-      <div class="px-6 py-5 border-b border-slate-700">
+      <div class="px-6 py-5 border-b border-slate-200">
         <h2 class="text-2xl font-semibold text-white">
           Leave Application Form
         </h2>
@@ -22,7 +22,7 @@
         <!-- PERSONAL INFORMATION -->
         <!-- =============================== -->
 
-        <div>
+        <div class="form-section">
           <h3 class="section-title">
             Personal Information
           </h3>
@@ -371,7 +371,7 @@
             </p>
 
             <p class="text-xs text-slate-500">
-              PDF, DOC, DOCX files up to 10MB
+              JPG, PNG, PDF, DOC, and DOCX — maximum 10 MB per file
             </p>
 
             <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" @change="handleFileUpload"
@@ -389,13 +389,13 @@
           <div v-if="form.attachments.length > 0" class="mt-4 space-y-3">
 
             <div v-for="(file, index) in form.attachments" :key="index"
-              class="flex items-center justify-between p-4 bg-slate-900/70 border border-slate-700 rounded-xl">
+              class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl">
 
               <div class="flex items-center min-w-0">
 
                 <FileText class="w-5 h-5 mr-3 text-slate-400 flex-shrink-0" />
 
-                <span class="text-sm text-slate-200 truncate">
+                <span class="text-sm text-slate-800 truncate">
                   {{ file.name }}
                 </span>
 
@@ -459,7 +459,7 @@
         <!-- DECLARATION -->
         <!-- =============================== -->
 
-        <div class="border-t border-slate-700 pt-6">
+        <div class="border-t border-slate-200 pt-6">
 
           <label class="flex items-start gap-3 cursor-pointer">
 
@@ -469,8 +469,8 @@
               I hereby certify that the information provided in this leave
               application is true and correct. I understand that any false
               statement may result in disciplinary action. I agree to comply
-              with all company policies and procedures regarding leave
-              applications.
+              with applicable school, DepEd, and Civil Service policies and
+              procedures regarding leave applications.
             </span>
 
           </label>
@@ -482,7 +482,7 @@
         <!-- BUTTONS -->
         <!-- =============================== -->
 
-        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-700">
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
 
           <button type="button" @click="resetForm"
             class="w-full sm:w-auto px-6 py-2.5 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm">
@@ -507,7 +507,7 @@
     <div v-if="showSuccessModal"
       class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6">
 
-      <div class="relative w-full max-w-lg shadow-2xl rounded-2xl bg-[#111D2E] border border-slate-700 p-8">
+      <div class="success-modal relative w-full max-w-lg shadow-2xl rounded-2xl bg-white border border-slate-200 p-8">
 
         <div class="text-center">
 
@@ -1316,7 +1316,7 @@ const resetForm = () => {
 ========================================= */
 
 .dashboard-shell {
-  background: #080D14;
+  background: var(--app-bg);
 
   /*
    * IMPORTANT:
@@ -1332,11 +1332,11 @@ const resetForm = () => {
 ========================================= */
 
 .neo-card {
-  background: #111D2E;
+  background: var(--surface);
 
-  border: 1px solid #1E293B;
+  border: 1px solid var(--border);
 
-  border-radius: 1.4rem;
+  border-radius: 1rem;
 
   /*
    * IMPORTANT:
@@ -1346,7 +1346,7 @@ const resetForm = () => {
   max-width: none;
 
   box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.18);
+    0 8px 24px rgba(23, 32, 51, 0.07);
 
   transition:
     box-shadow 0.2s ease,
@@ -1356,7 +1356,24 @@ const resetForm = () => {
 
 .neo-card:hover {
   box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.28);
+    0 12px 28px rgba(23, 32, 51, 0.1);
+}
+
+.neo-card .text-white,
+.success-modal .text-white {
+  color: var(--text) !important;
+}
+
+.neo-card .text-slate-300,
+.neo-card .text-slate-400,
+.neo-card .text-slate-500,
+.success-modal .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+.neo-card button.text-white,
+.success-modal button.text-white {
+  color: #ffffff !important;
 }
 
 
@@ -1365,7 +1382,10 @@ const resetForm = () => {
 ========================================= */
 
 .form-section {
-  padding-top: 0.5rem;
+  padding: 1.25rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
 }
 
 
@@ -1376,9 +1396,9 @@ const resetForm = () => {
 .form-label {
   display: block;
 
-  color: #cbd5e1;
+  color: #334155;
 
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 
   font-weight: 500;
 
@@ -1391,7 +1411,7 @@ const resetForm = () => {
 ========================================= */
 
 .section-title {
-  color: #f8fafc;
+  color: var(--text);
 
   font-size: 1rem;
 
@@ -1410,17 +1430,17 @@ const resetForm = () => {
 
   min-width: 0;
 
-  border: 1px solid #334155;
+  border: 1px solid #c7d2e0;
 
   border-radius: 0.65rem;
 
   padding: 0.7rem 0.85rem;
 
-  background: #0f1a2a;
+  background: #ffffff;
 
-  color: #f8fafc;
+  color: var(--text);
 
-  font-size: 0.875rem;
+  font-size: 1rem;
 
   outline: none;
 
@@ -1432,34 +1452,34 @@ const resetForm = () => {
 
 
 .input-field:focus {
-  border-color: #3b82f6;
+  border-color: var(--primary);
 
   box-shadow:
-    0 0 0 2px rgba(59, 130, 246, 0.15);
+    0 0 0 3px var(--focus-ring);
 }
 
 
 .input-field::placeholder {
-  color: #64748b;
+  color: #7a8799;
 }
 
 
 .input-field:read-only {
-  color: #cbd5e1;
+  color: #526176;
 
-  background: #0b1524;
+  background: #eef2f7;
 }
 
 
 select.input-field {
-  color: #f8fafc;
+  color: var(--text);
 }
 
 
 select.input-field option {
-  color: #f8fafc;
+  color: var(--text);
 
-  background: #111D2E;
+  background: #ffffff;
 }
 
 
@@ -1476,9 +1496,9 @@ select.input-field option {
 
   padding: 1rem;
 
-  background: rgba(15, 26, 42, 0.7);
+  background: #eef4fb;
 
-  border: 1px solid #334155;
+  border: 1px solid #c8d6e6;
 
   border-radius: 0.8rem;
 
@@ -1493,9 +1513,9 @@ select.input-field option {
 .option-box {
   padding: 1rem;
 
-  background: rgba(15, 26, 42, 0.7);
+  background: #eef4fb;
 
-  border: 1px solid #334155;
+  border: 1px solid #c8d6e6;
 
   border-radius: 0.8rem;
 
@@ -1510,7 +1530,7 @@ select.input-field option {
 
   gap: 0.6rem;
 
-  color: #cbd5e1;
+  color: #334155;
 
   font-size: 0.875rem;
 
@@ -1543,10 +1563,9 @@ select.input-field option {
 ========================================= */
 
 .credit-box {
-  background:
-    rgba(30, 64, 175, 0.12);
+  background: #eaf2ff;
 
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  border: 1px solid #b8cdf0;
 
   border-radius: 1rem;
 
@@ -1568,13 +1587,17 @@ select.input-field option {
   min-width: 0;
 }
 
+.credit-box .text-blue-300 {
+  color: #1e40af !important;
+}
+
 
 /* =========================================
    UPLOAD AREA
 ========================================= */
 
 .upload-box {
-  border: 2px dashed #334155;
+  border: 2px dashed #9fb0c5;
 
   border-radius: 1rem;
 
@@ -1582,7 +1605,7 @@ select.input-field option {
 
   text-align: center;
 
-  background: rgba(15, 26, 42, 0.45);
+  background: #f8fafc;
 
   transition:
     border-color 0.2s ease,
@@ -1593,10 +1616,9 @@ select.input-field option {
 
 
 .upload-box:hover {
-  border-color: #3b82f6;
+  border-color: var(--primary);
 
-  background:
-    rgba(30, 64, 175, 0.08);
+  background: #eef4ff;
 }
 
 
