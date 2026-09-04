@@ -7,6 +7,7 @@ use App\Models\EmployeeRecord;
 use App\Models\TeachingPersonnelRecord;
 use Illuminate\Http\Request;
 use App\Support\AuditLogger;
+use Illuminate\Support\Facades\DB;
 
 class TeachingPersonnelRecordController extends Controller
 {
@@ -18,6 +19,9 @@ class TeachingPersonnelRecordController extends Controller
             'employee.position',
             'employee.department',
             'employee.supervisor',
+            'assignments.gradeLevel',
+            'assignments.section',
+            'assignments.subject',
         ])
         ->latest()
         ->get();
@@ -33,6 +37,9 @@ class TeachingPersonnelRecordController extends Controller
             'employee.position',
             'employee.department',
             'employee.supervisor',
+            'assignments.gradeLevel',
+            'assignments.section',
+            'assignments.subject',
         ])->findOrFail($id);
 
         return response()->json($record);
@@ -48,6 +55,13 @@ class TeachingPersonnelRecordController extends Controller
             'advisory_class' => 'nullable|string|max:255',
             'teaching_load' => 'nullable|string',
             'teaching_hours' => 'nullable|numeric|min:0|max:99.99',
+            'assignments' => 'nullable|array',
+            'assignments.*.grade_level_id' => 'required|exists:grade_levels,grade_level_id',
+            'assignments.*.section_id' => 'nullable|exists:school_sections,section_id',
+            'assignments.*.subject_id' => 'required|exists:teaching_subjects,subject_id',
+            'assignments.*.school_year' => ['required', 'regex:/^\\d{4}-\\d{4}$/'],
+            'assignments.*.is_advisory' => 'nullable|boolean',
+            'assignments.*.teaching_hours' => 'nullable|numeric|min:0|max:99.99',
         ]);
 
         $employee = EmployeeRecord::findOrFail($request->employee_id);
@@ -76,6 +90,8 @@ class TeachingPersonnelRecordController extends Controller
             'teaching_hours' => $request->teaching_hours,
         ]);
 
+        $this->syncAssignments($record, $request->input('assignments', []));
+
         AuditLogger::log(
             'Teaching personnel record created',
             "Created teaching personnel record for {$employee->first_name} {$employee->last_name}"
@@ -88,6 +104,7 @@ class TeachingPersonnelRecordController extends Controller
                 'employee.position',
                 'employee.department',
                 'employee.supervisor',
+                'assignments.gradeLevel', 'assignments.section', 'assignments.subject',
             ]),
         ], 201);
     }
@@ -102,6 +119,13 @@ class TeachingPersonnelRecordController extends Controller
             'advisory_class' => 'nullable|string|max:255',
             'teaching_load' => 'nullable|string',
             'teaching_hours' => 'nullable|numeric|min:0|max:99.99',
+            'assignments' => 'nullable|array',
+            'assignments.*.grade_level_id' => 'required|exists:grade_levels,grade_level_id',
+            'assignments.*.section_id' => 'nullable|exists:school_sections,section_id',
+            'assignments.*.subject_id' => 'required|exists:teaching_subjects,subject_id',
+            'assignments.*.school_year' => ['required', 'regex:/^\\d{4}-\\d{4}$/'],
+            'assignments.*.is_advisory' => 'nullable|boolean',
+            'assignments.*.teaching_hours' => 'nullable|numeric|min:0|max:99.99',
         ]);
 
         $record->update([
@@ -111,6 +135,10 @@ class TeachingPersonnelRecordController extends Controller
             'teaching_load' => $request->teaching_load,
             'teaching_hours' => $request->teaching_hours,
         ]);
+
+        if ($request->has('assignments')) {
+            $this->syncAssignments($record, $request->input('assignments', []));
+        }
 
         AuditLogger::log(
             'Teaching personnel record updated',
@@ -124,6 +152,7 @@ class TeachingPersonnelRecordController extends Controller
                 'employee.position',
                 'employee.department',
                 'employee.supervisor',
+                'assignments.gradeLevel', 'assignments.section', 'assignments.subject',
             ]),
         ]);
     }
@@ -146,5 +175,20 @@ class TeachingPersonnelRecordController extends Controller
         return response()->json([
             'message' => 'Teaching personnel record deleted successfully.'
         ]);
+    }
+
+    private function syncAssignments(TeachingPersonnelRecord $record, array $assignments): void
+    {
+        DB::transaction(function () use ($record, $assignments) {
+            $record->assignments()->delete();
+            foreach ($assignments as $assignment) {
+                if (!empty($assignment['section_id'])) {
+                    $valid = \App\Models\SchoolSection::where('section_id', $assignment['section_id'])
+                        ->where('grade_level_id', $assignment['grade_level_id'])->exists();
+                    abort_unless($valid, 422, 'The selected section does not belong to the selected grade level.');
+                }
+                $record->assignments()->create($assignment);
+            }
+        });
     }
 }

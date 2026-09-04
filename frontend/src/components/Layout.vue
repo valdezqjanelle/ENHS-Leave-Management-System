@@ -78,6 +78,10 @@
               Teaching Personnel
             </router-link>
 
+            <router-link to="/teaching-setup" class="nav-subitem">
+              Teaching Setup
+            </router-link>
+
             <router-link to="/non-teaching-personnel" class="nav-subitem">
               Non-Teaching Personnel
             </router-link>
@@ -272,6 +276,7 @@ const isPersonnelRouteActive = computed(() => {
   return [
     "/employees",
     "/teaching-personnel",
+    "/teaching-setup",
     "/non-teaching-personnel",
   ].includes(route.path);
 });

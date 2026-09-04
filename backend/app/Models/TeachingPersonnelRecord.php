@@ -32,4 +32,13 @@ class TeachingPersonnelRecord extends Model
             'employee_id'
         );
     }
+
+    public function assignments()
+    {
+        return $this->hasMany(
+            TeachingAssignment::class,
+            'teaching_record_id',
+            'teaching_record_id'
+        );
+    }
 }

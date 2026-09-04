@@ -22,6 +22,7 @@ use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\TeachingPersonnelRecordController;
 use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
+use App\Http\Controllers\API\TeachingSetupController;
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
@@ -440,6 +441,17 @@ Route::middleware('auth:sanctum')->group(function () {
         );
 
         // Teaching Personnel
+
+        Route::get('/teaching-setup', [TeachingSetupController::class, 'index']);
+        Route::post('/teaching-setup/grade-levels', [TeachingSetupController::class, 'storeGradeLevel']);
+        Route::put('/teaching-setup/grade-levels/{id}', [TeachingSetupController::class, 'updateGradeLevel']);
+        Route::delete('/teaching-setup/grade-levels/{id}', [TeachingSetupController::class, 'destroyGradeLevel']);
+        Route::post('/teaching-setup/sections', [TeachingSetupController::class, 'storeSection']);
+        Route::put('/teaching-setup/sections/{id}', [TeachingSetupController::class, 'updateSection']);
+        Route::delete('/teaching-setup/sections/{id}', [TeachingSetupController::class, 'destroySection']);
+        Route::post('/teaching-setup/subjects', [TeachingSetupController::class, 'storeSubject']);
+        Route::put('/teaching-setup/subjects/{id}', [TeachingSetupController::class, 'updateSubject']);
+        Route::delete('/teaching-setup/subjects/{id}', [TeachingSetupController::class, 'destroySubject']);
 
         Route::get(
             '/teaching-personnel-records',

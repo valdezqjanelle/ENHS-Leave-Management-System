@@ -81,11 +81,11 @@
                 </td>
 
                 <td class="px-3 py-4 text-white">
-                  {{ record.subject_specialization || "-" }}
+                  {{ assignmentSummary(record, "subject") }}
                 </td>
 
                 <td class="px-3 py-4 text-white">
-                  {{ record.advisory_class || "-" }}
+                  {{ assignmentSummary(record, "class") }}
                 </td>
 
                 <td class="px-3 py-4 text-white">
@@ -223,55 +223,30 @@
             </h4>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- SPECIALIZATION -->
+              <div class="md:col-span-2 space-y-4">
+                <div class="flex items-center justify-between">
+                  <label class="text-sm font-semibold text-gray-800">Teaching Assignments</label>
+                  <button type="button" @click="addAssignment" class="px-4 py-2 rounded-lg bg-blue-100 text-blue-700 font-medium">+ Add Assignment</button>
+                </div>
 
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Subject Specialization
-                </label>
-
-                <input
-                  v-model="form.subject_specialization"
-                  type="text"
-                  placeholder="e.g. Mathematics"
-                  class="w-full border rounded-lg px-3 py-2 text-gray-800"
-                />
-              </div>
-
-              <!-- GRADE LEVEL -->
-
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Grade Level Handled
-                </label>
-
-                <input
-                  v-model="form.grade_level_handled"
-                  type="text"
-                  placeholder="e.g. Grade 7"
-                  class="w-full border rounded-lg px-3 py-2 text-gray-800"
-                />
-              </div>
-
-              <!-- ADVISORY -->
-
-              <div>
-                <label
-                  class="block mb-2 text-sm text-gray-800 font-medium"
-                >
-                  Advisory Class
-                </label>
-
-                <input
-                  v-model="form.advisory_class"
-                  type="text"
-                  placeholder="e.g. Grade 7 - Rizal"
-                  class="w-full border rounded-lg px-3 py-2 text-gray-800"
-                />
+                <div v-for="(assignment,index) in form.assignments" :key="index" class="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded-xl p-4 bg-gray-50">
+                  <select v-model.number="assignment.grade_level_id" @change="assignment.section_id=null" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                    <option :value="null">Select grade level</option>
+                    <option v-for="grade in activeGradeLevels" :key="grade.grade_level_id" :value="grade.grade_level_id">{{ grade.grade_name }} ({{ grade.level }})</option>
+                  </select>
+                  <select v-model.number="assignment.section_id" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                    <option :value="null">No section / Select section</option>
+                    <option v-for="section in sectionsFor(assignment.grade_level_id)" :key="section.section_id" :value="section.section_id">{{ section.section_name }}</option>
+                  </select>
+                  <select v-model.number="assignment.subject_id" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                    <option :value="null">Select subject / specialization</option>
+                    <option v-for="subject in subjectsForSelectedEmployee" :key="subject.subject_id" :value="subject.subject_id">{{ subject.subject_name }}</option>
+                  </select>
+                  <input v-model.trim="assignment.school_year" placeholder="2026-2027" pattern="[0-9]{4}-[0-9]{4}" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
+                  <label class="flex items-center gap-2 text-sm text-gray-700"><input v-model="assignment.is_advisory" type="checkbox" /> Advisory class</label>
+                  <input v-model.number="assignment.teaching_hours" type="number" min="0" max="99.99" step="0.01" placeholder="Hours" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
+                  <button v-if="form.assignments.length>1" type="button" @click="form.assignments.splice(index,1)" class="text-left text-sm font-medium text-red-600">Remove assignment</button>
+                </div>
               </div>
 
               <!-- TEACHING HOURS -->
@@ -406,25 +381,15 @@
             </p>
           </div>
 
-          <div>
-            <span class="font-semibold">Subject Specialization</span>
-            <p class="mt-1 break-words">
-              {{ selectedRecord.subject_specialization || "-" }}
-            </p>
-          </div>
-
-          <div>
-            <span class="font-semibold">Grade Level Handled</span>
-            <p class="mt-1">
-              {{ selectedRecord.grade_level_handled || "-" }}
-            </p>
-          </div>
-
-          <div>
-            <span class="font-semibold">Advisory Class</span>
-            <p class="mt-1">
-              {{ selectedRecord.advisory_class || "-" }}
-            </p>
+          <div class="md:col-span-2">
+            <span class="font-semibold">Teaching Assignments</span>
+            <div v-if="selectedRecord.assignments?.length" class="mt-2 space-y-2">
+              <div v-for="assignment in selectedRecord.assignments" :key="assignment.assignment_id" class="rounded-lg border border-slate-600 p-3">
+                <p>{{ assignment.subject?.subject_name || "Subject" }} — {{ assignment.grade_level?.grade_name || "Grade" }}<span v-if="assignment.section">, {{ assignment.section.section_name }}</span></p>
+                <p class="text-xs opacity-80">S.Y. {{ assignment.school_year }}<span v-if="assignment.is_advisory"> · Advisory class</span><span v-if="assignment.teaching_hours !== null"> · {{ assignment.teaching_hours }} hour(s)</span></p>
+              </div>
+            </div>
+            <p v-else class="mt-1">{{ selectedRecord.subject_specialization || "-" }} — {{ selectedRecord.grade_level_handled || "-" }}</p>
           </div>
 
           <div>
@@ -467,6 +432,7 @@ import {
 } from "../services/teachingPersonnel";
 
 import { getEmployees } from "../services/employee";
+import { getTeachingSetup } from "../services/teachingSetup";
 
 /* ========================================================= */
 /* INTERFACES */
@@ -505,6 +471,7 @@ interface TeachingRecord {
   advisory_class?: string | null;
   teaching_load?: string | null;
   teaching_hours?: number | null;
+  assignments?: any[];
 
   employee?: Employee;
 }
@@ -523,6 +490,7 @@ const showViewModal = ref(false);
 
 const selectedRecord = ref<TeachingRecord | null>(null);
 const editingRecord = ref<TeachingRecord | null>(null);
+const teachingSetup = ref<any>({ grade_levels: [], subjects: [] });
 
 /* ========================================================= */
 /* FORM */
@@ -535,7 +503,46 @@ const form = ref({
   advisory_class: "",
   teaching_load: "",
   teaching_hours: null as number | null,
+  assignments: [] as any[],
 });
+
+const currentSchoolYear = () => {
+  const now = new Date();
+  const start = now.getMonth() + 1 >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+  return `${start}-${start + 1}`;
+};
+
+const emptyAssignment = () => ({ grade_level_id: null, section_id: null, subject_id: null, school_year: currentSchoolYear(), is_advisory: false, teaching_hours: null });
+const activeGradeLevels = computed(() => teachingSetup.value.grade_levels.filter((g:any)=>g.is_active));
+const selectedEmployee = computed(() => employees.value.find(e=>e.employee_id===form.value.employee_id));
+const subjectsForSelectedEmployee = computed(() => {
+  const departmentId = selectedEmployee.value?.department?.department_id;
+  return teachingSetup.value.subjects.filter((s:any)=>s.is_active && (!s.department_id || s.department_id===departmentId));
+});
+const sectionsFor = (gradeId:number|null) => teachingSetup.value.grade_levels.find((g:any)=>g.grade_level_id===gradeId)?.sections?.filter((s:any)=>s.is_active) ?? [];
+const addAssignment = () => form.value.assignments.push(emptyAssignment());
+
+const assignmentSummary = (record: TeachingRecord, type: "subject" | "class") => {
+  if (!record.assignments?.length) {
+    return type === "subject"
+      ? record.subject_specialization || "-"
+      : record.advisory_class || record.grade_level_handled || "-";
+  }
+
+  return record.assignments
+    .map((assignment: any) => {
+      if (type === "subject") {
+        return assignment.subject?.subject_name;
+      }
+
+      const grade = assignment.grade_level?.grade_name || "";
+      const section = assignment.section?.section_name || "";
+      return [grade, section].filter(Boolean).join(" - ");
+    })
+    .filter(Boolean)
+    .filter((value: string, index: number, values: string[]) => values.indexOf(value) === index)
+    .join(", ") || "-";
+};
 
 /* ========================================================= */
 /* TEACHING EMPLOYEES */
@@ -580,13 +587,24 @@ const filteredRecords = computed(() => {
     const advisory =
       record.advisory_class?.toLowerCase() || "";
 
+    const assignments = (record.assignments || [])
+      .map((assignment: any) => [
+        assignment.subject?.subject_name,
+        assignment.grade_level?.grade_name,
+        assignment.section?.section_name,
+        assignment.school_year,
+      ].filter(Boolean).join(" "))
+      .join(" ")
+      .toLowerCase();
+
     return (
       name.includes(keyword) ||
       code.includes(keyword) ||
       position.includes(keyword) ||
       specialization.includes(keyword) ||
       grade.includes(keyword) ||
-      advisory.includes(keyword)
+      advisory.includes(keyword) ||
+      assignments.includes(keyword)
     );
   });
 });
@@ -646,6 +664,11 @@ const loadEmployees = async () => {
   }
 };
 
+const loadTeachingSetup = async () => {
+  try { teachingSetup.value = await getTeachingSetup(); }
+  catch (error) { console.error("Failed to load teaching setup:", error); }
+};
+
 /* ========================================================= */
 /* RESET FORM */
 /* ========================================================= */
@@ -658,6 +681,7 @@ const resetForm = () => {
     advisory_class: "",
     teaching_load: "",
     teaching_hours: null,
+    assignments: [emptyAssignment()],
   };
 };
 
@@ -697,6 +721,13 @@ const editRecord = (record: TeachingRecord) => {
 
     teaching_hours:
       record.teaching_hours ?? null,
+    assignments: record.assignments?.length
+      ? record.assignments.map((a:any)=>({
+          grade_level_id:a.grade_level_id, section_id:a.section_id,
+          subject_id:a.subject_id, school_year:a.school_year,
+          is_advisory:Boolean(a.is_advisory), teaching_hours:a.teaching_hours === null ? null : Number(a.teaching_hours),
+        }))
+      : [emptyAssignment()],
   };
 
   showFormModal.value = true;
@@ -726,35 +757,33 @@ const saveRecord = async () => {
       return;
     }
 
-    if (!form.value.subject_specialization.trim()) {
-      alert("Please enter the subject specialization.");
-
-      return;
+    if (!form.value.assignments.length || form.value.assignments.some((a:any)=>!a.grade_level_id || !a.subject_id || !/^\d{4}-\d{4}$/.test(a.school_year))) {
+      alert("Complete the grade level, subject, and school year for every assignment."); return;
     }
 
-    if (!form.value.grade_level_handled.trim()) {
-      alert("Please enter the grade level handled.");
-
-      return;
-    }
+    const first = form.value.assignments[0];
+    const grade = teachingSetup.value.grade_levels.find((g:any)=>g.grade_level_id===first.grade_level_id);
+    const section = sectionsFor(first.grade_level_id).find((s:any)=>s.section_id===first.section_id);
+    const subject = teachingSetup.value.subjects.find((s:any)=>s.subject_id===first.subject_id);
 
     const payload = {
       employee_id: form.value.employee_id,
 
       subject_specialization:
-        form.value.subject_specialization,
+        subject?.subject_name || "Teaching Assignment",
 
       grade_level_handled:
-        form.value.grade_level_handled,
+        grade?.grade_name || "Assigned Grade",
 
       advisory_class:
-        form.value.advisory_class || null,
+        first.is_advisory && section ? `${grade?.grade_name} - ${section.section_name}` : null,
 
       teaching_load:
         form.value.teaching_load || null,
 
       teaching_hours:
         form.value.teaching_hours,
+      assignments: form.value.assignments,
     };
 
     if (editingRecord.value) {
@@ -846,6 +875,7 @@ onMounted(async () => {
   await Promise.all([
     loadRecords(),
     loadEmployees(),
+    loadTeachingSetup(),
   ]);
 });
 </script>
