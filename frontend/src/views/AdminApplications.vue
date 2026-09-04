@@ -504,7 +504,97 @@
   </div>
 
   <!-- ====================================================== -->
-  <!-- APPROVAL / DEDUCTION MODAL -->
+  <!-- PRIMARY LEAVE APPROVAL MODAL (VACATION / SICK) -->
+  <!-- ====================================================== -->
+
+  <div
+    v-if="showPrimaryApprovalModal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-3 sm:p-4 overflow-y-auto"
+  >
+    <div
+      class="bg-white rounded-lg shadow-xl w-full max-w-lg p-4 sm:p-6 neo-card max-h-[95vh] overflow-y-auto"
+    >
+      <h3 class="text-lg font-semibold text-white">
+        Approve {{ primaryLeaveLabel }}
+      </h3>
+
+      <p class="text-sm text-gray-300 mt-2">
+        {{ getEmployeeName(approvalApplication?.employee) }} applied for
+        <strong>{{ approvalApplication?.number_of_days ?? 0 }}</strong>
+        day(s) of {{ primaryLeaveLabel }}.
+      </p>
+
+      <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="balance-summary-card">
+          <span>Vacation Leave</span>
+          <strong>{{ formatBalance(employeeBalance.vacation_balance) }} days</strong>
+        </div>
+        <div class="balance-summary-card">
+          <span>Sick Leave</span>
+          <strong>{{ formatBalance(employeeBalance.sick_balance) }} days</strong>
+        </div>
+        <div class="balance-summary-card">
+          <span>Service Credits</span>
+          <strong>{{ formatBalance(employeeBalance.service_credits) }} days</strong>
+        </div>
+      </div>
+
+      <p v-if="isLoadingBalance" class="text-sm text-blue-300 mt-3">
+        Loading current balances...
+      </p>
+      <p v-else-if="balanceLoadError" class="text-sm text-red-300 mt-3">
+        {{ balanceLoadError }}
+      </p>
+
+      <div class="mt-5 rounded-xl border border-blue-400/30 bg-blue-500/10 p-4">
+        <div class="flex justify-between gap-3 text-sm text-white">
+          <span>{{ primaryLeaveLabel }} deduction</span>
+          <strong>{{ approvalApplication?.number_of_days ?? 0 }} day(s)</strong>
+        </div>
+        <div class="flex justify-between gap-3 text-sm text-white mt-2">
+          <span>Projected {{ primaryLeaveLabel }} balance</span>
+          <strong :class="projectedPrimaryBalance < 0 ? 'text-red-300' : 'text-green-300'">
+            {{ formatBalance(projectedPrimaryBalance) }} day(s)
+          </strong>
+        </div>
+        <p v-if="projectedPrimaryBalance < 0" class="text-xs text-red-300 mt-2">
+          Insufficient {{ primaryLeaveLabel }} balance. Use Split Deduction or approve
+          without deduction.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+        <button
+          @click="approvePrimaryWithDeduction"
+          :disabled="isLoadingBalance || projectedPrimaryBalance < 0"
+          class="btn-action-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Approve and Deduct {{ primaryLeaveShortLabel }}
+        </button>
+        <button
+          @click="approveWithoutDeduction"
+          class="btn-action-lg bg-blue-600 hover:bg-blue-700"
+        >
+          Approve Without Deduction
+        </button>
+        <button
+          @click="openSplitDeduction"
+          class="btn-action-lg bg-amber-600 hover:bg-amber-700"
+        >
+          Use Split Deduction
+        </button>
+        <button
+          @click="closeApprovalModals"
+          class="btn-action-lg bg-gray-600 hover:bg-gray-700"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- APPROVAL / SPLIT DEDUCTION MODAL -->
   <!-- ====================================================== -->
 
   <div
@@ -527,6 +617,21 @@
 
         day(s).
       </p>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="balance-summary-card">
+          <span>Vacation Leave</span>
+          <strong>{{ formatBalance(employeeBalance.vacation_balance) }} days</strong>
+        </div>
+        <div class="balance-summary-card">
+          <span>Sick Leave</span>
+          <strong>{{ formatBalance(employeeBalance.sick_balance) }} days</strong>
+        </div>
+        <div class="balance-summary-card">
+          <span>Service Credits</span>
+          <strong>{{ formatBalance(employeeBalance.service_credits) }} days</strong>
+        </div>
+      </div>
 
       <!-- Deduct Balance -->
       <div class="mt-5">
@@ -654,7 +759,15 @@
       <!-- Buttons -->
       <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
         <button
-          @click="showApprovalModal = false"
+          v-if="isPrimaryLeaveApplication(approvalApplication)"
+          @click="backToPrimaryApproval"
+          class="btn-action-lg bg-gray-600 hover:bg-gray-700"
+        >
+          Back
+        </button>
+
+        <button
+          @click="closeApprovalModals"
           class="btn-action-lg bg-red-900 hover:bg-red-800"
         >
           Cancel
@@ -754,6 +867,7 @@ import {
   getDeletedLeaveApplications,
   rejectLeaveApplication,
 } from "@/services/leave";
+import { getLeaveBalanceByEmployeeId } from "@/services/leaveBalance";
 
 import axios from "axios";
 
@@ -810,6 +924,8 @@ const selectedApplication = ref<LeaveApplication | null>(null);
 
 const showApprovalModal = ref(false);
 
+const showPrimaryApprovalModal = ref(false);
+
 const approvalApplication = ref<LeaveApplication | null>(null);
 
 /* =========================================================
@@ -823,6 +939,39 @@ const vacationDeductDays = ref(0);
 const sickDeductDays = ref(0);
 
 const serviceCreditsDeductDays = ref(0);
+
+const employeeBalance = ref({
+  vacation_balance: 0,
+  sick_balance: 0,
+  service_credits: 0,
+});
+
+const isLoadingBalance = ref(false);
+const balanceLoadError = ref("");
+
+const primaryDeductionType = computed<"vacation" | "sick" | null>(() => {
+  if (isVacationApplication(approvalApplication.value)) return "vacation";
+  if (isSickApplication(approvalApplication.value)) return "sick";
+  return null;
+});
+
+const primaryLeaveLabel = computed(() =>
+  primaryDeductionType.value === "sick" ? "Sick Leave" : "Vacation Leave",
+);
+
+const primaryLeaveShortLabel = computed(() =>
+  primaryDeductionType.value === "sick" ? "Sick" : "Vacation",
+);
+
+const projectedPrimaryBalance = computed(() => {
+  const daysApplied = Number(approvalApplication.value?.number_of_days) || 0;
+  const currentBalance =
+    primaryDeductionType.value === "sick"
+      ? employeeBalance.value.sick_balance
+      : employeeBalance.value.vacation_balance;
+
+  return Number(currentBalance) - daysApplied;
+});
 
 /* =========================================================
    PAGINATION
@@ -1136,18 +1285,139 @@ const downloadApplication = (application: LeaveApplication) => {
    OPEN APPROVAL MODAL
 ========================================================= */
 
-const openApprovalModal = (application: LeaveApplication) => {
-  approvalApplication.value = application;
+const isVacationApplication = (application: LeaveApplication | null) => {
+  if (!application) return false;
 
+  const code = String(application.leave_type?.code ?? "").toUpperCase();
+  const name = String(application.leave_type?.leave_type_name ?? "").toLowerCase();
+
+  return code === "VL" || name.includes("vacation");
+};
+
+const isSickApplication = (application: LeaveApplication | null) => {
+  if (!application) return false;
+
+  const code = String(application.leave_type?.code ?? "").toUpperCase();
+  const name = String(application.leave_type?.leave_type_name ?? "").toLowerCase();
+
+  return code === "SL" || name.includes("sick");
+};
+
+const isPrimaryLeaveApplication = (application: LeaveApplication | null) =>
+  isVacationApplication(application) || isSickApplication(application);
+
+const loadEmployeeBalance = async (employeeId: number) => {
+  isLoadingBalance.value = true;
+  balanceLoadError.value = "";
+
+  try {
+    const balance = await getLeaveBalanceByEmployeeId(employeeId);
+    employeeBalance.value = {
+      vacation_balance: Number(balance?.vacation_balance) || 0,
+      sick_balance: Number(balance?.sick_balance) || 0,
+      service_credits: Number(balance?.service_credits) || 0,
+    };
+  } catch (error: any) {
+    employeeBalance.value = {
+      vacation_balance: 0,
+      sick_balance: 0,
+      service_credits: 0,
+    };
+    balanceLoadError.value =
+      error.response?.data?.message ?? "Could not load current leave balances.";
+  } finally {
+    isLoadingBalance.value = false;
+  }
+};
+
+const resetDeductionValues = () => {
   deductBalance.value = "yes";
-
   serviceCreditsDeductDays.value = 0;
-
   vacationDeductDays.value = 0;
+  sickDeductDays.value = 0;
+};
 
-  sickDeductDays.value = application.number_of_days;
+const openApprovalModal = async (application: LeaveApplication) => {
+  approvalApplication.value = application;
+  resetDeductionValues();
+  showDetailModal.value = false;
+  showApprovalModal.value = false;
+  showPrimaryApprovalModal.value = isPrimaryLeaveApplication(application);
 
+  if (!showPrimaryApprovalModal.value) {
+    // Preserve the current split-modal default for non-vacation applications.
+    sickDeductDays.value = application.number_of_days;
+    showApprovalModal.value = true;
+  }
+
+  await loadEmployeeBalance(application.employee_id);
+};
+
+const openSplitDeduction = () => {
+  if (!approvalApplication.value) return;
+
+  resetDeductionValues();
+  if (isSickApplication(approvalApplication.value)) {
+    sickDeductDays.value = approvalApplication.value.number_of_days;
+  } else {
+    vacationDeductDays.value = approvalApplication.value.number_of_days;
+  }
+
+  showPrimaryApprovalModal.value = false;
   showApprovalModal.value = true;
+};
+
+const backToPrimaryApproval = () => {
+  showApprovalModal.value = false;
+  showPrimaryApprovalModal.value = true;
+};
+
+const closeApprovalModals = () => {
+  showApprovalModal.value = false;
+  showPrimaryApprovalModal.value = false;
+  approvalApplication.value = null;
+};
+
+const approvePrimaryWithDeduction = async () => {
+  const application = approvalApplication.value;
+  if (!application || !isPrimaryLeaveApplication(application)) return;
+
+  const daysApplied = Number(application.number_of_days) || 0;
+
+  if (daysApplied <= 0) {
+    alert("The number of days applied must be greater than zero.");
+    return;
+  }
+
+  const isSick = isSickApplication(application);
+  const currentBalance = isSick
+    ? Number(employeeBalance.value.sick_balance)
+    : Number(employeeBalance.value.vacation_balance);
+
+  if (daysApplied > currentBalance) {
+    alert(`Insufficient ${isSick ? "Sick Leave" : "Vacation Leave"} balance.`);
+    return;
+  }
+
+  await updateStatus(application.leave_id, "approved", {
+    deduct_balance: true,
+    vacation_deduct_days: isSick ? 0 : daysApplied,
+    sick_deduct_days: isSick ? daysApplied : 0,
+    service_credits_deduct_days: 0,
+  });
+};
+
+const approveWithoutDeduction = async () => {
+  if (!approvalApplication.value) return;
+
+  await updateStatus(approvalApplication.value.leave_id, "approved", {
+    deduct_balance: false,
+  });
+};
+
+const formatBalance = (value: unknown) => {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue.toFixed(2) : "0.00";
 };
 
 /* =========================================================
@@ -1190,6 +1460,8 @@ const updateStatus = async (
     showDetailModal.value = false;
 
     showApprovalModal.value = false;
+
+    showPrimaryApprovalModal.value = false;
 
     await loadApplications();
   } catch (error: any) {
@@ -1501,6 +1773,23 @@ onMounted(() => {
 
 .btn-action-lg:active {
   transform: scale(0.98);
+}
+
+.balance-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  background: #0b1420;
+  color: #cbd5e1;
+  font-size: 0.75rem;
+}
+
+.balance-summary-card strong {
+  color: #ffffff;
+  font-size: 0.9rem;
 }
 
 /* =========================================================

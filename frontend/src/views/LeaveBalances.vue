@@ -750,16 +750,14 @@ const totalBalance = (
 ) => {
 
   /*
-   * Total Available represents the employee's
-   * actual leave balances.
-   *
-   * Service Credits are displayed separately because
-   * they are not yet Vacation/Sick leave.
+   * Total Available includes every balance that can be
+   * selected for deduction during leave approval.
    */
 
   return (
     Number(balance.vacation_balance ?? 0) +
-    Number(balance.sick_balance ?? 0)
+    Number(balance.sick_balance ?? 0) +
+    Number(balance.service_credits ?? 0)
   ).toFixed(2);
 
 };
