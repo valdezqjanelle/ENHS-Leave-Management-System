@@ -182,7 +182,7 @@
                   View Form
                 </button>
 
-                <button v-if="application.status === 'Approved'" @click="downloadForm(application)"
+                <button v-if="application.final_status === 'approved'" @click="downloadForm(application)"
                   class="text-green-400 hover:text-green-300 font-medium transition">
                   Download
                 </button>
@@ -318,39 +318,108 @@
 
 
         <!-- Supporting Documents -->
-        <div v-if="
-          application.attachments &&
-          application.attachments.length > 0
-        " class="modal-section">
-
-          <h4 class="modal-title">
-            Supporting Documents
-          </h4>
-
-          <div class="space-y-2">
-
-            <div v-for="(file, index) in application.attachments" :key="index"
-              class="flex items-center justify-between p-3 bg-[#0F1A2A] border border-slate-700 rounded-lg">
-
-              <div class="flex items-center min-w-0">
-
-                <FileText class="w-5 h-5 text-slate-500 mr-3 flex-shrink-0" />
-
-                <span class="text-sm text-slate-300 truncate">
-                  {{ file.name }}
-                </span>
-
-              </div>
-
-
-              <button class="text-blue-400 hover:text-blue-300 text-sm ml-4">
-                Download
-              </button>
-
+        <div class="modal-section">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div>
+              <h4 class="text-base font-semibold text-white">
+                Supporting Documents
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">
+                PDF, JPG, PNG, DOC, or DOCX; up to 10 MB per file.
+              </p>
             </div>
 
+            <button
+              v-if="canAddAttachments"
+              @click="toggleAttachmentForm"
+              type="button"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            >
+              {{ showAttachmentForm ? "Cancel Upload" : "+ Add Documents" }}
+            </button>
           </div>
 
+          <div
+            v-if="application.attachments?.length"
+            class="space-y-2"
+          >
+            <div
+              v-for="file in application.attachments"
+              :key="file.attachment_id"
+              class="flex items-center justify-between gap-3 p-3 bg-[#0F1A2A] border border-slate-700 rounded-lg"
+            >
+              <div class="flex items-center min-w-0">
+                <FileText class="w-5 h-5 text-slate-500 mr-3 flex-shrink-0" />
+                <span class="text-sm text-slate-300 truncate">
+                  {{ file.file_name || file.name || "Supporting Document" }}
+                </span>
+              </div>
+
+              <button
+                @click="viewAttachment(file)"
+                type="button"
+                class="text-blue-400 hover:text-blue-300 text-sm font-medium ml-4"
+              >
+                View
+              </button>
+            </div>
+          </div>
+
+          <p v-else class="text-sm text-slate-400 py-2">
+            No supporting documents attached yet.
+          </p>
+
+          <div
+            v-if="showAttachmentForm && canAddAttachments"
+            class="mt-4 p-4 border border-dashed border-slate-600 rounded-xl bg-[#0B1420]"
+          >
+            <input
+              ref="attachmentInput"
+              @change="handleAttachmentSelection"
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              multiple
+              class="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+            />
+
+            <div v-if="selectedFiles.length" class="mt-4 space-y-2">
+              <div
+                v-for="(file, index) in selectedFiles"
+                :key="`${file.name}-${file.lastModified}`"
+                class="flex items-center justify-between gap-3 text-sm text-slate-300"
+              >
+                <span class="truncate">
+                  {{ file.name }} ({{ formatFileSize(file.size) }})
+                </span>
+                <button
+                  @click="removeSelectedFile(index)"
+                  type="button"
+                  class="text-red-400 hover:text-red-300"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <p v-if="attachmentError" class="text-sm text-red-400 mt-3">
+              {{ attachmentError }}
+            </p>
+
+            <div class="flex justify-end mt-4">
+              <button
+                @click="uploadAdditionalAttachments"
+                :disabled="uploadingAttachments || selectedFiles.length === 0"
+                type="button"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
+              >
+                {{ uploadingAttachments ? "Uploading..." : "Upload Documents" }}
+              </button>
+            </div>
+          </div>
+
+          <p v-if="!canAddAttachments" class="text-xs text-slate-500 mt-4">
+            Additional documents can only be uploaded while the application is pending.
+          </p>
         </div>
 
 
@@ -485,7 +554,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { getMyLeaves } from "../services/leave";
+import {
+  addMyLeaveAttachments,
+  downloadLeaveAttachment,
+  getMyLeaves,
+} from "../services/leave";
 import { useRouter } from "vue-router";
 
 import {
@@ -516,8 +589,10 @@ interface Application {
   | "on pr";
 
   attachments?: Array<{
-    name: string;
-    size: number;
+    attachment_id: number;
+    file_name: string;
+    name?: string;
+    size?: number;
   }>;
 
   reviewDate?: string;
@@ -544,6 +619,154 @@ const applications =
   ref<any[]>([]);
 
 const loading = ref(true);
+const showAttachmentForm = ref(false);
+const selectedFiles = ref<File[]>([]);
+const uploadingAttachments = ref(false);
+const attachmentError = ref("");
+const attachmentInput = ref<HTMLInputElement | null>(null);
+
+const canAddAttachments = computed(() =>
+  application.value?.final_status?.toLowerCase() === "pending"
+);
+
+const resetAttachmentForm = () => {
+  showAttachmentForm.value = false;
+  selectedFiles.value = [];
+  attachmentError.value = "";
+
+  if (attachmentInput.value) {
+    attachmentInput.value.value = "";
+  }
+};
+
+const toggleAttachmentForm = () => {
+  if (showAttachmentForm.value) {
+    resetAttachmentForm();
+    return;
+  }
+
+  showAttachmentForm.value = true;
+  attachmentError.value = "";
+};
+
+const handleAttachmentSelection = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  const allowedExtensions = /\.(pdf|jpe?g|png|docx?)$/i;
+  const maximumSize = 10 * 1024 * 1024;
+
+  attachmentError.value = "";
+
+  if (files.length > 5) {
+    attachmentError.value = "You can upload a maximum of 5 files at a time.";
+    input.value = "";
+    return;
+  }
+
+  const invalidFile = files.find(
+    (file) => !allowedExtensions.test(file.name) || file.size > maximumSize
+  );
+
+  if (invalidFile) {
+    attachmentError.value =
+      "Each file must be PDF, JPG, PNG, DOC, or DOCX and no larger than 10 MB.";
+    input.value = "";
+    return;
+  }
+
+  selectedFiles.value = files;
+};
+
+const removeSelectedFile = (index: number) => {
+  selectedFiles.value.splice(index, 1);
+
+  if (selectedFiles.value.length === 0 && attachmentInput.value) {
+    attachmentInput.value.value = "";
+  }
+};
+
+const formatFileSize = (size: number) => {
+  if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const uploadAdditionalAttachments = async () => {
+  if (!application.value || selectedFiles.value.length === 0) {
+    return;
+  }
+
+  uploadingAttachments.value = true;
+  attachmentError.value = "";
+
+  try {
+    const response = await addMyLeaveAttachments(
+      Number(application.value.leave_id),
+      selectedFiles.value
+    );
+
+    const updatedApplication = response.data;
+    application.value.attachments = updatedApplication.attachments ?? [];
+
+    const applicationIndex = applications.value.findIndex(
+      (item) => Number(item.leave_id) === Number(application.value?.leave_id)
+    );
+
+    if (applicationIndex !== -1) {
+      applications.value[applicationIndex].attachments =
+        updatedApplication.attachments ?? [];
+    }
+
+    resetAttachmentForm();
+    alert(response.message || "Supporting documents uploaded successfully.");
+  } catch (error: any) {
+    const validationErrors = error.response?.data?.errors as
+      | Record<string, string[]>
+      | undefined;
+
+    attachmentError.value =
+      error.response?.data?.message ||
+      Object.values(validationErrors ?? {}).flat().join(" ") ||
+      "Unable to upload supporting documents.";
+  } finally {
+    uploadingAttachments.value = false;
+  }
+};
+
+const viewAttachment = async (file: {
+  attachment_id: number;
+  file_name: string;
+}) => {
+  if (!application.value) {
+    return;
+  }
+
+  const openedWindow = window.open("", "_blank");
+
+  if (!openedWindow) {
+    attachmentError.value = "Please allow pop-ups to view the document.";
+    return;
+  }
+
+  openedWindow.opener = null;
+
+  try {
+    const blob = await downloadLeaveAttachment(
+      Number(application.value.leave_id),
+      Number(file.attachment_id)
+    );
+    const url = URL.createObjectURL(blob);
+    openedWindow.location.href = url;
+
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (error: any) {
+    openedWindow.close();
+    attachmentError.value =
+      error.message || "Unable to open the supporting document.";
+  }
+};
 
 const viewForm = (application: any) => {
   console.log("EMPLOYEE VIEW FORM:", {
@@ -774,7 +997,7 @@ const formatDateRange = (
 const viewDetails = (
   app: Application
 ) => {
-
+  resetAttachmentForm();
   application.value = app;
 
 };

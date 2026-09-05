@@ -126,6 +126,11 @@ Route::middleware('auth:sanctum')->group(function () {
             [LeaveController::class, 'myLeave']
         );
 
+        Route::post(
+            '/my-leave-applications/{id}/attachments',
+            [LeaveController::class, 'addAttachments']
+        );
+
 
         // Leave Balance
         Route::get(
