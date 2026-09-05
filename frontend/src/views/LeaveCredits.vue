@@ -1,8 +1,5 @@
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
-    <!-- ========================================================= -->
-    <!-- HEADER -->
-    <!-- ========================================================= -->
     <div class="neo-card p-6">
       <h2 class="text-2xl font-bold text-white">Leave Credits</h2>
 
@@ -11,12 +8,8 @@
       </p>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- FORM -->
-    <!-- ========================================================= -->
     <div class="neo-card p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Employee -->
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
             Employee
@@ -36,7 +29,6 @@
           </select>
         </div>
 
-        <!-- Credit Type -->
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
             Credit Type
@@ -45,7 +37,7 @@
           <select v-model="form.credit_type" class="form-control">
             <option value="">Select Credit Type</option>
 
-            <option value="Service Credits">Service Credits</option>
+            <option value="Service">Service Credits</option>
 
             <option value="Vacation">Vacation Leave</option>
 
@@ -53,7 +45,6 @@
           </select>
         </div>
 
-        <!-- Activity -->
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
             Activity Name
@@ -67,7 +58,6 @@
           />
         </div>
 
-        <!-- Hours -->
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
             Hours Rendered
@@ -82,7 +72,6 @@
           />
         </div>
 
-        <!-- Equivalent Leave Days -->
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
             Equivalent Leave Days
@@ -98,7 +87,6 @@
         </div>
       </div>
 
-      <!-- Save Button -->
       <div class="mt-6">
         <button @click="saveCredit" type="button" class="primary-button">
           Save Credit
@@ -106,9 +94,6 @@
       </div>
     </div>
 
-    <!-- ========================================================= -->
-    <!-- LEAVE CREDITS TABLE -->
-    <!-- ========================================================= -->
     <div class="neo-card p-6">
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -137,7 +122,6 @@
 
           <tbody>
             <tr v-for="credit in credits" :key="credit.credits_id">
-              <!-- Employee -->
               <td class="employee-cell">
                 <span class="employee-name">
                   {{ credit.employee?.last_name }},
@@ -145,18 +129,17 @@
                 </span>
               </td>
 
-              <!-- Credit Type -->
               <td>
                 <span
                   :class="{
-                    'credit-service': credit.credit_type === 'Service Credits',
+                    'credit-service': credit.credit_type === 'Service',
 
                     'credit-vacation': credit.credit_type === 'Vacation',
 
                     'credit-sick': credit.credit_type === 'Sick',
 
                     'credit-other': ![
-                      'Service Credits',
+                      'Service',
                       'Vacation',
                       'Sick',
                     ].includes(credit.credit_type),
@@ -167,32 +150,29 @@
                       ? "Vacation Leave"
                       : credit.credit_type === "Sick"
                         ? "Sick Leave"
-                        : credit.credit_type
+                        : credit.credit_type === "Service"
+                          ? "Service Credits"
+                          : credit.credit_type
                   }}
                 </span>
               </td>
 
-              <!-- Activity -->
               <td class="table-primary">
                 {{ credit.activity_name || "—" }}
               </td>
 
-              <!-- Hours -->
               <td>
                 {{ Number(credit.hours_rendered || 0).toFixed(2) }}
               </td>
 
-              <!-- Equivalent Days -->
               <td>
                 {{ Number(credit.equivalent_leave_days || 0).toFixed(2) }}
               </td>
 
-              <!-- Date -->
               <td>
                 {{ formatDate(credit.date_recorded) }}
               </td>
 
-              <!-- Status -->
               <td>
                 <span
                   :class="
@@ -229,7 +209,6 @@
               </td>
             </tr>
 
-            <!-- Empty State -->
             <tr v-if="credits.length === 0">
               <td colspan="8" class="empty-state">
                 No leave credit records found.
@@ -240,7 +219,6 @@
       </div>
     </div>
 
-    <!-- Apply Credit Modal -->
     <div
       v-if="showApplyModal"
       class="modal-overlay"
@@ -254,9 +232,7 @@
           employee's leave balance.
         </p>
 
-        <!-- Credit Details -->
         <div v-if="selectedCredit" class="credit-details">
-          <!-- Employee -->
           <div class="detail-row">
             <span class="detail-label"> Employee: </span>
 
@@ -266,7 +242,6 @@
             </span>
           </div>
 
-          <!-- Credit Type -->
           <div class="detail-row">
             <span class="detail-label"> Credit Type: </span>
 
@@ -275,7 +250,6 @@
             </span>
           </div>
 
-          <!-- Activity -->
           <div class="detail-row">
             <span class="detail-label"> Activity: </span>
 
@@ -284,7 +258,6 @@
             </span>
           </div>
 
-          <!-- Equivalent Days -->
           <div class="detail-row">
             <span class="detail-label"> Equivalent Days: </span>
 
@@ -300,7 +273,7 @@
         </div>
 
         <div v-if="selectedCredit" class="mt-4 space-y-4 text-sm text-white">
-          <template v-if="selectedCredit.credit_type === 'Service Credits'">
+          <template v-if="selectedCredit.credit_type === 'Service'">
             <div>
               <label class="block font-medium text-white mb-2">Apply To</label>
               <select
@@ -309,14 +282,14 @@
                 :disabled="applyForm.split"
                 class="w-full border border-slate-700 rounded-lg px-3 py-2 text-white bg-[#0B1420] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-60"
               >
-                <option value="Service Credits">Service Credits</option>
+                <option value="Service">Service Credits</option>
                 <option value="Vacation">Vacation Leave</option>
                 <option value="Sick">Sick Leave</option>
               </select>
             </div>
 
             <label
-              v-if="applyForm.leave_type !== 'Service Credits'"
+              v-if="applyForm.leave_type !== 'Service'"
               class="flex items-center gap-2 text-white"
             >
               <input
@@ -413,7 +386,6 @@
           </p>
         </div>
 
-        <!-- Modal Buttons -->
         <div class="modal-actions">
           <button @click="closeApplyModal" type="button" class="cancel-button">
             Cancel
@@ -443,10 +415,6 @@ import {
   deleteLeaveCredit,
 } from "@/services/leaveCredit";
 
-/* ============================================================
-   TYPES
-   ============================================================ */
-
 interface Employee {
   employee_id: number;
   first_name: string;
@@ -464,10 +432,6 @@ interface LeaveCredit {
   date_recorded: string;
   employee: Employee;
 }
-
-/* ============================================================
-   DATA
-   ============================================================ */
 
 const employees = ref<Employee[]>([]);
 const credits = ref<LeaveCredit[]>([]);
@@ -493,10 +457,6 @@ const form = ref({
   credit_type: "",
 });
 
-/* ============================================================
-   APPLY FORM HELPERS
-   ============================================================ */
-
 const resetApplyForm = () => {
   applyForm.value = {
     leave_type: "Vacation",
@@ -509,9 +469,10 @@ const resetApplyForm = () => {
 };
 
 const handleApplyTypeChange = () => {
-  if (applyForm.value.leave_type === "Service Credits") {
-    applyForm.value.split = false;
-  }
+  applyForm.value.split = false;
+  applyForm.value.vacation_days = 0;
+  applyForm.value.sick_days = 0;
+  applyForm.value.days = availableCreditDays.value;
 };
 
 const availableCreditDays = computed(() =>
@@ -519,24 +480,27 @@ const availableCreditDays = computed(() =>
 );
 
 const totalApplied = computed(() => {
-  if (!selectedCredit.value) return 0;
-  if (selectedCredit.value.credit_type !== "Service Credits") {
+  if (!selectedCredit.value) {
+    return 0;
+  }
+
+  if (selectedCredit.value.credit_type !== "Service") {
     return availableCreditDays.value;
   }
 
-  return applyForm.value.split
-    ? Number(applyForm.value.vacation_days || 0) +
-        Number(applyForm.value.sick_days || 0)
-    : Number(applyForm.value.days || 0);
+  if (applyForm.value.split) {
+    return (
+      Number(applyForm.value.vacation_days || 0) +
+      Number(applyForm.value.sick_days || 0)
+    );
+  }
+
+  return Number(applyForm.value.days || 0);
 });
 
 const remainingCredit = computed(
   () => availableCreditDays.value - totalApplied.value,
 );
-
-/* ============================================================
-   LOAD EMPLOYEES
-   ============================================================ */
 
 const loadEmployees = async () => {
   try {
@@ -546,10 +510,6 @@ const loadEmployees = async () => {
   }
 };
 
-/* ============================================================
-   LOAD CREDITS
-   ============================================================ */
-
 const loadCredits = async () => {
   try {
     credits.value = await getLeaveCredits();
@@ -557,10 +517,6 @@ const loadCredits = async () => {
     console.error("Failed to load leave credits.", error);
   }
 };
-
-/* ============================================================
-   SAVE CREDIT
-   ============================================================ */
 
 const saveCredit = async () => {
   try {
@@ -592,12 +548,10 @@ const saveCredit = async () => {
   }
 };
 
-/* ============================================================
-   OPEN APPLY MODAL
-   ============================================================ */
-
 const applyCredit = (id: number) => {
-  const credit = credits.value.find((credit) => credit.credits_id === id);
+  const credit = credits.value.find(
+    (credit) => credit.credits_id === id,
+  );
 
   if (!credit) {
     return;
@@ -606,27 +560,20 @@ const applyCredit = (id: number) => {
   selectedCredit.value = credit;
   resetApplyForm();
 
-  if (credit.credit_type === "Vacation" || credit.credit_type === "Sick") {
-    applyForm.value.leave_type = credit.credit_type;
-    applyForm.value.days = credit.equivalent_leave_days;
-  }
+  applyForm.value.leave_type = credit.credit_type;
+  applyForm.value.days = Number(credit.equivalent_leave_days);
+  applyForm.value.split = false;
+  applyForm.value.vacation_days = 0;
+  applyForm.value.sick_days = 0;
 
   showApplyModal.value = true;
 };
-
-/* ============================================================
-   CLOSE APPLY MODAL
-   ============================================================ */
 
 const closeApplyModal = () => {
   showApplyModal.value = false;
   selectedCredit.value = null;
   resetApplyForm();
 };
-
-/* ============================================================
-   CONFIRM APPLY
-   ============================================================ */
 
 const confirmApplyCredit = async () => {
   if (!selectedCredit.value) {
@@ -646,14 +593,18 @@ const confirmApplyCredit = async () => {
     return;
   }
 
+  validationMessage.value = "";
+
   try {
     await applyLeaveCredit({
       credits_id: selectedCredit.value.credits_id,
       leave_type: applyForm.value.leave_type,
-      days: applyForm.value.split ? total : applyForm.value.days,
+      days: applyForm.value.split
+        ? total
+        : Number(applyForm.value.days),
       split: applyForm.value.split,
-      vacation_days: applyForm.value.vacation_days,
-      sick_days: applyForm.value.sick_days,
+      vacation_days: Number(applyForm.value.vacation_days || 0),
+      sick_days: Number(applyForm.value.sick_days || 0),
     });
 
     alert("Leave credit applied successfully!");
@@ -661,9 +612,15 @@ const confirmApplyCredit = async () => {
     closeApplyModal();
 
     await loadCredits();
-  } catch (error) {
-    console.error(error);
-    alert("Unable to apply leave credit.");
+  } catch (error: any) {
+    console.error(
+      "Failed to apply leave credit:",
+      error.response?.data || error,
+    );
+
+    validationMessage.value =
+      error.response?.data?.message ||
+      "Unable to apply leave credit.";
   }
 };
 
@@ -710,10 +667,6 @@ const removeCredit = async (id: number) => {
   }
 };
 
-/* ============================================================
-   FORMAT DATE
-   ============================================================ */
-
 const formatDate = (date: string) => {
   if (!date) {
     return "—";
@@ -732,10 +685,6 @@ const formatDate = (date: string) => {
   });
 };
 
-/* ============================================================
-   INITIAL LOAD
-   ============================================================ */
-
 onMounted(() => {
   loadEmployees();
   loadCredits();
@@ -743,10 +692,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ============================================================
-   PAGE
-   ============================================================ */
-
 .dashboard-shell {
   background: #080d14;
 
@@ -754,10 +699,6 @@ onMounted(() => {
 
   min-height: 100vh;
 }
-
-/* ============================================================
-   CARDS
-   ============================================================ */
 
 .neo-card {
   background: #111d2e;
@@ -778,10 +719,6 @@ onMounted(() => {
 .neo-card:hover {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.08);
 }
-
-/* ============================================================
-   FORM CONTROLS
-   ============================================================ */
 
 .form-control {
   width: 100%;
@@ -821,10 +758,6 @@ onMounted(() => {
   color: white;
 }
 
-/* ============================================================
-   BUTTONS
-   ============================================================ */
-
 .primary-button {
   display: inline-flex;
 
@@ -858,10 +791,6 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
-/* ============================================================
-   TABLE WRAPPER
-   ============================================================ */
-
 .table-wrapper {
   width: 100%;
 
@@ -874,10 +803,6 @@ onMounted(() => {
   -webkit-overflow-scrolling: touch;
 }
 
-/* ============================================================
-   TABLE
-   ============================================================ */
-
 .credit-table {
   width: 100%;
 
@@ -887,10 +812,6 @@ onMounted(() => {
 
   table-layout: auto;
 }
-
-/* ============================================================
-   TABLE HEADER
-   ============================================================ */
 
 .credit-table thead {
   background: #0b1420;
@@ -911,10 +832,6 @@ onMounted(() => {
 
   border-bottom: 1px solid #1e293b;
 }
-
-/* ============================================================
-   TABLE BODY
-   ============================================================ */
 
 .credit-table tbody tr {
   border-top: 1px solid #1e293b;
@@ -938,10 +855,6 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 
-/* ============================================================
-   EMPLOYEE
-   ============================================================ */
-
 .employee-cell {
   min-width: 150px;
 
@@ -958,19 +871,11 @@ onMounted(() => {
   overflow-wrap: anywhere;
 }
 
-/* ============================================================
-   TABLE TEXT
-   ============================================================ */
-
 .table-primary {
   color: white;
 
   overflow-wrap: anywhere;
 }
-
-/* ============================================================
-   CREDIT TYPES
-   ============================================================ */
 
 .credit-service {
   color: #c084fc;
@@ -1001,10 +906,6 @@ onMounted(() => {
 
   font-weight: 600;
 }
-
-/* ============================================================
-   STATUS
-   ============================================================ */
 
 .status-pending {
   display: inline-flex;
@@ -1045,10 +946,6 @@ onMounted(() => {
 
   white-space: nowrap;
 }
-
-/* ============================================================
-   ACTION
-   ============================================================ */
 
 .action-column {
   text-align: center !important;
@@ -1100,19 +997,11 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
-
 .empty-state {
   text-align: center;
 
   color: #9ca3af;
 }
-
-/* ============================================================
-   MODAL
-   ============================================================ */
 
 .modal-overlay {
   position: fixed;
@@ -1154,10 +1043,6 @@ onMounted(() => {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* ============================================================
-   CREDIT DETAILS
-   ============================================================ */
-
 .credit-details {
   margin-top: 1rem;
 
@@ -1197,10 +1082,6 @@ onMounted(() => {
 
   overflow-wrap: anywhere;
 }
-
-/* ============================================================
-   MODAL ACTIONS
-   ============================================================ */
 
 .modal-actions {
   display: flex;
@@ -1258,10 +1139,6 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 
-/* ============================================================
-   GENERAL TEXT BEHAVIOR
-   ============================================================ */
-
 .neo-card h3,
 .neo-card p,
 .neo-card span,
@@ -1275,17 +1152,6 @@ button {
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
-
-/* ============================================================
-   ZOOM / SMALL VIEWPORT BEHAVIOR
-   ============================================================ */
-
-/*
-  Browser zoom changes the CSS viewport width.
-
-  These rules make the page behave more like the Dashboard
-  when the viewport becomes narrow because of zoom.
-*/
 
 @media (max-width: 768px) {
   .dashboard-shell {
@@ -1304,10 +1170,6 @@ button {
     padding: 1.25rem;
   }
 }
-
-/* ============================================================
-   VERY NARROW VIEWPORT
-   ============================================================ */
 
 @media (max-width: 640px) {
   .dashboard-shell {

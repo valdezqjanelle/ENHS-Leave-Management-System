@@ -20,7 +20,7 @@ class LeaveCreditController extends Controller
             'activity_name' => 'required|string',
             'hours_rendered' => 'required|numeric',
             'equivalent_leave_days' => 'required|numeric',
-            'credit_type' => 'required|in:Vacation,Sick,Service Credits',
+            'credit_type' => 'required|in:Vacation,Sick,Service',
           
         ]);
 
@@ -125,7 +125,7 @@ public function apply(Request $request, $id)
     }
 
     $request->validate([
-        'leave_type' => 'nullable|in:Vacation,Sick,Service Credits',
+        'leave_type' => 'nullable|in:Vacation,Sick,Service',
         'days' => 'nullable|numeric|min:0',
         'split' => 'nullable|boolean',
         'vacation_days' => 'nullable|numeric|min:0',
@@ -159,7 +159,7 @@ public function apply(Request $request, $id)
         : ($targetType === 'Sick' ? $days : 0);
     $appliedDays = $split ? $vacationDays + $sickDays : $days;
     $serviceDays = $isServiceCredit
-        ? ($split || $targetType !== 'Service Credits'
+        ? ($split || $targetType !== 'Service'
             ? max(0, $availableDays - $vacationDays - $sickDays)
             : min($days, $availableDays))
         : 0;
