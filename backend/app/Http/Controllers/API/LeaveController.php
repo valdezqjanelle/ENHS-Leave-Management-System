@@ -151,7 +151,7 @@ class LeaveController extends Controller
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store(
                     'leave_attachments',
-                    'public'
+                    'supabase'
                 );
 
                 LeaveAttachment::create([
@@ -262,7 +262,7 @@ class LeaveController extends Controller
 
         try {
             foreach ($files as $file) {
-                $path = $file->store('leave_attachments', 'public');
+                $path = $file->store('leave_attachments', 'supabase');
                 $storedPaths[] = $path;
 
                 $attachment = LeaveAttachment::create([
@@ -282,7 +282,7 @@ class LeaveController extends Controller
             }
 
             foreach ($storedPaths as $path) {
-                Storage::disk('public')->delete($path);
+                Storage::disk('supabase')->delete($path);
             }
 
             throw $exception;
@@ -949,15 +949,45 @@ $text(
             ->where('attachment_id', $attachment_id)
             ->firstOrFail();
 
-        if (!Storage::disk('public')->exists($attachment->file_path)) {
+        $disk = Storage::disk('supabase');
+
+        if (!$disk->exists($attachment->file_path)) {
             return response()->json([
                 'message' => 'Attachment file not found.'
             ], 404);
         }
 
-        $path = Storage::disk('public')->path($attachment->file_path);
+        $stream = $disk->readStream($attachment->file_path);
 
-        return response()->file($path);
+        if ($stream === false) {
+            return response()->json([
+                'message' => 'Unable to read the attachment file.'
+            ], 500);
+        }
+
+        $mimeType = $disk->mimeType($attachment->file_path)
+            ?: 'application/octet-stream';
+        $fileName = str_replace(
+            ['"', "\r", "\n"],
+            '',
+            $attachment->file_name
+        );
+
+        return response()->stream(
+            function () use ($stream) {
+                fpassthru($stream);
+
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            },
+            200,
+            [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+                'Cache-Control' => 'private, max-age=3600',
+            ]
+        );
     }
 
 
