@@ -41,24 +41,6 @@ export const getMyLeave = async (id: number) => {
   return data;
 };
 
-export const addMyLeaveAttachments = async (
-  leaveId: number,
-  files: File[]
-) => {
-  const formData = new FormData();
-
-  files.forEach((file) => {
-    formData.append("attachments[]", file);
-  });
-
-  const { data } = await api.post(
-    `/my-leave-applications/${leaveId}/attachments`,
-    formData
-  );
-
-  return data;
-};
-
 export const getLeave = async (id: number) => {
   const { data } = await api.get(`/leave-applications/${id}`);
   return data;

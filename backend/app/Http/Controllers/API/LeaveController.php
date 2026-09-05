@@ -220,85 +220,6 @@ class LeaveController extends Controller
             ->firstOrFail();
     }
 
-    public function addAttachments(Request $request, $id)
-    {
-        $request->validate([
-            'attachments' => 'required|array|min:1|max:5',
-            'attachments.*' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
-        ]);
-
-        $employee = EmployeeRecord::where(
-            'user_id',
-            $request->user()->user_id
-        )->first();
-
-        if (!$employee) {
-            return response()->json([
-                'message' => 'Employee record not found.'
-            ], 404);
-        }
-
-        $leave = LeaveApplication::with('attachments')
-            ->where('leave_id', $id)
-            ->where('employee_id', $employee->employee_id)
-            ->firstOrFail();
-
-        if (strtolower((string) $leave->final_status) !== 'pending') {
-            return response()->json([
-                'message' => 'Supporting documents can only be added while the application is pending.'
-            ], 422);
-        }
-
-        $files = $request->file('attachments', []);
-
-        if ($leave->attachments->count() + count($files) > 10) {
-            return response()->json([
-                'message' => 'A leave application can have a maximum of 10 supporting documents.'
-            ], 422);
-        }
-
-        $storedPaths = [];
-        $createdAttachmentIds = [];
-
-        try {
-            foreach ($files as $file) {
-                $path = $file->store('leave_attachments', 'public');
-                $storedPaths[] = $path;
-
-                $attachment = LeaveAttachment::create([
-                    'leave_id' => $leave->leave_id,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                ]);
-
-                $createdAttachmentIds[] = $attachment->attachment_id;
-            }
-        } catch (\Throwable $exception) {
-            if (count($createdAttachmentIds) > 0) {
-                LeaveAttachment::whereIn(
-                    'attachment_id',
-                    $createdAttachmentIds
-                )->delete();
-            }
-
-            foreach ($storedPaths as $path) {
-                Storage::disk('public')->delete($path);
-            }
-
-            throw $exception;
-        }
-
-        AuditLogger::log(
-            'Supporting documents added',
-            'Added ' . count($files) . " supporting document(s) to leave application #{$leave->leave_id}"
-        );
-
-        return response()->json([
-            'message' => 'Supporting documents uploaded successfully.',
-            'data' => $leave->fresh()->load('attachments'),
-        ], 201);
-    }
-
 
     public function index()
     {
@@ -927,24 +848,8 @@ $text(
         ]
     );
 }
-    public function downloadAttachment(Request $request, $leave_id, $attachment_id)
+    public function downloadAttachment($leave_id, $attachment_id)
     {
-        $leave = LeaveApplication::findOrFail($leave_id);
-        $user = $request->user();
-
-        if ($user->role === 'employee') {
-            $employee = EmployeeRecord::where(
-                'user_id',
-                $user->user_id
-            )->first();
-
-            if (!$employee || $leave->employee_id !== $employee->employee_id) {
-                abort(403, 'You are not authorized to view this attachment.');
-            }
-        } elseif ($user->role !== 'admin') {
-            abort(403, 'You are not authorized to view this attachment.');
-        }
-
         $attachment = LeaveAttachment::where('leave_id', $leave_id)
             ->where('attachment_id', $attachment_id)
             ->firstOrFail();
