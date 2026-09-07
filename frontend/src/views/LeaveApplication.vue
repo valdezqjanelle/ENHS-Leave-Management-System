@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard-shell min-h-screen w-full px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- Main Form Card -->
+    
     <div class="neo-card w-full max-w-none mx-auto overflow-hidden">
 
-      <!-- Header -->
+      
       <div class="px-6 py-5 border-b border-slate-200">
         <h2 class="text-2xl font-semibold text-white">
           Leave Application Form
@@ -15,12 +15,12 @@
         </p>
       </div>
 
-      <!-- Form -->
+      
       <form @submit.prevent="submitApplication" class="p-6 space-y-6">
 
-        <!-- =============================== -->
-        <!-- PERSONAL INFORMATION -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
           <h3 class="section-title">
@@ -29,7 +29,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            <!-- Full Name -->
+            
             <div>
               <label class="form-label">
                 Full Name <span class="text-red-400">*</span>
@@ -38,7 +38,7 @@
               <input :value="fullName" type="text" readonly class="input-field" placeholder="Enter your full name" />
             </div>
 
-            <!-- Department -->
+            
             <div>
               <label class="form-label">
                 Department <span class="text-red-400">*</span>
@@ -47,7 +47,7 @@
               <input :value="employee.department_name" type="text" readonly class="input-field" />
             </div>
 
-            <!-- Position -->
+            
             <div>
               <label class="form-label">
                 Position <span class="text-red-400">*</span>
@@ -57,7 +57,7 @@
                 placeholder="e.g., Professor, Assistant Professor" />
             </div>
 
-            <!-- Employee ID -->
+            
             <div>
               <label class="form-label">
                 Employee ID <span class="text-red-400">*</span>
@@ -71,9 +71,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- LEAVE DETAILS -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
 
@@ -83,7 +83,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <!-- Leave Type -->
+            
             <div>
               <label class="form-label">
                 Leave Type <span class="text-red-400">*</span>
@@ -99,8 +99,8 @@
             </div>
 
 
-            <!-- Vacation Details -->
-            <div v-if="selectedLeaveName === 'Vacation Leave'" class="detail-box">
+            
+            <div v-if="isVacationLeave" class="detail-box">
               <div>
                 <label class="form-label">
                   Vacation Location Type
@@ -136,8 +136,8 @@
             </div>
 
 
-            <!-- Sick Details -->
-            <div v-if="selectedLeaveName === 'Sick Leave'" class="detail-box">
+            
+            <div v-if="isSickLeave" class="detail-box">
               <div>
                 <label class="form-label">
                   Treatment
@@ -166,8 +166,8 @@
             </div>
 
 
-            <!-- Study Leave -->
-            <div v-if="selectedLeaveName === 'Study Leave'" class="option-box">
+            
+            <div v-if="isStudyLeave" class="option-box">
               <label class="checkbox-label">
                 <input type="checkbox" v-model="form.masters_degree" class="checkbox-input" />
 
@@ -182,8 +182,8 @@
             </div>
 
 
-            <!-- Special Leave Benefits for Women -->
-            <div v-if="selectedLeaveName === 'Special Leave Benefits for Women'" class="detail-box">
+            
+            <div v-if="isSpecialWomenLeave" class="detail-box">
               <div>
                 <label class="form-label">
                   Specify Illness
@@ -194,8 +194,8 @@
             </div>
 
 
-            <!-- Others -->
-            <div v-if="selectedLeaveName === 'Others'" class="option-box">
+            
+            <div v-if="isOtherLeave" class="option-box">
               <div>
                 <label class="form-label">
                   Other Purpose
@@ -207,7 +207,7 @@
             </div>
 
 
-            <!-- Commutation -->
+            
             <div>
               <label class="form-label">
                 Commutation <span class="text-red-400">*</span>
@@ -227,7 +227,7 @@
             </div>
 
 
-            <!-- Contact Number -->
+            
             <div>
               <label class="form-label">
                 Contact Number <span class="text-red-400">*</span>
@@ -240,9 +240,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- LEAVE DATES -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
 
@@ -252,7 +252,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <!-- Start Date -->
+            
             <div>
               <label class="form-label">
                 Start Date <span class="text-red-400">*</span>
@@ -262,7 +262,7 @@
             </div>
 
 
-            <!-- End Date -->
+            
             <div>
               <label class="form-label">
                 End Date <span class="text-red-400">*</span>
@@ -272,7 +272,7 @@
             </div>
 
 
-            <!-- Total Days -->
+            
             <div>
               <label class="form-label">
                 Total Days
@@ -287,9 +287,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- LEAVE CREDITS -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="credit-box">
 
@@ -335,9 +335,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- REASON -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
 
@@ -352,9 +352,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- SUPPORTING DOCUMENTS -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
 
@@ -385,7 +385,7 @@
           </div>
 
 
-          <!-- Uploaded Files -->
+          
           <div v-if="form.attachments.length > 0" class="mt-4 space-y-3">
 
             <div v-for="(file, index) in form.attachments" :key="index"
@@ -416,9 +416,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- APPLICANT SIGNATURE -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="form-section">
 
@@ -455,9 +455,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- DECLARATION -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="border-t border-slate-200 pt-6">
 
@@ -478,9 +478,9 @@
         </div>
 
 
-        <!-- =============================== -->
-        <!-- BUTTONS -->
-        <!-- =============================== -->
+        
+        
+        
 
         <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
 
@@ -500,9 +500,9 @@
     </div>
 
 
-    <!-- =============================== -->
-    <!-- SUCCESS MODAL -->
-    <!-- =============================== -->
+    
+    
+    
 
     <div v-if="showSuccessModal"
       class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6">
@@ -808,7 +808,6 @@ const initializeSignaturePad = async () => {
     return;
   }
 
-  // Preserve existing signature data URL if resizing
   const existingData = signaturePad.value && !signaturePad.value.isEmpty()
     ? signaturePad.value.toDataURL()
     : null;
@@ -817,7 +816,6 @@ const initializeSignaturePad = async () => {
   const width = canvas.offsetWidth;
   const height = canvas.offsetHeight;
 
-  // Setting width/height resets the canvas state and clears content
   canvas.width = width * ratio;
   canvas.height = height * ratio;
 
@@ -826,7 +824,6 @@ const initializeSignaturePad = async () => {
     context.scale(ratio, ratio);
   }
 
-  // Instantiate SignaturePad
   signaturePad.value = new SignaturePad(canvas, {
     backgroundColor: "rgba(0, 0, 0, 0)",
     penColor: "rgb(0, 0, 0)",
@@ -834,12 +831,10 @@ const initializeSignaturePad = async () => {
     maxWidth: 3.0,
   });
 
-  // Restore signature drawing if it previously existed
   if (existingData) {
     signaturePad.value.fromDataURL(existingData);
   }
 
-  // Event listener for stroke end
   signaturePad.value.addEventListener("endStroke", () => {
     if (signaturePad.value && !signaturePad.value.isEmpty()) {
       signatureData.value = signaturePad.value.toDataURL("image/png");
@@ -847,7 +842,6 @@ const initializeSignaturePad = async () => {
   });
 };
 
-// Make sure your Clear button function resets signatureData state as well
 const clearSignature = () => {
   if (signaturePad.value) {
     signaturePad.value.clear();
@@ -1075,14 +1069,12 @@ const submitApplication = async () => {
     );
 
 
-    // Applicant Signature
     data.append(
       "applicants_signature",
       signatureData.value
     );
 
 
-    // Additional Leave Details
     data.append(
       "vacation_location_type",
       form.value.vacation_location_type
@@ -1151,7 +1143,6 @@ const submitApplication = async () => {
     );
 
 
-    // Attachments
     form.value.attachments.forEach(
       (file) => {
 
@@ -1265,9 +1256,53 @@ const selectedLeaveName = computed(() => {
     );
 
 
-  return leave?.leave_type_name ?? "";
+  return String(leave?.leave_type_name ?? "").trim();
 
 });
+
+const selectedLeaveCode = computed(() => {
+  const leave = leaveTypes.value.find(
+    (item) => item.leave_type_id == form.value.leave_type_id,
+  );
+
+  return String(leave?.code ?? "").trim().toUpperCase();
+});
+
+const normalizedLeaveName = computed(() =>
+  selectedLeaveName.value.toLowerCase().replace(/\s+/g, " ").trim(),
+);
+
+const isVacationLeave = computed(
+  () =>
+    selectedLeaveCode.value === "VL" ||
+    normalizedLeaveName.value.includes("vacation leave"),
+);
+
+const isSickLeave = computed(
+  () =>
+    selectedLeaveCode.value === "SL" ||
+    normalizedLeaveName.value === "sick leave" ||
+    normalizedLeaveName.value.startsWith("sick leave "),
+);
+
+const isStudyLeave = computed(
+  () =>
+    selectedLeaveCode.value === "STL" ||
+    normalizedLeaveName.value.includes("study leave"),
+);
+
+const isSpecialWomenLeave = computed(
+  () =>
+    selectedLeaveCode.value === "SLBW" ||
+    normalizedLeaveName.value.includes("special leave benefits for women"),
+);
+
+const isOtherLeave = computed(
+  () =>
+    selectedLeaveCode.value === "OTH" ||
+    normalizedLeaveName.value === "others" ||
+    normalizedLeaveName.value === "other leave",
+);
 
 
 const resetForm = () => {
@@ -1311,25 +1346,17 @@ const resetForm = () => {
 
 
 <style scoped>
-/* =========================================
-   DASHBOARD THEME
-========================================= */
+
 
 .dashboard-shell {
   background: var(--app-bg);
 
-  /*
-   * IMPORTANT:
-   * Do not give this container a max-width.
-   * It should grow with the browser viewport.
-   */
+  
   width: 100%;
 }
 
 
-/* =========================================
-   MAIN CARD
-========================================= */
+
 
 .neo-card {
   background: var(--surface);
@@ -1338,10 +1365,7 @@ const resetForm = () => {
 
   border-radius: 1rem;
 
-  /*
-   * IMPORTANT:
-   * Allow the card to occupy the full available width.
-   */
+  
   width: 100%;
   max-width: none;
 
@@ -1377,9 +1401,7 @@ const resetForm = () => {
 }
 
 
-/* =========================================
-   FORM SECTIONS
-========================================= */
+
 
 .form-section {
   padding: 1.25rem;
@@ -1389,9 +1411,7 @@ const resetForm = () => {
 }
 
 
-/* =========================================
-   LABELS
-========================================= */
+
 
 .form-label {
   display: block;
@@ -1406,9 +1426,7 @@ const resetForm = () => {
 }
 
 
-/* =========================================
-   SECTION TITLES
-========================================= */
+
 
 .section-title {
   color: var(--text);
@@ -1421,9 +1439,7 @@ const resetForm = () => {
 }
 
 
-/* =========================================
-   INPUTS
-========================================= */
+
 
 .input-field {
   width: 100%;
@@ -1483,9 +1499,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   CONDITIONAL DETAIL BOXES
-========================================= */
+
 
 .detail-box {
   display: grid;
@@ -1506,9 +1520,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   CHECKBOX OPTIONS
-========================================= */
+
 
 .option-box {
   padding: 1rem;
@@ -1558,9 +1570,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   LEAVE CREDITS
-========================================= */
+
 
 .credit-box {
   background: #eaf2ff;
@@ -1592,9 +1602,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   UPLOAD AREA
-========================================= */
+
 
 .upload-box {
   border: 2px dashed #9fb0c5;
@@ -1622,9 +1630,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   FILES
-========================================= */
+
 
 .neo-card h3,
 .neo-card p,
@@ -1634,9 +1640,7 @@ select.input-field option {
 }
 
 
-/* =========================================
-   DATE INPUT
-========================================= */
+
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
@@ -1647,9 +1651,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 
-/* =========================================
-   SIGNATURE
-========================================= */
+
 
 .signature-box {
   width: 100%;
@@ -1674,9 +1676,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+
 
 @media (max-width: 768px) {
 
@@ -1687,11 +1687,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 
-/*
- * Extra protection for very small screens.
- * Prevents inner content from forcing the page
- * wider than the viewport.
- */
+
 
 @media (max-width: 640px) {
 
