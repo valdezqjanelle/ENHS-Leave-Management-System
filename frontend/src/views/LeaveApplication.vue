@@ -201,7 +201,12 @@
                   v-model="form.monetization"
                   type="checkbox"
                   class="checkbox-input"
-                  @change="form.monetization && (form.terminal_leave = false)"
+                  @change="
+                    form.monetization &&
+                    ((form.terminal_leave = false),
+                    (otherPurposeSelected = false),
+                    (form.other_purpose = ''))
+                  "
                 />
 
                 <span>Monetization of Leave Credits</span>
@@ -212,18 +217,39 @@
                   v-model="form.terminal_leave"
                   type="checkbox"
                   class="checkbox-input"
-                  @change="form.terminal_leave && (form.monetization = false)"
+                  @change="
+                    form.terminal_leave &&
+                    ((form.monetization = false),
+                    (otherPurposeSelected = false),
+                    (form.other_purpose = ''))
+                  "
                 />
 
                 <span>Terminal Leave</span>
               </label>
 
-              <div>
+              <label class="checkbox-label">
+                <input
+                  v-model="otherPurposeSelected"
+                  type="checkbox"
+                  class="checkbox-input"
+                  @change="
+                    otherPurposeSelected
+                      ? ((form.monetization = false),
+                        (form.terminal_leave = false))
+                      : (form.other_purpose = '')
+                  "
+                />
+
+                <span>Other (Please Specify)</span>
+              </label>
+
+              <div v-if="otherPurposeSelected">
                 <label class="form-label">
-                  Other Purpose
+                  Other Purpose Description
                 </label>
 
-                <input v-model="form.other_purpose" type="text" class="input-field"
+                <input v-model.trim="form.other_purpose" type="text" required class="input-field"
                   placeholder="Specify other purpose" />
               </div>
             </div>
@@ -647,6 +673,8 @@ const form = ref({
 });
 
 
+const otherPurposeSelected = ref(false);
+
 const employee = ref({
 
   employee_code: "",
@@ -1029,6 +1057,25 @@ const formatFileSize = (bytes: number) => {
 const submitApplication = async () => {
 
   if (
+    isOtherLeave.value &&
+    !form.value.monetization &&
+    !form.value.terminal_leave &&
+    !otherPurposeSelected.value
+  ) {
+    alert("Please select Monetization, Terminal Leave, or Other Purpose.");
+    return;
+  }
+
+  if (
+    isOtherLeave.value &&
+    otherPurposeSelected.value &&
+    !form.value.other_purpose.trim()
+  ) {
+    alert("Please specify the other purpose.");
+    return;
+  }
+
+  if (
     !signaturePad.value ||
     signaturePad.value.isEmpty()
   ) {
@@ -1333,6 +1380,7 @@ watch(isOtherLeave, (active) => {
     form.value.monetization = false;
     form.value.terminal_leave = false;
     form.value.other_purpose = "";
+    otherPurposeSelected.value = false;
   }
 });
 
@@ -1371,6 +1419,8 @@ const resetForm = () => {
 
 
   clearSignature();
+
+  otherPurposeSelected.value = false;
 
 };
 

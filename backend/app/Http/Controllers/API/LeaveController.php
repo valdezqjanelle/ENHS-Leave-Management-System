@@ -702,7 +702,7 @@ public function downloadPdf($id, Request $request)
 
     $textWrap(
         'special_women_illness',
-        $leave->special_women_illness ?? '',
+        $leave->illness ?? '',
         150
     );
 
