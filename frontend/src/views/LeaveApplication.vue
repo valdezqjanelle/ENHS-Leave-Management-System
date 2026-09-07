@@ -196,6 +196,28 @@
 
             
             <div v-if="isOtherLeave" class="option-box">
+              <label class="checkbox-label">
+                <input
+                  v-model="form.monetization"
+                  type="checkbox"
+                  class="checkbox-input"
+                  @change="form.monetization && (form.terminal_leave = false)"
+                />
+
+                <span>Monetization of Leave Credits</span>
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  v-model="form.terminal_leave"
+                  type="checkbox"
+                  class="checkbox-input"
+                  @change="form.terminal_leave && (form.monetization = false)"
+                />
+
+                <span>Terminal Leave</span>
+              </label>
+
               <div>
                 <label class="form-label">
                   Other Purpose
@@ -556,7 +578,8 @@ import {
   computed,
   onMounted,
   onBeforeUnmount,
-  nextTick
+  nextTick,
+  watch
 } from "vue";
 
 import axios from "axios";
@@ -1299,10 +1322,19 @@ const isSpecialWomenLeave = computed(
 
 const isOtherLeave = computed(
   () =>
-    selectedLeaveCode.value === "OTH" ||
+    ["OTH", "OTHER", "OP"].includes(selectedLeaveCode.value) ||
     normalizedLeaveName.value === "others" ||
-    normalizedLeaveName.value === "other leave",
+    normalizedLeaveName.value === "other leave" ||
+    normalizedLeaveName.value.includes("other purpose"),
 );
+
+watch(isOtherLeave, (active) => {
+  if (!active) {
+    form.value.monetization = false;
+    form.value.terminal_leave = false;
+    form.value.other_purpose = "";
+  }
+});
 
 
 const resetForm = () => {
