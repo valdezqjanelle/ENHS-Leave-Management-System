@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\EmployeeRecord;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use App\Support\AuditLogger;
 
 class EmployeeController extends Controller
@@ -35,7 +36,11 @@ class EmployeeController extends Controller
             'employment_status' => 'required|in:active,inactive',
             'employment_category' => 'nullable|in:Permanent,Probationary,Contractual,Casual,Temporary,Contract of Service,Job Order',
             'date_hired' => 'required|date',
-            'department_id' => 'required|exists:departments,department_id',
+            'department_id' => [
+                'required',
+                Rule::exists('departments', 'department_id')
+                    ->where(fn ($query) => $query->where('level', $request->level)),
+            ],
             'position_id' => 'required|exists:positions,id',
             'supervisor_id' => 'nullable|exists:employee_records,employee_id',
             'salary_step' => 'required|integer|min:1|max:8',
@@ -204,7 +209,11 @@ $request->validate([
     'employment_status' => 'required|in:active,inactive',
     'employment_category' => 'nullable|in:Permanent,Probationary,Contractual,Casual,Temporary,Contract of Service,Job Order',
     'date_hired' => 'required|date',
-    'department_id' => 'required|exists:departments,department_id',
+    'department_id' => [
+        'required',
+        Rule::exists('departments', 'department_id')
+            ->where(fn ($query) => $query->where('level', $request->level)),
+    ],
     'position_id' => 'required|exists:positions,id',
     'supervisor_id' => 'nullable|exists:employee_records,employee_id',
     'salary_step' => 'required|integer|min:1|max:8',

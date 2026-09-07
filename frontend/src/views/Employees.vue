@@ -64,7 +64,7 @@
 
                 <th class="px-2 sm:px-3 py-3 font-bold">Email</th>
 
-                <th class="px-2 sm:px-3 py-3 font-bold">Department</th>
+                <th class="px-2 sm:px-3 py-3 font-bold">Assignment Area</th>
 
                 <th class="px-2 sm:px-3 py-3 font-bold">Position</th>
 
@@ -557,14 +557,16 @@
               <!-- Department -->
               <div v-if="form.level">
                 <label class="block mb-2 text-sm text-gray-800 font-medium">
-                  Department
+                  {{ assignmentAreaLabel(form.level) }}
                 </label>
 
                 <select
                   v-model="form.department_id"
                   class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
                 >
-                  <option :value="null">Select Department</option>
+                  <option :value="null">
+                    {{ assignmentAreaPlaceholder(form.level) }}
+                  </option>
 
                   <option
                     v-for="dept in filteredDepartmentsForCreate"
@@ -1018,7 +1020,9 @@
               </div>
 
               <div class="min-w-0">
-                <span class="font-medium"> Department </span>
+                <span class="font-medium">
+                  {{ assignmentAreaLabel(selectedEmployee.level) }}
+                </span>
 
                 <p class="mt-1 break-words">
                   {{
@@ -1451,14 +1455,16 @@
               <!-- Department -->
               <div v-if="editForm.level">
                 <label class="block mb-2 text-sm text-gray-800 font-medium">
-                  Department
+                  {{ assignmentAreaLabel(editForm.level) }}
                 </label>
 
                 <select
                   v-model="editForm.department_id"
                   class="w-full min-w-0 border rounded-lg px-3 py-2 text-gray-800"
                 >
-                  <option :value="null">Select Department</option>
+                  <option :value="null">
+                    {{ assignmentAreaPlaceholder(editForm.level) }}
+                  </option>
 
                   <option
                     v-for="dept in filteredDepartmentsForEdit"
@@ -1657,7 +1663,7 @@
 
                   <th class="px-2 sm:px-4 py-3">Email</th>
 
-                  <th class="px-2 sm:px-4 py-3">Department</th>
+                  <th class="px-2 sm:px-4 py-3">Assignment Area</th>
 
                   <th class="px-2 sm:px-4 py-3">Position</th>
 
@@ -1892,6 +1898,18 @@ const departments = ref<
   }[]
 >([]);
 
+const assignmentAreaLabel = (level?: string) => {
+  if (level === "JHS") return "Subject Area / Specialization";
+  if (level === "SHS") return "Track / Strand";
+  return "Office / Department";
+};
+
+const assignmentAreaPlaceholder = (level?: string) => {
+  if (level === "JHS") return "Select Subject Area / Specialization";
+  if (level === "SHS") return "Select Track / Strand";
+  return "Select Office / Department";
+};
+
 /* ========================================================= */
 /* FILTERED DEPARTMENTS - CREATE */
 /* ========================================================= */
@@ -2093,8 +2111,14 @@ watch(
 
 watch(
   () => form.value.level,
-  () => {
-    form.value.department_id = null;
+  (level) => {
+    const selectedDepartment = departments.value.find(
+      (department) => department.department_id === form.value.department_id,
+    );
+
+    if (!selectedDepartment || selectedDepartment.level !== level) {
+      form.value.department_id = null;
+    }
   },
 );
 
@@ -2241,8 +2265,14 @@ watch(
 
 watch(
   () => editForm.value.level,
-  () => {
-    editForm.value.department_id = null;
+  (level) => {
+    const selectedDepartment = departments.value.find(
+      (department) => department.department_id === editForm.value.department_id,
+    );
+
+    if (!selectedDepartment || selectedDepartment.level !== level) {
+      editForm.value.department_id = null;
+    }
   },
 );
 
@@ -2423,10 +2453,10 @@ const updateEmployee = async () => {
     showEditModal.value = false;
 
     await loadEmployees();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update employee:", error);
 
-    alert("Unable to update employee.");
+    alert(error?.response?.data?.message || "Unable to update employee.");
   }
 };
 
