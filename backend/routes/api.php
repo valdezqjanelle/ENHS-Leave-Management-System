@@ -49,6 +49,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/approval-settings', [ApprovalSettingController::class, 'index']);
     Route::get('/system-settings', [SystemSettingController::class, 'index']);
 
+    Route::get('/profile', [EmployeeController::class, 'myProfile']);
+    Route::get('/my-profile', [EmployeeController::class, 'myProfile']);
+
+    Route::post('/leave-applications', [LeaveController::class, 'store']);
+    Route::get('/my-leave-applications', [LeaveController::class, 'myLeaves']);
+    Route::get('/my-leave-applications/{id}', [LeaveController::class, 'myLeave']);
+    Route::post('/my-leave-applications/{id}/attachments', [LeaveController::class, 'addAttachments']);
+    Route::get('/my-leave-balance', [LeaveBalanceController::class, 'myBalance']);
+
     // Leave Application - viewing
     Route::get(
         '/leave-applications/{id}',
@@ -79,16 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
         // Profile
-        Route::get(
-            '/profile',
-            [EmployeeController::class, 'myProfile']
-        );
-
-        Route::get(
-            '/my-profile',
-            [EmployeeController::class, 'myProfile']
-        );
-
         Route::put(
             '/profile',
             [EmployeeController::class, 'updateProfile']
@@ -107,35 +106,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put(
             '/profile/phone',
             [EmployeeController::class, 'updatePhone']
-        );
-
-
-        // Leave Applications
-        Route::post(
-            '/leave-applications',
-            [LeaveController::class, 'store']
-        );
-
-        Route::get(
-            '/my-leave-applications',
-            [LeaveController::class, 'myLeaves']
-        );
-
-        Route::get(
-            '/my-leave-applications/{id}',
-            [LeaveController::class, 'myLeave']
-        );
-
-        Route::post(
-            '/my-leave-applications/{id}/attachments',
-            [LeaveController::class, 'addAttachments']
-        );
-
-
-        // Leave Balance
-        Route::get(
-            '/my-leave-balance',
-            [LeaveBalanceController::class, 'myBalance']
         );
 
 

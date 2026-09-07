@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AdminProfile;
+use App\Models\EmployeeRecord;
 use App\Models\Position;
 use App\Models\SalarySchedule;
 
@@ -15,9 +16,33 @@ class AdminController extends Controller
     {
         $user = $request->user();
 
-        $profile = AdminProfile::with(['position', 'department'])
-            ->where('user_id', $user->user_id)
-            ->first();
+        $employee = EmployeeRecord::where('user_id', $user->user_id)->first();
+
+        $profile = AdminProfile::firstOrCreate(
+            ['user_id' => $user->user_id],
+            [
+                'first_name' => $employee?->first_name ?? '',
+                'middle_name' => $employee?->middle_name,
+                'last_name' => $employee?->last_name ?? '',
+                'extension_name' => $employee?->extension_name,
+                'date_of_birth' => $employee?->date_of_birth,
+                'sex' => $employee?->sex,
+                'civil_status' => $employee?->civil_status,
+                'nationality' => $employee?->nationality,
+                'address' => $employee?->address,
+                'personal_email' => $employee?->personal_email ?? $user->email,
+                'level' => $employee?->level ?? 'Non-Teaching',
+                'position_id' => $employee?->position_id,
+                'salary_step' => $employee?->salary_step ?? 1,
+                'salary' => $employee?->salary,
+                'department_id' => $employee?->department_id,
+                'contact_number' => $employee?->contact_number,
+                'emergency_contact_name' => $employee?->emergency_contact_name,
+                'emergency_contact_number' => $employee?->emergency_contact_number,
+            ]
+        );
+
+        $profile->load(['position', 'department']);
 
         return response()->json([
             'user_id' => $user->user_id,
@@ -76,13 +101,9 @@ class AdminController extends Controller
 
         $user = $request->user();
 
-        $profile = AdminProfile::where('user_id', $user->user_id)->first();
-
-        if (!$profile) {
-            return response()->json([
-                'message' => 'Admin profile not found'
-            ], 404);
-        }
+        $profile = AdminProfile::firstOrNew([
+            'user_id' => $user->user_id,
+        ]);
 
         $position = Position::findOrFail($request->position_id);
 
@@ -105,7 +126,30 @@ class AdminController extends Controller
             ], 422);
         }
 
-        $profile->update([
+        $profile->fill([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'extension_name' => $request->extension_name,
+            'date_of_birth' => $request->date_of_birth,
+            'sex' => $request->sex,
+            'civil_status' => $request->civil_status,
+            'nationality' => $request->nationality,
+            'address' => $request->address,
+            'personal_email' => $request->personal_email,
+            'level' => $request->level,
+            'position_id' => $position->id,
+            'salary_step' => $request->salary_step,
+            'salary' => $salary,
+            'department_id' => $request->department_id,
+            'contact_number' => $request->contact_number,
+            'emergency_contact_name' => $request->emergency_contact_name,
+            'emergency_contact_number' => $request->emergency_contact_number,
+        ]);
+
+        $profile->save();
+
+        EmployeeRecord::where('user_id', $user->user_id)->update([
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,

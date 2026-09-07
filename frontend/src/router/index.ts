@@ -42,7 +42,6 @@ const router = createRouter({
           component: () => import("../views/LeaveApplication.vue"),
           meta: {
             requiresAuth: true,
-            role: "employee",
           },
         },
 
@@ -104,7 +103,6 @@ const router = createRouter({
           component: () => import("../views/MyApplications.vue"),
           meta: {
             requiresAuth: true,
-            role: "employee",
           },
         },
 

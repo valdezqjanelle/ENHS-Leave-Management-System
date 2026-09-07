@@ -1029,6 +1029,17 @@ $text(
 
         $leave = LeaveApplication::findOrFail($id);
 
+        $adminEmployee = EmployeeRecord::where(
+            'user_id',
+            $request->user()->user_id
+        )->first();
+
+        if ($adminEmployee && $leave->employee_id === $adminEmployee->employee_id) {
+            return response()->json([
+                'message' => 'You cannot review or process your own leave application.'
+            ], 403);
+        }
+
         $previousStatus = strtolower($leave->final_status);
 
   

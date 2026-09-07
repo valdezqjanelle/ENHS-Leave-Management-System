@@ -110,6 +110,14 @@
             v-show="leaveMenuOpen || isLeaveRouteActive"
             class="pl-4 space-y-1 mt-1"
           >
+            <router-link to="/leave-application" class="nav-subitem">
+              Apply Leave
+            </router-link>
+
+            <router-link to="/my-applications" class="nav-subitem">
+              My Applications
+            </router-link>
+
             <router-link to="/admin-applications" class="nav-subitem">
               Leave Applications
             </router-link>
@@ -284,6 +292,8 @@ const isPersonnelRouteActive = computed(() => {
 const isLeaveRouteActive = computed(() => {
   return [
     "/admin-applications",
+    "/leave-application",
+    "/my-applications",
     "/leave-credits",
     "/leave-balances",
   ].includes(route.path);
@@ -305,10 +315,10 @@ const pageTitle = computed(() => {
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
+    "/my-applications": "My Applications",
     "/admin-settings": "Settings",
 
     "/attendance": "Attendance",
-    "/my-applications": "My Applications",
     "/records": "Records",
     "/reports": "Reports",
     "/settings": "Settings",
