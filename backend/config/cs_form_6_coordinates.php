@@ -69,7 +69,7 @@ return [
         'in_hospital_illness'      => ['x' => 427, 'y' => 276],//276
     'chk_out_patient'          => ['x' => 325, 'y' => 291],
         'out_patient_illness'      => ['x' => 380, 'y' => 335],
-        'special_women_illness'    => ['x' => 380, 'y' => 321],
+        'special_women_illness'    => ['x' => 380, 'y' => 335],
     'chk_completion_masters'  => ['x' => 326, 'y' => 379],
     'chk_bar_board_exam'      => ['x' => 326, 'y' => 394],
     'chk_monetization'         => ['x' => 326, 'y' => 423],
