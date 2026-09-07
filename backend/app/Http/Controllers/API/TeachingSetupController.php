@@ -84,7 +84,11 @@ class TeachingSetupController extends Controller
     public function storeSubject(Request $request)
     {
         $data = $request->validate([
-            'department_id' => 'nullable|exists:departments,department_id',
+            'department_id' => [
+                'required',
+                Rule::exists('departments', 'department_id')
+                    ->where(fn ($query) => $query->where('level', $request->level)),
+            ],
             'subject_name' => ['required', 'string', 'max:150', Rule::unique('teaching_subjects')->where(fn ($q) => $q->where('department_id', $request->department_id)->where('level', $request->level))],
             'level' => 'required|in:JHS,SHS', 'is_active' => 'nullable|boolean',
         ]);
@@ -95,7 +99,11 @@ class TeachingSetupController extends Controller
     {
         $item = TeachingSubject::findOrFail($id);
         $data = $request->validate([
-            'department_id' => 'nullable|exists:departments,department_id',
+            'department_id' => [
+                'required',
+                Rule::exists('departments', 'department_id')
+                    ->where(fn ($query) => $query->where('level', $request->level)),
+            ],
             'subject_name' => ['required', 'string', 'max:150', Rule::unique('teaching_subjects')->ignore($id, 'subject_id')->where(fn ($q) => $q->where('department_id', $request->department_id)->where('level', $request->level))],
             'level' => 'required|in:JHS,SHS', 'is_active' => 'required|boolean',
         ]);

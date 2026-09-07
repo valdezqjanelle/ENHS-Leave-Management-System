@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-slate-50 p-4 sm:p-8 space-y-6">
     <header class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h1 class="text-2xl font-bold text-slate-900">Teaching Setup</h1>
-      <p class="mt-1 text-sm text-slate-600">Manage grade levels, sections, and department subjects used in teaching assignments.</p>
+      <p class="mt-1 text-sm text-slate-600">Manage grade levels, sections, subject areas, SHS tracks, and teaching subjects.</p>
     </header>
 
     <div class="flex flex-wrap gap-2">
@@ -27,7 +27,7 @@
 
       <form v-if="tab==='Subjects'" @submit.prevent="saveSubject" class="grid gap-3 md:grid-cols-5">
         <select v-model="subjectForm.level" class="control"><option>JHS</option><option>SHS</option></select>
-        <select v-model.number="subjectForm.department_id" class="control"><option :value="null">All departments</option><option v-for="d in filteredDepartments" :key="d.department_id" :value="d.department_id">{{ d.department_name }}</option></select>
+        <select v-model.number="subjectForm.department_id" required class="control"><option :value="null">{{ subjectForm.level==='SHS' ? 'Select track / strand' : 'Select subject area' }}</option><option v-for="d in filteredDepartments" :key="d.department_id" :value="d.department_id">{{ d.department_name }}</option></select>
         <input v-model.trim="subjectForm.subject_name" required placeholder="Subject / specialization" class="control" />
         <label class="check"><input v-model="subjectForm.is_active" type="checkbox" /> Active</label>
         <button class="primary">{{ subjectForm.subject_id ? 'Save Changes' : 'Add Subject' }}</button>
@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getDepartments } from '../services/employee';
 import { getTeachingSetup, createGradeLevel, updateGradeLevel, deleteGradeLevel, createSection, updateSection, deleteSection, createSubject, updateSubject, deleteSubject } from '../services/teachingSetup';
 
@@ -68,6 +68,10 @@ const subjectForm = ref<any>({subject_id:null,department_id:null,subject_name:''
 const sections = computed(() => setup.value.grade_levels.flatMap((g:any)=>(g.sections||[]).map((s:any)=>({...s,grade_level:g}))));
 const visibleItems = computed(() => tab.value==='Grade Levels'?setup.value.grade_levels:tab.value==='Sections'?sections.value:setup.value.subjects);
 const filteredDepartments = computed(()=>departments.value.filter(d=>d.level===subjectForm.value.level));
+watch(() => subjectForm.value.level, (level) => {
+  const selected = departments.value.find((department:any) => department.department_id === subjectForm.value.department_id);
+  if (!selected || selected.level !== level) subjectForm.value.department_id = null;
+});
 
 const errorMessage=(error:any)=>error?.response?.data?.message||Object.values(error?.response?.data?.errors||{}).flat()[0]||'The operation could not be completed.';
 async function load(){loading.value=true;try{[setup.value,departments.value]=await Promise.all([getTeachingSetup(),getDepartments()]);}catch(error){alert(errorMessage(error));}finally{loading.value=false;}}
@@ -78,7 +82,7 @@ function editItem(i:any){if(tab.value==='Grade Levels')gradeForm.value={...i};el
 async function removeItem(i:any){if(!confirm(`Remove ${itemName(i)}?`))return;try{if(tab.value==='Grade Levels')await deleteGradeLevel(i.grade_level_id);else if(tab.value==='Sections')await deleteSection(i.section_id);else await deleteSubject(i.subject_id);await load();}catch(error){alert(errorMessage(error));}}
 const itemKey=(i:any)=>i.grade_level_id??i.section_id??i.subject_id;
 const itemName=(i:any)=>i.grade_name??i.section_name??i.subject_name;
-const itemParent=(i:any)=>i.grade_level?.grade_name??i.department?.department_name??i.level??'All departments';
+const itemParent=(i:any)=>i.grade_level?.grade_name??i.department?.department_name??i.level??'General subject';
 onMounted(load);
 </script>
 

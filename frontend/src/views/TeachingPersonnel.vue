@@ -230,7 +230,7 @@
                 </div>
 
                 <div v-for="(assignment,index) in form.assignments" :key="index" class="grid grid-cols-1 md:grid-cols-2 gap-3 border rounded-xl p-4 bg-gray-50">
-                  <select v-model.number="assignment.grade_level_id" @change="assignment.section_id=null" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                  <select v-model.number="assignment.grade_level_id" @change="handleGradeChange(assignment)" class="w-full border rounded-lg px-3 py-2 text-gray-800">
                     <option :value="null">Select grade level</option>
                     <option v-for="grade in activeGradeLevels" :key="grade.grade_level_id" :value="grade.grade_level_id">{{ grade.grade_name }} ({{ grade.level }})</option>
                   </select>
@@ -238,9 +238,15 @@
                     <option :value="null">No section / Select section</option>
                     <option v-for="section in sectionsFor(assignment.grade_level_id)" :key="section.section_id" :value="section.section_id">{{ section.section_name }}</option>
                   </select>
+                  <select v-if="assignmentLevel(assignment)==='SHS'" v-model.number="assignment.track_id" @change="assignment.subject_id=null" class="w-full border rounded-lg px-3 py-2 text-gray-800">
+                    <option :value="null">Select track / strand</option>
+                    <option v-for="track in activeShsTracks" :key="track.department_id" :value="track.department_id">{{ track.department_name }}</option>
+                  </select>
                   <select v-model.number="assignment.subject_id" class="w-full border rounded-lg px-3 py-2 text-gray-800">
                     <option :value="null">Select subject / specialization</option>
-                    <option v-for="subject in subjectsForSelectedEmployee" :key="subject.subject_id" :value="subject.subject_id">{{ subject.subject_name }}</option>
+                    <option v-for="subject in subjectsFor(assignment)" :key="subject.subject_id" :value="subject.subject_id">
+                      {{ subject.subject_name }}<template v-if="assignmentLevel(assignment)==='SHS' && subject.department"> — {{ subject.department.department_name }}</template>
+                    </option>
                   </select>
                   <input v-model.trim="assignment.school_year" placeholder="2026-2027" pattern="[0-9]{4}-[0-9]{4}" class="w-full border rounded-lg px-3 py-2 text-gray-800" />
                   <label class="flex items-center gap-2 text-sm text-gray-700"><input v-model="assignment.is_advisory" type="checkbox" /> Advisory class</label>
@@ -512,13 +518,34 @@ const currentSchoolYear = () => {
   return `${start}-${start + 1}`;
 };
 
-const emptyAssignment = () => ({ grade_level_id: null, section_id: null, subject_id: null, school_year: currentSchoolYear(), is_advisory: false, teaching_hours: null });
+const emptyAssignment = () => ({ grade_level_id: null, section_id: null, track_id: null, subject_id: null, school_year: currentSchoolYear(), is_advisory: false, teaching_hours: null });
 const activeGradeLevels = computed(() => teachingSetup.value.grade_levels.filter((g:any)=>g.is_active));
-const selectedEmployee = computed(() => employees.value.find(e=>e.employee_id===form.value.employee_id));
-const subjectsForSelectedEmployee = computed(() => {
-  const departmentId = selectedEmployee.value?.department?.department_id;
-  return teachingSetup.value.subjects.filter((s:any)=>s.is_active && (!s.department_id || s.department_id===departmentId));
+const activeShsTracks = computed(() => {
+  const tracks = teachingSetup.value.subjects
+    .filter((subject:any) => subject.is_active && subject.level === "SHS" && subject.department)
+    .map((subject:any) => subject.department);
+
+  return tracks.filter(
+    (track:any, index:number, values:any[]) =>
+      values.findIndex((item:any) => item.department_id === track.department_id) === index,
+  );
 });
+const assignmentLevel = (assignment:any) => teachingSetup.value.grade_levels.find((grade:any)=>grade.grade_level_id===assignment.grade_level_id)?.level ?? null;
+const subjectsFor = (assignment:any) => {
+  const level = assignmentLevel(assignment);
+  if (!level) return [];
+
+  return teachingSetup.value.subjects.filter((subject:any) => {
+    if (!subject.is_active || subject.level !== level) return false;
+    if (level === "JHS") return true;
+    return !subject.department_id || subject.department_id === assignment.track_id;
+  });
+};
+const handleGradeChange = (assignment:any) => {
+  assignment.section_id = null;
+  assignment.track_id = null;
+  assignment.subject_id = null;
+};
 const sectionsFor = (gradeId:number|null) => teachingSetup.value.grade_levels.find((g:any)=>g.grade_level_id===gradeId)?.sections?.filter((s:any)=>s.is_active) ?? [];
 const addAssignment = () => form.value.assignments.push(emptyAssignment());
 
@@ -724,6 +751,7 @@ const editRecord = (record: TeachingRecord) => {
     assignments: record.assignments?.length
       ? record.assignments.map((a:any)=>({
           grade_level_id:a.grade_level_id, section_id:a.section_id,
+          track_id:a.subject?.department_id ?? a.subject?.department?.department_id ?? null,
           subject_id:a.subject_id, school_year:a.school_year,
           is_advisory:Boolean(a.is_advisory), teaching_hours:a.teaching_hours === null ? null : Number(a.teaching_hours),
         }))
@@ -757,8 +785,8 @@ const saveRecord = async () => {
       return;
     }
 
-    if (!form.value.assignments.length || form.value.assignments.some((a:any)=>!a.grade_level_id || !a.subject_id || !/^\d{4}-\d{4}$/.test(a.school_year))) {
-      alert("Complete the grade level, subject, and school year for every assignment."); return;
+    if (!form.value.assignments.length || form.value.assignments.some((a:any)=>!a.grade_level_id || !a.subject_id || (assignmentLevel(a)==='SHS' && !a.track_id) || !/^\d{4}-\d{4}$/.test(a.school_year))) {
+      alert("Complete the grade level, track/strand (for SHS), subject, and school year for every assignment."); return;
     }
 
     const first = form.value.assignments[0];
@@ -783,7 +811,7 @@ const saveRecord = async () => {
 
       teaching_hours:
         form.value.teaching_hours,
-      assignments: form.value.assignments,
+      assignments: form.value.assignments.map(({ track_id, ...assignment }:any) => assignment),
     };
 
     if (editingRecord.value) {
