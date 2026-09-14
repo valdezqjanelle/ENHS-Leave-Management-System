@@ -10,11 +10,7 @@ use App\Support\AuditLogger;
 
 class LeaveBalanceController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: VIEW ALL BALANCES
-    |--------------------------------------------------------------------------
-    */
+ 
 public function index()
 {
     $employees = EmployeeRecord::with('leaveBalance')->get();
@@ -56,11 +52,7 @@ public function index()
 
     return response()->json($balances);
 }
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN: VIEW SPECIFIC EMPLOYEE BALANCE
-    |--------------------------------------------------------------------------
-    */
+
     public function show($employee_id)
     {
         $employee = EmployeeRecord::find($employee_id);
@@ -148,11 +140,7 @@ public function update(Request $request, $employee_id)
     ], $wasCreated ? 201 : 200);
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EMPLOYEE: VIEW OWN BALANCE
-    |--------------------------------------------------------------------------
-    */
+  
     public function myBalance(Request $request)
 {
     $employee = EmployeeRecord::where(

@@ -847,6 +847,13 @@
 
                   {{ formatDate(selectedEmployee.date_hired) }}
                 </div>
+
+                <div>
+                  <span class= "font-medium"> Created By: </span>
+                  <br />
+
+                  {{ selectedEmployee.created_by?.email || "-" }} 
+                </div>
               </div>
             </div>
           </div>
@@ -1848,6 +1855,7 @@ interface Employee {
   created_by?: {
     user_id: number;
     email: string;
+    
   } | null;
 }
 
