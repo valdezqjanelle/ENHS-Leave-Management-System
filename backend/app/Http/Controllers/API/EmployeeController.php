@@ -116,6 +116,7 @@ class EmployeeController extends Controller
             'password' => $plainPassword,
             'employee' => $employee->load([
                 'user',
+                'createdBy.adminProfile',
                 'position',
                 'department',
                 'supervisor'
@@ -167,7 +168,7 @@ class EmployeeController extends Controller
     {
         $employees = EmployeeRecord::with([
             'user',
-            'createdBy',
+            'createdBy.adminProfile',
             'position',
             'department',
             'supervisor'
@@ -285,6 +286,7 @@ return response()->json([
     'message' => 'Employee updated successfully.',
     'employee' => $employee->fresh()->load([
         'user',
+        'createdBy.adminProfile',
         'position',
         'department',
         'supervisor'
@@ -502,7 +504,7 @@ return response()->json([
         $employees = EmployeeRecord::onlyTrashed()
             ->with([
                 'user',
-                'createdBy',
+                'createdBy.adminProfile',
                 'position',
                 'department',
                 'supervisor'

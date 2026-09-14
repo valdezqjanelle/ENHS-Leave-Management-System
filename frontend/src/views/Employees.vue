@@ -1855,6 +1855,11 @@ interface Employee {
   created_by?: {
     user_id: number;
     email: string;
+    admin_profile: {
+      first_name: string;
+      middle_name?: string | null;
+      last_name: string;
+    };
     
   } | null;
 }
@@ -1881,6 +1886,13 @@ const showCredentialsModal = ref(false);
 
 const selectedEmployee = ref<Employee | null>(null);
 
+const getCreatorName = (employee: Employee) => {
+  if (!employee.created_by) return "-";
+
+  const { first_name, middle_name, last_name } = employee.created_by.admin_profile;
+
+  return `${first_name} ${middle_name ? middle_name + " " : ""}${last_name}`;
+};
 /* ========================================================= */
 /* POSITIONS */
 /* ========================================================= */
