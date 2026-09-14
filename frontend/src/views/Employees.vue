@@ -852,7 +852,7 @@
                   <span class= "font-medium"> Created By: </span>
                   <br />
 
-                  {{ selectedEmployee.created_by?.admin_profile || "-" }} 
+                  {{ getCreatorName(selectedEmployee)|| "-" }} 
                 </div>
               </div>
             </div>
