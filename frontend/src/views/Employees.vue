@@ -38,21 +38,28 @@
         </div>
       </div>
 
-      <!-- ========================================================= -->
-      <!-- SEARCH -->
-      <!-- ========================================================= -->
       <div class="neo-card w-full p-6">
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search employee..."
-          class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-        />
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+        >
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search employee..."
+            class="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          />
+
+          <select
+            v-model="statusFilter"
+            class="w-full sm:w-48 flex-shrink-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
       </div>
 
-      <!-- ========================================================= -->
-      <!-- EMPLOYEE TABLE -->
-      <!-- ========================================================= -->
       <div class="neo-card w-full p-6">
         <div class="table-wrapper">
           <table class="employee-table">
@@ -849,10 +856,10 @@
                 </div>
 
                 <div>
-                  <span class= "font-medium"> Created By: </span>
+                  <span class="font-medium"> Created By: </span>
                   <br />
 
-                  {{ getCreatorName(selectedEmployee)|| "-" }} 
+                  {{ getCreatorName(selectedEmployee) || "-" }}
                 </div>
               </div>
             </div>
@@ -1860,21 +1867,20 @@ interface Employee {
       middle_name?: string | null;
       last_name: string;
     };
-    
   } | null;
 }
 
 /* ========================================================= */
 /* STATE */
 /* ========================================================= */
+const search = ref("");
+const statusFilter = ref("all");
 
 const employees = ref<Employee[]>([]);
 
 const deletedEmployees = ref<Employee[]>([]);
 
 const showDeletedModal = ref(false);
-
-const search = ref("");
 
 const showCreateModal = ref(false);
 
@@ -1889,7 +1895,8 @@ const selectedEmployee = ref<Employee | null>(null);
 const getCreatorName = (employee: Employee) => {
   if (!employee.created_by) return "-";
 
-  const { first_name, middle_name, last_name } = employee.created_by.admin_profile;
+  const { first_name, middle_name, last_name } =
+    employee.created_by.admin_profile;
 
   return `${first_name} ${middle_name ? middle_name + " " : ""}${last_name}`;
 };
@@ -2345,21 +2352,12 @@ const viewEmployee = (employee: Employee) => {
 const filteredEmployees = computed(() => {
   const keyword = search.value.toLowerCase().trim();
 
-  if (!keyword) {
-    return employees.value;
-  }
-
   return employees.value.filter((employee) => {
     const firstName = employee.first_name?.toLowerCase() || "";
-
     const lastName = employee.last_name?.toLowerCase() || "";
-
     const middleName = employee.middle_name?.toLowerCase() || "";
-
     const extensionName = employee.extension_name?.toLowerCase() || "";
-
     const employeeCode = employee.employee_code?.toLowerCase() || "";
-
     const email = employee.user?.email?.toLowerCase() || "";
 
     const department = (
@@ -2369,12 +2367,12 @@ const filteredEmployees = computed(() => {
     ).toLowerCase();
 
     const position = employee.position?.name?.toLowerCase() || "";
-
     const level = employee.level?.toLowerCase() || "";
-
     const personnelType = employee.personnel_type?.toLowerCase() || "";
+    const employmentStatus = employee.employment_status?.toLowerCase() || "";
 
-    return (
+    const matchesSearch =
+      !keyword ||
       firstName.includes(keyword) ||
       middleName.includes(keyword) ||
       lastName.includes(keyword) ||
@@ -2384,11 +2382,14 @@ const filteredEmployees = computed(() => {
       department.includes(keyword) ||
       position.includes(keyword) ||
       level.includes(keyword) ||
-      personnelType.includes(keyword)
-    );
+      personnelType.includes(keyword);
+
+    const matchesStatus =
+      statusFilter.value === "all" || employmentStatus === statusFilter.value;
+
+    return matchesSearch && matchesStatus;
   });
 });
-
 /* ========================================================= */
 /* EDIT EMPLOYEE */
 /* ========================================================= */
@@ -2535,8 +2536,7 @@ const loadDeletedEmployees = async () => {
     console.log("Deleted Employees:", deletedEmployees.value);
   } catch (error) {
     console.error("Failed to load deleted employees:", error);
-
-    alert("Unable to load deleted employees.");
+    -alert("Unable to load deleted employees.");
   }
 };
 
