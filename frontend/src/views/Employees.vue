@@ -3,9 +3,7 @@
     <div
       class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6"
     >
-      <!-- ========================================================= -->
-      <!-- HEADER -->
-      <!-- ========================================================= -->
+   
       <div class="neo-card w-full p-6">
         <div
           class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
