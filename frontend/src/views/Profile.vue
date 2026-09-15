@@ -1,30 +1,20 @@
 
 <template>
   <div class="records-shell p-8 min-h-screen space-y-6">
-
-    <!-- ===================================================== -->
-    <!-- PROFILE SUMMARY -->
-    <!-- ===================================================== -->
-
     <div class="neo-card p-8">
-
       <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-
-        <!-- Initials -->
         <div
-          class="w-28 h-28 bg-blue-500 rounded-full flex items-center justify-center text-white text-4xl font-semibold shrink-0"
+          class="w-28 h-28 bg-blue-600 rounded-full flex items-center justify-center text-white text-4xl font-semibold shrink-0"
         >
           {{ initials }}
         </div>
 
-        <!-- Name / Position -->
         <div class="flex-1 min-w-0">
-
-          <h3 class="text-2xl font-semibold text-white break-words">
+          <h3 class="text-2xl font-semibold text-[var(--text)] break-words">
             {{ fullName }}
           </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             {{ employee.position || "Employee" }}
           </p>
 
@@ -32,188 +22,148 @@
             v-if="employee.employment_status"
             :class="
               normalizeEmploymentStatus(employee.employment_status) === 'active'
-                ? 'bg-green-500/10 text-green-400'
-                : 'bg-gray-500/10 text-gray-400'
+                ? 'bg-green-50 text-green-700'
+                : 'bg-slate-100 text-slate-600'
             "
             class="inline-block mt-3 px-3 py-1 rounded-full text-xs"
           >
             {{ employee.employment_status }}
           </span>
-
         </div>
 
-        <!-- Employee Code -->
         <div
-          class="sm:text-right sm:pl-6 sm:border-l border-t sm:border-t-0 border-[#1e293b] pt-5 sm:pt-0"
+          class="sm:text-right sm:pl-6 sm:border-l border-t sm:border-t-0 border-[#cbd8e8] pt-5 sm:pt-0"
         >
-
-          <p class="text-xs text-gray-500">
+          <p class="text-xs text-[var(--text-muted)]">
             Employee Code
           </p>
 
-          <p class="text-sm text-gray-300 font-mono mt-1">
+          <p class="text-sm text-[var(--text)] font-mono mt-1">
             {{ employee.employee_code || "—" }}
           </p>
-
         </div>
-
       </div>
-
     </div>
 
-
-    <!-- ===================================================== -->
-    <!-- EMPLOYEE INFORMATION + PERSONAL INFORMATION -->
-    <!-- ===================================================== -->
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-
-      <!-- =================================================== -->
-      <!-- EMPLOYEE / HR INFORMATION -->
-      <!-- =================================================== -->
-
       <div class="neo-card p-6">
-
         <div class="flex items-center gap-2 mb-5">
-
           <div
-            class="w-8 h-8 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center shrink-0"
+            class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0"
           >
             <Building2 class="w-4 h-4" />
           </div>
 
           <div>
-            <h3 class="text-lg font-medium text-white">
+            <h3 class="text-lg font-medium text-[var(--text)]">
               Employee Information
             </h3>
 
-            <p class="text-xs text-gray-500">
+            <p class="text-xs text-[var(--text-muted)]">
               These details are managed by the administrator.
             </p>
           </div>
-
         </div>
 
-
         <div
-          class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5 border border-[#1e293b] rounded-xl p-5"
+          class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5 border border-[#c8d8eb] rounded-xl p-5"
         >
-
-          <!-- Employee Code -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Employee Code
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ employee.employee_code || "—" }}
             </p>
           </div>
 
-
-          <!-- Email -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Email
             </p>
 
-            <p class="font-medium text-white mt-1 break-all">
+            <p class="font-medium text-[var(--text)] mt-1 break-all">
               {{ employee.email || "—" }}
             </p>
           </div>
 
-
-          <!-- Personnel Type -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Personnel Type
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ employee.personnel_type || "—" }}
             </p>
           </div>
 
-
-          <!-- Employment Category -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Employment Category
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ employee.employment_category || "—" }}
             </p>
           </div>
 
-
-          <!-- Department -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Department
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ employee.department_name || "—" }}
             </p>
           </div>
 
-
-          <!-- Position -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Position
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ employee.position || "—" }}
             </p>
           </div>
 
-
-          <!-- Level -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Level
             </p>
 
-            <p class="font-medium text-white mt-1">
+            <p class="font-medium text-[var(--text)] mt-1">
               {{ employee.level || "—" }}
             </p>
           </div>
 
-
-          <!-- Supervisor -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Supervisor
             </p>
 
-            <p class="font-medium text-white mt-1 break-words">
+            <p class="font-medium text-[var(--text)] mt-1 break-words">
               {{ supervisorName }}
             </p>
           </div>
 
-
-          <!-- Salary Grade -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Salary Grade
             </p>
 
-            <p class="font-medium text-white mt-1">
+            <p class="font-medium text-[var(--text)] mt-1">
               {{ employee.salary_grade || "—" }}
             </p>
           </div>
 
-
-          <!-- Salary Step -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Salary Step
             </p>
 
-            <p class="font-medium text-white mt-1">
+            <p class="font-medium text-[var(--text)] mt-1">
               {{
                 employee.salary_step
                   ? `Step ${employee.salary_step}`
@@ -222,104 +172,76 @@
             </p>
           </div>
 
-
-          <!-- Salary -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Current Salary
             </p>
 
-            <p class="font-medium text-white mt-1">
+            <p class="font-medium text-[var(--text)] mt-1">
               {{ formattedSalary }}
             </p>
           </div>
 
-
-          <!-- Date Hired -->
           <div>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Date Hired
             </p>
 
-            <p class="font-medium text-white mt-1">
+            <p class="font-medium text-[var(--text)] mt-1">
               {{ formattedDateHired }}
             </p>
           </div>
 
-
-          <!-- Employment Status -->
           <div class="sm:col-span-2">
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Employment Status
             </p>
 
             <span
               :class="
                 normalizeEmploymentStatus(employee.employment_status) === 'active'
-                  ? 'bg-green-500/10 text-green-400'
-                  : 'bg-gray-500/10 text-gray-400'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-slate-100 text-slate-600'
               "
               class="inline-block mt-1 px-3 py-1 rounded-full text-xs"
             >
               {{ employee.employment_status || "—" }}
             </span>
           </div>
-
         </div>
-
       </div>
-
-
-      <!-- =================================================== -->
-      <!-- PERSONAL + CONTACT + EMERGENCY -->
-      <!-- =================================================== -->
 
       <form
         @submit.prevent="updateProfile"
         class="neo-card p-6"
       >
-
-        <!-- ================================================= -->
-        <!-- PERSONAL INFORMATION -->
-        <!-- ================================================= -->
-
         <div class="flex items-center justify-between gap-2 mb-5">
-
           <div class="flex items-center gap-2">
-
             <div
-              class="w-8 h-8 bg-yellow-500/10 text-yellow-400 rounded-lg flex items-center justify-center shrink-0"
+              class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0"
             >
               <User class="w-4 h-4" />
             </div>
 
-            <h3 class="text-lg font-medium text-white">
+            <h3 class="text-lg font-medium text-[var(--text)]">
               Personal Information
             </h3>
-
           </div>
 
-
-          <!-- EDIT -->
           <button
             v-if="!isEditing"
             type="button"
             @click="startEdit"
-            class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500/20 transition"
+            class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
           >
             <Pencil class="w-3.5 h-3.5" />
             Edit
           </button>
-
         </div>
 
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-          <!-- First Name -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               First Name
             </label>
 
@@ -333,18 +255,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1 break-words"
+              class="font-medium text-[var(--text)] mt-1 break-words"
             >
               {{ employee.first_name || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Middle Name -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Middle Name
             </label>
 
@@ -358,18 +276,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1 break-words"
+              class="font-medium text-[var(--text)] mt-1 break-words"
             >
               {{ employee.middle_name || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Last Name -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Last Name
             </label>
 
@@ -383,18 +297,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1 break-words"
+              class="font-medium text-[var(--text)] mt-1 break-words"
             >
               {{ employee.last_name || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Extension Name -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Extension Name
             </label>
 
@@ -414,18 +324,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1"
+              class="font-medium text-[var(--text)] mt-1"
             >
               {{ employee.extension_name || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Date of Birth -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Date of Birth
             </label>
 
@@ -438,18 +344,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1"
+              class="font-medium text-[var(--text)] mt-1"
             >
               {{ formattedDateOfBirth }}
             </p>
-
           </div>
 
-
-          <!-- Sex -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Sex
             </label>
 
@@ -465,18 +367,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1"
+              class="font-medium text-[var(--text)] mt-1"
             >
               {{ employee.sex || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Nationality -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Nationality
             </label>
 
@@ -490,18 +388,14 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1 break-words"
+              class="font-medium text-[var(--text)] mt-1 break-words"
             >
               {{ employee.nationality || "—" }}
             </p>
-
           </div>
 
-
-          <!-- Civil Status -->
           <div>
-
-            <label class="block text-sm font-medium text-gray-400 mb-1">
+            <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
               Civil Status
             </label>
 
@@ -520,51 +414,35 @@
 
             <p
               v-else
-              class="font-medium text-white mt-1"
+              class="font-medium text-[var(--text)] mt-1"
             >
               {{ employee.civil_status || "—" }}
             </p>
-
           </div>
-
         </div>
 
-
-        <!-- ================================================= -->
-        <!-- CONTACT INFORMATION -->
-        <!-- ================================================= -->
-
-        <div class="border-t border-[#1e293b] pt-6 mt-6">
-
+        <div class="border-t border-[#cbd8e8] pt-6 mt-6">
           <div class="flex items-center gap-2 mb-5">
-
             <div
-              class="w-8 h-8 bg-green-500/10 text-green-400 rounded-lg flex items-center justify-center shrink-0"
+              class="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center shrink-0"
             >
               <Phone class="w-4 h-4" />
             </div>
 
             <div>
-
-              <h3 class="text-lg font-medium text-white">
+              <h3 class="text-lg font-medium text-[var(--text)]">
                 Contact Information
               </h3>
 
-              <p class="text-xs text-gray-500">
+              <p class="text-xs text-[var(--text-muted)]">
                 You can update your personal contact information.
               </p>
-
             </div>
-
           </div>
 
-
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <!-- Contact Number -->
             <div>
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Contact Number
               </label>
 
@@ -585,18 +463,14 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1"
+                class="font-medium text-[var(--text)] mt-1"
               >
                 {{ employee.contact_number || "—" }}
               </p>
-
             </div>
 
-
-            <!-- Email -->
             <div>
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Email
               </label>
 
@@ -604,20 +478,16 @@
                 :value="employee.email"
                 type="email"
                 disabled
-                class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500 cursor-not-allowed"
+                class="w-full px-3 py-2 border border-[#cbd8e8] rounded-lg bg-[#f3f7fc] text-[var(--text-muted)] cursor-not-allowed"
               />
 
-              <p class="text-xs text-gray-500 mt-1">
+              <p class="text-xs text-[var(--text-muted)] mt-1">
                 To change your email, use Account Settings.
               </p>
-
             </div>
 
-
-            <!-- Personal Email -->
             <div>
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Personal Email
               </label>
 
@@ -631,18 +501,14 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1 break-all"
+                class="font-medium text-[var(--text)] mt-1 break-all"
               >
                 {{ employee.personal_email || "—" }}
               </p>
-
             </div>
 
-
-            <!-- Address -->
             <div class="md:col-span-2">
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Address
               </label>
 
@@ -656,53 +522,36 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1 whitespace-pre-line break-words"
+                class="font-medium text-[var(--text)] mt-1 whitespace-pre-line break-words"
               >
                 {{ employee.address || "—" }}
               </p>
-
             </div>
-
           </div>
-
         </div>
 
-
-        <!-- ================================================= -->
-        <!-- EMERGENCY CONTACT -->
-        <!-- ================================================= -->
-
-        <div class="border-t border-[#1e293b] pt-6 mt-6">
-
+        <div class="border-t border-[#cbd8e8] pt-6 mt-6">
           <div class="flex items-center gap-2 mb-5">
-
             <div
-              class="w-8 h-8 bg-red-500/10 text-red-400 rounded-lg flex items-center justify-center shrink-0"
+              class="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center shrink-0"
             >
               <ShieldAlert class="w-4 h-4" />
             </div>
 
             <div>
-
-              <h3 class="text-lg font-medium text-white">
+              <h3 class="text-lg font-medium text-[var(--text)]">
                 Emergency Contact
               </h3>
 
-              <p class="text-xs text-gray-500">
+              <p class="text-xs text-[var(--text-muted)]">
                 Provide someone who can be contacted in case of emergency.
               </p>
-
             </div>
-
           </div>
 
-
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <!-- Emergency Contact Name -->
             <div>
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Contact Name
               </label>
 
@@ -716,18 +565,14 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1 break-words"
+                class="font-medium text-[var(--text)] mt-1 break-words"
               >
                 {{ employee.emergency_contact_name || "—" }}
               </p>
-
             </div>
 
-
-            <!-- Relationship -->
             <div>
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Relationship
               </label>
 
@@ -741,18 +586,14 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1 break-words"
+                class="font-medium text-[var(--text)] mt-1 break-words"
               >
                 {{ employee.emergency_contact_relationship || "—" }}
               </p>
-
             </div>
 
-
-            <!-- Emergency Contact Number -->
             <div class="md:col-span-2">
-
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Contact Number
               </label>
 
@@ -774,51 +615,37 @@
 
               <p
                 v-else
-                class="font-medium text-white mt-1"
+                class="font-medium text-[var(--text)] mt-1"
               >
                 {{ employee.emergency_contact_number || "—" }}
               </p>
-
             </div>
-
           </div>
-
         </div>
-
-
-        <!-- ================================================= -->
-        <!-- SAVE / CANCEL -->
-        <!-- ================================================= -->
 
         <div
           v-if="isEditing"
           class="flex flex-col sm:flex-row justify-end gap-3 mt-6"
         >
-
           <button
             type="button"
             @click="cancelEdit"
-            class="w-full sm:w-auto px-6 py-2 text-gray-300 bg-[#0d1520] border border-[#1e293b] rounded-lg hover:bg-[#111d2e] transition"
+            class="w-full sm:w-auto px-6 py-2 text-[var(--text-muted)] bg-[#f3f7fc] border border-[#cbd8e8] rounded-lg hover:bg-[#e8f0f9] transition"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition"
+            class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Save Changes
           </button>
-
         </div>
-
       </form>
-
     </div>
-
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
@@ -836,26 +663,11 @@ import {
   updateMyProfile,
 } from "@/services/employee";
 
-
-/* =========================================================
-   EMPLOYEE PROFILE
-========================================================= */
-
 const employee = ref({
-
-  /* =======================================================
-     ACCOUNT
-  ======================================================= */
-
   employee_id: "",
   employee_code: "",
   email: "",
   role: "",
-
-
-  /* =======================================================
-     PERSONAL INFORMATION
-  ======================================================= */
 
   first_name: "",
   middle_name: "",
@@ -868,28 +680,13 @@ const employee = ref({
   nationality: "",
   civil_status: "",
 
-
-  /* =======================================================
-     CONTACT INFORMATION
-  ======================================================= */
-
   contact_number: "",
   personal_email: "",
   address: "",
 
-
-  /* =======================================================
-     EMERGENCY CONTACT
-  ======================================================= */
-
   emergency_contact_name: "",
   emergency_contact_number: "",
   emergency_contact_relationship: "",
-
-
-  /* =======================================================
-     EMPLOYMENT INFORMATION
-  ======================================================= */
 
   personnel_type: "",
   employment_category: "",
@@ -914,22 +711,11 @@ const employee = ref({
   date_hired: "",
 });
 
-
-/* =========================================================
-   EDIT MODE
-========================================================= */
-
 const isEditing = ref(false);
 
 let editSnapshot: typeof employee.value | null = null;
 
-
-/* =========================================================
-   START EDIT
-========================================================= */
-
 const startEdit = () => {
-
   editSnapshot = JSON.parse(
     JSON.stringify(employee.value)
   );
@@ -937,33 +723,18 @@ const startEdit = () => {
   isEditing.value = true;
 };
 
-
-/* =========================================================
-   CANCEL EDIT
-========================================================= */
-
 const cancelEdit = () => {
-
   if (editSnapshot) {
-
     employee.value = JSON.parse(
       JSON.stringify(editSnapshot)
     );
-
   }
 
   editSnapshot = null;
-
   isEditing.value = false;
 };
 
-
-/* =========================================================
-   FULL NAME
-========================================================= */
-
 const fullName = computed(() => {
-
   return [
     employee.value.first_name,
     employee.value.middle_name,
@@ -972,62 +743,34 @@ const fullName = computed(() => {
   ]
     .filter(Boolean)
     .join(" ");
-
 });
 
-
-/* =========================================================
-   INITIALS
-========================================================= */
-
 const initials = computed(() => {
-
   return (
     employee.value.first_name.charAt(0) +
     employee.value.last_name.charAt(0)
   ).toUpperCase();
-
 });
 
-
-/* =========================================================
-   SUPERVISOR NAME
-========================================================= */
-
 const supervisorName = computed(() => {
-
   if (employee.value.supervisor) {
     return employee.value.supervisor;
   }
 
   return "—";
-
 });
-
-
-/* =========================================================
-   NORMALIZE EMPLOYMENT STATUS
-========================================================= */
 
 const normalizeEmploymentStatus = (
   status?: string
 ) => {
-
   return String(status || "")
     .trim()
     .toLowerCase();
-
 };
-
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
 
 const formatDate = (
   date?: string | null
 ) => {
-
   if (!date) {
     return "—";
   }
@@ -1049,42 +792,21 @@ const formatDate = (
   const year = parsedDate.getUTCFullYear();
 
   return `${month}-${day}-${year}`;
-
 };
 
-
-/* =========================================================
-   FORMATTED DATE OF BIRTH
-========================================================= */
-
 const formattedDateOfBirth = computed(() => {
-
   return formatDate(
     employee.value.date_of_birth
   );
-
 });
 
-
-/* =========================================================
-   FORMATTED DATE HIRED
-========================================================= */
-
 const formattedDateHired = computed(() => {
-
   return formatDate(
     employee.value.date_hired
   );
-
 });
 
-
-/* =========================================================
-   FORMATTED SALARY
-========================================================= */
-
 const formattedSalary = computed(() => {
-
   const raw = employee.value.salary;
 
   if (
@@ -1108,27 +830,15 @@ const formattedSalary = computed(() => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-
 });
 
-
-/* =========================================================
-   LOAD PROFILE
-========================================================= */
-
 const loadProfile = async () => {
-
   try {
-
     const data = await getMyProfile();
 
     console.log("Employee profile:", data);
 
-
     employee.value = {
-
-      /* Account */
-
       employee_id:
         data.employee_id ?? "",
 
@@ -1140,9 +850,6 @@ const loadProfile = async () => {
 
       role:
         data.role ?? "",
-
-
-      /* Personal */
 
       first_name:
         data.first_name ?? "",
@@ -1168,9 +875,6 @@ const loadProfile = async () => {
       civil_status:
         data.civil_status ?? "",
 
-
-      /* Contact */
-
       contact_number:
         data.contact_number ?? "",
 
@@ -1180,9 +884,6 @@ const loadProfile = async () => {
       address:
         data.address ?? "",
 
-
-      /* Emergency */
-
       emergency_contact_name:
         data.emergency_contact_name ?? "",
 
@@ -1191,9 +892,6 @@ const loadProfile = async () => {
 
       emergency_contact_relationship:
         data.emergency_contact_relationship ?? "",
-
-
-      /* Employment */
 
       personnel_type:
         data.personnel_type ?? "",
@@ -1228,16 +926,15 @@ const loadProfile = async () => {
         null,
 
       supervisor:
-        data.supervisor ??
-        (
-          data.supervisor
+        typeof data.supervisor === "string"
+          ? data.supervisor
+          : data.supervisor
             ? `${data.supervisor.first_name ?? ""} ${
                 data.supervisor.middle_name
                   ? data.supervisor.middle_name + " "
                   : ""
-              }${data.supervisor.last_name ?? ""}`
-            : ""
-        ),
+              }${data.supervisor.last_name ?? ""}`.trim()
+            : "",
 
       salary_grade:
         data.salary_grade ??
@@ -1256,29 +953,17 @@ const loadProfile = async () => {
       date_hired:
         data.date_hired ?? "",
     };
-
   } catch (error) {
-
     console.error(
       "Failed to load employee profile:",
       error
     );
-
   }
-
 };
 
-
-/* =========================================================
-   UPDATE EMPLOYEE PROFILE
-========================================================= */
-
 const updateProfile = async () => {
-
   try {
-
     await updateMyProfile({
-
       first_name:
         employee.value.first_name,
 
@@ -1322,39 +1007,30 @@ const updateProfile = async () => {
         employee.value.emergency_contact_relationship,
     });
 
-
     alert(
       "Profile updated successfully."
     );
 
-
     await loadProfile();
-
 
     isEditing.value = false;
 
     editSnapshot = null;
-
   } catch (error: any) {
-
     console.error(
       "Profile update failed:",
       error
     );
 
-
     if (
       error.response?.data?.message
     ) {
-
       alert(
         error.response.data.message
       );
-
     } else if (
       error.response?.data?.errors
     ) {
-
       const errors =
         error.response.data.errors;
 
@@ -1364,69 +1040,38 @@ const updateProfile = async () => {
           .join("\n");
 
       alert(messages);
-
     } else {
-
       alert(
         "Failed to update profile."
       );
-
     }
-
   }
-
 };
 
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
-
 onMounted(async () => {
-
   await loadProfile();
-
 });
-
 </script>
 
-
 <style scoped>
-
 .records-shell {
-  background: #080d14;
+  background: var(--app-bg);
   min-height: 100vh;
 }
 
-
-/* =========================================================
-   CARD
-========================================================= */
-
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-
-  box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.04);
-
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .neo-card:hover {
-
-  box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.06);
-
+  box-shadow: 0 14px 26px rgba(23, 32, 51, 0.09);
 }
-
-
-/* =========================================================
-   TYPOGRAPHY
-========================================================= */
 
 .neo-card h3,
 .neo-card p,
@@ -1435,82 +1080,42 @@ onMounted(async () => {
   letter-spacing: -0.01em;
 }
 
-
-/* =========================================================
-   PROFILE INPUT
-========================================================= */
-
 .profile-input {
-
   width: 100%;
-
-  padding:
-    0.5rem 0.75rem;
-
-  color: white;
-
-  background: #0d1520;
-
-  border:
-    1px solid #1e293b;
-
-  border-radius:
-    0.5rem;
-
+  padding: 0.5rem 0.75rem;
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid #c8d8eb;
+  border-radius: 0.5rem;
   outline: none;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-
 }
 
+.profile-input::placeholder {
+  color: #94a3b8;
+}
 
 .profile-input:focus {
-
-  border-color:
-    #3b82f6;
-
+  border-color: #7aa7e8;
   box-shadow:
-    0 0 0 2px
-    rgba(59, 130, 246, 0.35);
-
+    0 0 0 3px
+    rgba(37, 99, 235, 0.12);
 }
-
-
-/* =========================================================
-   SELECT OPTIONS
-========================================================= */
 
 .profile-input option {
-
-  background: #0d1520;
-
-  color: white;
-
+  background: var(--surface);
+  color: var(--text);
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
 @media (max-width: 640px) {
-
   .records-shell {
-
-    padding:
-      1rem;
-
+    padding: 1rem;
   }
 
   .neo-card {
-
-    border-radius:
-      1rem;
-
+    border-radius: 1rem;
   }
-
 }
 </style>
-
