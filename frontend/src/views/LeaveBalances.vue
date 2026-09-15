@@ -1,3 +1,4 @@
+
 <template>
   <div class="dashboard-shell min-h-screen p-8">
     <div class="dashboard-content w-full space-y-6">
@@ -16,7 +17,6 @@
         </p>
       </div>
 
-
       <!-- ===================================================== -->
       <!-- TABLE -->
       <!-- ===================================================== -->
@@ -31,7 +31,7 @@
             <!-- TABLE HEADER -->
             <!-- ================================================= -->
 
-            <thead class="bg-[#0B1420]">
+            <thead>
               <tr class="text-left text-white">
 
                 <th class="employee-column px-6 py-4">
@@ -65,7 +65,6 @@
               </tr>
             </thead>
 
-
             <!-- ================================================= -->
             <!-- TABLE BODY -->
             <!-- ================================================= -->
@@ -75,7 +74,7 @@
               <tr
                 v-for="balance in balances"
                 :key="balance.employee_id"
-                class="balance-row border-t border-slate-800 hover:bg-white/5 transition"
+                class="balance-row"
               >
 
                 <!-- Employee -->
@@ -89,7 +88,6 @@
 
                 </td>
 
-
                 <!-- Service Credits -->
 
                 <td class="px-6 py-5">
@@ -99,7 +97,6 @@
                   </span>
 
                 </td>
-
 
                 <!-- Vacation Balance -->
 
@@ -111,7 +108,6 @@
 
                 </td>
 
-
                 <!-- Sick Balance -->
 
                 <td class="px-6 py-5">
@@ -122,24 +118,21 @@
 
                 </td>
 
-
                 <!-- Total Available -->
 
-                <td class="px-6 py-5 font-semibold text-blue-400">
+                <td class="px-6 py-5 font-semibold total-value">
 
                   {{ totalBalance(balance) }}
 
                 </td>
 
-
                 <!-- Used Leave -->
 
-                <td class="px-6 py-5 text-white font-semibold">
+                <td class="px-6 py-5 used-value">
 
                   {{ formatNumber(balance.used_leave) }}
 
                 </td>
-
 
                 <!-- Action -->
 
@@ -150,7 +143,7 @@
                     <button
                       @click="openModal(balance)"
                       type="button"
-                      class="btn-action bg-blue-600 hover:bg-blue-700"
+                      class="btn-action edit-button"
                     >
                       Edit Balance
                     </button>
@@ -158,7 +151,7 @@
                     <button
                       @click="deleteBalance(balance.employee_id)"
                       type="button"
-                      class="btn-action bg-red-600 hover:bg-red-700"
+                      class="btn-action clear-button"
                     >
                       Clear Balance
                     </button>
@@ -168,7 +161,6 @@
                 </td>
 
               </tr>
-
 
               <!-- ================================================= -->
               <!-- EMPTY STATE -->
@@ -193,14 +185,13 @@
 
       </div>
 
-
       <!-- ===================================================== -->
       <!-- EDIT MODAL -->
       <!-- ===================================================== -->
 
       <div
         v-if="showModal"
-        class="modal-backdrop fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+        class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4"
         @click.self="closeModal"
       >
 
@@ -211,7 +202,6 @@
           <h3 class="text-xl font-bold text-white mb-5">
             Edit Leave Balance
           </h3>
-
 
           <!-- Employee -->
 
@@ -228,11 +218,10 @@
                 ', ' +
                 selectedBalance.employee.first_name
               "
-              class="w-full border border-slate-700 rounded-full px-3 py-2 bg-[#0B1420] text-gray-400"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Service Credits -->
 
@@ -247,11 +236,10 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Vacation Earned -->
 
@@ -266,11 +254,10 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Sick Earned -->
 
@@ -285,11 +272,10 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Vacation Balance -->
 
@@ -304,11 +290,10 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Sick Balance -->
 
@@ -323,11 +308,10 @@
               type="number"
               step="0.25"
               min="0"
-              class="balance-input w-full border border-slate-700 rounded-full px-3 py-2 text-white bg-[#0B1420] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="balance-input w-full"
             />
 
           </div>
-
 
           <!-- Buttons -->
 
@@ -336,7 +320,7 @@
             <button
               @click="closeModal"
               type="button"
-              class="btn-action-lg bg-slate-700 hover:bg-slate-600"
+              class="btn-action-lg cancel-button"
             >
               Cancel
             </button>
@@ -344,7 +328,7 @@
             <button
               @click="updateBalance"
               type="button"
-              class="btn-action-lg bg-blue-600 hover:bg-blue-700"
+              class="btn-action-lg save-button"
             >
               Save
             </button>
@@ -358,7 +342,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 
@@ -788,17 +771,17 @@ const balanceColor = (
 
   if (amount <= 0) {
 
-    return "text-red-400 font-bold";
+    return "balance-zero";
 
   }
 
   if (amount <= 5) {
 
-    return "text-yellow-400 font-bold";
+    return "balance-low";
 
   }
 
-  return "text-green-400 font-bold";
+  return "balance-good";
 
 };
 
@@ -820,10 +803,11 @@ onMounted(() => {
 
 /* ============================================================
    PAGE
+   Dashboard reference theme
    ============================================================ */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--app-bg);
 
   width: 100%;
 
@@ -842,17 +826,18 @@ onMounted(() => {
 
 /* ============================================================
    CARDS
+   Matches Dashboard.vue
    ============================================================ */
 
 .neo-card {
-  background: #111d2e;
+  background: var(--surface);
 
-  border: 1px solid #1e293b;
+  border: 1px solid #cbd8e8;
 
-  border-radius: 1.4rem;
+  border-radius: 1rem;
 
   box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.04);
+    0 6px 18px rgba(23, 32, 51, 0.06);
 
   transition:
     box-shadow 0.2s ease,
@@ -866,7 +851,24 @@ onMounted(() => {
 
 .neo-card:hover {
   box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.06);
+    0 10px 24px rgba(23, 32, 51, 0.09);
+}
+
+
+/* ============================================================
+   TEXT
+   Matches Dashboard.vue
+   ============================================================ */
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
 }
 
 
@@ -900,6 +902,7 @@ onMounted(() => {
 
 /* ============================================================
    TABLE
+   Dashboard-style light table
    ============================================================ */
 
 .leave-balance-table {
@@ -910,6 +913,52 @@ onMounted(() => {
   min-width: 1050px;
 
   border-collapse: collapse;
+}
+
+
+/* ============================================================
+   TABLE HEADER
+   ============================================================ */
+
+.leave-balance-table thead {
+  background: var(--surface-muted);
+}
+
+
+.leave-balance-table th {
+  color: var(--text-muted) !important;
+
+  font-size: 0.72rem;
+
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  border-bottom: 1px solid var(--border);
+}
+
+
+/* ============================================================
+   TABLE BODY
+   ============================================================ */
+
+.leave-balance-table tbody tr {
+  border-top: 1px solid var(--border);
+
+  transition:
+    background-color 0.2s ease;
+}
+
+
+.leave-balance-table tbody tr:hover {
+  background: #f3f7fc;
+}
+
+
+.leave-balance-table td {
+  color: var(--text);
 }
 
 
@@ -939,6 +988,8 @@ onMounted(() => {
 
 .action-column {
   min-width: 190px;
+
+  text-align: center;
 }
 
 
@@ -964,17 +1015,49 @@ onMounted(() => {
 
 
 .employee-name {
+  color: var(--text);
+
   white-space: nowrap;
 }
 
 
 /* ============================================================
-   ROW
+   TOTAL / USED VALUES
    ============================================================ */
 
-.balance-row {
-  transition:
-    background-color 0.2s ease;
+.total-value {
+  color: #2563eb !important;
+}
+
+
+.used-value {
+  color: var(--text) !important;
+}
+
+
+/* ============================================================
+   BALANCE COLORS
+   Matches Dashboard status palette
+   ============================================================ */
+
+.balance-zero {
+  color: #dc2626;
+
+  font-weight: 700;
+}
+
+
+.balance-low {
+  color: #a16207;
+
+  font-weight: 700;
+}
+
+
+.balance-good {
+  color: #16a34a;
+
+  font-weight: 700;
 }
 
 
@@ -990,24 +1073,25 @@ onMounted(() => {
   justify-content: center;
 
   padding:
-    0.375rem
+    0.5rem
     0.85rem;
 
   font-size: 0.75rem;
 
-  font-weight: 500;
+  font-weight: 600;
 
   line-height: 1.25rem;
 
-  color: #fff;
+  color: #ffffff;
 
-  border-radius: 9999px;
+  border-radius: 0.5rem;
 
   white-space: nowrap;
 
   transition:
-    background-color 0.15s ease,
-    transform 0.1s ease;
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 
@@ -1020,6 +1104,114 @@ onMounted(() => {
   transform: scale(0.97);
 }
 
+
+/* ============================================================
+   EDIT BUTTON
+   Dashboard primary blue
+   ============================================================ */
+
+.edit-button {
+  background: var(--primary);
+}
+
+
+.edit-button:hover {
+  background: var(--primary-hover);
+}
+
+
+/* ============================================================
+   CLEAR BUTTON
+   Dashboard danger red
+   ============================================================ */
+
+.clear-button {
+  background: #dc2626;
+}
+
+
+.clear-button:hover {
+  background: #b91c1c;
+}
+
+
+/* ============================================================
+   MODAL BACKDROP
+   ============================================================ */
+
+.modal-backdrop {
+  background: rgba(23, 32, 51, 0.55);
+
+  overflow-y: auto;
+}
+
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+
+.modal-card {
+  max-height: calc(100vh - 2rem);
+
+  overflow-y: auto;
+}
+
+
+/* ============================================================
+   MODAL INPUTS
+   ============================================================ */
+
+.balance-input {
+  min-width: 0;
+
+  border: 1px solid #c8d8eb;
+
+  border-radius: 0.6rem;
+
+  padding:
+    0.65rem
+    0.8rem;
+
+  color: var(--text);
+
+  background: var(--surface-muted);
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+.balance-input::placeholder {
+  color: var(--text-muted);
+}
+
+
+.balance-input:focus {
+  border-color: #7aa7e8;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+.balance-input:disabled {
+  color: var(--text-muted);
+
+  background: #f3f7fc;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   MODAL BUTTONS
+   ============================================================ */
 
 .btn-action-lg {
   display: inline-flex;
@@ -1034,17 +1226,18 @@ onMounted(() => {
 
   font-size: 0.8rem;
 
-  font-weight: 500;
+  font-weight: 600;
 
-  color: #fff;
+  color: #ffffff;
 
-  border-radius: 9999px;
+  border-radius: 0.5rem;
 
   white-space: nowrap;
 
   transition:
-    background-color 0.15s ease,
-    transform 0.1s ease;
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 
@@ -1055,6 +1248,38 @@ onMounted(() => {
 
 .btn-action-lg:active {
   transform: scale(0.98);
+}
+
+
+/* ============================================================
+   CANCEL
+   Soft Dashboard gray
+   ============================================================ */
+
+.cancel-button {
+  background: #e2e8f0;
+
+  color: #334155;
+}
+
+
+.cancel-button:hover {
+  background: #cbd5e1;
+}
+
+
+/* ============================================================
+   SAVE
+   Dashboard primary blue
+   ============================================================ */
+
+.save-button {
+  background: var(--primary);
+}
+
+
+.save-button:hover {
+  background: var(--primary-hover);
 }
 
 
@@ -1083,32 +1308,7 @@ button {
 
 
 /* ============================================================
-   MODAL
-   ============================================================ */
-
-.modal-backdrop {
-  overflow-y: auto;
-}
-
-
-.modal-card {
-  max-height: calc(100vh - 2rem);
-
-  overflow-y: auto;
-}
-
-
-/* ============================================================
-   INPUTS
-   ============================================================ */
-
-.balance-input {
-  min-width: 0;
-}
-
-
-/* ============================================================
-   NARROW SCREEN
+   RESPONSIVE
    ============================================================ */
 
 @media (max-width: 900px) {
@@ -1124,10 +1324,6 @@ button {
 }
 
 
-/* ============================================================
-   VERY SMALL SCREEN
-   ============================================================ */
-
 @media (max-width: 640px) {
 
   .dashboard-shell {
@@ -1141,3 +1337,4 @@ button {
 }
 
 </style>
+

@@ -146,31 +146,26 @@
                 >
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Office: </span>
-
                     {{ application.employee?.department_name ?? "Not available" }}
                   </div>
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Position: </span>
-
                     {{ application.employee?.position ?? "Not available" }}
                   </div>
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Date Filed: </span>
-
                     {{ formatDate(application.date_filed) }}
                   </div>
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Leave Type: </span>
-
                     {{ getLeaveType(application.leave_type) }}
                   </div>
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Days Applied: </span>
-
                     {{ application.number_of_days }}
                   </div>
                 </div>
@@ -217,10 +212,6 @@
               <div
                 class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
               >
-                <!-- ===================================================== -->
-                <!-- NORMAL APPLICATIONS -->
-                <!-- ===================================================== -->
-
                 <template v-if="activeTab !== 'deleted'">
                   <!-- View -->
                   <button
@@ -238,6 +229,8 @@
                   >
                     Approve
                   </button>
+
+                  <!-- Reject -->
                   <button
                     v-if="application.final_status?.toLowerCase() === 'pending'"
                     @click="openRejectModal(application.leave_id)"
@@ -254,10 +247,6 @@
                     Delete
                   </button>
                 </template>
-
-                <!-- ===================================================== -->
-                <!-- REMOVED APPLICATIONS -->
-                <!-- ===================================================== -->
 
                 <template v-else>
                   <button
@@ -276,60 +265,50 @@
             v-if="filteredApplications.length > 0"
             class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-slate-700"
           >
-            <!-- Pagination Information -->
             <div class="text-sm text-gray-400 text-center sm:text-left">
               Showing
               <span class="font-medium text-white">
                 {{ paginationStart }}
               </span>
-
               -
-
               <span class="font-medium text-white">
                 {{ paginationEnd }}
               </span>
-
               of
-
               <span class="font-medium text-white">
                 {{ filteredApplications.length }}
               </span>
-
               applications
             </div>
 
-            <!-- Pagination Controls -->
             <div class="flex items-center gap-2 flex-shrink-0">
-              <!-- Previous -->
               <button
                 @click="previousPage"
                 :disabled="currentPage === 1"
                 class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
                 :class="
                   currentPage === 1
-                    ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
-                    : 'text-white bg-slate-800 border-slate-700 hover:bg-slate-700'
+                    ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
+                    : 'text-[#0F2742] bg-white border-gray-300 hover:bg-gray-100'
                 "
               >
                 &lt;
               </button>
 
-              <!-- Page Number -->
               <span
                 class="w-8 h-8 flex items-center justify-center text-xs font-medium text-white bg-blue-600 rounded-full"
               >
                 {{ currentPage }}
               </span>
 
-              <!-- Next -->
               <button
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
                 class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
                 :class="
                   currentPage === totalPages
-                    ? 'text-gray-600 bg-slate-800/50 border-slate-800 cursor-not-allowed'
-                    : 'text-white bg-slate-800 border-slate-700 hover:bg-slate-700'
+                    ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
+                    : 'text-[#0F2742] bg-white border-gray-300 hover:bg-gray-100'
                 "
               >
                 &gt;
@@ -378,7 +357,7 @@
 
         <div v-if="selectedApplication" class="space-y-6">
           <!-- Applicant Information -->
-          <div class="border border-gray-300 p-4 min-w-0">
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
             <h4 class="text-sm font-bold mb-3 text-white">
               Applicant Information
             </h4>
@@ -393,7 +372,6 @@
 
               <div class="break-words">
                 <strong>Name:</strong>
-
                 {{ selectedApplication.employee.employee_last_name }},
                 {{ selectedApplication.employee.employee_first_name }}
                 {{ selectedApplication.employee.employee_middle_name }}
@@ -425,7 +403,7 @@
           </div>
 
           <!-- Leave Details -->
-          <div class="border border-gray-300 p-4 min-w-0">
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
             <h4 class="text-sm font-bold mb-3 text-white">Leave Details</h4>
 
             <div class="space-y-2 text-sm text-white">
@@ -441,11 +419,8 @@
 
               <div class="break-words">
                 <strong>Inclusive Dates:</strong>
-
                 {{ formatDate(selectedApplication.start_date) }}
-
                 -
-
                 {{ formatDate(selectedApplication.end_date) }}
               </div>
 
@@ -470,7 +445,7 @@
 
           <!-- Action Buttons -->
           <div
-            class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t"
+            class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200"
           >
             <button
               @click="downloadApplication(selectedApplication)"
@@ -488,6 +463,7 @@
             >
               Approve
             </button>
+
             <button
               v-if="
                 selectedApplication.final_status?.toLowerCase() === 'pending'
@@ -504,7 +480,7 @@
   </div>
 
   <!-- ====================================================== -->
-  <!-- PRIMARY LEAVE APPROVAL MODAL (VACATION / SICK) -->
+  <!-- PRIMARY LEAVE APPROVAL MODAL -->
   <!-- ====================================================== -->
 
   <div
@@ -527,39 +503,65 @@
       <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="balance-summary-card">
           <span>Vacation Leave</span>
-          <strong>{{ formatBalance(employeeBalance.vacation_balance) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.vacation_balance) }} days
+          </strong>
         </div>
+
         <div class="balance-summary-card">
           <span>Sick Leave</span>
-          <strong>{{ formatBalance(employeeBalance.sick_balance) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.sick_balance) }} days
+          </strong>
         </div>
+
         <div class="balance-summary-card">
           <span>Service Credits</span>
-          <strong>{{ formatBalance(employeeBalance.service_credits) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.service_credits) }} days
+          </strong>
         </div>
       </div>
 
-      <p v-if="isLoadingBalance" class="text-sm text-blue-300 mt-3">
+      <p v-if="isLoadingBalance" class="text-sm text-blue-600 mt-3">
         Loading current balances...
       </p>
-      <p v-else-if="balanceLoadError" class="text-sm text-red-300 mt-3">
+
+      <p v-else-if="balanceLoadError" class="text-sm text-red-600 mt-3">
         {{ balanceLoadError }}
       </p>
 
-      <div class="mt-5 rounded-xl border border-blue-400/30 bg-blue-500/10 p-4">
-        <div class="flex justify-between gap-3 text-sm text-white">
+      <div class="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4">
+        <div class="flex justify-between gap-3 text-sm text-[#0F2742]">
           <span>{{ primaryLeaveLabel }} deduction</span>
-          <strong>{{ approvalApplication?.number_of_days ?? 0 }} day(s)</strong>
+
+          <strong>
+            {{ approvalApplication?.number_of_days ?? 0 }} day(s)
+          </strong>
         </div>
-        <div class="flex justify-between gap-3 text-sm text-white mt-2">
+
+        <div
+          class="flex justify-between gap-3 text-sm text-[#0F2742] mt-2"
+        >
           <span>Projected {{ primaryLeaveLabel }} balance</span>
-          <strong :class="projectedPrimaryBalance < 0 ? 'text-red-300' : 'text-green-300'">
+
+          <strong
+            :class="
+              projectedPrimaryBalance < 0
+                ? 'text-red-600'
+                : 'text-green-600'
+            "
+          >
             {{ formatBalance(projectedPrimaryBalance) }} day(s)
           </strong>
         </div>
-        <p v-if="projectedPrimaryBalance < 0" class="text-xs text-red-300 mt-2">
-          Insufficient {{ primaryLeaveLabel }} balance. Use Split Deduction or approve
-          without deduction.
+
+        <p
+          v-if="projectedPrimaryBalance < 0"
+          class="text-xs text-red-600 mt-2"
+        >
+          Insufficient {{ primaryLeaveLabel }} balance. Use Split Deduction or
+          approve without deduction.
         </p>
       </div>
 
@@ -571,18 +573,21 @@
         >
           Approve and Deduct {{ primaryLeaveShortLabel }}
         </button>
+
         <button
           @click="approveWithoutDeduction"
           class="btn-action-lg bg-blue-600 hover:bg-blue-700"
         >
           Approve Without Deduction
         </button>
+
         <button
           @click="openSplitDeduction"
           class="btn-action-lg bg-amber-600 hover:bg-amber-700"
         >
           Use Split Deduction
         </button>
+
         <button
           @click="closeApprovalModals"
           class="btn-action-lg bg-gray-600 hover:bg-gray-700"
@@ -610,26 +615,32 @@
 
       <p class="text-sm text-white mt-2 break-words">
         This leave application is for
-
         <strong>
           {{ approvalApplication?.number_of_days }}
         </strong>
-
         day(s).
       </p>
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="balance-summary-card">
           <span>Vacation Leave</span>
-          <strong>{{ formatBalance(employeeBalance.vacation_balance) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.vacation_balance) }} days
+          </strong>
         </div>
+
         <div class="balance-summary-card">
           <span>Sick Leave</span>
-          <strong>{{ formatBalance(employeeBalance.sick_balance) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.sick_balance) }} days
+          </strong>
         </div>
+
         <div class="balance-summary-card">
           <span>Service Credits</span>
-          <strong>{{ formatBalance(employeeBalance.service_credits) }} days</strong>
+          <strong>
+            {{ formatBalance(employeeBalance.service_credits) }} days
+          </strong>
         </div>
       </div>
 
@@ -642,13 +653,11 @@
         <div class="flex gap-4 flex-wrap">
           <label class="flex items-center gap-2 text-white">
             <input type="radio" value="yes" v-model="deductBalance" />
-
             <span>Yes</span>
           </label>
 
           <label class="flex items-center gap-2 text-white">
             <input type="radio" value="no" v-model="deductBalance" />
-
             <span>No</span>
           </label>
         </div>
@@ -672,7 +681,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-[#0F2742] bg-white"
           />
 
           <p class="text-xs text-white mt-1">
@@ -692,7 +701,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-[#0F2742] bg-white"
           />
 
           <p class="text-xs text-white mt-1">
@@ -712,7 +721,7 @@
             min="0"
             :max="approvalApplication?.number_of_days"
             step="0.5"
-            class="w-full border border-gray-300 rounded-full px-3 py-2 text-black"
+            class="w-full border border-gray-300 rounded-full px-3 py-2 text-[#0F2742] bg-white"
           />
 
           <p class="text-xs text-white mt-1">
@@ -723,7 +732,9 @@
         <!-- Total -->
         <div class="mt-4 p-3 bg-gray-50 rounded-lg">
           <div class="flex justify-between text-sm gap-3">
-            <span class="text-gray-800"> Days applied: </span>
+            <span class="text-gray-800">
+              Days applied:
+            </span>
 
             <span class="font-medium text-gray-800 text-right">
               {{ approvalApplication?.number_of_days ?? 0 }}
@@ -732,13 +743,16 @@
           </div>
 
           <div class="flex justify-between text-sm mt-1 gap-3">
-            <span class="text-gray-800"> Total deduction: </span>
+            <span class="text-gray-800">
+              Total deduction:
+            </span>
 
             <span class="font-semibold text-gray-800 text-right">
               {{
-                vacationDeductDays + sickDeductDays + serviceCreditsDeductDays
+                vacationDeductDays +
+                sickDeductDays +
+                serviceCreditsDeductDays
               }}
-
               day(s)
             </span>
           </div>
@@ -746,7 +760,9 @@
           <p
             v-if="
               approvalApplication &&
-              vacationDeductDays + sickDeductDays + serviceCreditsDeductDays >
+              vacationDeductDays +
+                sickDeductDays +
+                serviceCreditsDeductDays >
                 approvalApplication.number_of_days
             "
             class="text-sm text-red-600 mt-2"
@@ -768,7 +784,7 @@
 
         <button
           @click="closeApprovalModals"
-          class="btn-action-lg bg-red-900 hover:bg-red-800"
+          class="btn-action-lg bg-gray-600 hover:bg-gray-700"
         >
           Cancel
         </button>
@@ -784,77 +800,77 @@
   </div>
 
   <!-- ====================================================== -->
-<!-- REJECTION MODAL -->
-<!-- ====================================================== -->
+  <!-- REJECTION MODAL -->
+  <!-- ====================================================== -->
 
-<div
-  v-if="showRejectModal"
-  class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[70] p-4"
->
   <div
-    class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 neo-card"
+    v-if="showRejectModal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[70] p-4"
   >
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-white">
-        Disapprove Leave Application
-      </h3>
+    <div
+      class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 neo-card"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-white">
+          Disapprove Leave Application
+        </h3>
 
-      <button
-        @click="cancelReject"
-        class="text-white hover:text-gray-400"
-        :disabled="isRejecting"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <button
+          @click="cancelReject"
+          class="text-white hover:text-gray-600"
+          :disabled="isRejecting"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
-    </div>
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
 
-    <p class="text-sm text-gray-300 mb-4">
-      Please provide a reason for disapproving this leave application.
-    </p>
+      <p class="text-sm text-gray-500 mb-4">
+        Please provide a reason for disapproving this leave application.
+      </p>
 
-    <textarea
-      v-model="rejectionReason"
-      rows="4"
-      placeholder="Enter reason for disapproval..."
-      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-black bg-white focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
-      :disabled="isRejecting"
-    ></textarea>
-
-    <p class="text-xs text-gray-400 mt-2">
-      A reason is required before the application can be disapproved.
-    </p>
-
-    <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
-      <button
-        @click="cancelReject"
+      <textarea
+        v-model="rejectionReason"
+        rows="4"
+        placeholder="Enter reason for disapproval..."
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-[#0F2742] bg-white focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
         :disabled="isRejecting"
-        class="btn-action-lg bg-gray-600 hover:bg-gray-700 disabled:opacity-50"
-      >
-        Cancel
-      </button>
+      ></textarea>
 
-      <button
-        @click="confirmReject"
-        :disabled="isRejecting || !rejectionReason.trim()"
-        class="btn-action-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {{ isRejecting ? "Disapproving..." : "Confirm Disapproval" }}
-      </button>
+      <p class="text-xs text-gray-500 mt-2">
+        A reason is required before the application can be disapproved.
+      </p>
+
+      <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
+        <button
+          @click="cancelReject"
+          :disabled="isRejecting"
+          class="btn-action-lg bg-gray-600 hover:bg-gray-700 disabled:opacity-50"
+        >
+          Cancel
+        </button>
+
+        <button
+          @click="confirmReject"
+          :disabled="isRejecting || !rejectionReason.trim()"
+          class="btn-action-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ isRejecting ? "Disapproving..." : "Confirm Disapproval" }}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script setup lang="ts">
@@ -909,9 +925,7 @@ const applications = ref<LeaveApplication[]>([]);
 const deletedApplications = ref<LeaveApplication[]>([]);
 
 const activeTab = ref("all");
-
 const searchQuery = ref("");
-
 const filterType = ref("");
 
 /* =========================================================
@@ -919,11 +933,9 @@ const filterType = ref("");
 ========================================================= */
 
 const showDetailModal = ref(false);
-
 const selectedApplication = ref<LeaveApplication | null>(null);
 
 const showApprovalModal = ref(false);
-
 const showPrimaryApprovalModal = ref(false);
 
 const approvalApplication = ref<LeaveApplication | null>(null);
@@ -935,9 +947,7 @@ const approvalApplication = ref<LeaveApplication | null>(null);
 const deductBalance = ref<"yes" | "no">("yes");
 
 const vacationDeductDays = ref(0);
-
 const sickDeductDays = ref(0);
-
 const serviceCreditsDeductDays = ref(0);
 
 const employeeBalance = ref({
@@ -956,15 +966,21 @@ const primaryDeductionType = computed<"vacation" | "sick" | null>(() => {
 });
 
 const primaryLeaveLabel = computed(() =>
-  primaryDeductionType.value === "sick" ? "Sick Leave" : "Vacation Leave",
+  primaryDeductionType.value === "sick"
+    ? "Sick Leave"
+    : "Vacation Leave",
 );
 
 const primaryLeaveShortLabel = computed(() =>
-  primaryDeductionType.value === "sick" ? "Sick" : "Vacation",
+  primaryDeductionType.value === "sick"
+    ? "Sick"
+    : "Vacation",
 );
 
 const projectedPrimaryBalance = computed(() => {
-  const daysApplied = Number(approvalApplication.value?.number_of_days) || 0;
+  const daysApplied =
+    Number(approvalApplication.value?.number_of_days) || 0;
+
   const currentBalance =
     primaryDeductionType.value === "sick"
       ? employeeBalance.value.sick_balance
@@ -978,7 +994,6 @@ const projectedPrimaryBalance = computed(() => {
 ========================================================= */
 
 const currentPage = ref(1);
-
 const itemsPerPage = 5;
 
 /* =========================================================
@@ -991,29 +1006,25 @@ const tabs = [
     label: "All Applications",
     countClass: "bg-gray-100 text-gray-800",
   },
-
   {
     key: "pending",
     label: "Pending",
     countClass: "bg-yellow-100 text-yellow-800",
   },
-
   {
     key: "approved",
     label: "Approved",
     countClass: "bg-green-100 text-green-800",
   },
-
   {
     key: "disapproved",
     label: "Disapproved",
     countClass: "bg-red-100 text-red-800",
   },
-
   {
     key: "deleted",
     label: "Removed Applications",
-    countClass: "bg-green-100 text-green-800",
+    countClass: "bg-gray-100 text-gray-800",
   },
 ];
 
@@ -1033,19 +1044,16 @@ const handleTabChange = async (tabKey: string) => {
 const filteredApplications = computed(() => {
   const search = searchQuery.value.trim().toLowerCase();
 
-  // =====================================================
-  // DELETED APPLICATIONS
-  // =====================================================
-
   if (activeTab.value === "deleted") {
     return deletedApplications.value.filter((app) => {
-      const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
+      const leaveType =
+        app.leave_type?.leave_type_name?.toLowerCase() || "";
 
       const employeeName = `
-          ${app.employee?.first_name || ""}
-          ${app.employee?.middle_name || ""}
-          ${app.employee?.last_name || ""}
-        `.toLowerCase();
+        ${app.employee?.first_name || ""}
+        ${app.employee?.middle_name || ""}
+        ${app.employee?.last_name || ""}
+      `.toLowerCase();
 
       const matchesSearch =
         search === "" ||
@@ -1061,22 +1069,21 @@ const filteredApplications = computed(() => {
     });
   }
 
-  // =====================================================
-  // NORMAL APPLICATIONS
-  // =====================================================
-
   return applications.value.filter((app) => {
     const status = app.final_status?.toLowerCase() || "";
 
-    const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
+    const leaveType =
+      app.leave_type?.leave_type_name?.toLowerCase() || "";
 
     const employeeName = `
-        ${app.employee?.first_name || ""}
-        ${app.employee?.middle_name || ""}
-        ${app.employee?.last_name || ""}
-      `.toLowerCase();
+      ${app.employee?.first_name || ""}
+      ${app.employee?.middle_name || ""}
+      ${app.employee?.last_name || ""}
+    `.toLowerCase();
 
-    const matchesTab = activeTab.value === "all" || status === activeTab.value;
+    const matchesTab =
+      activeTab.value === "all" ||
+      status === activeTab.value;
 
     const matchesSearch =
       search === "" ||
@@ -1110,7 +1117,6 @@ const totalPages = computed(() => {
 
 const displayedApplications = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
-
   const end = start + itemsPerPage;
 
   return filteredApplications.value.slice(start, end);
@@ -1135,7 +1141,6 @@ const paginationStart = computed(() => {
 const paginationEnd = computed(() => {
   return Math.min(
     currentPage.value * itemsPerPage,
-
     filteredApplications.value.length,
   );
 });
@@ -1166,7 +1171,6 @@ const previousPage = () => {
 
 watch(
   [searchQuery, filterType, activeTab],
-
   () => {
     currentPage.value = 1;
   },
@@ -1186,7 +1190,8 @@ const getTabCount = (tabKey: string) => {
   }
 
   return applications.value.filter(
-    (app) => app.final_status?.toLowerCase() === tabKey,
+    (app) =>
+      app.final_status?.toLowerCase() === tabKey,
   ).length;
 };
 
@@ -1223,12 +1228,17 @@ const getEmployeeName = (employee: any) => {
     return "Employee record unavailable";
   }
 
-  const givenName = [employee.first_name, employee.middle_name]
+  const givenName = [
+    employee.first_name,
+    employee.middle_name,
+  ]
     .filter(Boolean)
     .join(" ");
 
   return (
-    [employee.last_name, givenName].filter(Boolean).join(", ") ||
+    [employee.last_name, givenName]
+      .filter(Boolean)
+      .join(", ") ||
     "Employee record unavailable"
   );
 };
@@ -1257,65 +1267,116 @@ const formatFileSize = (bytes: number) => {
   }
 
   const k = 1024;
-
   const sizes = ["Bytes", "KB", "MB", "GB"];
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return (
+    parseFloat(
+      (bytes / Math.pow(k, i)).toFixed(2),
+    ) +
+    " " +
+    sizes[i]
+  );
 };
 
 /* =========================================================
    VIEW APPLICATION
 ========================================================= */
 
-const viewApplication = (application: LeaveApplication) => {
-  router.push(`/leave-print/${application.leave_id}`);
+const viewApplication = (
+  application: LeaveApplication,
+) => {
+  router.push(
+    `/leave-print/${application.leave_id}`,
+  );
 };
 
 /* =========================================================
    DOWNLOAD APPLICATION
 ========================================================= */
 
-const downloadApplication = (application: LeaveApplication) => {
-  router.push(`/leave-print/${application.leave_id}`);
+const downloadApplication = (
+  application: LeaveApplication,
+) => {
+  router.push(
+    `/leave-print/${application.leave_id}`,
+  );
 };
 
 /* =========================================================
-   OPEN APPROVAL MODAL
+   LEAVE TYPE CHECKS
 ========================================================= */
 
-const isVacationApplication = (application: LeaveApplication | null) => {
+const isVacationApplication = (
+  application: LeaveApplication | null,
+) => {
   if (!application) return false;
 
-  const code = String(application.leave_type?.code ?? "").toUpperCase();
-  const name = String(application.leave_type?.leave_type_name ?? "").toLowerCase();
+  const code = String(
+    application.leave_type?.code ?? "",
+  ).toUpperCase();
 
-  return code === "VL" || name.includes("vacation");
+  const name = String(
+    application.leave_type?.leave_type_name ?? "",
+  ).toLowerCase();
+
+  return (
+    code === "VL" ||
+    name.includes("vacation")
+  );
 };
 
-const isSickApplication = (application: LeaveApplication | null) => {
+const isSickApplication = (
+  application: LeaveApplication | null,
+) => {
   if (!application) return false;
 
-  const code = String(application.leave_type?.code ?? "").toUpperCase();
-  const name = String(application.leave_type?.leave_type_name ?? "").toLowerCase();
+  const code = String(
+    application.leave_type?.code ?? "",
+  ).toUpperCase();
 
-  return code === "SL" || name.includes("sick");
+  const name = String(
+    application.leave_type?.leave_type_name ?? "",
+  ).toLowerCase();
+
+  return (
+    code === "SL" ||
+    name.includes("sick")
+  );
 };
 
-const isPrimaryLeaveApplication = (application: LeaveApplication | null) =>
-  isVacationApplication(application) || isSickApplication(application);
+const isPrimaryLeaveApplication = (
+  application: LeaveApplication | null,
+) =>
+  isVacationApplication(application) ||
+  isSickApplication(application);
 
-const loadEmployeeBalance = async (employeeId: number) => {
+/* =========================================================
+   LOAD EMPLOYEE BALANCE
+========================================================= */
+
+const loadEmployeeBalance = async (
+  employeeId: number,
+) => {
   isLoadingBalance.value = true;
   balanceLoadError.value = "";
 
   try {
-    const balance = await getLeaveBalanceByEmployeeId(employeeId);
+    const balance =
+      await getLeaveBalanceByEmployeeId(
+        employeeId,
+      );
+
     employeeBalance.value = {
-      vacation_balance: Number(balance?.vacation_balance) || 0,
-      sick_balance: Number(balance?.sick_balance) || 0,
-      service_credits: Number(balance?.service_credits) || 0,
+      vacation_balance:
+        Number(balance?.vacation_balance) || 0,
+
+      sick_balance:
+        Number(balance?.sick_balance) || 0,
+
+      service_credits:
+        Number(balance?.service_credits) || 0,
     };
   } catch (error: any) {
     employeeBalance.value = {
@@ -1323,12 +1384,18 @@ const loadEmployeeBalance = async (employeeId: number) => {
       sick_balance: 0,
       service_credits: 0,
     };
+
     balanceLoadError.value =
-      error.response?.data?.message ?? "Could not load current leave balances.";
+      error.response?.data?.message ??
+      "Could not load current leave balances.";
   } finally {
     isLoadingBalance.value = false;
   }
 };
+
+/* =========================================================
+   RESET DEDUCTION VALUES
+========================================================= */
 
 const resetDeductionValues = () => {
   deductBalance.value = "yes";
@@ -1337,40 +1404,72 @@ const resetDeductionValues = () => {
   sickDeductDays.value = 0;
 };
 
-const openApprovalModal = async (application: LeaveApplication) => {
+/* =========================================================
+   OPEN APPROVAL MODAL
+========================================================= */
+
+const openApprovalModal = async (
+  application: LeaveApplication,
+) => {
   approvalApplication.value = application;
+
   resetDeductionValues();
+
   showDetailModal.value = false;
   showApprovalModal.value = false;
-  showPrimaryApprovalModal.value = isPrimaryLeaveApplication(application);
+
+  showPrimaryApprovalModal.value =
+    isPrimaryLeaveApplication(application);
 
   if (!showPrimaryApprovalModal.value) {
-    // Preserve the current split-modal default for non-vacation applications.
-    sickDeductDays.value = application.number_of_days;
+    sickDeductDays.value =
+      application.number_of_days;
+
     showApprovalModal.value = true;
   }
 
-  await loadEmployeeBalance(application.employee_id);
+  await loadEmployeeBalance(
+    application.employee_id,
+  );
 };
+
+/* =========================================================
+   OPEN SPLIT DEDUCTION
+========================================================= */
 
 const openSplitDeduction = () => {
   if (!approvalApplication.value) return;
 
   resetDeductionValues();
-  if (isSickApplication(approvalApplication.value)) {
-    sickDeductDays.value = approvalApplication.value.number_of_days;
+
+  if (
+    isSickApplication(
+      approvalApplication.value,
+    )
+  ) {
+    sickDeductDays.value =
+      approvalApplication.value.number_of_days;
   } else {
-    vacationDeductDays.value = approvalApplication.value.number_of_days;
+    vacationDeductDays.value =
+      approvalApplication.value.number_of_days;
   }
 
   showPrimaryApprovalModal.value = false;
   showApprovalModal.value = true;
 };
 
+/* =========================================================
+   BACK TO PRIMARY APPROVAL
+========================================================= */
+
 const backToPrimaryApproval = () => {
   showApprovalModal.value = false;
   showPrimaryApprovalModal.value = true;
 };
+
+/* =========================================================
+   CLOSE APPROVAL MODALS
+========================================================= */
 
 const closeApprovalModals = () => {
   showApprovalModal.value = false;
@@ -1378,46 +1477,102 @@ const closeApprovalModals = () => {
   approvalApplication.value = null;
 };
 
-const approvePrimaryWithDeduction = async () => {
-  const application = approvalApplication.value;
-  if (!application || !isPrimaryLeaveApplication(application)) return;
+/* =========================================================
+   APPROVE PRIMARY WITH DEDUCTION
+========================================================= */
 
-  const daysApplied = Number(application.number_of_days) || 0;
+const approvePrimaryWithDeduction = async () => {
+  const application =
+    approvalApplication.value;
+
+  if (
+    !application ||
+    !isPrimaryLeaveApplication(application)
+  ) {
+    return;
+  }
+
+  const daysApplied =
+    Number(application.number_of_days) || 0;
 
   if (daysApplied <= 0) {
-    alert("The number of days applied must be greater than zero.");
+    alert(
+      "The number of days applied must be greater than zero.",
+    );
+
     return;
   }
 
-  const isSick = isSickApplication(application);
+  const isSick =
+    isSickApplication(application);
+
   const currentBalance = isSick
-    ? Number(employeeBalance.value.sick_balance)
-    : Number(employeeBalance.value.vacation_balance);
+    ? Number(
+        employeeBalance.value.sick_balance,
+      )
+    : Number(
+        employeeBalance.value.vacation_balance,
+      );
 
   if (daysApplied > currentBalance) {
-    alert(`Insufficient ${isSick ? "Sick Leave" : "Vacation Leave"} balance.`);
+    alert(
+      `Insufficient ${
+        isSick
+          ? "Sick Leave"
+          : "Vacation Leave"
+      } balance.`,
+    );
+
     return;
   }
 
-  await updateStatus(application.leave_id, "approved", {
-    deduct_balance: true,
-    vacation_deduct_days: isSick ? 0 : daysApplied,
-    sick_deduct_days: isSick ? daysApplied : 0,
-    service_credits_deduct_days: 0,
-  });
+  await updateStatus(
+    application.leave_id,
+    "approved",
+    {
+      deduct_balance: true,
+
+      vacation_deduct_days: isSick
+        ? 0
+        : daysApplied,
+
+      sick_deduct_days: isSick
+        ? daysApplied
+        : 0,
+
+      service_credits_deduct_days: 0,
+    },
+  );
 };
+
+/* =========================================================
+   APPROVE WITHOUT DEDUCTION
+========================================================= */
 
 const approveWithoutDeduction = async () => {
   if (!approvalApplication.value) return;
 
-  await updateStatus(approvalApplication.value.leave_id, "approved", {
-    deduct_balance: false,
-  });
+  await updateStatus(
+    approvalApplication.value.leave_id,
+    "approved",
+    {
+      deduct_balance: false,
+    },
+  );
 };
 
-const formatBalance = (value: unknown) => {
+/* =========================================================
+   FORMAT BALANCE
+========================================================= */
+
+const formatBalance = (
+  value: unknown,
+) => {
   const numberValue = Number(value);
-  return Number.isFinite(numberValue) ? numberValue.toFixed(2) : "0.00";
+
+  return Number.isFinite(numberValue)
+    ? numberValue.toFixed(2)
+    : "0.00";
 };
 
 /* =========================================================
@@ -1426,41 +1581,39 @@ const formatBalance = (value: unknown) => {
 
 const updateStatus = async (
   leaveId: number,
-  status: "approved" | "disapproved",
+  status:
+    | "approved"
+    | "disapproved",
 
   deductionData: {
     deduct_balance?: boolean;
-
     service_credits_deduct_days?: number;
-
     vacation_deduct_days?: number;
-
     sick_deduct_days?: number;
   } = {},
 ) => {
   try {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
     await axios.put(
       `https://enhs-leave-management-system.onrender.com/api/leave-applications/${leaveId}`,
 
       {
         final_status: status,
-
         ...deductionData,
       },
 
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization:
+            `Bearer ${token}`,
         },
       },
     );
 
     showDetailModal.value = false;
-
     showApprovalModal.value = false;
-
     showPrimaryApprovalModal.value = false;
 
     await loadApplications();
@@ -1468,19 +1621,26 @@ const updateStatus = async (
     console.error(error);
 
     alert(
-      error.response?.data?.message ?? "Failed to update leave application.",
+      error.response?.data?.message ??
+        "Failed to update leave application.",
     );
   }
 };
 
-
+/* =========================================================
+   REJECTION
+========================================================= */
 
 const showRejectModal = ref(false);
 const rejectionReason = ref("");
-const rejectionLeaveId = ref<number | null>(null);
+const rejectionLeaveId =
+  ref<number | null>(null);
+
 const isRejecting = ref(false);
 
-const openRejectModal = (leaveId: number) => {
+const openRejectModal = (
+  leaveId: number,
+) => {
   rejectionLeaveId.value = leaveId;
   rejectionReason.value = "";
   showRejectModal.value = true;
@@ -1497,34 +1657,50 @@ const confirmReject = async () => {
     return;
   }
 
-  const reason = rejectionReason.value.trim();
+  const reason =
+    rejectionReason.value.trim();
 
   if (!reason) {
-    alert("Please enter a reason for disapproval.");
+    alert(
+      "Please enter a reason for disapproval.",
+    );
+
     return;
   }
 
   try {
     isRejecting.value = true;
 
-    await rejectLeaveApplication(rejectionLeaveId.value, reason);
+    await rejectLeaveApplication(
+      rejectionLeaveId.value,
+      reason,
+    );
 
-    alert("Leave application disapproved successfully.");
+    alert(
+      "Leave application disapproved successfully.",
+    );
 
     showRejectModal.value = false;
     rejectionReason.value = "";
     rejectionLeaveId.value = null;
 
-    // Close details modal if rejection came from View Details
     showDetailModal.value = false;
 
     await loadApplications();
   } catch (error: any) {
-    console.error("Failed to reject leave application:", error);
-    console.error("Response:", error.response?.data);
+    console.error(
+      "Failed to reject leave application:",
+      error,
+    );
+
+    console.error(
+      "Response:",
+      error.response?.data,
+    );
 
     alert(
-      error.response?.data?.message ?? "Failed to reject leave application.",
+      error.response?.data?.message ??
+        "Failed to reject leave application.",
     );
   } finally {
     isRejecting.value = false;
@@ -1540,24 +1716,42 @@ const confirmApproval = async () => {
     return;
   }
 
-  const application = approvalApplication.value;
+  const application =
+    approvalApplication.value;
 
   if (deductBalance.value === "yes") {
-    const serviceCreditsDays = Number(serviceCreditsDeductDays.value) || 0;
+    const serviceCreditsDays =
+      Number(
+        serviceCreditsDeductDays.value,
+      ) || 0;
 
-    const vacationDays = Number(vacationDeductDays.value) || 0;
+    const vacationDays =
+      Number(
+        vacationDeductDays.value,
+      ) || 0;
 
-    const sickDays = Number(sickDeductDays.value) || 0;
+    const sickDays =
+      Number(
+        sickDeductDays.value,
+      ) || 0;
 
-    const totalDeduction = vacationDays + sickDays + serviceCreditsDays;
+    const totalDeduction =
+      vacationDays +
+      sickDays +
+      serviceCreditsDays;
 
     if (totalDeduction <= 0) {
-      alert("Please enter at least one day to deduct.");
+      alert(
+        "Please enter at least one day to deduct.",
+      );
 
       return;
     }
 
-    if (totalDeduction > application.number_of_days) {
+    if (
+      totalDeduction >
+      application.number_of_days
+    ) {
       alert(
         "The total deduction cannot be greater than the number of days applied.",
       );
@@ -1565,22 +1759,33 @@ const confirmApproval = async () => {
       return;
     }
 
-    await updateStatus(application.leave_id, "approved", {
-      deduct_balance: true,
+    await updateStatus(
+      application.leave_id,
+      "approved",
+      {
+        deduct_balance: true,
 
-      service_credits_deduct_days: serviceCreditsDays,
+        service_credits_deduct_days:
+          serviceCreditsDays,
 
-      vacation_deduct_days: vacationDays,
+        vacation_deduct_days:
+          vacationDays,
 
-      sick_deduct_days: sickDays,
-    });
+        sick_deduct_days:
+          sickDays,
+      },
+    );
 
     return;
   }
 
-  await updateStatus(application.leave_id, "approved", {
-    deduct_balance: false,
-  });
+  await updateStatus(
+    application.leave_id,
+    "approved",
+    {
+      deduct_balance: false,
+    },
+  );
 };
 
 /* =========================================================
@@ -1589,94 +1794,149 @@ const confirmApproval = async () => {
 
 const loadApplications = async () => {
   try {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
     const response = await axios.get(
       "https://enhs-leave-management-system.onrender.com/api/leave-applications",
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization:
+            `Bearer ${token}`,
         },
       },
     );
 
-    applications.value = response.data;
+    applications.value =
+      response.data;
 
-    /*
-     * Reset to page 1 after
-     * refreshing the data.
-     */
     currentPage.value = 1;
   } catch (error) {
-    console.error("Failed to load applications", error);
-  }
-};
-
-const deleteLeaveApplicationById = async (leaveId: number) => {
-  if (!confirm("Are you sure you want to delete this leave application?")) {
-    return;
-  }
-
-  try {
-    await deleteLeaveApplication(leaveId);
-
-    alert("Leave application deleted successfully.");
-
-    await loadApplications();
-  } catch (error: any) {
-    console.error("Failed to delete leave application", error);
-
-    alert(
-      error.response?.data?.message ?? "Failed to delete leave application.",
+    console.error(
+      "Failed to load applications",
+      error,
     );
   }
 };
 
-const getDeletedApplications = async () => {
-  try {
-    const response = await getDeletedLeaveApplications();
+/* =========================================================
+   DELETE
+========================================================= */
 
-    deletedApplications.value = Array.isArray(response)
-      ? response
-      : Array.isArray(response?.data)
-        ? response.data
-        : [];
+const deleteLeaveApplicationById =
+  async (
+    leaveId: number,
+  ) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this leave application?",
+      )
+    ) {
+      return;
+    }
 
-    currentPage.value = 1;
+    try {
+      await deleteLeaveApplication(
+        leaveId,
+      );
 
-    console.log("DELETED APPLICATIONS:", deletedApplications.value);
-  } catch (error: any) {
-    deletedApplications.value = [];
-    console.error("Failed to fetch deleted leave applications", error);
+      alert(
+        "Leave application deleted successfully.",
+      );
 
-    alert(
-      error.response?.data?.message ??
-        "Failed to load removed leave applications.",
-    );
-  }
-};
+      await loadApplications();
+    } catch (error: any) {
+      console.error(
+        "Failed to delete leave application",
+        error,
+      );
 
-const restoreLeaveApplicationById = async (leaveId: number) => {
-  if (!confirm("Are you sure you want to restore this leave application?")) {
-    return;
-  }
+      alert(
+        error.response?.data?.message ??
+          "Failed to delete leave application.",
+      );
+    }
+  };
 
-  try {
-    await restoreLeaveApplication(leaveId);
+/* =========================================================
+   GET DELETED APPLICATIONS
+========================================================= */
 
-    alert("Leave application restored successfully.");
+const getDeletedApplications =
+  async () => {
+    try {
+      const response =
+        await getDeletedLeaveApplications();
 
-    await getDeletedApplications();
+      deletedApplications.value =
+        Array.isArray(response)
+          ? response
+          : Array.isArray(
+                response?.data,
+              )
+            ? response.data
+            : [];
 
-    await loadApplications();
-  } catch (error: any) {
-    console.error("Failed to restore leave application", error);
+      currentPage.value = 1;
 
-    alert(
-      error.response?.data?.message ?? "Failed to restore leave application.",
-    );
-  }
-};
+      console.log(
+        "DELETED APPLICATIONS:",
+        deletedApplications.value,
+      );
+    } catch (error: any) {
+      deletedApplications.value = [];
+
+      console.error(
+        "Failed to fetch deleted leave applications",
+        error,
+      );
+
+      alert(
+        error.response?.data?.message ??
+          "Failed to load removed leave applications.",
+      );
+    }
+  };
+
+/* =========================================================
+   RESTORE
+========================================================= */
+
+const restoreLeaveApplicationById =
+  async (
+    leaveId: number,
+  ) => {
+    if (
+      !confirm(
+        "Are you sure you want to restore this leave application?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await restoreLeaveApplication(
+        leaveId,
+      );
+
+      alert(
+        "Leave application restored successfully.",
+      );
+
+      await getDeletedApplications();
+      await loadApplications();
+    } catch (error: any) {
+      console.error(
+        "Failed to restore leave application",
+        error,
+      );
+
+      alert(
+        error.response?.data?.message ??
+          "Failed to restore leave application.",
+      );
+    }
+  };
 
 /* =========================================================
    ON MOUNTED
@@ -1688,19 +1948,35 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* =========================================================
+   ENHS DASHBOARD COLOR THEME
+   COLOR CHANGES ONLY
+========================================================= */
+
 .dashboard-shell {
-  background: #080d14;
+  background: #f3f6fa;
   min-height: 100vh;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
+
+  color: #0f2742;
 }
 
+/* =========================================================
+   MAIN CARDS
+========================================================= */
+
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+
+  box-shadow:
+    0 10px 22px
+    rgba(15, 39, 66, 0.08);
 
   transition:
     box-shadow 0.2s ease,
@@ -1710,41 +1986,358 @@ onMounted(() => {
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
-}
-
-.stats-card {
-  border-left: 4px solid currentColor;
-  padding: 1.35rem;
-}
-
-.stats-card .p-3 {
-  border-radius: 0.9rem;
-}
-
-.neo-card h3,
-.neo-card p,
-.neo-card span,
-.neo-card button {
-  letter-spacing: -0.01em;
+  box-shadow:
+    0 14px 26px
+    rgba(15, 39, 66, 0.12);
 }
 
 /* =========================================================
-   ACTION BUTTONS (small, pill-shaped)
+   TEXT
+========================================================= */
+
+.dashboard-shell .text-white {
+  color: #0f2742 !important;
+}
+
+.dashboard-shell .text-gray-300 {
+  color: #475569 !important;
+}
+
+.dashboard-shell .text-gray-400 {
+  color: #64748b !important;
+}
+
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+.dashboard-shell .text-gray-600 {
+  color: #475569 !important;
+}
+
+.dashboard-shell .text-gray-700 {
+  color: #334155 !important;
+}
+
+.dashboard-shell .text-gray-800 {
+  color: #334155 !important;
+}
+
+/* =========================================================
+   BORDER COLORS
+========================================================= */
+
+.dashboard-shell .border-gray-200 {
+  border-color: #e2e8f0 !important;
+}
+
+.dashboard-shell .border-gray-300 {
+  border-color: #cbd5e1 !important;
+}
+
+.dashboard-shell .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+.dashboard-shell .border-slate-800 {
+  border-color: #e2e8f0 !important;
+}
+
+/* =========================================================
+   SEARCH / SELECT
+========================================================= */
+
+.dashboard-shell .bg-\[\#0B1420\] {
+  background: #ffffff !important;
+  color: #0f2742 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.dashboard-shell input,
+.dashboard-shell select,
+.dashboard-shell textarea {
+  color: #0f2742;
+}
+
+.dashboard-shell input::placeholder,
+.dashboard-shell textarea::placeholder {
+  color: #94a3b8;
+}
+
+.dashboard-shell select option {
+  background: #ffffff;
+  color: #0f2742;
+}
+
+/* =========================================================
+   CLEAR BUTTON
+========================================================= */
+
+.dashboard-shell button.border-gray-300 {
+  border-color: #cbd5e1;
+}
+
+.dashboard-shell button.border-gray-300:hover {
+  background: #f1f5f9;
+  color: #0f2742;
+}
+
+/* =========================================================
+   TABLE / LIST BACKGROUNDS
+========================================================= */
+
+.dashboard-shell .bg-slate-800 {
+  background: #ffffff !important;
+}
+
+.dashboard-shell .bg-slate-800\/50 {
+  background: #f1f5f9 !important;
+}
+
+.dashboard-shell .bg-slate-700 {
+  background: #e2e8f0 !important;
+}
+
+.dashboard-shell .hover\:bg-slate-700:hover {
+  background: #cbd5e1 !important;
+}
+
+/* =========================================================
+   APPLICATION CARDS
+========================================================= */
+
+.dashboard-shell
+  .neo-card.border-gray-200 {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.dashboard-shell
+  .neo-card.border-gray-200:hover {
+  background: #ffffff;
+}
+
+/* =========================================================
+   PRIMARY BLUE
+   Same blue language as Dashboard
+========================================================= */
+
+.dashboard-shell .bg-blue-600 {
+  background-color: #2563eb !important;
+}
+
+.dashboard-shell .hover\:bg-blue-700:hover {
+  background-color: #1d4ed8 !important;
+}
+
+.dashboard-shell .text-blue-600 {
+  color: #2563eb !important;
+}
+
+.dashboard-shell .text-blue-700 {
+  color: #1d4ed8 !important;
+}
+
+.dashboard-shell .bg-blue-100 {
+  background-color: #eaf2ff !important;
+}
+
+.dashboard-shell .text-blue-300 {
+  color: #3b82f6 !important;
+}
+
+.dashboard-shell .border-blue-400\/30 {
+  border-color: #bfdbfe !important;
+}
+
+.dashboard-shell .bg-blue-500\/10 {
+  background-color: #eff6ff !important;
+}
+
+/* =========================================================
+   PENDING / YELLOW
+========================================================= */
+
+.dashboard-shell .bg-yellow-100 {
+  background-color: #fff8e1 !important;
+}
+
+.dashboard-shell .text-yellow-800 {
+  color: #b77900 !important;
+}
+
+/* =========================================================
+   AMBER / ORANGE
+========================================================= */
+
+.dashboard-shell .bg-amber-600 {
+  background-color: #e59a00 !important;
+}
+
+.dashboard-shell .hover\:bg-amber-700:hover {
+  background-color: #c98200 !important;
+}
+
+/* =========================================================
+   APPROVED / GREEN
+========================================================= */
+
+.dashboard-shell .bg-green-600 {
+  background-color: #16a34a !important;
+}
+
+.dashboard-shell .hover\:bg-green-700:hover {
+  background-color: #15803d !important;
+}
+
+.dashboard-shell .bg-green-100 {
+  background-color: #e8f8ef !important;
+}
+
+.dashboard-shell .text-green-800 {
+  color: #15803d !important;
+}
+
+.dashboard-shell .text-green-600 {
+  color: #16a34a !important;
+}
+
+.dashboard-shell .text-green-300 {
+  color: #22c55e !important;
+}
+
+/* =========================================================
+   DISAPPROVED / RED
+========================================================= */
+
+.dashboard-shell .bg-red-600 {
+  background-color: #dc2626 !important;
+}
+
+.dashboard-shell .hover\:bg-red-700:hover {
+  background-color: #b91c1c !important;
+}
+
+.dashboard-shell .bg-red-100 {
+  background-color: #fff0f0 !important;
+}
+
+.dashboard-shell .text-red-800 {
+  color: #dc2626 !important;
+}
+
+.dashboard-shell .text-red-600 {
+  color: #dc2626 !important;
+}
+
+.dashboard-shell .text-red-300 {
+  color: #ef4444 !important;
+}
+
+/* =========================================================
+   GRAY / NEUTRAL BUTTONS
+========================================================= */
+
+.dashboard-shell .bg-gray-600 {
+  background-color: #64748b !important;
+}
+
+.dashboard-shell .hover\:bg-gray-700:hover {
+  background-color: #475569 !important;
+}
+
+/* =========================================================
+   OLD DARK BACKGROUND COLORS
+   Completely removed visually
+========================================================= */
+
+.dashboard-shell .bg-\[\#080D14\] {
+  background: #f3f6fa !important;
+}
+
+.dashboard-shell .bg-\[\#111D2E\] {
+  background: #ffffff !important;
+}
+
+.dashboard-shell .bg-\[\#0F1A2A\] {
+  background: #f8fafc !important;
+}
+
+.dashboard-shell .bg-\[\#0B1420\] {
+  background: #ffffff !important;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.dashboard-shell .modal-section {
+  background: #f8fafc;
+  border-color: #d8e1eb;
+}
+
+.dashboard-shell .bg-gray-600 {
+  background-color: #64748b !important;
+}
+
+.dashboard-shell .bg-opacity-50 {
+  --tw-bg-opacity: 0.45;
+}
+
+/* =========================================================
+   BALANCE SUMMARY CARDS
+========================================================= */
+
+.balance-summary-card {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.35rem;
+
+  padding: 0.85rem;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 0.75rem;
+
+  background: #f8fafc;
+
+  color: #475569;
+
+  font-size: 0.75rem;
+}
+
+.balance-summary-card strong {
+  color: #0f2742;
+  font-size: 0.9rem;
+}
+
+/* =========================================================
+   BUTTONS
 ========================================================= */
 
 .btn-action {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
   padding: 0.375rem 0.85rem;
+
   font-size: 0.75rem;
   font-weight: 500;
+
   line-height: 1.25rem;
-  color: #fff;
+
+  color: #ffffff !important;
+
   border-radius: 9999px;
+
   white-space: nowrap;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .btn-action:active {
@@ -1753,16 +2346,26 @@ onMounted(() => {
 
 .btn-action-lg {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
   width: 100%;
+
   padding: 0.5rem 1.1rem;
+
   font-size: 0.8rem;
   font-weight: 500;
-  color: #fff;
+
+  color: #ffffff !important;
+
   border-radius: 9999px;
+
   white-space: nowrap;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 @media (min-width: 640px) {
@@ -1775,34 +2378,44 @@ onMounted(() => {
   transform: scale(0.98);
 }
 
-.balance-summary-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.85rem;
-  border: 1px solid #334155;
-  border-radius: 0.75rem;
-  background: #0b1420;
-  color: #cbd5e1;
-  font-size: 0.75rem;
+/* =========================================================
+   MODAL INPUTS
+========================================================= */
+
+.dashboard-shell textarea {
+  background: #ffffff !important;
+  color: #0f2742 !important;
 }
 
-.balance-summary-card strong {
-  color: #ffffff;
-  font-size: 0.9rem;
+.dashboard-shell
+  input[type="number"] {
+  background: #ffffff !important;
+  color: #0f2742 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.dashboard-shell
+  button:disabled {
+  pointer-events: none;
+}
+
+.dashboard-shell
+  button:not(:disabled) {
+  cursor: pointer;
 }
 
 /* =========================================================
    RESPONSIVE / ZOOM BEHAVIOR
 ========================================================= */
 
-/* Prevent children from forcing horizontal overflow */
 .neo-card * {
   min-width: 0;
 }
 
-/* Allow long employee names, filenames, departments,
-   positions, etc. to wrap instead of breaking layout */
 .neo-card h3,
 .neo-card p,
 .neo-card span,
@@ -1849,13 +2462,5 @@ onMounted(() => {
   .neo-card {
     border-radius: 0.75rem;
   }
-}
-
-/* =========================================================
-   PAGINATION
-========================================================= */
-
-button:disabled {
-  pointer-events: none;
 }
 </style>

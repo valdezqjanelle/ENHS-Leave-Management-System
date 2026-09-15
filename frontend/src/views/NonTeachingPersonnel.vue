@@ -50,8 +50,8 @@
       <div class="neo-card w-full p-6">
         <div class="table-wrapper">
           <table class="non-teaching-table">
-            <thead class="bg-gray-100">
-              <tr class="text-left text-black font-semibold">
+            <thead>
+              <tr class="text-left text-white font-semibold">
                 <th class="px-3 py-3">Employee Code</th>
                 <th class="px-3 py-3">Employee</th>
                 <th class="px-3 py-3">Position</th>
@@ -66,7 +66,7 @@
               <tr
                 v-for="record in filteredRecords"
                 :key="record.non_teaching_record_id"
-                class="border-t hover:bg-gray-800 transition-colors duration-200"
+                class="table-row transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
@@ -791,10 +791,13 @@ onMounted(async () => {
 <style scoped>
 /* ========================================================= */
 /* MAIN PAGE                                                  */
+/* Matches the dashboard's theme: uses the same CSS variables */
+/* instead of hardcoded dark colors, so this page looks like  */
+/* the rest of the app.                                       */
 /* ========================================================= */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--app-bg);
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -805,10 +808,15 @@ onMounted(async () => {
 /* ========================================================= */
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+
+  box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 
   width: 100%;
   max-width: none;
@@ -818,7 +826,49 @@ onMounted(async () => {
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.09);
+}
+
+/* Same text-color mapping the dashboard uses, so "text-white" */
+/* renders as the theme's actual text color on light cards.    */
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.neo-card button.text-white,
+.neo-card a.text-white {
+  color: #ffffff !important;
+}
+
+/* ========================================================= */
+/* TABLE HEADER                                                */
+/* ========================================================= */
+
+.non-teaching-table thead {
+  background: var(--surface-muted);
+}
+
+.non-teaching-table thead tr {
+  color: var(--text-muted);
+}
+
+/* ========================================================= */
+/* TABLE ROWS                                                 */
+/* ========================================================= */
+
+.table-row {
+  border-top: 1px solid var(--border);
+}
+
+.table-row:hover {
+  background: #eef4fb;
 }
 
 /* ========================================================= */

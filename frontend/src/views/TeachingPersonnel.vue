@@ -66,7 +66,7 @@
               <tr
                 v-for="record in filteredRecords"
                 :key="record.teaching_record_id"
-                class="border-t hover:bg-gray-800 transition-colors duration-200"
+                class="border-t border-gray-200 hover:bg-gray-50 transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
@@ -390,7 +390,7 @@
           <div class="md:col-span-2">
             <span class="font-semibold">Teaching Assignments</span>
             <div v-if="selectedRecord.assignments?.length" class="mt-2 space-y-2">
-              <div v-for="assignment in selectedRecord.assignments" :key="assignment.assignment_id" class="rounded-lg border border-slate-600 p-3">
+              <div v-for="assignment in selectedRecord.assignments" :key="assignment.assignment_id" class="rounded-lg border border-slate-300 p-3">
                 <p>{{ assignment.subject?.subject_name || "Subject" }} — {{ assignment.grade_level?.grade_name || "Grade" }}<span v-if="assignment.section">, {{ assignment.section.section_name }}</span></p>
                 <p class="text-xs opacity-80">S.Y. {{ assignment.school_year }}<span v-if="assignment.is_advisory"> · Advisory class</span><span v-if="assignment.teaching_hours !== null"> · {{ assignment.teaching_hours }} hour(s)</span></p>
               </div>
@@ -914,7 +914,7 @@ onMounted(async () => {
 /* ========================================================= */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--app-bg);
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -925,8 +925,8 @@ onMounted(async () => {
 /* ========================================================= */
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
 
@@ -939,6 +939,21 @@ onMounted(async () => {
 
 .neo-card:hover {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.neo-card button.text-white,
+.neo-card a.text-white {
+  color: #ffffff !important;
 }
 
 /* ========================================================= */

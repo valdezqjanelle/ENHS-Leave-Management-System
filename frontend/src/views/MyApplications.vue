@@ -1278,4 +1278,247 @@ const downloadForm = (
   }
 
 }
+
+/* =========================================
+   DASHBOARD COLOR THEME
+   Colors only — layout/functionality unchanged
+========================================= */
+
+/* Main page */
+.dashboard-shell {
+  background: #F3F6FA;
+  color: #0F2742;
+}
+
+/* Cards */
+.neo-card {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 10px 22px rgba(15, 39, 66, 0.08);
+}
+
+.neo-card:hover {
+  box-shadow: 0 14px 26px rgba(15, 39, 66, 0.12);
+}
+
+/* Search and filters */
+.dark-input {
+  background: #FFFFFF;
+  color: #0F2742;
+  border-color: #CBD5E1;
+}
+
+.dark-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.dark-input::placeholder {
+  color: #64748B;
+}
+
+.dark-input option {
+  background: #FFFFFF;
+  color: #0F2742;
+}
+
+/* Clear button */
+.dashboard-shell .border-slate-700 {
+  border-color: #CBD5E1 !important;
+}
+
+.dashboard-shell .text-slate-300 {
+  color: #334155 !important;
+}
+
+.dashboard-shell .text-slate-400 {
+  color: #64748B !important;
+}
+
+.dashboard-shell .text-slate-500 {
+  color: #64748B !important;
+}
+
+.dashboard-shell .text-slate-600 {
+  color: #94A3B8 !important;
+}
+
+/* Headings / normal text that was white in the dark theme */
+.dashboard-shell .text-white {
+  color: #0F2742 !important;
+}
+
+/* Table */
+.dashboard-shell thead,
+.dashboard-shell thead.bg-\[\#0D1725\] {
+  background: #EEF4FB !important;
+}
+
+.table-header {
+  color: #475569;
+}
+
+.dashboard-shell tbody {
+  background: #FFFFFF;
+}
+
+.dashboard-shell tbody tr {
+  border-color: #E2E8F0 !important;
+}
+
+.dashboard-shell tbody tr:hover,
+.dashboard-shell .hover\:bg-slate-800\/40:hover {
+  background: #F5F9FF !important;
+}
+
+.table-cell {
+  color: #334155;
+}
+
+.dashboard-shell .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #E2E8F0 !important;
+}
+
+/* Blue action buttons — dashboard primary blue */
+.btn-action.bg-blue-600 {
+  background: #2563EB !important;
+}
+
+.btn-action.bg-blue-600:hover {
+  background: #1D4ED8 !important;
+}
+
+/* Yellow action button */
+.btn-action.bg-yellow-600 {
+  background: #E59A00 !important;
+}
+
+.btn-action.bg-yellow-600:hover {
+  background: #C98200 !important;
+}
+
+/* Green download */
+.dashboard-shell .text-green-400 {
+  color: #16A34A !important;
+}
+
+.dashboard-shell .hover\:text-green-300:hover {
+  color: #15803D !important;
+}
+
+/* Status colors — same semantic colors as dashboard */
+.status-approved {
+  background: #E8F8EF;
+  color: #16A34A;
+  border-color: #BBE7CC;
+}
+
+.status-pending {
+  background: #FFF8E1;
+  color: #B77900;
+  border-color: #F3D58A;
+}
+
+.status-disapproved {
+  background: #FFF0F0;
+  color: #DC2626;
+  border-color: #F3C1C1;
+}
+
+.status-pr {
+  background: #EAF2FF;
+  color: #2563EB;
+  border-color: #C7DBFF;
+}
+
+.status-default {
+  background: #F1F5F9;
+  color: #64748B;
+  border-color: #CBD5E1;
+}
+
+/* Modal */
+.dashboard-shell .bg-black\/70 {
+  background: rgba(15, 23, 42, 0.45) !important;
+}
+
+.dashboard-shell .bg-\[\#111D2E\] {
+  background: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+}
+
+.modal-section {
+  background: #F8FAFC;
+  border-color: #D8E1EB;
+}
+
+.modal-title {
+  color: #0F2742;
+}
+
+.modal-label {
+  color: #64748B;
+}
+
+.modal-value {
+  color: #334155;
+}
+
+/* Modal attachment rows */
+.dashboard-shell .bg-\[\#0F1A2A\] {
+  background: #F8FAFC !important;
+  border-color: #D8E1EB !important;
+}
+
+.dashboard-shell .bg-\[\#0B1420\] {
+  background: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+/* Modal close button */
+.dashboard-shell .bg-slate-700 {
+  background: #E2E8F0 !important;
+  color: #0F2742 !important;
+}
+
+.dashboard-shell .bg-slate-700:hover {
+  background: #CBD5E1 !important;
+}
+
+/* Modal borders */
+.dashboard-shell .border-slate-700 {
+  border-color: #CBD5E1 !important;
+}
+
+/* Icons / secondary text */
+.dashboard-shell .text-slate-500 {
+  color: #64748B !important;
+}
+
+/* File remove / validation errors stay red */
+.dashboard-shell .text-red-400 {
+  color: #DC2626 !important;
+}
+
+.dashboard-shell .hover\:text-red-300:hover {
+  color: #B91C1C !important;
+}
+
+/* Timeline colors remain semantic */
+.dashboard-shell .bg-blue-500 {
+  background-color: #3B82F6 !important;
+}
+
+.dashboard-shell .bg-yellow-500 {
+  background-color: #F59E0B !important;
+}
+
+.dashboard-shell .bg-green-500 {
+  background-color: #22C55E !important;
+}
+
+.dashboard-shell .bg-red-500 {
+  background-color: #EF4444 !important;
+}
+
 </style>

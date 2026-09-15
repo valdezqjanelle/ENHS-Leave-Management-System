@@ -19,8 +19,6 @@
               Generate and view various reports
             </p>
           </div>
-
-      
         </div>
       </div>
 
@@ -48,10 +46,10 @@
             :key="reportType.id"
             @click="selectedReportType = reportType.id"
             :class="[
-              'rounded-xl border p-4 text-left transition-all duration-200',
+              'report-type-button rounded-xl border p-4 text-left transition-all duration-200',
               selectedReportType === reportType.id
-                ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/5'
-                : 'border-slate-700 bg-[#0D1724] hover:border-slate-600 hover:bg-[#101C2B]'
+                ? 'selected-report'
+                : 'unselected-report'
             ]"
           >
 
@@ -106,7 +104,7 @@
             <input
               v-model="dateRange.start"
               type="date"
-              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="report-input w-full"
             />
           </div>
 
@@ -120,7 +118,7 @@
             <input
               v-model="dateRange.end"
               type="date"
-              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="report-input w-full"
             />
           </div>
 
@@ -133,7 +131,7 @@
 
             <select
               @change="setQuickDateRange"
-              class="w-full rounded-lg border border-slate-700 bg-[#0B1420] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="report-input w-full"
             >
               <option value="">
                 Custom Range
@@ -173,7 +171,7 @@
 
         <!-- Report Header -->
         <div
-          class="border-b border-slate-800 px-5 py-5 sm:px-6"
+          class="report-header border-b px-5 py-5 sm:px-6"
         >
 
           <div
@@ -194,14 +192,14 @@
 
               <button
                 @click="exportReport"
-                class="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-600 sm:flex-none"
+                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
               >
                 Export
               </button>
 
               <button
                 @click="printReport"
-                class="flex-1 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-600 sm:flex-none"
+                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
               >
                 Print
               </button>
@@ -227,9 +225,6 @@
 
             <div class="mb-6">
 
-              
-
-
               <!-- Department Summary -->
               <div class="department-section">
 
@@ -252,7 +247,7 @@
                   <div
                     v-for="dept in leaveByDepartment"
                     :key="dept.department"
-                    class="department-item flex min-h-[82px] items-center justify-between rounded-xl border border-slate-700/80 bg-[#0D1724] px-4 py-3.5 transition hover:border-slate-600 hover:bg-[#101C2B]"
+                    class="department-item flex min-h-[82px] items-center justify-between rounded-xl px-4 py-3.5 transition"
                   >
 
                     <div class="min-w-0 pr-4">
@@ -277,7 +272,7 @@
 
                 <div
                   v-else
-                  class="rounded-xl border border-dashed border-slate-700 bg-[#0D1724] px-4 py-8 text-center"
+                  class="empty-report-state rounded-xl px-4 py-8 text-center"
                 >
                   <p class="text-sm text-gray-400">
                     No department data available.
@@ -299,7 +294,7 @@
               <!-- STATUS -->
               <!-- =================================================== -->
 
-              <div class="summary-panel rounded-xl border border-slate-700/80 bg-[#0D1724] p-5 sm:p-6">
+              <div class="summary-panel rounded-xl p-5 sm:p-6">
 
                 <div class="mb-5">
                   <h3 class="text-base font-semibold text-white">
@@ -329,7 +324,7 @@
 
                     </div>
 
-                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+                    <div class="status-track h-2.5 w-full overflow-hidden rounded-full">
 
                       <div
                         class="h-2.5 rounded-full bg-green-500 transition-all duration-500"
@@ -359,7 +354,7 @@
 
                     </div>
 
-                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+                    <div class="status-track h-2.5 w-full overflow-hidden rounded-full">
 
                       <div
                         class="h-2.5 rounded-full bg-yellow-500 transition-all duration-500"
@@ -389,7 +384,7 @@
 
                     </div>
 
-                    <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+                    <div class="status-track h-2.5 w-full overflow-hidden rounded-full">
 
                       <div
                         class="h-2.5 rounded-full bg-red-500 transition-all duration-500"
@@ -412,7 +407,7 @@
               <!-- LEAVE BY TYPE -->
               <!-- =================================================== -->
 
-              <div class="summary-panel rounded-xl border border-slate-700/80 bg-[#0D1724] p-5 sm:p-6">
+              <div class="summary-panel rounded-xl p-5 sm:p-6">
 
                 <div class="mb-5">
                   <h3 class="text-base font-semibold text-white">
@@ -433,7 +428,7 @@
                   <div
                     v-for="leave in leaveByType"
                     :key="leave.name"
-                    class="leave-type-item rounded-xl border border-slate-700 bg-[#111D2E] p-4 transition hover:border-slate-600"
+                    class="leave-type-item rounded-xl p-4 transition"
                   >
 
                     <p
@@ -457,7 +452,7 @@
 
                 <div
                   v-else
-                  class="rounded-xl border border-dashed border-slate-700 bg-[#111D2E] px-4 py-8 text-center"
+                  class="empty-report-state rounded-xl px-4 py-8 text-center"
                 >
                   <p class="text-sm text-gray-400">
                     No leave type data available.
@@ -473,9 +468,6 @@
         </template>
 
 
-    
-
-
         <!-- ========================================================= -->
         <!-- EMPLOYEE PERFORMANCE -->
         <!-- ========================================================= -->
@@ -486,44 +478,42 @@
 
             <div class="mb-5">
 
-  
-
             </div>
 
 
             <div class="overflow-x-auto">
 
-              <table class="w-full min-w-[1000px]">
+              <table class="report-table w-full min-w-[1000px]">
 
-                <thead class="bg-[#0B1420]">
+                <thead>
 
                   <tr>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Employee
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Department
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Position
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Employment Status
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Vacation Balance
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Sick Balance
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Used Leave
                     </th>
 
@@ -532,39 +522,39 @@
                 </thead>
 
 
-                <tbody class="divide-y divide-slate-800">
+                <tbody>
 
                   <tr
                     v-for="employee in employeeData"
                     :key="employee.employee_id"
-                    class="transition hover:bg-white/5"
+                    class="transition"
                   >
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.employee_name }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.department_name }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.position?.name || employee.position || "-" }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.employment_status }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.vacation_balance }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.sick_balance }}
                     </td>
 
-                    <td class="px-6 py-4 text-white">
+                    <td class="px-6 py-4">
                       {{ employee.used_leave }}
                     </td>
 
@@ -605,9 +595,9 @@
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
               <!-- Total Employees -->
-              <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+              <div class="credit-summary-card credit-blue rounded-xl p-4">
 
-                <h4 class="mb-2 text-sm font-semibold text-blue-400">
+                <h4 class="mb-2 text-sm font-semibold">
                   Total Employees
                 </h4>
 
@@ -615,7 +605,7 @@
                   {{ leaveTotals.employees ?? 0 }}
                 </p>
 
-                <p class="mt-1 text-xs text-blue-400">
+                <p class="mt-1 text-xs">
                   Employees with leave balances
                 </p>
 
@@ -623,9 +613,9 @@
 
 
               <!-- Vacation Earned -->
-              <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-4">
+              <div class="credit-summary-card credit-green rounded-xl p-4">
 
-                <h4 class="mb-2 text-sm font-semibold text-green-400">
+                <h4 class="mb-2 text-sm font-semibold">
                   Total Vacation Earned
                 </h4>
 
@@ -633,7 +623,7 @@
                   {{ leaveTotals.vacation_earned ?? 0 }}
                 </p>
 
-                <p class="mt-1 text-xs text-green-400">
+                <p class="mt-1 text-xs">
                   Vacation leave credits earned
                 </p>
 
@@ -641,9 +631,9 @@
 
 
               <!-- Sick Earned -->
-              <div class="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4">
+              <div class="credit-summary-card credit-yellow rounded-xl p-4">
 
-                <h4 class="mb-2 text-sm font-semibold text-yellow-400">
+                <h4 class="mb-2 text-sm font-semibold">
                   Total Sick Earned
                 </h4>
 
@@ -651,7 +641,7 @@
                   {{ leaveTotals.sick_earned ?? 0 }}
                 </p>
 
-                <p class="mt-1 text-xs text-yellow-400">
+                <p class="mt-1 text-xs">
                   Sick leave credits earned
                 </p>
 
@@ -659,9 +649,9 @@
 
 
               <!-- Used Leave -->
-              <div class="rounded-xl border border-purple-500/20 bg-purple-500/10 p-4">
+              <div class="credit-summary-card credit-purple rounded-xl p-4">
 
-                <h4 class="mb-2 text-sm font-semibold text-purple-400">
+                <h4 class="mb-2 text-sm font-semibold">
                   Total Used Leave
                 </h4>
 
@@ -669,7 +659,7 @@
                   {{ leaveTotals.used_leave ?? 0 }}
                 </p>
 
-                <p class="mt-1 text-xs text-purple-400">
+                <p class="mt-1 text-xs">
                   Total leave days used
                 </p>
 
@@ -681,29 +671,29 @@
             <!-- Employee Leave Balances -->
             <div class="overflow-x-auto">
 
-              <table class="w-full min-w-[700px]">
+              <table class="report-table w-full min-w-[700px]">
 
-                <thead class="bg-[#0B1420]">
+                <thead>
 
                   <tr>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Employee
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Department
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Vacation Balance
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Sick Balance
                     </th>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase text-gray-400">
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Used Leave
                     </th>
 
@@ -712,31 +702,31 @@
                 </thead>
 
 
-                <tbody class="divide-y divide-slate-800">
+                <tbody>
 
                   <tr
                     v-for="employee in creditsData"
                     :key="employee.employee_id"
-                    class="transition hover:bg-white/5"
+                    class="transition"
                   >
 
-                    <td class="px-6 py-4 text-sm font-medium text-white">
+                    <td class="px-6 py-4 text-sm font-medium">
                       {{ employee.employee_name }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-white">
+                    <td class="px-6 py-4 text-sm">
                       {{ employee.department_name }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-white">
+                    <td class="px-6 py-4 text-sm">
                       {{ employee.vacation_balance }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-white">
+                    <td class="px-6 py-4 text-sm">
                       {{ employee.sick_balance }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm text-white">
+                    <td class="px-6 py-4 text-sm">
                       {{ employee.used_leave }}
                     </td>
 
@@ -837,8 +827,8 @@ ChartJS.register(
 |--------------------------------------------------------------------------
 */
 
-ChartJS.defaults.color = '#94a3b8'
-ChartJS.defaults.borderColor = '#1e293b'
+ChartJS.defaults.color = '#64748b'
+ChartJS.defaults.borderColor = '#cbd8e8'
 
 
 /*
@@ -879,17 +869,15 @@ const reportTypes = [
     name: 'Leave Summary',
     description: 'Comprehensive leave statistics',
     icon: FileText,
-    iconColor: 'text-blue-400'
+    iconColor: 'text-blue-500'
   },
-
-
 
   {
     id: 'faculty-performance',
     name: 'Employee Performance',
     description: 'Individual performance metrics',
     icon: TrendingUp,
-    iconColor: 'text-purple-400'
+    iconColor: 'text-purple-500'
   },
 
   {
@@ -897,7 +885,7 @@ const reportTypes = [
     name: 'Leave Credits',
     description: 'Credit usage and availability',
     icon: CreditCard,
-    iconColor: 'text-yellow-400'
+    iconColor: 'text-yellow-500'
   }
 
 ]
@@ -910,9 +898,6 @@ const reportTypes = [
 */
 
 const leaveSummaryData = ref<any[]>([])
-
-
-
 
 const employeeData = ref<any[]>([])
 
@@ -1230,7 +1215,7 @@ function createLeaveCharts() {
                 ).length
               ),
 
-            borderColor: '#0B1420',
+            borderColor: '#ffffff',
 
             borderWidth: 3,
 
@@ -1256,7 +1241,7 @@ function createLeaveCharts() {
 
             labels: {
 
-              color: '#cbd5e1',
+              color: '#64748b',
 
               padding: 18,
 
@@ -1270,13 +1255,13 @@ function createLeaveCharts() {
 
           tooltip: {
 
-            backgroundColor: '#111D2E',
+            backgroundColor: '#ffffff',
 
-            titleColor: '#ffffff',
+            titleColor: '#172033',
 
-            bodyColor: '#cbd5e1',
+            bodyColor: '#64748b',
 
-            borderColor: '#334155',
+            borderColor: '#c8d8eb',
 
             borderWidth: 1,
 
@@ -1380,13 +1365,13 @@ function createLeaveCharts() {
             grid: {
 
               color:
-                'rgba(148, 163, 184, 0.08)'
+                'rgba(148, 163, 184, 0.18)'
 
             },
 
             ticks: {
 
-              color: '#94a3b8'
+              color: '#64748b'
 
             }
 
@@ -1399,13 +1384,13 @@ function createLeaveCharts() {
             grid: {
 
               color:
-                'rgba(148, 163, 184, 0.08)'
+                'rgba(148, 163, 184, 0.18)'
 
             },
 
             ticks: {
 
-              color: '#94a3b8',
+              color: '#64748b',
 
               precision: 0
 
@@ -1421,7 +1406,7 @@ function createLeaveCharts() {
 
             labels: {
 
-              color: '#cbd5e1'
+              color: '#64748b'
 
             }
 
@@ -1429,13 +1414,13 @@ function createLeaveCharts() {
 
           tooltip: {
 
-            backgroundColor: '#111D2E',
+            backgroundColor: '#ffffff',
 
-            titleColor: '#ffffff',
+            titleColor: '#172033',
 
-            bodyColor: '#cbd5e1',
+            bodyColor: '#64748b',
 
-            borderColor: '#334155',
+            borderColor: '#c8d8eb',
 
             borderWidth: 1,
 
@@ -1969,17 +1954,32 @@ watch(
 
 <style scoped>
 
+/* =========================================================
+   PAGE
+   Dashboard theme
+   ========================================================= */
+
 .dashboard-shell {
-  background: #080D14;
+  background: var(--app-bg);
+
+  min-height: 100vh;
 }
 
 
+/* =========================================================
+   MAIN CARDS
+   ========================================================= */
+
 .neo-card {
-  background: #111D2E;
-  border: 1px solid #1E293B;
-  border-radius: 1.4rem;
+  background: var(--surface);
+
+  border: 1px solid #cbd8e8;
+
+  border-radius: 1rem;
+
   box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.04);
+    0 6px 18px rgba(23, 32, 51, 0.06);
+
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
@@ -1988,7 +1988,144 @@ watch(
 
 .neo-card:hover {
   box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.06);
+    0 10px 24px rgba(23, 32, 51, 0.09);
+}
+
+
+/* =========================================================
+   TEXT
+   Dashboard text colors
+   ========================================================= */
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+
+/* =========================================================
+   REPORT TYPE BUTTONS
+   ========================================================= */
+
+.report-type-button {
+  border: 1px solid #c8d8eb;
+}
+
+
+.selected-report {
+  border-color: #2563eb !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eff6ff 0%,
+      #ffffff 100%
+    );
+
+  box-shadow:
+    0 8px 18px rgba(37, 99, 235, 0.08);
+}
+
+
+.selected-report:hover {
+  border-color: #2563eb !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eaf2ff 0%,
+      #ffffff 100%
+    );
+}
+
+
+.unselected-report {
+  background: var(--surface-muted);
+
+  border-color: #c8d8eb;
+}
+
+
+.unselected-report:hover {
+  border-color: #9db9dc;
+
+  background: #eef4fb;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.report-input {
+  border: 1px solid #c8d8eb;
+
+  border-radius: 0.6rem;
+
+  background: var(--surface-muted);
+
+  color: var(--text);
+
+  padding:
+    0.625rem
+    0.75rem;
+
+  font-size: 0.875rem;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.report-input:focus {
+  border-color: #7aa7e8;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+
+.report-input option {
+  background: #ffffff;
+
+  color: #172033;
+}
+
+
+/* =========================================================
+   REPORT HEADER
+   ========================================================= */
+
+.report-header {
+  border-color: var(--border);
+}
+
+
+/* =========================================================
+   SECONDARY BUTTONS
+   ========================================================= */
+
+.secondary-button {
+  background: #e2e8f0;
+
+  color: #334155;
+}
+
+
+.secondary-button:hover {
+  background: #cbd5e1;
 }
 
 
@@ -2001,28 +2138,246 @@ watch(
 }
 
 
-/* Prevent nested summary panels from behaving like large cards */
-
-.summary-panel {
-  min-width: 0;
-}
-
-
-/* Department cards */
+/* =========================================================
+   DEPARTMENT ITEMS
+   Matches Dashboard application/summary cards
+   ========================================================= */
 
 .department-item {
   min-width: 0;
+
+  background: var(--surface-muted);
+
+  border: 1px solid #cfdaea;
+
+  border-left: 3px solid #60a5fa;
+
+  box-shadow:
+    0 3px 10px rgba(23, 32, 51, 0.03);
 }
 
 
-/* Leave type cards */
+.department-item:hover {
+  background: #eef4fb;
+
+  border-color: #b9c9dc;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-report-state {
+  background: var(--surface-muted);
+
+  border: 1px dashed #c8d8eb;
+}
+
+
+/* =========================================================
+   SUMMARY PANELS
+   ========================================================= */
+
+.summary-panel {
+  min-width: 0;
+
+  background: var(--surface-muted);
+
+  border: 1px solid #c8d8eb;
+
+  box-shadow:
+    0 3px 12px rgba(23, 32, 51, 0.03);
+}
+
+
+.summary-panel:hover {
+  border-color: #b8cbe2;
+}
+
+
+/* =========================================================
+   STATUS TRACK
+   ========================================================= */
+
+.status-track {
+  background: #dce6f2;
+}
+
+
+/* =========================================================
+   LEAVE TYPE ITEMS
+   ========================================================= */
 
 .leave-type-item {
   min-width: 0;
+
+  background: var(--surface);
+
+  border: 1px solid #cbd8e8;
+
+  box-shadow:
+    0 3px 10px rgba(23, 32, 51, 0.03);
 }
 
 
-/* Typography */
+.leave-type-item:hover {
+  background: #eef4fb;
+
+  border-color: #b9c9dc;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   REPORT TABLES
+   ========================================================= */
+
+.report-table {
+  border-collapse: collapse;
+}
+
+
+.report-table thead {
+  background: var(--surface-muted);
+}
+
+
+.report-table th {
+  color: var(--text-muted);
+
+  border-bottom: 1px solid var(--border);
+
+  letter-spacing: 0.05em;
+}
+
+
+.report-table tbody tr {
+  border-bottom: 1px solid var(--border);
+
+  transition:
+    background-color 0.2s ease;
+}
+
+
+.report-table tbody tr:hover {
+  background: #f3f7fc;
+}
+
+
+.report-table td {
+  color: var(--text);
+}
+
+
+/* =========================================================
+   LEAVE CREDIT SUMMARY CARDS
+   Dashboard-style status colors
+   ========================================================= */
+
+.credit-summary-card {
+  border: 1px solid;
+
+  box-shadow:
+    0 4px 12px rgba(23, 32, 51, 0.04);
+}
+
+
+/* Blue */
+
+.credit-blue {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 55%,
+      #eff6ff 100%
+    );
+
+  border-color: #d6e4f7;
+}
+
+
+.credit-blue h4,
+.credit-blue > p:last-child {
+  color: #2563eb;
+}
+
+
+/* Green */
+
+.credit-green {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 55%,
+      #f0fdf4 100%
+    );
+
+  border-color: #cce8d5;
+}
+
+
+.credit-green h4,
+.credit-green > p:last-child {
+  color: #16a34a;
+}
+
+
+/* Yellow */
+
+.credit-yellow {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 55%,
+      #fffbeb 100%
+    );
+
+  border-color: #f1dfad;
+}
+
+
+.credit-yellow h4,
+.credit-yellow > p:last-child {
+  color: #a16207;
+}
+
+
+/* Purple */
+
+.credit-purple {
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 55%,
+      #faf5ff 100%
+    );
+
+  border-color: #e5d4f5;
+}
+
+
+.credit-purple h4,
+.credit-purple > p:last-child {
+  color: #9333ea;
+}
+
+
+/* =========================================================
+   CHARTS
+   ========================================================= */
+
+canvas {
+  max-width: 100%;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
 
 .neo-card h3,
 .neo-card h4,
@@ -2032,13 +2387,6 @@ watch(
 .neo-card button,
 .neo-card label {
   letter-spacing: -0.01em;
-}
-
-
-/* Charts */
-
-canvas {
-  max-width: 100%;
 }
 
 
@@ -2053,7 +2401,7 @@ canvas {
   }
 
   .neo-card {
-    border-radius: 1.1rem;
+    border-radius: 1rem;
   }
 
 }
@@ -2072,9 +2420,12 @@ canvas {
   .neo-card,
   .summary-panel,
   .department-item,
-  .leave-type-item {
+  .leave-type-item,
+  .credit-summary-card {
     background: white !important;
+
     border: 1px solid #ddd !important;
+
     box-shadow: none !important;
   }
 
@@ -2091,3 +2442,4 @@ canvas {
 }
 
 </style>
+

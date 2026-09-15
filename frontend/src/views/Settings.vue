@@ -1,12 +1,9 @@
+
 <template>
   <div class="settings-shell p-8 min-h-screen space-y-6">
 
-    <!-- ========================================================= -->
-    <!-- SETTINGS NAVIGATION -->
-    <!-- ========================================================= -->
-
     <div class="neo-card">
-      <div class="border-b border-[#1e293b] px-6 py-4">
+      <div class="border-b border-[#cbd8e8] px-6 py-4">
         <nav class="flex -mb-px flex-wrap">
 
           <button
@@ -16,8 +13,8 @@
             :class="[
               'py-4 px-6 text-sm font-medium border-b-2 transition-colors',
               activeTab === tab.id
-                ? 'border-blue-400 text-blue-400'
-                : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-[#334155]'
+                ? 'border-[#2563eb] text-[#2563eb]'
+                : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[#cbd8e8]'
             ]"
           >
             <component :is="tab.icon" class="w-4 h-4 mr-2 inline" />
@@ -29,26 +26,20 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- ACCOUNT SETTINGS TAB -->
-    <!-- ========================================================= -->
-
     <div
       v-if="activeTab === 'account'"
       class="neo-card p-6"
     >
 
-      <h2 class="text-xl font-semibold text-white mb-6">
+      <h2 class="text-xl font-semibold text-[var(--text)] mb-6">
         Account Settings
       </h2>
 
       <div class="space-y-6">
 
-        <!-- Email Settings -->
-
         <div>
 
-          <h3 class="text-lg font-medium text-white mb-4">
+          <h3 class="text-lg font-medium text-[var(--text)] mb-4">
             Email Settings
           </h3>
 
@@ -59,7 +50,7 @@
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Current Email
               </label>
 
@@ -67,42 +58,42 @@
                 v-model="accountSettings.email.current"
                 type="email"
                 disabled
-                class="w-full px-3 py-2 border border-[#1e293b] rounded-lg bg-[#0a1119] text-gray-500"
+                class="w-full px-3 py-2 border border-[#cbd8e8] rounded-lg bg-[#f3f7fc] text-[var(--text-muted)]"
               />
 
             </div>
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 New Email
               </label>
 
               <input
                 v-model="accountSettings.email.new"
                 type="email"
-                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="field-editable w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
             </div>
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Confirm New Email
               </label>
 
               <input
                 v-model="accountSettings.email.confirm"
                 type="email"
-                class="w-full px-3 py-2 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="field-editable w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
             </div>
 
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+              class="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8]"
             >
               Update Email
             </button>
@@ -112,11 +103,9 @@
         </div>
 
 
-        <!-- Password Settings -->
+        <div class="border-t border-[#cbd8e8] pt-6">
 
-        <div class="border-t border-[#1e293b] pt-6">
-
-          <h3 class="text-lg font-medium text-white mb-4">
+          <h3 class="text-lg font-medium text-[var(--text)] mb-4">
             Password Settings
           </h3>
 
@@ -127,7 +116,7 @@
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Current Password
               </label>
 
@@ -136,7 +125,7 @@
                 <input
                   v-model="accountSettings.password.current"
                   :type="showCurrentPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="field-editable w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <button
@@ -147,12 +136,12 @@
 
                   <Eye
                     v-if="showCurrentPassword"
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                   <EyeOff
                     v-else
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                 </button>
@@ -164,7 +153,7 @@
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 New Password
               </label>
 
@@ -173,7 +162,7 @@
                 <input
                   v-model="accountSettings.password.new"
                   :type="showNewPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="field-editable w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <button
@@ -184,12 +173,12 @@
 
                   <Eye
                     v-if="showNewPassword"
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                   <EyeOff
                     v-else
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                 </button>
@@ -201,7 +190,7 @@
 
             <div>
 
-              <label class="block text-sm font-medium text-gray-400 mb-1">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-1">
                 Confirm New Password
               </label>
 
@@ -210,7 +199,7 @@
                 <input
                   v-model="accountSettings.password.confirm"
                   :type="showConfirmPassword ? 'text' : 'password'"
-                  class="w-full px-3 py-2 pr-10 text-white bg-[#0d1520] border border-[#1e293b] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="field-editable w-full px-3 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <button
@@ -221,12 +210,12 @@
 
                   <Eye
                     v-if="showConfirmPassword"
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                   <EyeOff
                     v-else
-                    class="w-4 h-4 text-gray-500"
+                    class="w-4 h-4 text-[var(--text-muted)]"
                   />
 
                 </button>
@@ -236,9 +225,9 @@
             </div>
 
 
-            <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
 
-              <p class="text-sm text-blue-300">
+              <p class="text-sm text-blue-700">
 
                 <strong>Password Requirements:</strong><br>
 
@@ -254,7 +243,7 @@
 
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+              class="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8]"
             >
               Update Password
             </button>
@@ -268,27 +257,23 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- LEAVE RULES TAB -->
-    <!-- ========================================================= -->
-
     <div
       v-if="activeTab === 'leave-rules'"
       class="neo-card p-6"
     >
 
-      <h2 class="text-xl font-semibold text-white mb-2">
+      <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
         Leave Rules
       </h2>
 
-      <p class="text-gray-400 mb-6">
+      <p class="text-[var(--text-muted)] mb-6">
         View the leave rules configured by the administrator.
       </p>
 
 
       <div
         v-if="leaveRulesLoading"
-        class="text-center py-8 text-gray-400"
+        class="text-center py-8 text-[var(--text-muted)]"
       >
         Loading leave rules...
       </div>
@@ -299,17 +284,17 @@
         class="space-y-4"
       >
 
-        <div class="border border-[#1e293b] rounded-xl p-5">
+        <div class="border border-[#c8d8eb] rounded-xl p-5 bg-[var(--surface-muted)]">
 
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Minimum Filing Notice
           </h3>
 
-          <p class="text-sm text-gray-400 mt-2">
+          <p class="text-sm text-[var(--text-muted)] mt-2">
 
             Employees should file their leave at least
 
-            <strong class="text-white">
+            <strong class="text-[var(--text)]">
               {{ leaveRules.minimum_notice_days }} day(s)
             </strong>
 
@@ -320,17 +305,17 @@
         </div>
 
 
-        <div class="border border-[#1e293b] rounded-xl p-5">
+        <div class="border border-[#c8d8eb] rounded-xl p-5 bg-[var(--surface-muted)]">
 
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Supporting Documents
           </h3>
 
-          <p class="text-sm text-gray-400 mt-2">
+          <p class="text-sm text-[var(--text-muted)] mt-2">
 
             Supporting documents are
 
-            <strong class="text-white">
+            <strong class="text-[var(--text)]">
               {{ leaveRules.require_documents ? 'required' : 'not required' }}
             </strong>
 
@@ -341,17 +326,17 @@
         </div>
 
 
-        <div class="border border-[#1e293b] rounded-xl p-5">
+        <div class="border border-[#c8d8eb] rounded-xl p-5 bg-[var(--surface-muted)]">
 
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Maximum Consecutive Leave Days
           </h3>
 
-          <p class="text-sm text-gray-400 mt-2">
+          <p class="text-sm text-[var(--text-muted)] mt-2">
 
             Employees may file up to
 
-            <strong class="text-white">
+            <strong class="text-[var(--text)]">
               {{ leaveRules.max_consecutive_days }} day(s)
             </strong>
 
@@ -362,13 +347,13 @@
         </div>
 
 
-        <div class="border border-[#1e293b] rounded-xl p-5">
+        <div class="border border-[#c8d8eb] rounded-xl p-5 bg-[var(--surface-muted)]">
 
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             General Leave Policy
           </h3>
 
-          <p class="text-sm text-gray-400 mt-2 whitespace-pre-line">
+          <p class="text-sm text-[var(--text-muted)] mt-2 whitespace-pre-line">
 
             {{ leaveRules.general_policy || 'No general leave policy has been provided.' }}
 
@@ -381,20 +366,16 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- HELP DESK TAB -->
-    <!-- ========================================================= -->
-
     <div
       v-if="activeTab === 'help'"
       class="neo-card p-6"
     >
 
-      <h2 class="text-xl font-semibold text-white mb-2">
+      <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
         Help & Frequently Asked Questions
       </h2>
 
-      <p class="text-gray-400 mb-6">
+      <p class="text-[var(--text-muted)] mb-6">
         Find answers to common questions about using the ENHS Leave System.
       </p>
 
@@ -404,21 +385,21 @@
         <div
           v-for="faq in faqs"
           :key="faq.id"
-          class="border border-[#1e293b] rounded-lg"
+          class="border border-[#c8d8eb] rounded-lg"
         >
 
           <button
             @click="toggleFAQ(faq.id)"
-            class="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-[#0d1520]"
+            class="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-[#eef4fb]"
           >
 
-            <span class="font-medium text-white">
+            <span class="font-medium text-[var(--text)]">
               {{ faq.question }}
             </span>
 
             <ChevronDown
               :class="[
-                'w-4 h-4 transition-transform text-gray-400',
+                'w-4 h-4 transition-transform text-[var(--text-muted)]',
                 expandedFAQ === faq.id ? 'rotate-180' : ''
               ]"
             />
@@ -428,10 +409,10 @@
 
           <div
             v-if="expandedFAQ === faq.id"
-            class="px-4 py-3 border-t border-[#1e293b]"
+            class="px-4 py-3 border-t border-[#c8d8eb]"
           >
 
-            <p class="text-gray-400">
+            <p class="text-[var(--text-muted)]">
               {{ faq.answer }}
             </p>
 
@@ -444,16 +425,10 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- ABOUT US TAB -->
-    <!-- ========================================================= -->
-
     <div
       v-if="activeTab === 'about'"
       class="neo-card overflow-hidden"
     >
-
-      <!-- Header -->
 
       <div class="neo-card p-6">
 
@@ -463,11 +438,11 @@
 
           <div>
 
-            <h2 class="text-xl font-semibold text-white">
+            <h2 class="text-xl font-semibold text-[var(--text)]">
               Settings
             </h2>
 
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Information about the ENHS Leave System
             </p>
 
@@ -476,11 +451,11 @@
 
           <div>
 
-            <h2 class="text-2xl font-bold text-white">
+            <h2 class="text-2xl font-bold text-[var(--text)]">
               ENHS Leave System
             </h2>
 
-            <p class="text-blue-100 mt-1 text-sm">
+            <p class="text-blue-600 mt-1 text-sm">
               Echague National High School Leave Management System
             </p>
 
@@ -489,7 +464,7 @@
         </div>
 
 
-        <p class="mt-5 max-w-3xl text-sm leading-6 text-blue-50">
+        <p class="mt-5 max-w-3xl text-sm leading-6 text-[var(--text-muted)]">
 
           A web-based system designed to help Echague National High School
           manage employee leave applications, attendance records, leave credits,
@@ -500,29 +475,25 @@
       </div>
 
 
-      <!-- Main Content -->
-
       <div class="p-8">
-
-        <!-- About the System -->
 
         <section class="mb-10">
 
           <div class="flex items-center gap-3 mb-4">
 
             <div
-              class="w-9 h-9 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+              class="w-9 h-9 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
             >
               <Info class="w-5 h-5" />
             </div>
 
             <div>
 
-              <h3 class="text-lg font-semibold text-white">
+              <h3 class="text-lg font-semibold text-[var(--text)]">
                 About the System
               </h3>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Overview of the ENHS Leave System
               </p>
 
@@ -531,9 +502,9 @@
           </div>
 
 
-          <div class="bg-[#0d1520] border border-[#1e293b] rounded-xl p-5">
+          <div class="bg-[var(--surface-muted)] border border-[#c8d8eb] rounded-xl p-5">
 
-            <p class="text-sm text-gray-400 leading-7">
+            <p class="text-sm text-[var(--text-muted)] leading-7">
 
               The ENHS Leave System is a web-based Leave Management System
               developed for Echague National High School. It provides a
@@ -550,17 +521,15 @@
         </section>
 
 
-        <!-- Features -->
-
         <section class="mb-10">
 
           <div class="mb-5">
 
-            <h3 class="text-lg font-semibold text-white">
+            <h3 class="text-lg font-semibold text-[var(--text)]">
               System Features
             </h3>
 
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Main functions available in the ENHS Leave System
             </p>
 
@@ -570,22 +539,22 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <User class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Employee Account Management
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   Manage employee accounts and authorized access to the system.
                 </p>
 
@@ -595,22 +564,22 @@
 
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <FileText class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Online Leave Application
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   Submit and monitor leave applications through the system.
                 </p>
 
@@ -620,22 +589,22 @@
 
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <FileText class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Leave Credit Management
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   View and manage employee leave credits and balances.
                 </p>
 
@@ -645,22 +614,22 @@
 
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <FileText class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Attendance Records
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   Maintain and access employee attendance information.
                 </p>
 
@@ -670,22 +639,22 @@
 
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <FileText class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Reports
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   Generate organized reports based on available system records.
                 </p>
 
@@ -695,22 +664,22 @@
 
 
             <div
-              class="flex gap-4 p-5 border border-[#1e293b] rounded-xl hover:border-blue-500/40 hover:bg-blue-500/5 transition"
+              class="flex gap-4 p-5 border border-[#c8d8eb] rounded-xl hover:border-blue-300 hover:bg-blue-50 transition"
             >
 
               <div
-                class="w-10 h-10 shrink-0 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
               >
                 <Settings class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h4 class="font-semibold text-white">
+                <h4 class="font-semibold text-[var(--text)]">
                   Activity Monitoring
                 </h4>
 
-                <p class="text-sm text-gray-400 mt-1 leading-6">
+                <p class="text-sm text-[var(--text-muted)] mt-1 leading-6">
                   Monitor relevant system activities and records for accountability.
                 </p>
 
@@ -723,29 +692,27 @@
         </section>
 
 
-        <!-- Organization + Users -->
-
         <section class="mb-10">
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            <div class="border border-[#1e293b] rounded-xl p-6">
+            <div class="border border-[#c8d8eb] rounded-xl p-6">
 
               <div class="flex items-center gap-3 mb-5">
 
                 <div
-                  class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                  class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
                 >
                   <Info class="w-5 h-5" />
                 </div>
 
                 <div>
 
-                  <h3 class="font-semibold text-white">
+                  <h3 class="font-semibold text-[var(--text)]">
                     Organization
                   </h3>
 
-                  <p class="text-sm text-gray-400">
+                  <p class="text-sm text-[var(--text-muted)]">
                     Intended school environment
                   </p>
 
@@ -754,11 +721,11 @@
               </div>
 
 
-              <h4 class="font-medium text-white">
+              <h4 class="font-medium text-[var(--text)]">
                 Echague National High School
               </h4>
 
-              <p class="text-sm text-gray-400 leading-6 mt-2">
+              <p class="text-sm text-[var(--text-muted)] leading-6 mt-2">
 
                 The system is intended to support the school's employee
                 leave and attendance management processes by providing
@@ -769,23 +736,23 @@
             </div>
 
 
-            <div class="border border-[#1e293b] rounded-xl p-6">
+            <div class="border border-[#c8d8eb] rounded-xl p-6">
 
               <div class="flex items-center gap-3 mb-5">
 
                 <div
-                  class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"
+                  class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"
                 >
                   <User class="w-5 h-5" />
                 </div>
 
                 <div>
 
-                  <h3 class="font-semibold text-white">
+                  <h3 class="font-semibold text-[var(--text)]">
                     System Users
                   </h3>
 
-                  <p class="text-sm text-gray-400">
+                  <p class="text-sm text-[var(--text-muted)]">
                     Authorized users of the system
                   </p>
 
@@ -798,9 +765,9 @@
 
                 <div class="flex items-center gap-3">
 
-                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
 
-                  <span class="text-sm text-gray-300">
+                  <span class="text-sm text-[var(--text-muted)]">
                     Administrator / ADAS
                   </span>
 
@@ -809,9 +776,9 @@
 
                 <div class="flex items-center gap-3">
 
-                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
 
-                  <span class="text-sm text-gray-300">
+                  <span class="text-sm text-[var(--text-muted)]">
                     Teaching Employees
                   </span>
 
@@ -820,9 +787,9 @@
 
                 <div class="flex items-center gap-3">
 
-                  <span class="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
 
-                  <span class="text-sm text-gray-300">
+                  <span class="text-sm text-[var(--text-muted)]">
                     Non-Teaching Employees
                   </span>
 
@@ -837,17 +804,15 @@
         </section>
 
 
-        <!-- Purpose -->
-
         <section class="mb-10">
 
-          <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
 
-            <h3 class="text-lg font-semibold text-white mb-2">
+            <h3 class="text-lg font-semibold text-[var(--text)] mb-2">
               Purpose of the System
             </h3>
 
-            <p class="text-sm text-gray-300 leading-7">
+            <p class="text-sm text-[var(--text-muted)] leading-7">
 
               The ENHS Leave System aims to provide a centralized platform
               for managing employee leave applications, attendance records,
@@ -863,54 +828,52 @@
         </section>
 
 
-        <!-- System Details -->
-
         <section class="mb-10">
 
-          <h3 class="text-lg font-semibold text-white mb-1">
+          <h3 class="text-lg font-semibold text-[var(--text)] mb-1">
             System Details
           </h3>
 
-          <p class="text-sm text-gray-400 mb-5">
+          <p class="text-sm text-[var(--text-muted)] mb-5">
             Basic information about the system
           </p>
 
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            <div class="border border-[#1e293b] rounded-xl p-5">
+            <div class="border border-[#c8d8eb] rounded-xl p-5">
 
-              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
                 System Name
               </p>
 
-              <p class="font-semibold text-white mt-2">
+              <p class="font-semibold text-[var(--text)] mt-2">
                 ENHS Leave System
               </p>
 
             </div>
 
 
-            <div class="border border-[#1e293b] rounded-xl p-5">
+            <div class="border border-[#c8d8eb] rounded-xl p-5">
 
-              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
                 System Type
               </p>
 
-              <p class="font-semibold text-white mt-2">
+              <p class="font-semibold text-[var(--text)] mt-2">
                 Web-Based Leave Management System
               </p>
 
             </div>
 
 
-            <div class="border border-[#1e293b] rounded-xl p-5">
+            <div class="border border-[#c8d8eb] rounded-xl p-5">
 
-              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide">
                 Primary Users
               </p>
 
-              <p class="font-semibold text-white mt-2">
+              <p class="font-semibold text-[var(--text)] mt-2">
                 Administrators and Employees
               </p>
 
@@ -921,29 +884,27 @@
         </section>
 
 
-        <!-- Privacy & Security -->
-
         <section>
 
           <div
-            class="border border-blue-500/20 bg-blue-500/10 rounded-xl p-6"
+            class="border border-blue-200 bg-blue-50 rounded-xl p-6"
           >
 
             <div class="flex items-start gap-4">
 
               <div
-                class="w-10 h-10 shrink-0 bg-[#111d2e] text-blue-400 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 shrink-0 bg-white text-blue-600 rounded-lg flex items-center justify-center border border-blue-100"
               >
                 <Settings class="w-5 h-5" />
               </div>
 
               <div>
 
-                <h3 class="text-lg font-semibold text-white">
+                <h3 class="text-lg font-semibold text-[var(--text)]">
                   Privacy & Security
                 </h3>
 
-                <p class="text-sm text-gray-300 leading-7 mt-2">
+                <p class="text-sm text-[var(--text-muted)] leading-7 mt-2">
 
                   The ENHS Leave System is designed to protect employee
                   information and restrict access to authorized users.
@@ -967,21 +928,17 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- LOGOUT -->
-    <!-- ========================================================= -->
-
     <div class="neo-card p-6">
 
       <div class="flex items-center justify-between">
 
         <div>
 
-          <h3 class="text-lg font-medium text-white">
+          <h3 class="text-lg font-medium text-[var(--text)]">
             Sign Out
           </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Sign out of your account and return to login page
           </p>
 
@@ -1028,10 +985,6 @@ import { getLeaveSettings } from '@/services/leaveSettings'
 
 const router = useRouter()
 
-/* =========================================================
-   SETTINGS NAVIGATION
-========================================================= */
-
 const activeTab = ref('account')
 
 const settingsTabs = [
@@ -1056,12 +1009,6 @@ const settingsTabs = [
     icon: Info
   }
 ]
-
-/* =========================================================
-   ACCOUNT SETTINGS
-   Employee profile fields now live in Profile.vue; this view
-   only tracks the current values needed for the Account tab.
-========================================================= */
 
 const accountSettings = ref({
   email: {
@@ -1088,10 +1035,6 @@ const accountSettings = ref({
   }
 })
 
-/* =========================================================
-   LOAD CURRENT ACCOUNT VALUES
-========================================================= */
-
 const loadAccountInfo = async () => {
   try {
     const data = await getMyProfile()
@@ -1103,10 +1046,6 @@ const loadAccountInfo = async () => {
     console.error('Failed to load account info:', error)
   }
 }
-
-/* =========================================================
-   EMAIL
-========================================================= */
 
 const updateEmail = async () => {
   const newEmail =
@@ -1145,10 +1084,6 @@ const updateEmail = async () => {
     }
   }
 }
-
-/* =========================================================
-   PASSWORD
-========================================================= */
 
 const showCurrentPassword = ref(false)
 const showNewPassword = ref(false)
@@ -1224,10 +1159,6 @@ const updatePassword = async () => {
   }
 }
 
-/* =========================================================
-   PHONE
-========================================================= */
-
 const updatePhone = async () => {
 
   const newPhone =
@@ -1260,28 +1191,12 @@ const updatePhone = async () => {
   }
 }
 
-/* =========================================================
-   POSITION REQUEST
-========================================================= */
-
 const updatePosition = () => {
-
-  /*
-   * Position is controlled by the administrator.
-   * Employees cannot directly change their position.
-   *
-   * This currently acts as a placeholder for a future
-   * position-change request workflow.
-   */
 
   alert(
     'Position changes must be requested through the administrator.'
   )
 }
-
-/* =========================================================
-   LEAVE RULES
-========================================================= */
 
 const leaveRules = ref({
   minimum_notice_days: 0,
@@ -1327,10 +1242,6 @@ const loadLeaveRules = async () => {
 
   }
 }
-
-/* =========================================================
-   FAQ
-========================================================= */
 
 const expandedFAQ = ref<number | null>(null)
 
@@ -1381,10 +1292,6 @@ const toggleFAQ = (id: number) => {
 
 }
 
-/* =========================================================
-   LOGOUT
-========================================================= */
-
 const logout = () => {
 
   localStorage.removeItem('token')
@@ -1392,10 +1299,6 @@ const logout = () => {
   router.push('/login')
 
 }
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
 
 onMounted(async () => {
 
@@ -1409,19 +1312,19 @@ onMounted(async () => {
 
 <style scoped>
 .settings-shell {
-  background: #080d14;
+  background: var(--app-bg);
 }
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 26px rgba(23, 32, 51, 0.09);
 }
 
 .stats-card {
@@ -1439,4 +1342,21 @@ onMounted(async () => {
 .neo-card button {
   letter-spacing: -0.01em;
 }
+
+.field-editable {
+  background: var(--surface-muted);
+  color: var(--text);
+  border-color: #c8d8eb;
+}
+
+.field-editable::placeholder {
+  color: #94a3b8;
+}
+
+.field-editable:focus {
+  outline: none;
+  border-color: #7aa7e8;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
 </style>
+
