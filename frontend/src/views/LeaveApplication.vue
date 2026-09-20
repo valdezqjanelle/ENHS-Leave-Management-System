@@ -2,7 +2,7 @@
   <div class="dashboard-shell min-h-screen w-full px-4 sm:px-6 lg:px-8 py-8">
 
     
-    <div class="neo-card w-full max-w-none mx-auto overflow-hidden">
+    <div class="neo-card w-full max-w-5xl mx-auto overflow-hidden">
 
       
       <div class="px-6 py-5 border-b border-slate-200">
@@ -1449,7 +1449,6 @@ const resetForm = () => {
 
   
   width: 100%;
-  max-width: none;
 
   box-shadow:
     0 8px 24px rgba(23, 32, 51, 0.07);
@@ -1526,19 +1525,21 @@ const resetForm = () => {
 .input-field {
   width: 100%;
 
+  max-width: 100%;
+
   min-width: 0;
 
   border: 1px solid #c7d2e0;
 
   border-radius: 0.65rem;
 
-  padding: 0.7rem 0.85rem;
+  padding: 0.6rem 0.75rem;
 
   background: #ffffff;
 
   color: var(--text);
 
-  font-size: 1rem;
+  font-size: 0.9375rem;
 
   outline: none;
 

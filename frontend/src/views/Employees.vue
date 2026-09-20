@@ -1,4 +1,3 @@
-
 <template>
   <div class="w-full min-h-screen">
     <div
@@ -23,7 +22,7 @@
           >
             <button
               @click="openDeletedEmployees"
-              class="bg-slate-600 hover:bg-slate-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
+              class="bg-red-600 hover:bg-slate-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
             >
               Deleted Employees
             </button>
@@ -57,6 +56,15 @@
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+
+          <button
+            @click="arrangeAlphabetically"
+            type="button"
+            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            title="Arrange employees alphabetically (A to Z)"
+          >
+            Arrange
+          </button>
         </div>
       </div>
 
@@ -1710,6 +1718,14 @@ interface Employee {
 const search = ref("");
 const statusFilter = ref("all");
 
+// When true, the employee list is arranged alphabetically (A → Z)
+// by last name, then first name, then middle name.
+const arranged = ref(false);
+
+const arrangeAlphabetically = () => {
+  arranged.value = true;
+};
+
 const employees = ref<Employee[]>([]);
 
 const deletedEmployees = ref<Employee[]>([]);
@@ -2075,7 +2091,7 @@ const viewEmployee = (employee: Employee) => {
 const filteredEmployees = computed(() => {
   const keyword = search.value.toLowerCase().trim();
 
-  return employees.value.filter((employee) => {
+  const result = employees.value.filter((employee) => {
     const firstName = employee.first_name?.toLowerCase() || "";
     const lastName = employee.last_name?.toLowerCase() || "";
     const middleName = employee.middle_name?.toLowerCase() || "";
@@ -2111,6 +2127,29 @@ const filteredEmployees = computed(() => {
       statusFilter.value === "all" || employmentStatus === statusFilter.value;
 
     return matchesSearch && matchesStatus;
+  });
+
+  // Only sort once the Arrange button has been clicked; otherwise
+  // keep the original (e.g. load/creation) order.
+  if (!arranged.value) {
+    return result;
+  }
+
+  // Sort alphabetically A → Z by last name, then first name, then middle name.
+  return [...result].sort((a, b) => {
+    const aName = `${a.last_name || ""} ${a.first_name || ""} ${
+      a.middle_name || ""
+    }`
+      .trim()
+      .toLowerCase();
+
+    const bName = `${b.last_name || ""} ${b.first_name || ""} ${
+      b.middle_name || ""
+    }`
+      .trim()
+      .toLowerCase();
+
+    return aName.localeCompare(bName);
   });
 });
 

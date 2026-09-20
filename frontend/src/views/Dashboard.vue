@@ -325,7 +325,7 @@
 
             <div
               v-if="pieChartData.length"
-              class="flex flex-col md:flex-row items-center justify-center gap-8"
+              class="flex flex-col md:flex-row items-center justify-center gap-1"
             >
 
               <div class="relative flex-shrink-0">
@@ -347,13 +347,13 @@
                   <circle
                     cx="100"
                     cy="100"
-                    r="45"
+                    r="35"
                     fill="#0B1420"
                   />
 
                   <text
                     x="100"
-                    y="94"
+                    y="100"
                     text-anchor="middle"
                     fill="white"
                     font-size="20"
@@ -381,17 +381,17 @@
                 <div
                   v-for="item in pieChartData"
                   :key="item.name"
-                  class="flex items-center justify-between gap-6"
+                  class="flex items-center justify-between gap-0"
                 >
 
                   <div class="flex items-center min-w-0">
 
                     <span
-                      class="w-3 h-3 rounded-full mr-3 flex-shrink-0"
+                      class="w-2 h-3 rounded-full mr-3 flex-shrink-0"
                       :style="{ backgroundColor: item.color }"
                     ></span>
 
-                    <span class="text-sm text-gray-300 truncate">
+                    <span class="text-sm text-black truncate">
                       {{ item.name }}
                     </span>
 
@@ -403,7 +403,7 @@
                       {{ item.value }}
                     </span>
 
-                    <span class="text-xs text-gray-500 ml-1">
+                    <span class="text-xs text-black ml-1">
                       ({{ item.percentage }}%)
                     </span>
 
@@ -417,7 +417,7 @@
 
             <div
               v-else
-              class="h-80 flex items-center justify-center text-gray-400"
+              class="h-80 flex items-center justify-center text-black"
             >
               No leave type data available.
             </div>

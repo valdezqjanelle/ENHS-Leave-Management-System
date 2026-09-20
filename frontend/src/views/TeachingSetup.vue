@@ -12,21 +12,25 @@
     <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <form v-if="tab==='Grade Levels'" @submit.prevent="saveGrade" class="grid gap-3 md:grid-cols-5">
         <input v-model.trim="gradeForm.grade_name" required placeholder="Grade name" class="control" />
-        <select v-model="gradeForm.level" class="control"><option>JHS</option><option>SHS</option></select>
+        <select v-model="gradeForm.level" class="control"><option>All</option><option>JHS</option><option>SHS</option></select>
         <input v-model.number="gradeForm.sort_order" type="number" min="0" class="control" placeholder="Order" />
         <label class="check"><input v-model="gradeForm.is_active" type="checkbox" /> Active</label>
         <button class="primary">{{ gradeForm.grade_level_id ? 'Save Changes' : 'Add Grade Level' }}</button>
       </form>
 
       <form v-if="tab==='Sections'" @submit.prevent="saveSection" class="grid gap-3 md:grid-cols-4">
-        <select v-model.number="sectionForm.grade_level_id" required class="control"><option :value="null">Select grade</option><option v-for="g in setup.grade_levels" :key="g.grade_level_id" :value="g.grade_level_id">{{ g.grade_name }} ({{ g.level }})</option></select>
+        <select v-model="sectionForm.grade_level_id" required class="control">
+          <option :value="'All'">All grades</option>
+          <option :value="null" disabled>Select grade</option>
+          <option v-for="g in setup.grade_levels" :key="g.grade_level_id" :value="g.grade_level_id">{{ g.grade_name }} ({{ g.level }})</option>
+        </select>
         <input v-model.trim="sectionForm.section_name" required placeholder="Section name" class="control" />
         <label class="check"><input v-model="sectionForm.is_active" type="checkbox" /> Active</label>
         <button class="primary">{{ sectionForm.section_id ? 'Save Changes' : 'Add Section' }}</button>
       </form>
 
       <form v-if="tab==='Subjects'" @submit.prevent="saveSubject" class="grid gap-3 md:grid-cols-5">
-        <select v-model="subjectForm.level" class="control"><option>JHS</option><option>SHS</option></select>
+        <select v-model="subjectForm.level" class="control"><option>All</option><option>JHS</option><option>SHS</option></select>
         <select v-model.number="subjectForm.department_id" required class="control"><option :value="null">{{ subjectForm.level==='SHS' ? 'Select track / strand' : 'Select subject area' }}</option><option v-for="d in filteredDepartments" :key="d.department_id" :value="d.department_id">{{ d.department_name }}</option></select>
         <input v-model.trim="subjectForm.subject_name" required placeholder="Subject / specialization" class="control" />
         <label class="check"><input v-model="subjectForm.is_active" type="checkbox" /> Active</label>
@@ -45,6 +49,9 @@
               <td class="p-3"><span :class="item.is_active?'text-green-700':'text-slate-500'">{{ item.is_active ? 'Active' : 'Inactive' }}</span></td>
               <td class="p-3 text-right space-x-2"><button @click="editItem(item)" class="secondary">Edit</button><button @click="removeItem(item)" class="danger">Remove</button></td>
             </tr>
+            <tr v-if="!visibleItems.length">
+              <td colspan="4" class="p-6 text-center text-slate-400">No items found for this level.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -62,11 +69,31 @@ const tab = ref<(typeof tabs)[number]>('Grade Levels');
 const loading = ref(false);
 const setup = ref<any>({grade_levels:[],subjects:[]});
 const departments = ref<any[]>([]);
-const gradeForm = ref<any>({grade_level_id:null,grade_name:'',level:'JHS',sort_order:0,is_active:true});
-const sectionForm = ref<any>({section_id:null,grade_level_id:null,section_name:'',is_active:true});
-const subjectForm = ref<any>({subject_id:null,department_id:null,subject_name:'',level:'JHS',is_active:true});
+const gradeForm = ref<any>({grade_level_id:null,grade_name:'',level:'All',sort_order:0,is_active:true});
+const sectionForm = ref<any>({section_id:null,grade_level_id:'All',section_name:'',is_active:true});
+const subjectForm = ref<any>({subject_id:null,department_id:null,subject_name:'',level:'All',is_active:true});
+
 const sections = computed(() => setup.value.grade_levels.flatMap((g:any)=>(g.sections||[]).map((s:any)=>({...s,grade_level:g}))));
-const visibleItems = computed(() => tab.value==='Grade Levels'?setup.value.grade_levels:tab.value==='Sections'?sections.value:setup.value.subjects);
+
+// The form's own "level"/"grade" dropdown doubles as the table filter.
+// 'All' shows everything unfiltered; any other value filters the list.
+const visibleItems = computed(() => {
+  if (tab.value === 'Grade Levels') {
+    return gradeForm.value.level === 'All'
+      ? setup.value.grade_levels
+      : setup.value.grade_levels.filter((g:any) => g.level === gradeForm.value.level);
+  }
+  if (tab.value === 'Subjects') {
+    return subjectForm.value.level === 'All'
+      ? setup.value.subjects
+      : setup.value.subjects.filter((s:any) => s.level === subjectForm.value.level);
+  }
+  // Sections
+  return sectionForm.value.grade_level_id === 'All'
+    ? sections.value
+    : sections.value.filter((s:any) => s.grade_level_id === sectionForm.value.grade_level_id);
+});
+
 const filteredDepartments = computed(()=>departments.value.filter(d=>d.level===subjectForm.value.level));
 watch(() => subjectForm.value.level, (level) => {
   const selected = departments.value.find((department:any) => department.department_id === subjectForm.value.department_id);
@@ -75,9 +102,20 @@ watch(() => subjectForm.value.level, (level) => {
 
 const errorMessage=(error:any)=>error?.response?.data?.message||Object.values(error?.response?.data?.errors||{}).flat()[0]||'The operation could not be completed.';
 async function load(){loading.value=true;try{[setup.value,departments.value]=await Promise.all([getTeachingSetup(),getDepartments()]);}catch(error){alert(errorMessage(error));}finally{loading.value=false;}}
-async function saveGrade(){try{const f=gradeForm.value; f.grade_level_id?await updateGradeLevel(f.grade_level_id,f):await createGradeLevel(f); gradeForm.value={grade_level_id:null,grade_name:'',level:'JHS',sort_order:0,is_active:true};await load();}catch(error){alert(errorMessage(error));}}
-async function saveSection(){try{const f=sectionForm.value; f.section_id?await updateSection(f.section_id,f):await createSection(f);sectionForm.value={section_id:null,grade_level_id:null,section_name:'',is_active:true};await load();}catch(error){alert(errorMessage(error));}}
-async function saveSubject(){try{const f=subjectForm.value; f.subject_id?await updateSubject(f.subject_id,f):await createSubject(f);subjectForm.value={subject_id:null,department_id:null,subject_name:'',level:'JHS',is_active:true};await load();}catch(error){alert(errorMessage(error));}}
+
+async function saveGrade(){
+  if (gradeForm.value.level === 'All') { alert('Please choose JHS or SHS for this grade level (not "All").'); return; }
+  try{const f=gradeForm.value; f.grade_level_id?await updateGradeLevel(f.grade_level_id,f):await createGradeLevel(f); gradeForm.value={grade_level_id:null,grade_name:'',level:f.level,sort_order:0,is_active:true};await load();}catch(error){alert(errorMessage(error));}
+}
+async function saveSection(){
+  if (sectionForm.value.grade_level_id === 'All') { alert('Please choose a specific grade for this section (not "All").'); return; }
+  try{const f=sectionForm.value; f.section_id?await updateSection(f.section_id,f):await createSection(f);sectionForm.value={section_id:null,grade_level_id:f.grade_level_id,section_name:'',is_active:true};await load();}catch(error){alert(errorMessage(error));}
+}
+async function saveSubject(){
+  if (subjectForm.value.level === 'All') { alert('Please choose JHS or SHS for this subject (not "All").'); return; }
+  try{const f=subjectForm.value; f.subject_id?await updateSubject(f.subject_id,f):await createSubject(f);subjectForm.value={subject_id:null,department_id:null,subject_name:'',level:f.level,is_active:true};await load();}catch(error){alert(errorMessage(error));}
+}
+
 function editItem(i:any){if(tab.value==='Grade Levels')gradeForm.value={...i};else if(tab.value==='Sections')sectionForm.value={section_id:i.section_id,grade_level_id:i.grade_level_id,section_name:i.section_name,is_active:i.is_active};else subjectForm.value={...i};}
 async function removeItem(i:any){if(!confirm(`Remove ${itemName(i)}?`))return;try{if(tab.value==='Grade Levels')await deleteGradeLevel(i.grade_level_id);else if(tab.value==='Sections')await deleteSection(i.section_id);else await deleteSubject(i.subject_id);await load();}catch(error){alert(errorMessage(error));}}
 const itemKey=(i:any)=>i.grade_level_id??i.section_id??i.subject_id;

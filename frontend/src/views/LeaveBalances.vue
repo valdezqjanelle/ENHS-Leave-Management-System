@@ -1,4 +1,3 @@
-
 <template>
   <div class="dashboard-shell min-h-screen p-8">
     <div class="dashboard-content w-full space-y-6">
@@ -8,13 +7,26 @@
       <!-- ===================================================== -->
 
       <div class="neo-card w-full p-6">
-        <h2 class="text-2xl font-bold text-white">
-          Leave Balances
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white">
+              Leave Balances
+            </h2>
 
-        <p class="text-gray-400 mt-1">
-          View and manage employee leave balances.
-        </p>
+            <p class="text-gray-400 mt-1">
+              View and manage employee leave balances.
+            </p>
+          </div>
+
+          <button
+            @click="arrangeAlphabetically"
+            type="button"
+            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            title="Arrange employees alphabetically (A to Z)"
+          >
+            Arrange
+          </button>
+        </div>
       </div>
 
       <!-- ===================================================== -->
@@ -72,7 +84,7 @@
             <tbody>
 
               <tr
-                v-for="balance in balances"
+                v-for="balance in displayedBalances"
                 :key="balance.employee_id"
                 class="balance-row"
               >
@@ -166,7 +178,7 @@
               <!-- EMPTY STATE -->
               <!-- ================================================= -->
 
-              <tr v-if="balances.length === 0">
+              <tr v-if="displayedBalances.length === 0">
 
                 <td
                   colspan="7"
@@ -345,7 +357,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
 
@@ -384,6 +396,40 @@ interface LeaveBalance {
    ============================================================ */
 
 const balances = ref<LeaveBalance[]>([]);
+
+// When true, the table is arranged alphabetically (A → Z) by
+// the employee's last name, then first name.
+const arranged = ref(false);
+
+const arrangeAlphabetically = () => {
+  arranged.value = true;
+};
+
+const displayedBalances = computed(() => {
+
+  if (!arranged.value) {
+    return balances.value;
+  }
+
+  return [...balances.value].sort((a, b) => {
+
+    const aName = `${a.employee?.last_name || ""} ${
+      a.employee?.first_name || ""
+    }`
+      .trim()
+      .toLowerCase();
+
+    const bName = `${b.employee?.last_name || ""} ${
+      b.employee?.first_name || ""
+    }`
+      .trim()
+      .toLowerCase();
+
+    return aName.localeCompare(bName);
+
+  });
+
+});
 
 const showModal = ref(false);
 
@@ -864,6 +910,15 @@ onMounted(() => {
   color: var(--text) !important;
 }
 
+/*
+ * Buttons (e.g. the Arrange button) should always keep white
+ * label text, even inside a .neo-card where the rule above
+ * would otherwise repaint text-white to the theme text color.
+ */
+.neo-card button.text-white {
+  color: #ffffff !important;
+}
+
 
 .neo-card .text-gray-300,
 .neo-card .text-gray-400,
@@ -1337,4 +1392,3 @@ button {
 }
 
 </style>
-
