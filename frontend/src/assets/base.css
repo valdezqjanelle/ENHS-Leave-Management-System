@@ -54,6 +54,18 @@
   }
 }
 
+.dark {
+  --color-background: #0a0e27;
+  --color-background-soft: #151b3d;
+  --color-background-mute: #1e254a;
+
+  --color-border: #2d3748;
+  --color-border-hover: #4a5568;
+
+  --color-heading: #e2e8f0;
+  --color-text: #cbd5e1;
+}
+
 *,
 *::before,
 *::after {

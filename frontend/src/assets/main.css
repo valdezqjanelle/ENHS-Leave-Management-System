@@ -18,6 +18,24 @@
   --focus-ring: rgba(29, 78, 216, 0.2);
 }
 
+.dark {
+  --app-bg: #0a0e27;
+  --surface: #151b3d;
+  --surface-muted: #1e254a;
+  --surface-soft: #1a2144;
+  --sidebar: #0d1229;
+  --sidebar-hover: #151b3d;
+  --primary: #60a5fa;
+  --primary-hover: #3b82f6;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #2d3748;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --focus-ring: rgba(96, 165, 250, 0.3);
+}
+
 *,
 *::before,
 *::after {
@@ -41,6 +59,7 @@ body {
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -58,4 +77,5539 @@ textarea {
 :focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+/* Text color based on background color */
+.bg-white {
+  color: #000000 !important;
+}
+
+.bg-black {
+  color: #ffffff !important;
+}
+
+/* Support for elements with inline background colors */
+[style*="background: #ffffff"],
+[style*="background: #fff"],
+[style*="background: white"],
+[style*="background-color: #ffffff"],
+[style*="background-color: #fff"],
+[style*="background-color: white"] {
+  color: #000000 !important;
+}
+
+[style*="background: #000000"],
+[style*="background: #000"],
+[style*="background: black"],
+[style*="background-color: #000000"],
+[style*="background-color: #000"],
+[style*="background-color: black"] {
+  color: #ffffff !important;
+}
+
+/* Support for CSS variables set to white or black */
+[style*="background: var(--vt-c-white)"],
+[style*="background-color: var(--vt-c-white)"],
+[style*="background: var(--surface)"],
+[style*="background-color: var(--surface)"] {
+  color: #000000 !important;
+}
+
+[style*="background: var(--vt-c-black)"],
+[style*="background-color: var(--vt-c-black)"] {
+  color: #ffffff !important;
+}
+
+/* Prevent gray text on white backgrounds */
+.bg-white *,
+.bg-white *::before,
+.bg-white *::after {
+  color: #000000 !important;
+}
+
+[style*="background: #ffffff"] *,
+[style*="background: #fff"] *,
+[style*="background: white"] *,
+[style*="background-color: #ffffff"] *,
+[style*="background-color: #fff"] *,
+[style*="background-color: white"] *,
+[style*="background: var(--vt-c-white)"] *,
+[style*="background-color: var(--vt-c-white)"] *,
+[style*="background: var(--surface)"] *,
+[style*="background-color: var(--surface)"] * {
+  color: #000000 !important;
+}
+
+/* Override gray text colors on white backgrounds */
+.bg-white .text-gray-400,
+.bg-white .text-gray-500,
+.bg-white .text-gray-600,
+.bg-white .text-gray-700,
+.bg-white .text-gray-800,
+.bg-white .text-gray-900,
+.bg-white .text-slate-400,
+.bg-white .text-slate-500,
+.bg-white .text-slate-600,
+.bg-white .text-slate-700,
+.bg-white .text-slate-800,
+.bg-white .text-slate-900,
+.bg-white [style*="color: #6b7280"],
+.bg-white [style*="color: #9ca3af"],
+.bg-white [style*="color: #d1d5db"],
+.bg-white [style*="color: #4b5563"],
+.bg-white [style*="color: #374151"],
+.bg-white [style*="color: #1f2937"],
+.bg-white [style*="color: #111827"] {
+  color: #000000 !important;
+}
+
+[style*="background: #ffffff"] .text-gray-400,
+[style*="background: #ffffff"] .text-gray-500,
+[style*="background: #ffffff"] .text-gray-600,
+[style*="background: #ffffff"] .text-gray-700,
+[style*="background: #ffffff"] .text-gray-800,
+[style*="background: #ffffff"] .text-gray-900,
+[style*="background: #ffffff"] .text-slate-400,
+[style*="background: #ffffff"] .text-slate-500,
+[style*="background: #ffffff"] .text-slate-600,
+[style*="background: #ffffff"] .text-slate-700,
+[style*="background: #ffffff"] .text-slate-800,
+[style*="background: #ffffff"] .text-slate-900,
+[style*="background: #ffffff"] [style*="color: #6b7280"],
+[style*="background: #ffffff"] [style*="color: #9ca3af"],
+[style*="background: #ffffff"] [style*="color: #d1d5db"],
+[style*="background: #ffffff"] [style*="color: #4b5563"],
+[style*="background: #ffffff"] [style*="color: #374151"],
+[style*="background: #ffffff"] [style*="color: #1f2937"],
+[style*="background: #ffffff"] [style*="color: #111827"],
+[style*="background-color: #ffffff"] .text-gray-400,
+[style*="background-color: #ffffff"] .text-gray-500,
+[style*="background-color: #ffffff"] .text-gray-600,
+[style*="background-color: #ffffff"] .text-gray-700,
+[style*="background-color: #ffffff"] .text-gray-800,
+[style*="background-color: #ffffff"] .text-gray-900,
+[style*="background-color: #ffffff"] .text-slate-400,
+[style*="background-color: #ffffff"] .text-slate-500,
+[style*="background-color: #ffffff"] .text-slate-600,
+[style*="background-color: #ffffff"] .text-slate-700,
+[style*="background-color: #ffffff"] .text-slate-800,
+[style*="background-color: #ffffff"] .text-slate-900,
+[style*="background-color: #ffffff"] [style*="color: #6b7280"],
+[style*="background-color: #ffffff"] [style*="color: #9ca3af"],
+[style*="background-color: #ffffff"] [style*="color: #d1d5db"],
+[style*="background-color: #ffffff"] [style*="color: #4b5563"],
+[style*="background-color: #ffffff"] [style*="color: #374151"],
+[style*="background-color: #ffffff"] [style*="color: #1f2937"],
+[style*="background-color: #ffffff"] [style*="color: #111827"] {
+  color: #000000 !important;
+}
+
+/* Override gray text colors on white backgrounds using CSS variables */
+[style*="background: var(--surface)"] .text-gray-400,
+[style*="background: var(--surface)"] .text-gray-500,
+[style*="background: var(--surface)"] .text-gray-600,
+[style*="background: var(--surface)"] .text-gray-700,
+[style*="background: var(--surface)"] .text-gray-800,
+[style*="background: var(--surface)"] .text-gray-900,
+[style*="background: var(--surface)"] .text-slate-400,
+[style*="background: var(--surface)"] .text-slate-500,
+[style*="background: var(--surface)"] .text-slate-600,
+[style*="background: var(--surface)"] .text-slate-700,
+[style*="background: var(--surface)"] .text-slate-800,
+[style*="background: var(--surface)"] .text-slate-900,
+[style*="background: var(--surface)"] [style*="color: #6b7280"],
+[style*="background: var(--surface)"] [style*="color: #9ca3af"],
+[style*="background: var(--surface)"] [style*="color: #d1d5db"],
+[style*="background: var(--surface)"] [style*="color: #4b5563"],
+[style*="background: var(--surface)"] [style*="color: #374151"],
+[style*="background: var(--surface)"] [style*="color: #1f2937"],
+[style*="background: var(--surface)"] [style*="color: #111827"],
+[style*="background-color: var(--surface)"] .text-gray-400,
+[style*="background-color: var(--surface)"] .text-gray-500,
+[style*="background-color: var(--surface)"] .text-gray-600,
+[style*="background-color: var(--surface)"] .text-gray-700,
+[style*="background-color: var(--surface)"] .text-gray-800,
+[style*="background-color: var(--surface)"] .text-gray-900,
+[style*="background-color: var(--surface)"] .text-slate-400,
+[style*="background-color: var(--surface)"] .text-slate-500,
+[style*="background-color: var(--surface)"] .text-slate-600,
+[style*="background-color: var(--surface)"] .text-slate-700,
+[style*="background-color: var(--surface)"] .text-slate-800,
+[style*="background-color: var(--surface)"] .text-slate-900,
+[style*="background-color: var(--surface)"] [style*="color: #6b7280"],
+[style*="background-color: var(--surface)"] [style*="color: #9ca3af"],
+[style*="background-color: var(--surface)"] [style*="color: #d1d5db"],
+[style*="background-color: var(--surface)"] [style*="color: #4b5563"],
+[style*="background-color: var(--surface)"] [style*="color: #374151"],
+[style*="background-color: var(--surface)"] [style*="color: #1f2937"],
+[style*="background-color: var(--surface)"] [style*="color: #111827"] {
+  color: #000000 !important;
+}
+
+/* Dark mode: Ensure white text on dark backgrounds */
+.dark .bg-black *,
+.dark .bg-black *::before,
+.dark .bg-black *::after {
+  color: #ffffff !important;
+}
+
+.dark [style*="background: #000000"] *,
+.dark [style*="background: #000"] *,
+.dark [style*="background: black"] *,
+.dark [style*="background-color: #000000"] *,
+.dark [style*="background-color: #000"] *,
+.dark [style*="background-color: black"] * {
+  color: #ffffff !important;
+}
+
+/* Dark mode specific styles */
+.dark body {
+  background: var(--app-bg);
+  color: var(--text);
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.dark button {
+  color: var(--text);
+}
+
+.dark a {
+  color: var(--primary);
+}
+
+.dark table {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dark th,
+.dark td {
+  border-color: var(--border);
+}
+
+.dark .card,
+.dark .surface {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark .bg-white {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="background: #ffffff"],
+.dark [style*="background: #fff"],
+.dark [style*="background: white"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color: white"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="background: var(--surface)"],
+.dark [style*="background-color: var(--surface)"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+/* Ensure text colors are readable in dark mode */
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-slate-400,
+.dark .text-slate-500,
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-800,
+.dark .text-slate-900 {
+  color: var(--text-muted) !important;
+}
+
+/* Override inline gray colors in dark mode */
+.dark [style*="color: #6b7280"],
+.dark [style*="color: #9ca3af"],
+.dark [style*="color: #d1d5db"],
+.dark [style*="color: #4b5563"],
+.dark [style*="color: #374151"],
+.dark [style*="color: #1f2937"],
+.dark [style*="color: #111827"] {
+  color: var(--text-muted) !important;
+}
+
+/* Scrollbar styling for dark mode */
+.dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark::-webkit-scrollbar-track {
+  background: var(--app-bg);
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Ensure all common UI elements respect dark mode */
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-gray-300,
+.dark .bg-gray-400,
+.dark .bg-gray-500 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-200,
+.dark .bg-slate-300 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-blue-100 {
+  background: rgba(96, 165, 250, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-green-50,
+.dark .bg-green-100 {
+  background: rgba(74, 222, 128, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-red-50,
+.dark .bg-red-100 {
+  background: rgba(248, 113, 113, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background: rgba(251, 191, 36, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-gray-400 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-blue-100 {
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+/* Override inline white backgrounds in dark mode */
+.dark [style*="background: white"],
+.dark [style*="background: #ffffff"],
+.dark [style*="background: #fff"],
+.dark [style*="background-color: white"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color: #fff"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+/* Override inline gray backgrounds in dark mode */
+.dark [style*="background: #f3f7fc"],
+.dark [style*="background-color: #f3f7fc"],
+.dark [style*="background: #f8fafc"],
+.dark [style*="background-color: #f8fafc"],
+.dark [style*="background: #f1f5f9"],
+.dark [style*="background-color: #f1f5f9"] {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+/* Override inline background with rgba white */
+.dark [style*="background: rgba(255"],
+.dark [style*="background-color: rgba(255"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+/* Override specific inline styles found in components */
+.dark [style*="background: #fffbeb"],
+.dark [style*="background-color: #fffbeb"] {
+  background: rgba(251, 191, 36, 0.1) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="border: #cbd8e8"],
+.dark [style*="border-color: #cbd8e8"],
+.dark [style*="border: #f1dfad"],
+.dark [style*="border-color: #f1dfad"] {
+  border-color: var(--border) !important;
+}
+
+/* Override text colors in dark mode */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700,
+.dark .text-slate-600,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: var(--text) !important;
+}
+
+.dark .text-slate-400,
+.dark .text-slate-500,
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-blue-600,
+.dark .text-blue-700 {
+  color: var(--primary) !important;
+}
+
+.dark .text-green-700 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-700 {
+  color: var(--danger) !important;
+}
+
+.dark .text-amber-700 {
+  color: var(--warning) !important;
+}
+
+/* Override inline text colors in dark mode */
+.dark [style*="color: #0f172a"],
+.dark [style*="color: #1e293b"],
+.dark [style*="color: #334155"],
+.dark [style*="color: #475569"],
+.dark [style*="color: #1f2937"],
+.dark [style*="color: #374151"],
+.dark [style*="color: #4b5563"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color: #94a3b8"],
+.dark [style*="color: #64748b"],
+.dark [style*="color: #6b7280"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="color: #2563eb"],
+.dark [style*="color: #1d4ed8"] {
+  color: var(--primary) !important;
+}
+
+.dark [style*="color: #15803d"] {
+  color: var(--success) !important;
+}
+
+.dark [style*="color: #b91c1c"] {
+  color: var(--danger) !important;
+}
+
+.dark [style*="color: #a16207"] {
+  color: var(--warning) !important;
+}
+
+/* Override input backgrounds in dark mode */
+.dark input[style*="background: white"],
+.dark input[style*="background: #ffffff"],
+.dark input[style*="background: #fff"],
+.dark select[style*="background: white"],
+.dark select[style*="background: #ffffff"],
+.dark select[style*="background: #fff"],
+.dark textarea[style*="background: white"],
+.dark textarea[style*="background: #ffffff"],
+.dark textarea[style*="background: #fff"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark input[style*="background: rgba(255"],
+.dark select[style*="background: rgba(255"],
+.dark textarea[style*="background: rgba(255"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark input[style*="background: #f8fafc"],
+.dark select[style*="background: #f8fafc"],
+.dark textarea[style*="background: #f8fafc"] {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark input[style*="background: #f3f7fc"],
+.dark select[style*="background: #f3f7fc"],
+.dark textarea[style*="background: #f3f7fc"] {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark input[style*="background: #f1f5f9"],
+.dark select[style*="background: #f1f5f9"],
+.dark textarea[style*="background: #f1f5f9"] {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+/* Override disabled backgrounds in dark mode */
+.dark input[style*="background: #f3f4f6"],
+.dark input[style*="background: #e5e7eb"],
+.dark select[style*="background: #f3f4f6"],
+.dark select[style*="background: #e5e7eb"] {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Override table backgrounds in dark mode */
+.dark table[style*="background: white"],
+.dark table[style*="background: #ffffff"],
+.dark table[style*="background: #fff"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-black {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .text-black {
+  color: var(--text) !important;
+}
+
+.dark .text-white {
+  color: var(--text) !important;
+}
+
+/* Override specific component classes */
+.dark .neo-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .table-wrapper {
+  background: var(--surface) !important;
+}
+
+.dark .employee-table,
+.dark .teaching-table {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .table-head {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .field-input {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .field-readonly {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .control {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .check {
+  color: var(--text) !important;
+}
+
+.dark .primary {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .secondary {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .danger {
+  background: rgba(248, 113, 113, 0.2) !important;
+  color: var(--danger) !important;
+}
+
+/* Override hover states in dark mode */
+.dark .hover\:bg-gray-50:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .hover\:bg-blue-50:hover {
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .hover\:bg-green-50:hover {
+  background: rgba(74, 222, 128, 0.15) !important;
+}
+
+.dark .hover\:bg-red-50:hover {
+  background: rgba(248, 113, 113, 0.15) !important;
+}
+
+.dark .hover\:bg-amber-50:hover {
+  background: rgba(251, 191, 36, 0.15) !important;
+}
+
+/* Override border colors in dark mode */
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: var(--border) !important;
+}
+
+.dark .border-blue-100 {
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .border-white {
+  border-color: var(--border) !important;
+}
+
+.dark .border-white\/40 {
+  border-color: rgba(45, 55, 72, 0.4) !important;
+}
+
+.dark .border-white\/50 {
+  border-color: rgba(45, 55, 72, 0.5) !important;
+}
+
+/* Override specific inline border colors */
+.dark [style*="border: 1px solid #cbd5e1"],
+.dark [style*="border: 1px solid #cbd8e8"],
+.dark [style*="border: 1px solid #d8e1ec"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: #cbd5e1"],
+.dark [style*="border-color: #cbd8e8"],
+.dark [style*="border-color: #d8e1ec"] {
+  border-color: var(--border) !important;
+}
+
+/* Override status badges in dark mode */
+.dark .bg-green-100 {
+  background: rgba(74, 222, 128, 0.15) !important;
+  color: var(--success) !important;
+}
+
+.dark .bg-slate-100 {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+.dark .bg-blue-100 {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: var(--primary) !important;
+}
+
+.dark .bg-red-100 {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: var(--danger) !important;
+}
+
+.dark .bg-amber-100 {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--warning) !important;
+}
+
+/* Override button colors in dark mode */
+.dark .bg-blue-600 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-blue-700 {
+  background: var(--primary-hover) !important;
+}
+
+.dark .bg-blue-500 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-red-600 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-red-700 {
+  background: #dc2626 !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-amber-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-amber-600 {
+  background: #d97706 !important;
+}
+
+.dark .bg-slate-600 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--border) !important;
+}
+
+.dark .bg-green-600 {
+  background: var(--success) !important;
+}
+
+.dark .bg-green-700 {
+  background: #16a34a !important;
+}
+
+/* Override hover button colors in dark mode */
+.dark .hover\:bg-blue-700:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .hover\:bg-blue-600:hover {
+  background: var(--primary) !important;
+}
+
+.dark .hover\:bg-red-700:hover {
+  background: #dc2626 !important;
+}
+
+.dark .hover\:bg-red-600:hover {
+  background: var(--danger) !important;
+}
+
+.dark .hover\:bg-amber-600:hover {
+  background: #d97706 !important;
+}
+
+.dark .hover\:bg-amber-500:hover {
+  background: var(--warning) !important;
+}
+
+.dark .hover\:bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark .hover\:bg-slate-600:hover {
+  background: var(--surface-muted) !important;
+}
+
+/* Override table row hover in dark mode */
+.dark tr.hover\:bg-\[\#eef4fb\]:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tr.hover\:bg-gray-50:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tr.hover\:bg-slate-50:hover {
+  background: var(--surface-muted) !important;
+}
+
+/* Override border-t colors in dark mode */
+.dark .border-t-\[\#cbd8e8\] {
+  border-color: var(--border) !important;
+}
+
+.dark .border-t-gray-200,
+.dark .border-t-slate-200 {
+  border-color: var(--border) !important;
+}
+
+/* Override placeholder colors in dark mode */
+.dark ::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Override specific inline styles with color codes */
+.dark [style*="color: #a16207"] {
+  color: var(--warning) !important;
+}
+
+.dark [style*="color: #1f2937"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color: #111827"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color: #000000"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color: black"] {
+  color: var(--text) !important;
+}
+
+/* Override backdrop blur backgrounds in dark mode */
+.dark [style*="backdrop-blur"] {
+  background: var(--surface) !important;
+  backdrop-filter: none !important;
+}
+
+.dark [style*="bg-white/15"] {
+  background: rgba(21, 27, 61, 0.5) !important;
+}
+
+.dark [style*="bg-white/50"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="bg-white/70"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="border-white/40"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-white/50"] {
+  border-color: var(--border) !important;
+}
+
+/* Override shadow colors in dark mode */
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Override ring colors in dark mode */
+.dark .focus\:ring-blue-500:focus {
+  --tw-ring-color: var(--primary) !important;
+}
+
+.dark .focus\:ring-2:focus {
+  --tw-ring-color: var(--primary) !important;
+}
+
+.dark .focus\:border-blue-500:focus {
+  border-color: var(--primary) !important;
+}
+
+/* Override specific hardcoded styles from TeachingSetup.vue */
+.dark [style*="background:white"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="color:#0f172a"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color:#334155"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="background:#2563eb"] {
+  background: var(--primary) !important;
+}
+
+.dark [style*="background:#e2e8f0"] {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="background:#fee2e2"] {
+  background: rgba(248, 113, 113, 0.2) !important;
+  color: var(--danger) !important;
+}
+
+.dark [style*="border:1px solid #cbd5e1"] {
+  border-color: var(--border) !important;
+}
+
+/* Additional dark mode overrides */
+.dark [style*="text-gray-900"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="placeholder-gray-600"] {
+  --tw-placeholder-color: var(--text-muted) !important;
+}
+
+.dark [style*="focus:bg-white/70"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="focus:ring-blue-500"] {
+  --tw-ring-color: var(--primary) !important;
+}
+
+.dark [style*="focus:outline-none"] {
+  outline-color: var(--primary) !important;
+}
+
+.dark [style*="border: 1px solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border:1px solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border: solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border:solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-black {
+  color: var(--text) !important;
+}
+
+.dark .bg-white.text-blue-600 {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .bg-white.text-blue-600.border.border-blue-100 {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .hover\:text-white:hover {
+  color: var(--text) !important;
+}
+
+.dark [style*="background: #f3f4f6"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background: #e5e7eb"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background-color: #f3f4f6"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background-color: #e5e7eb"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="color: #64748b"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="color: #94a3b8"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="color: #cbd5e1"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="border-color: #e5e7eb"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: #d1d5db"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: #e2e8f0"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="box-shadow"] {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .rounded-xl.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-2xl.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-lg.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-full.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .surface {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .department-item,
+.dark .leave-type-item,
+.dark .credit-summary-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+@media print {
+  .dark .dashboard-shell {
+    background: white !important;
+  }
+
+  .dark .neo-card,
+  .dark .card,
+  .dark .department-item,
+  .dark .leave-type-item,
+  .dark .credit-summary-card {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    color: black !important;
+  }
+}
+
+/* Override Dashboard.vue specific text colors */
+.dark .text-blue-800 {
+  color: var(--primary) !important;
+}
+
+.dark .text-yellow-800 {
+  color: var(--warning) !important;
+}
+
+/* LeaveApplication.vue specific overrides */
+.dark .form-label {
+  color: var(--text) !important;
+}
+
+.dark .input-field {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .input-field::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field:read-only {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .detail-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .option-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .checkbox-label {
+  color: var(--text) !important;
+}
+
+.dark .checkbox-input {
+  accent-color: var(--primary) !important;
+}
+
+.dark .credit-box {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .credit-item {
+  color: var(--text) !important;
+}
+
+.dark .credit-box .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .upload-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .upload-box:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .signature-box {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .signature-canvas {
+  background: var(--surface) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-slate-800 {
+  background: var(--border) !important;
+}
+
+.dark .text-slate-800 {
+  color: var(--text) !important;
+}
+
+.dark .border-slate-600 {
+  border-color: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800 {
+  background: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark button.bg-blue-500 {
+  background: var(--primary-hover) !important;
+  color: white !important;
+}
+
+.dark .success-modal {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .success-modal .text-white {
+  color: var(--text) !important;
+}
+
+.dark .success-modal .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .success-modal button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .success-modal button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark .success-modal button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .success-modal button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* MyApplications.vue specific overrides */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+  color: var(--text) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .dark-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .dark-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--focus-ring) !important;
+}
+
+.dark .table-header {
+  color: var(--text-muted) !important;
+}
+
+.dark .table-cell {
+  color: var(--text) !important;
+}
+
+.dark .btn-action.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .btn-action.bg-yellow-600 {
+  background: var(--warning) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-yellow-600:hover {
+  background: #d97706 !important;
+}
+
+.dark .status-approved {
+  background: rgba(74, 222, 128, 0.15) !important;
+  color: var(--success) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .status-pending {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--warning) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .status-disapproved {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: var(--danger) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+.dark .status-pr {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .status-default {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-section {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-title {
+  color: var(--text) !important;
+}
+
+.dark .modal-label {
+  color: var(--text-muted) !important;
+}
+
+.dark .modal-value {
+  color: var(--text) !important;
+}
+
+.dark .bg-\[\#0D1725\] {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-\[\#111D2E\] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0F1A2A\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0B1420\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-black\/70 {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.dark .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+.dark .hover\:bg-slate-800\/40:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .hover\:text-green-300:hover {
+  color: var(--success) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .hover\:text-red-300:hover {
+  color: var(--danger) !important;
+}
+
+.dark .bg-blue-500 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-800 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-800 {
+  color: var(--danger) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--text) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--text) !important;
+}
+
+/* Override Dashboard.vue specific backgrounds */
+.dark .bg-blue-500\/20 {
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .bg-yellow-500\/20 {
+  background: rgba(251, 191, 36, 0.2) !important;
+}
+
+.dark .bg-green-500\/20 {
+  background: rgba(74, 222, 128, 0.2) !important;
+}
+
+.dark .bg-red-500\/20 {
+  background: rgba(248, 113, 113, 0.2) !important;
+}
+
+.dark .bg-green-500\/10 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .bg-gray-500\/20 {
+  background: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Override table backgrounds in Dashboard */
+.dark table thead.bg-slate-50 {
+  background: var(--surface-muted) !important;
+}
+
+.dark table tbody tr td.text-white {
+  color: var(--text) !important;
+}
+
+/* Override upcoming leaves card */
+.dark .bg-green-50 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .bg-green-50 p.text-gray-800 {
+  color: var(--text) !important;
+}
+
+.dark .bg-green-50 p.text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+/* Override progress bar backgrounds */
+.dark .bg-gray-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* Override status badge text colors */
+.dark .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .text-yellow-300 {
+  color: var(--warning) !important;
+}
+
+.dark .text-green-300 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-300 {
+  color: var(--danger) !important;
+}
+
+.dark .text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+/* UNIVERSAL DARK MODE TEXT COLOR OVERRIDES */
+/* Force all text to be light in dark mode */
+.dark * {
+  color: var(--text) !important;
+}
+
+/* Override specific text colors that should stay colored */
+.dark .text-blue-600,
+.dark .text-blue-700,
+.dark .text-blue-800,
+.dark .text-blue-500,
+.dark .text-blue-400,
+.dark .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .text-green-600,
+.dark .text-green-700,
+.dark .text-green-800,
+.dark .text-green-500,
+.dark .text-green-400,
+.dark .text-green-300 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-600,
+.dark .text-red-700,
+.dark .text-red-800,
+.dark .text-red-500,
+.dark .text-red-400,
+.dark .text-red-300 {
+  color: var(--danger) !important;
+}
+
+.dark .text-yellow-600,
+.dark .text-yellow-700,
+.dark .text-yellow-800,
+.dark .text-yellow-500,
+.dark .text-yellow-400,
+.dark .text-yellow-300,
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-500,
+.dark .text-amber-400,
+.dark .text-amber-300 {
+  color: var(--warning) !important;
+}
+
+.dark .text-purple-600,
+.dark .text-purple-700,
+.dark .text-purple-800,
+.dark .text-purple-500,
+.dark .text-purple-400,
+.dark .text-purple-300 {
+  color: #a78bfa !important;
+}
+
+.dark .text-indigo-600,
+.dark .text-indigo-700,
+.dark .text-indigo-800,
+.dark .text-indigo-500,
+.dark .text-indigo-400,
+.dark .text-indigo-300 {
+  color: #818cf8 !important;
+}
+
+.dark .text-pink-600,
+.dark .text-pink-700,
+.dark .text-pink-800,
+.dark .text-pink-500,
+.dark .text-pink-400,
+.dark .text-pink-300 {
+  color: #f472b6 !important;
+}
+
+.dark .text-orange-600,
+.dark .text-orange-700,
+.dark .text-orange-800,
+.dark .text-orange-500,
+.dark .text-orange-400,
+.dark .text-orange-300 {
+  color: var(--warning) !important;
+}
+
+/* Override gray text to be muted */
+.dark .text-gray-100,
+.dark .text-gray-200,
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-slate-100,
+.dark .text-slate-200,
+.dark .text-slate-300,
+.dark .text-slate-400,
+.dark .text-slate-500,
+.dark .text-zinc-100,
+.dark .text-zinc-200,
+.dark .text-zinc-300,
+.dark .text-zinc-400,
+.dark .text-zinc-500,
+.dark .text-neutral-100,
+.dark .text-neutral-200,
+.dark .text-neutral-300,
+.dark .text-neutral-400,
+.dark .text-neutral-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Override dark gray text to be normal text */
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900,
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-800,
+.dark .text-slate-900,
+.dark .text-zinc-600,
+.dark .text-zinc-700,
+.dark .text-zinc-800,
+.dark .text-zinc-900,
+.dark .text-neutral-600,
+.dark .text-neutral-700,
+.dark .text-neutral-800,
+.dark .text-neutral-900 {
+  color: var(--text) !important;
+}
+
+/* Override inline color styles */
+.dark [style*="color: #"],
+.dark [style*="color:#"] {
+  color: var(--text) !important;
+}
+
+/* Specific inline color overrides */
+.dark [style*="color: #2563eb"],
+.dark [style*="color:#2563eb"],
+.dark [style*="color: #1d4ed8"],
+.dark [style*="color:#1d4ed8"],
+.dark [style*="color: #3b82f6"],
+.dark [style*="color:#3b82f6"] {
+  color: var(--primary) !important;
+}
+
+.dark [style*="color: #16a34a"],
+.dark [style*="color:#16a34a"],
+.dark [style*="color: #22c55e"],
+.dark [style*="color:#22c55e"] {
+  color: var(--success) !important;
+}
+
+.dark [style*="color: #dc2626"],
+.dark [style*="color:#dc2626"],
+.dark [style*="color: #ef4444"],
+.dark [style*="color:#ef4444"] {
+  color: var(--danger) !important;
+}
+
+.dark [style*="color: #ca8a04"],
+.dark [style*="color:#ca8a04"],
+.dark [style*="color: #eab308"],
+.dark [style*="color:#eab308"],
+.dark [style*="color: #f59e0b"],
+.dark [style*="color:#f59e0b"] {
+  color: var(--warning) !important;
+}
+
+/* UNIVERSAL DARK MODE BACKGROUND OVERRIDES */
+/* Force all backgrounds to be dark in dark mode */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-gray-300,
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-200,
+.dark .bg-slate-300,
+.dark .bg-zinc-50,
+.dark .bg-zinc-100,
+.dark .bg-zinc-200,
+.dark .bg-zinc-300,
+.dark .bg-neutral-50,
+.dark .bg-neutral-100,
+.dark .bg-neutral-200,
+.dark .bg-neutral-300 {
+  background: var(--surface) !important;
+}
+
+/* Override inline background styles */
+.dark [style*="background: white"],
+.dark [style*="background:white"],
+.dark [style*="background: #ffffff"],
+.dark [style*="background:#ffffff"],
+.dark [style*="background: #fff"],
+.dark [style*="background:#fff"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="background-color: white"],
+.dark [style*="background-color:white"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color:#ffffff"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color:#fff"] {
+  background: var(--surface) !important;
+}
+
+/* Override light gray backgrounds */
+.dark [style*="background: #f"],
+.dark [style*="background:#f"],
+.dark [style*="background-color: #f"],
+.dark [style*="background-color:#f"] {
+  background: var(--surface-muted) !important;
+}
+
+/* UNIVERSAL BORDER OVERRIDES */
+.dark .border-white,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-zinc-100,
+.dark .border-zinc-200,
+.dark .border-zinc-300,
+.dark .border-neutral-100,
+.dark .border-neutral-200,
+.dark .border-neutral-300 {
+  border-color: var(--border) !important;
+}
+
+/* Override inline border styles */
+.dark [style*="border: white"],
+.dark [style*="border:white"],
+.dark [style*="border: #ffffff"],
+.dark [style*="border:#ffffff"],
+.dark [style*="border: #fff"],
+.dark [style*="border:#fff"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: white"],
+.dark [style*="border-color:white"],
+.dark [style*="border-color: #ffffff"],
+.dark [style*="border-color:#ffffff"],
+.dark [style*="border-color: #fff"],
+.dark [style*="border-color:#fff"] {
+  border-color: var(--border) !important;
+}
+
+/* Override light gray borders */
+.dark [style*="border: #"],
+.dark [style*="border:#"],
+.dark [style*="border-color: #"],
+.dark [style*="border-color:#"] {
+  border-color: var(--border) !important;
+}
+
+/* Ensure links are readable */
+.dark a {
+  color: var(--primary) !important;
+}
+
+.dark a:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* Ensure inputs are readable */
+.dark input,
+.dark select,
+.dark textarea {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Ensure buttons are readable */
+.dark button {
+  color: var(--text) !important;
+}
+
+.dark button.bg-white {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Ensure tables are readable */
+.dark table {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark th,
+.dark td {
+  border-color: var(--border) !important;
+}
+
+/* Dashboard specific overrides */
+.dark .request-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .request-item p.text-white {
+  color: var(--text) !important;
+}
+
+.dark .request-item p.text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+.dark .request-item p.text-gray-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .request-item button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .request-item button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .bg-green-500\/10 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .bg-yellow-500\/20 {
+  background: rgba(251, 191, 36, 0.2) !important;
+}
+
+.dark .text-yellow-800 {
+  color: var(--warning) !important;
+}
+
+/* LeaveApplication.vue specific overrides */
+.dark .form-label {
+  color: var(--text) !important;
+}
+
+.dark .input-field {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .input-field::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field:read-only {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .detail-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .option-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .checkbox-label {
+  color: var(--text) !important;
+}
+
+.dark .checkbox-input {
+  accent-color: var(--primary) !important;
+}
+
+.dark .credit-box {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .credit-item {
+  color: var(--text) !important;
+}
+
+.dark .credit-box .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .upload-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .upload-box:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .signature-box {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .signature-canvas {
+  background: var(--surface) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-slate-800 {
+  background: var(--border) !important;
+}
+
+.dark .text-slate-800 {
+  color: var(--text) !important;
+}
+
+.dark .border-slate-600 {
+  border-color: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800 {
+  background: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark button.bg-blue-500 {
+  background: var(--primary-hover) !important;
+  color: white !important;
+}
+
+.dark .success-modal {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .success-modal .text-white {
+  color: var(--text) !important;
+}
+
+.dark .success-modal .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .success-modal button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .success-modal button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark .success-modal button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .success-modal button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* MyApplications.vue specific overrides */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+  color: var(--text) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .dark-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .dark-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--focus-ring) !important;
+}
+
+.dark .table-header {
+  color: var(--text-muted) !important;
+}
+
+.dark .table-cell {
+  color: var(--text) !important;
+}
+
+.dark .btn-action.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .btn-action.bg-yellow-600 {
+  background: var(--warning) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-yellow-600:hover {
+  background: #d97706 !important;
+}
+
+.dark .status-approved {
+  background: rgba(74, 222, 128, 0.15) !important;
+  color: var(--success) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .status-pending {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--warning) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .status-disapproved {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: var(--danger) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+.dark .status-pr {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .status-default {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-section {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-title {
+  color: var(--text) !important;
+}
+
+.dark .modal-label {
+  color: var(--text-muted) !important;
+}
+
+.dark .modal-value {
+  color: var(--text) !important;
+}
+
+.dark .bg-\[\#0D1725\] {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-\[\#111D2E\] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0F1A2A\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0B1420\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-black\/70 {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.dark .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+.dark .hover\:bg-slate-800\/40:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .hover\:text-green-300:hover {
+  color: var(--success) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .hover\:text-red-300:hover {
+  color: var(--danger) !important;
+}
+
+.dark .bg-blue-500 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+/* Override specific inline styles with no spaces */
+.dark [style*="background:white"] {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark [style*="color:#0f172a"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="color:#334155"] {
+  color: var(--text-muted) !important;
+}
+
+/* Override modal overlay backgrounds */
+.dark .bg-black\/60 {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark [style*="background: rgba(0"] {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Override specific element backgrounds */
+.dark .min-h-screen.bg-slate-50 {
+  background: var(--app-bg) !important;
+}
+
+.dark .rounded-2xl.border.border-slate-200.bg-white {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .rounded-2xl.border.border-slate-200.bg-white.shadow-sm {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark section.rounded-2xl.border.border-slate-200.bg-white {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+/* Override text colors for headings */
+.dark .text-slate-900 {
+  color: var(--text) !important;
+}
+
+.dark .text-slate-600 {
+  color: var(--text-muted) !important;
+}
+
+/* Override button backgrounds */
+.dark button.bg-white {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark button.bg-white.text-slate-700 {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Override specific inline border styles */
+.dark [style*="border: 1px solid #cbd5e1"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border:1px solid #cbd5e1"] {
+  border-color: var(--border) !important;
+}
+
+/* Additional dark mode overrides */
+.dark [style*="text-gray-900"] {
+  color: var(--text) !important;
+}
+
+.dark [style*="placeholder-gray-600"] {
+  --tw-placeholder-color: var(--text-muted) !important;
+}
+
+.dark [style*="focus:bg-white/70"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="focus:ring-blue-500"] {
+  --tw-ring-color: var(--primary) !important;
+}
+
+.dark [style*="focus:outline-none"] {
+  outline-color: var(--primary) !important;
+}
+
+.dark [style*="border: 1px solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border:1px solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border: solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border:solid"] {
+  border-color: var(--border) !important;
+}
+
+.dark .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-black {
+  color: var(--text) !important;
+}
+
+.dark .bg-white.text-blue-600 {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .bg-white.text-blue-600.border.border-blue-100 {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .hover\:text-white:hover {
+  color: var(--text) !important;
+}
+
+.dark [style*="background: #f3f4f6"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background: #e5e7eb"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background-color: #f3f4f6"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="background-color: #e5e7eb"] {
+  background: var(--surface-muted) !important;
+}
+
+.dark [style*="color: #64748b"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="color: #94a3b8"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="color: #cbd5e1"] {
+  color: var(--text-muted) !important;
+}
+
+.dark [style*="border-color: #e5e7eb"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: #d1d5db"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: #e2e8f0"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="box-shadow"] {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .rounded-xl.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-2xl.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-lg.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .rounded-full.bg-white {
+  background: var(--surface) !important;
+}
+
+.dark .card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .surface {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .department-item,
+.dark .leave-type-item,
+.dark .credit-summary-card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+@media print {
+  .dark .dashboard-shell {
+    background: white !important;
+  }
+
+  .dark .neo-card,
+  .dark .card,
+  .dark .department-item,
+  .dark .leave-type-item,
+  .dark .credit-summary-card {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    color: black !important;
+  }
+}
+
+/* Override Dashboard.vue specific text colors */
+.dark .text-blue-800 {
+  color: var(--primary) !important;
+}
+
+.dark .text-yellow-800 {
+  color: var(--warning) !important;
+}
+
+/* LeaveApplication.vue specific overrides */
+.dark .form-label {
+  color: var(--text) !important;
+}
+
+.dark .input-field {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .input-field::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field:read-only {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .detail-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .option-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .checkbox-label {
+  color: var(--text) !important;
+}
+
+.dark .checkbox-input {
+  accent-color: var(--primary) !important;
+}
+
+.dark .credit-box {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .credit-item {
+  color: var(--text) !important;
+}
+
+.dark .credit-box .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .upload-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .upload-box:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .signature-box {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .signature-canvas {
+  background: var(--surface) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-slate-800 {
+  background: var(--border) !important;
+}
+
+.dark .text-slate-800 {
+  color: var(--text) !important;
+}
+
+.dark .border-slate-600 {
+  border-color: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800 {
+  background: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark button.bg-blue-500 {
+  background: var(--primary-hover) !important;
+  color: white !important;
+}
+
+.dark .success-modal {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .success-modal .text-white {
+  color: var(--text) !important;
+}
+
+.dark .success-modal .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .success-modal button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .success-modal button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark .success-modal button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .success-modal button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* MyApplications.vue specific overrides */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+  color: var(--text) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .dark-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .dark-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--focus-ring) !important;
+}
+
+.dark .table-header {
+  color: var(--text-muted) !important;
+}
+
+.dark .table-cell {
+  color: var(--text) !important;
+}
+
+.dark .btn-action.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .btn-action.bg-yellow-600 {
+  background: var(--warning) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-yellow-600:hover {
+  background: #d97706 !important;
+}
+
+.dark .status-approved {
+  background: rgba(74, 222, 128, 0.15) !important;
+  color: var(--success) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .status-pending {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--warning) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .status-disapproved {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: var(--danger) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+.dark .status-pr {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .status-default {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-section {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-title {
+  color: var(--text) !important;
+}
+
+.dark .modal-label {
+  color: var(--text-muted) !important;
+}
+
+.dark .modal-value {
+  color: var(--text) !important;
+}
+
+.dark .bg-\[\#0D1725\] {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-\[\#111D2E\] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0F1A2A\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0B1420\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-black\/70 {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.dark .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+.dark .hover\:bg-slate-800\/40:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .hover\:text-green-300:hover {
+  color: var(--success) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .hover\:text-red-300:hover {
+  color: var(--danger) !important;
+}
+
+.dark .bg-blue-500 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-800 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-800 {
+  color: var(--danger) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--text) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+.dark .text-gray-700 {
+  color: var(--text) !important;
+}
+
+/* Override Dashboard.vue specific backgrounds */
+.dark .bg-blue-500\/20 {
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .bg-yellow-500\/20 {
+  background: rgba(251, 191, 36, 0.2) !important;
+}
+
+.dark .bg-green-500\/20 {
+  background: rgba(74, 222, 128, 0.2) !important;
+}
+
+.dark .bg-red-500\/20 {
+  background: rgba(248, 113, 113, 0.2) !important;
+}
+
+.dark .bg-green-500\/10 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .bg-gray-500\/20 {
+  background: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Override table backgrounds in Dashboard */
+.dark table thead.bg-slate-50 {
+  background: var(--surface-muted) !important;
+}
+
+.dark table tbody tr td.text-white {
+  color: var(--text) !important;
+}
+
+/* Override upcoming leaves card */
+.dark .bg-green-50 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .bg-green-50 p.text-gray-800 {
+  color: var(--text) !important;
+}
+
+.dark .bg-green-50 p.text-gray-600 {
+  color: var(--text-muted) !important;
+}
+
+/* Override progress bar backgrounds */
+.dark .bg-gray-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* Override status badge text colors */
+.dark .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .text-yellow-300 {
+  color: var(--warning) !important;
+}
+
+.dark .text-green-300 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-300 {
+  color: var(--danger) !important;
+}
+
+.dark .text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+/* UNIVERSAL DARK MODE TEXT COLOR OVERRIDES */
+/* Force all text to be light in dark mode */
+.dark * {
+  color: var(--text) !important;
+}
+
+/* Override specific text colors that should stay colored */
+.dark .text-blue-600,
+.dark .text-blue-700,
+.dark .text-blue-800,
+.dark .text-blue-500,
+.dark .text-blue-400,
+.dark .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .text-green-600,
+.dark .text-green-700,
+.dark .text-green-800,
+.dark .text-green-500,
+.dark .text-green-400,
+.dark .text-green-300 {
+  color: var(--success) !important;
+}
+
+.dark .text-red-600,
+.dark .text-red-700,
+.dark .text-red-800,
+.dark .text-red-500,
+.dark .text-red-400,
+.dark .text-red-300 {
+  color: var(--danger) !important;
+}
+
+.dark .text-yellow-600,
+.dark .text-yellow-700,
+.dark .text-yellow-800,
+.dark .text-yellow-500,
+.dark .text-yellow-400,
+.dark .text-yellow-300,
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-500,
+.dark .text-amber-400,
+.dark .text-amber-300 {
+  color: var(--warning) !important;
+}
+
+.dark .text-purple-600,
+.dark .text-purple-700,
+.dark .text-purple-800,
+.dark .text-purple-500,
+.dark .text-purple-400,
+.dark .text-purple-300 {
+  color: #a78bfa !important;
+}
+
+.dark .text-indigo-600,
+.dark .text-indigo-700,
+.dark .text-indigo-800,
+.dark .text-indigo-500,
+.dark .text-indigo-400,
+.dark .text-indigo-300 {
+  color: #818cf8 !important;
+}
+
+.dark .text-pink-600,
+.dark .text-pink-700,
+.dark .text-pink-800,
+.dark .text-pink-500,
+.dark .text-pink-400,
+.dark .text-pink-300 {
+  color: #f472b6 !important;
+}
+
+.dark .text-orange-600,
+.dark .text-orange-700,
+.dark .text-orange-800,
+.dark .text-orange-500,
+.dark .text-orange-400,
+.dark .text-orange-300 {
+  color: var(--warning) !important;
+}
+
+/* Override gray text to be muted */
+.dark .text-gray-100,
+.dark .text-gray-200,
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-slate-100,
+.dark .text-slate-200,
+.dark .text-slate-300,
+.dark .text-slate-400,
+.dark .text-slate-500,
+.dark .text-zinc-100,
+.dark .text-zinc-200,
+.dark .text-zinc-300,
+.dark .text-zinc-400,
+.dark .text-zinc-500,
+.dark .text-neutral-100,
+.dark .text-neutral-200,
+.dark .text-neutral-300,
+.dark .text-neutral-400,
+.dark .text-neutral-500 {
+  color: var(--text-muted) !important;
+}
+
+/* Override dark gray text to be normal text */
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900,
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-800,
+.dark .text-slate-900,
+.dark .text-zinc-600,
+.dark .text-zinc-700,
+.dark .text-zinc-800,
+.dark .text-zinc-900,
+.dark .text-neutral-600,
+.dark .text-neutral-700,
+.dark .text-neutral-800,
+.dark .text-neutral-900 {
+  color: var(--text) !important;
+}
+
+/* Override inline color styles */
+.dark [style*="color: #"],
+.dark [style*="color:#"] {
+  color: var(--text) !important;
+}
+
+/* Specific inline color overrides */
+.dark [style*="color: #2563eb"],
+.dark [style*="color:#2563eb"],
+.dark [style*="color: #1d4ed8"],
+.dark [style*="color:#1d4ed8"],
+.dark [style*="color: #3b82f6"],
+.dark [style*="color:#3b82f6"] {
+  color: var(--primary) !important;
+}
+
+.dark [style*="color: #16a34a"],
+.dark [style*="color:#16a34a"],
+.dark [style*="color: #22c55e"],
+.dark [style*="color:#22c55e"] {
+  color: var(--success) !important;
+}
+
+.dark [style*="color: #dc2626"],
+.dark [style*="color:#dc2626"],
+.dark [style*="color: #ef4444"],
+.dark [style*="color:#ef4444"] {
+  color: var(--danger) !important;
+}
+
+.dark [style*="color: #ca8a04"],
+.dark [style*="color:#ca8a04"],
+.dark [style*="color: #eab308"],
+.dark [style*="color:#eab308"],
+.dark [style*="color: #f59e0b"],
+.dark [style*="color:#f59e0b"] {
+  color: var(--warning) !important;
+}
+
+/* UNIVERSAL DARK MODE BACKGROUND OVERRIDES */
+/* Force all backgrounds to be dark in dark mode */
+.dark .bg-white,
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-gray-300,
+.dark .bg-slate-50,
+.dark .bg-slate-100,
+.dark .bg-slate-200,
+.dark .bg-slate-300,
+.dark .bg-zinc-50,
+.dark .bg-zinc-100,
+.dark .bg-zinc-200,
+.dark .bg-zinc-300,
+.dark .bg-neutral-50,
+.dark .bg-neutral-100,
+.dark .bg-neutral-200,
+.dark .bg-neutral-300 {
+  background: var(--surface) !important;
+}
+
+/* Override inline background styles */
+.dark [style*="background: white"],
+.dark [style*="background:white"],
+.dark [style*="background: #ffffff"],
+.dark [style*="background:#ffffff"],
+.dark [style*="background: #fff"],
+.dark [style*="background:#fff"] {
+  background: var(--surface) !important;
+}
+
+.dark [style*="background-color: white"],
+.dark [style*="background-color:white"],
+.dark [style*="background-color: #ffffff"],
+.dark [style*="background-color:#ffffff"],
+.dark [style*="background-color: #fff"],
+.dark [style*="background-color:#fff"] {
+  background: var(--surface) !important;
+}
+
+/* Override light gray backgrounds */
+.dark [style*="background: #f"],
+.dark [style*="background:#f"],
+.dark [style*="background-color: #f"],
+.dark [style*="background-color:#f"] {
+  background: var(--surface-muted) !important;
+}
+
+/* UNIVERSAL BORDER OVERRIDES */
+.dark .border-white,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-zinc-100,
+.dark .border-zinc-200,
+.dark .border-zinc-300,
+.dark .border-neutral-100,
+.dark .border-neutral-200,
+.dark .border-neutral-300 {
+  border-color: var(--border) !important;
+}
+
+/* Override inline border styles */
+.dark [style*="border: white"],
+.dark [style*="border:white"],
+.dark [style*="border: #ffffff"],
+.dark [style*="border:#ffffff"],
+.dark [style*="border: #fff"],
+.dark [style*="border:#fff"] {
+  border-color: var(--border) !important;
+}
+
+.dark [style*="border-color: white"],
+.dark [style*="border-color:white"],
+.dark [style*="border-color: #ffffff"],
+.dark [style*="border-color:#ffffff"],
+.dark [style*="border-color: #fff"],
+.dark [style*="border-color:#fff"] {
+  border-color: var(--border) !important;
+}
+
+/* Override light gray borders */
+.dark [style*="border: #"],
+.dark [style*="border:#"],
+.dark [style*="border-color: #"],
+.dark [style*="border-color:#"] {
+  border-color: var(--border) !important;
+}
+
+/* Ensure links are readable */
+.dark a {
+  color: var(--primary) !important;
+}
+
+.dark a:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* Ensure inputs are readable */
+.dark input,
+.dark select,
+.dark textarea {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark input::placeholder,
+.dark select::placeholder,
+.dark textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Ensure buttons are readable */
+.dark button {
+  color: var(--text) !important;
+}
+
+.dark button.bg-white {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Ensure tables are readable */
+.dark table {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark th,
+.dark td {
+  border-color: var(--border) !important;
+}
+
+/* Dashboard specific overrides */
+.dark .request-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .request-item p.text-white {
+  color: var(--text) !important;
+}
+
+.dark .request-item p.text-gray-300 {
+  color: var(--text-muted) !important;
+}
+
+.dark .request-item p.text-gray-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .request-item button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .request-item button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .bg-green-500\/10 {
+  background: rgba(74, 222, 128, 0.1) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .bg-yellow-500\/20 {
+  background: rgba(251, 191, 36, 0.2) !important;
+}
+
+.dark .text-yellow-800 {
+  color: var(--warning) !important;
+}
+
+/* LeaveApplication.vue specific overrides */
+.dark .form-label {
+  color: var(--text) !important;
+}
+
+.dark .input-field {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .input-field::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field:read-only {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+}
+
+.dark .input-field option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .detail-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .option-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .checkbox-label {
+  color: var(--text) !important;
+}
+
+.dark .checkbox-input {
+  accent-color: var(--primary) !important;
+}
+
+.dark .credit-box {
+  background: rgba(96, 165, 250, 0.1) !important;
+  border-color: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .credit-item {
+  color: var(--text) !important;
+}
+
+.dark .credit-box .text-blue-300 {
+  color: var(--primary) !important;
+}
+
+.dark .upload-box {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .upload-box:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .signature-box {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .signature-canvas {
+  background: var(--surface) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-slate-800 {
+  background: var(--border) !important;
+}
+
+.dark .text-slate-800 {
+  color: var(--text) !important;
+}
+
+.dark .border-slate-600 {
+  border-color: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800 {
+  background: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-800:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark button.bg-blue-500 {
+  background: var(--primary-hover) !important;
+  color: white !important;
+}
+
+.dark .success-modal {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .success-modal .text-white {
+  color: var(--text) !important;
+}
+
+.dark .success-modal .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+.dark .success-modal button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .success-modal button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark .success-modal button.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .success-modal button.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+/* MyApplications.vue specific overrides */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+  color: var(--text) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .dark-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .dark-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .dark-input:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--focus-ring) !important;
+}
+
+.dark .table-header {
+  color: var(--text-muted) !important;
+}
+
+.dark .table-cell {
+  color: var(--text) !important;
+}
+
+.dark .btn-action.bg-blue-600 {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-blue-600:hover {
+  background: var(--primary-hover) !important;
+}
+
+.dark .btn-action.bg-yellow-600 {
+  background: var(--warning) !important;
+  color: white !important;
+}
+
+.dark .btn-action.bg-yellow-600:hover {
+  background: #d97706 !important;
+}
+
+.dark .status-approved {
+  background: rgba(74, 222, 128, 0.15) !important;
+  color: var(--success) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .status-pending {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--warning) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .status-disapproved {
+  background: rgba(248, 113, 113, 0.15) !important;
+  color: var(--danger) !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+.dark .status-pr {
+  background: rgba(96, 165, 250, 0.15) !important;
+  color: var(--primary) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .status-default {
+  background: var(--surface-muted) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-section {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .modal-title {
+  color: var(--text) !important;
+}
+
+.dark .modal-label {
+  color: var(--text-muted) !important;
+}
+
+.dark .modal-value {
+  color: var(--text) !important;
+}
+
+.dark .bg-\[\#0D1725\] {
+  background: var(--surface-muted) !important;
+}
+
+.dark .bg-\[\#111D2E\] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0F1A2A\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-\[\#0B1420\] {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .bg-black\/70 {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.dark .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+.dark .hover\:bg-slate-800\/40:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark tbody tr {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .hover\:text-green-300:hover {
+  color: var(--success) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .hover\:text-red-300:hover {
+  color: var(--danger) !important;
+}
+
+.dark .bg-blue-500 {
+  background: var(--primary) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+.dark .bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark .bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+.dark button.bg-slate-700 {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+}
+
+.dark button.bg-slate-700:hover {
+  background: var(--border) !important;
+}
+
+/* Reports.vue specific overrides - Light Mode */
+.dashboard-shell .text-white {
+  color: #0f172a !important;
+}
+
+.dashboard-shell .text-gray-300,
+.dashboard-shell .text-gray-400,
+.dashboard-shell .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Reports.vue specific overrides - Dark Mode */
+.dark .dashboard-shell {
+  background: var(--app-bg) !important;
+}
+
+.dark .neo-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-type-button {
+  border-color: var(--border) !important;
+}
+
+.dark .selected-report {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.15) !important;
+}
+
+.dark .selected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.2) !important;
+}
+
+.dark .unselected-report {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .unselected-report:hover {
+  border-color: var(--primary) !important;
+  background: rgba(96, 165, 250, 0.1) !important;
+}
+
+.dark .report-input {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-input:focus {
+  border-color: var(--primary) !important;
+  background: var(--surface) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+.dark .report-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.dark .report-input option {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+.dark .report-header {
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button {
+  background: var(--surface-muted) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .secondary-button:hover {
+  background: var(--border) !important;
+}
+
+.dark .department-item {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+  border-left-color: var(--primary) !important;
+}
+
+.dark .department-item:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .empty-report-state {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel {
+  background: var(--surface-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .summary-panel:hover {
+  border-color: var(--primary) !important;
+}
+
+.dark .status-track {
+  background: var(--surface-muted) !important;
+}
+
+.dark .leave-type-item {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .leave-type-item:hover {
+  background: var(--surface-muted) !important;
+  border-color: var(--primary) !important;
+}
+
+.dark .report-table thead {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table th {
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+
+.dark .report-table tbody tr {
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+}
+
+.dark .report-table tbody tr:hover {
+  background: var(--surface-muted) !important;
+}
+
+.dark .report-table td {
+  color: var(--text) !important;
+}
+
+.dark .credit-summary-card {
+  border-color: var(--border) !important;
+}
+
+.dark .credit-blue {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(96, 165, 250, 0.15) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.3) !important;
+}
+
+.dark .credit-blue h4,
+.dark .credit-blue > p:last-child {
+  color: var(--primary) !important;
+}
+
+.dark .credit-blue .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-green {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(74, 222, 128, 0.15) 100%) !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.dark .credit-green h4,
+.dark .credit-green > p:last-child {
+  color: var(--success) !important;
+}
+
+.dark .credit-green .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-yellow {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(251, 191, 36, 0.15) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.dark .credit-yellow h4,
+.dark .credit-yellow > p:last-child {
+  color: var(--warning) !important;
+}
+
+.dark .credit-yellow .text-white {
+  color: var(--text) !important;
+}
+
+.dark .credit-purple {
+  background: linear-gradient(135deg, var(--surface) 55%, rgba(168, 85, 247, 0.15) 100%) !important;
+  border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+.dark .credit-purple h4,
+.dark .credit-purple > p:last-child {
+  color: #a78bfa !important;
+}
+
+.dark .credit-purple .text-white {
+  color: var(--text) !important;
+}
+
+.dark .text-green-400 {
+  color: var(--success) !important;
+}
+
+.dark .text-yellow-400 {
+  color: var(--warning) !important;
+}
+
+.dark .text-red-400 {
+  color: var(--danger) !important;
+}
+
+.dark .bg-green-500 {
+  background: var(--success) !important;
+}
+
+.dark .bg-yellow-500 {
+  background: var(--warning) !important;
+}
+
+.dark .bg-red-500 {
+  background: var(--danger) !important;
+}
+
+/* AdminApplications.vue specific overrides */
+.dark .dashboard-shell h3.text-lg {
+  color: var(--text) !important;
+}
+
+.dark .dashboard-shell .text-white {
+  color: var(--text) !important;
 }
