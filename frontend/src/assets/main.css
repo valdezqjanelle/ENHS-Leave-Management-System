@@ -5613,3 +5613,8 @@ textarea {
 .dark .dashboard-shell .text-white {
   color: var(--text) !important;
 }
+
+/* AdminApplications.vue specific overrides - Light Mode */
+button.text-white {
+  color: #0f172a !important;
+}
