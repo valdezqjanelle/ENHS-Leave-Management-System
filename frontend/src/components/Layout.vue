@@ -24,9 +24,16 @@
       "
     >
       <div class="p-6 flex items-center justify-between">
-        <div class="brand-block">
-          <h1 class="text-xl font-bold text-white">ENHS</h1>
-          <p class="text-sm text-blue-100">Leave Management System</p>
+        <div class="brand-block flex items-center gap-3">
+          <img
+            src="@/assets/logo.png"
+            alt="ENHS Logo"
+            class="brand-logo"
+          />
+          <div>
+            <h1 class="text-xl font-bold text-white">ENHS</h1>
+            <p class="text-sm text-blue-100">Leave Management System</p>
+          </div>
         </div>
 
         <!-- Close button lives inside the sidebar's own header, right-aligned -->
@@ -150,14 +157,7 @@
           My Applications
         </router-link>
 
-        <router-link
-          v-if="currentUser.role === 'employee'"
-          to="/records"
-          class="nav-item"
-        >
-          <Users class="icon" />
-          Records
-        </router-link>
+        
 
         <router-link
           v-if="currentUser.role === 'admin'"
@@ -342,6 +342,9 @@ const pageTitle = computed(() => {
     "/dashboard": "Dashboard",
     "/admin-applications": "Applications",
     "/employees": "Employees",
+    "/teaching-personnel": "Teaching Personnel",
+    "/teaching-setup": "Teaching Setup",
+    "/non-teaching-personnel": "Non-Teaching Personnel",
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
@@ -349,7 +352,7 @@ const pageTitle = computed(() => {
     "/admin-settings": "Settings",
 
     "/attendance": "Attendance",
-    "/records": "Records",
+   
     "/reports": "Reports",
     "/settings": "Settings",
     "/profile": "Profile",
@@ -446,6 +449,15 @@ const logout = async () => {
 
 .brand-block {
   min-width: 0;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ffffff;
+  flex-shrink: 0;
 }
 
 .user-summary {

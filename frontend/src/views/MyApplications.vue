@@ -1018,12 +1018,22 @@ const downloadForm = (
 
 
 <style scoped>
+/*
+  Theme-aware styles.
+  These all pull from the CSS custom properties defined once in base.css
+  (:root for light, .dark for dark). Because the values live in variables,
+  this component automatically renders correctly in both themes with no
+  need for duplicated ".dark ..." override blocks - the browser resolves
+  the variable per current theme.
+*/
+
 /* =========================================
    DASHBOARD BACKGROUND
 ========================================= */
 
 .dashboard-shell {
-  background: #080D14;
+  background: var(--app-bg);
+  color: var(--text);
 }
 
 
@@ -1032,23 +1042,15 @@ const downloadForm = (
 ========================================= */
 
 .neo-card {
-  background: #111D2E;
-
-  border: 1px solid #1E293B;
-
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.4rem;
-
-  box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.18);
-
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.28);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
 }
 
 
@@ -1070,41 +1072,28 @@ const downloadForm = (
 ========================================= */
 
 .dark-input {
-  border: 1px solid #334155;
-
+  border: 1px solid var(--border);
   border-radius: 0.65rem;
-
   padding: 0.65rem 0.85rem;
-
-  background: #0f1a2a;
-
-  color: #f8fafc;
-
+  background: var(--surface);
+  color: var(--text);
   font-size: 0.875rem;
-
   outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .dark-input:focus {
-  border-color: #3b82f6;
-
-  box-shadow:
-    0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .dark-input::placeholder {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .dark-input option {
-  background: #111D2E;
-
-  color: #f8fafc;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .btn-action {
@@ -1124,35 +1113,38 @@ const downloadForm = (
 .btn-action:active {
   transform: scale(0.97);
 }
+
 /* =========================================
    TABLE
 ========================================= */
 
 .table-header {
   padding: 0.9rem 1.5rem;
-
   text-align: left;
-
-  color: #64748b;
-
+  color: var(--text-muted);
   font-size: 0.7rem;
-
   font-weight: 600;
-
   text-transform: uppercase;
-
   letter-spacing: 0.05em;
-
   white-space: nowrap;
+  background: var(--surface-muted);
 }
-
 
 .table-cell {
   padding: 1rem 1.5rem;
-
   white-space: nowrap;
-
   font-size: 0.875rem;
+  color: var(--text);
+}
+
+/* Table rows/body should also follow the theme surface, since the
+   template applies text-slate-300 utility classes directly on <td>. */
+tbody {
+  background: var(--surface);
+}
+
+tbody tr:hover {
+  background: var(--surface-muted);
 }
 
 
@@ -1161,47 +1153,33 @@ const downloadForm = (
 ========================================= */
 
 .status-approved {
-  background: rgba(34, 197, 94, 0.12);
-
-  color: #4ade80;
-
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.14);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
-
 
 .status-pending {
-  background: rgba(234, 179, 8, 0.12);
-
-  color: #facc15;
-
-  border: 1px solid rgba(234, 179, 8, 0.2);
+  background: rgba(234, 179, 8, 0.14);
+  color: var(--warning);
+  border: 1px solid rgba(234, 179, 8, 0.3);
 }
-
 
 .status-disapproved {
-  background: rgba(239, 68, 68, 0.12);
-
-  color: #f87171;
-
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
-
 
 .status-pr {
-  background: rgba(59, 130, 246, 0.12);
-
-  color: #60a5fa;
-
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.14);
+  color: var(--primary);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-
 .status-default {
-  background: rgba(100, 116, 139, 0.12);
-
-  color: #94a3b8;
-
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: rgba(100, 116, 139, 0.14);
+  color: var(--text-muted);
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 
@@ -1210,41 +1188,28 @@ const downloadForm = (
 ========================================= */
 
 .modal-section {
-  background: #0D1827;
-
-  border: 1px solid #263548;
-
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 1rem;
-
   padding: 1.25rem;
 }
 
-
 .modal-title {
-  color: #f8fafc;
-
+  color: var(--text);
   font-size: 1rem;
-
   font-weight: 600;
-
   margin-bottom: 1.25rem;
 }
 
-
 .modal-label {
-  color: #64748b;
-
+  color: var(--text-muted);
   font-size: 0.75rem;
-
   margin-bottom: 0.3rem;
 }
 
-
 .modal-value {
-  color: #e2e8f0;
-
+  color: var(--text);
   font-size: 0.875rem;
-
   font-weight: 500;
 }
 
@@ -1278,247 +1243,4 @@ const downloadForm = (
   }
 
 }
-
-/* =========================================
-   DASHBOARD COLOR THEME
-   Colors only — layout/functionality unchanged
-========================================= */
-
-/* Main page */
-.dashboard-shell {
-  background: #F3F6FA;
-  color: #0F2742;
-}
-
-/* Cards */
-.neo-card {
-  background: #FFFFFF;
-  border-color: #CBD5E1;
-  box-shadow: 0 10px 22px rgba(15, 39, 66, 0.08);
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 39, 66, 0.12);
-}
-
-/* Search and filters */
-.dark-input {
-  background: #FFFFFF;
-  color: #0F2742;
-  border-color: #CBD5E1;
-}
-
-.dark-input:focus {
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
-}
-
-.dark-input::placeholder {
-  color: #64748B;
-}
-
-.dark-input option {
-  background: #FFFFFF;
-  color: #0F2742;
-}
-
-/* Clear button */
-.dashboard-shell .border-slate-700 {
-  border-color: #CBD5E1 !important;
-}
-
-.dashboard-shell .text-slate-300 {
-  color: #334155 !important;
-}
-
-.dashboard-shell .text-slate-400 {
-  color: #64748B !important;
-}
-
-.dashboard-shell .text-slate-500 {
-  color: #64748B !important;
-}
-
-.dashboard-shell .text-slate-600 {
-  color: #94A3B8 !important;
-}
-
-/* Headings / normal text that was white in the dark theme */
-.dashboard-shell .text-white {
-  color: #0F2742 !important;
-}
-
-/* Table */
-.dashboard-shell thead,
-.dashboard-shell thead.bg-\[\#0D1725\] {
-  background: #EEF4FB !important;
-}
-
-.table-header {
-  color: #475569;
-}
-
-.dashboard-shell tbody {
-  background: #FFFFFF;
-}
-
-.dashboard-shell tbody tr {
-  border-color: #E2E8F0 !important;
-}
-
-.dashboard-shell tbody tr:hover,
-.dashboard-shell .hover\:bg-slate-800\/40:hover {
-  background: #F5F9FF !important;
-}
-
-.table-cell {
-  color: #334155;
-}
-
-.dashboard-shell .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #E2E8F0 !important;
-}
-
-/* Blue action buttons — dashboard primary blue */
-.btn-action.bg-blue-600 {
-  background: #2563EB !important;
-}
-
-.btn-action.bg-blue-600:hover {
-  background: #1D4ED8 !important;
-}
-
-/* Yellow action button */
-.btn-action.bg-yellow-600 {
-  background: #E59A00 !important;
-}
-
-.btn-action.bg-yellow-600:hover {
-  background: #C98200 !important;
-}
-
-/* Green download */
-.dashboard-shell .text-green-400 {
-  color: #16A34A !important;
-}
-
-.dashboard-shell .hover\:text-green-300:hover {
-  color: #15803D !important;
-}
-
-/* Status colors — same semantic colors as dashboard */
-.status-approved {
-  background: #E8F8EF;
-  color: #16A34A;
-  border-color: #BBE7CC;
-}
-
-.status-pending {
-  background: #FFF8E1;
-  color: #B77900;
-  border-color: #F3D58A;
-}
-
-.status-disapproved {
-  background: #FFF0F0;
-  color: #DC2626;
-  border-color: #F3C1C1;
-}
-
-.status-pr {
-  background: #EAF2FF;
-  color: #2563EB;
-  border-color: #C7DBFF;
-}
-
-.status-default {
-  background: #F1F5F9;
-  color: #64748B;
-  border-color: #CBD5E1;
-}
-
-/* Modal */
-.dashboard-shell .bg-black\/70 {
-  background: rgba(15, 23, 42, 0.45) !important;
-}
-
-.dashboard-shell .bg-\[\#111D2E\] {
-  background: #FFFFFF !important;
-  border-color: #CBD5E1 !important;
-}
-
-.modal-section {
-  background: #F8FAFC;
-  border-color: #D8E1EB;
-}
-
-.modal-title {
-  color: #0F2742;
-}
-
-.modal-label {
-  color: #64748B;
-}
-
-.modal-value {
-  color: #334155;
-}
-
-/* Modal attachment rows */
-.dashboard-shell .bg-\[\#0F1A2A\] {
-  background: #F8FAFC !important;
-  border-color: #D8E1EB !important;
-}
-
-.dashboard-shell .bg-\[\#0B1420\] {
-  background: #F8FAFC !important;
-  border-color: #CBD5E1 !important;
-}
-
-/* Modal close button */
-.dashboard-shell .bg-slate-700 {
-  background: #E2E8F0 !important;
-  color: #0F2742 !important;
-}
-
-.dashboard-shell .bg-slate-700:hover {
-  background: #CBD5E1 !important;
-}
-
-/* Modal borders */
-.dashboard-shell .border-slate-700 {
-  border-color: #CBD5E1 !important;
-}
-
-/* Icons / secondary text */
-.dashboard-shell .text-slate-500 {
-  color: #64748B !important;
-}
-
-/* File remove / validation errors stay red */
-.dashboard-shell .text-red-400 {
-  color: #DC2626 !important;
-}
-
-.dashboard-shell .hover\:text-red-300:hover {
-  color: #B91C1C !important;
-}
-
-/* Timeline colors remain semantic */
-.dashboard-shell .bg-blue-500 {
-  background-color: #3B82F6 !important;
-}
-
-.dashboard-shell .bg-yellow-500 {
-  background-color: #F59E0B !important;
-}
-
-.dashboard-shell .bg-green-500 {
-  background-color: #22C55E !important;
-}
-
-.dashboard-shell .bg-red-500 {
-  background-color: #EF4444 !important;
-}
-
 </style>

@@ -77,6 +77,8 @@ const sections = computed(() => setup.value.grade_levels.flatMap((g:any)=>(g.sec
 
 // The form's own "level"/"grade" dropdown doubles as the table filter.
 // 'All' shows everything unfiltered; any other value filters the list.
+// For Subjects, the department/track dropdown also narrows the list
+// (e.g. picking "ABM" shows only ABM subjects, "STEM" shows only STEM subjects).
 const visibleItems = computed(() => {
   if (tab.value === 'Grade Levels') {
     return gradeForm.value.level === 'All'
@@ -84,9 +86,14 @@ const visibleItems = computed(() => {
       : setup.value.grade_levels.filter((g:any) => g.level === gradeForm.value.level);
   }
   if (tab.value === 'Subjects') {
-    return subjectForm.value.level === 'All'
+    let items = subjectForm.value.level === 'All'
       ? setup.value.subjects
       : setup.value.subjects.filter((s:any) => s.level === subjectForm.value.level);
+
+    if (subjectForm.value.department_id) {
+      items = items.filter((s:any) => s.department_id === subjectForm.value.department_id);
+    }
+    return items;
   }
   // Sections
   return sectionForm.value.grade_level_id === 'All'

@@ -32,7 +32,7 @@
   --border: #2d3748;
   --success: #4ade80;
   --warning: #fbbf24;
-  --danger: #f87171;
+  --danger: #fe3030;
   --focus-ring: rgba(96, 165, 250, 0.3);
 }
 
@@ -417,6 +417,21 @@ textarea {
 .dark .bg-amber-100 {
   background: rgba(251, 191, 36, 0.1) !important;
   color: var(--text) !important;
+}
+/* Pending stat card icon – match other dark-mode stat cards */
+.dark .bg-yellow-50,
+.dark .bg-yellow-100,
+.dark .bg-yellow-200 {
+  background: rgba(251, 191, 36, 0.15) !important;
+  color: var(--text) !important;
+}
+
+/* If the icon box uses an inline style instead of a class */
+.dark [style*="background: #fef9c3"],
+.dark [style*="background-color: #fef9c3"],
+.dark [style*="background: #fef3c7"],
+.dark [style*="background-color: #fef3c7"] {
+  background: rgba(251, 191, 36, 0.15) !important;
 }
 
 .dark .border-gray-200,
@@ -5246,7 +5261,7 @@ textarea {
 }
 
 .dark .status-pending {
-  background: rgba(251, 191, 36, 0.15) !important;
+  background: rgba(142, 133, 112, 0.15) !important;
   color: var(--warning) !important;
   border-color: rgba(251, 191, 36, 0.3) !important;
 }
