@@ -5,11 +5,11 @@
     <div class="bg-white rounded-lg shadow neo-card w-full min-w-0">
       <!-- Header -->
       <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-white">
+        <h2 class="text-xl font-semibold text-[var(--text)]">
           Submitted Leave Applications
         </h2>
 
-        <p class="text-sm text-white mt-1">
+        <p class="text-sm text-[var(--text-muted)] mt-1">
           Review and manage faculty leave applications
         </p>
       </div>
@@ -69,6 +69,16 @@
               <option value="mandatory">Mandatory/Forced Leave</option>
             </select>
 
+            <!-- Sort -->
+            <button
+              @click="toggleSort"
+              type="button"
+              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+              :title="arranged ? 'Unsort applications' : 'Sort applications alphabetically (A to Z)'"
+            >
+              Sort
+            </button>
+
             <!-- Clear -->
             <button
               @click="
@@ -76,7 +86,7 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-white rounded-full hover:bg-gray-50 hover:text-gray-800 transition whitespace-nowrap"
+              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
             >
               Clear
             </button>
@@ -927,6 +937,7 @@ const deletedApplications = ref<LeaveApplication[]>([]);
 const activeTab = ref("all");
 const searchQuery = ref("");
 const filterType = ref("");
+const arranged = ref(false);
 
 /* =========================================================
    MODALS
@@ -996,6 +1007,10 @@ const projectedPrimaryBalance = computed(() => {
 const currentPage = ref(1);
 const itemsPerPage = 5;
 
+const toggleSort = () => {
+  arranged.value = !arranged.value;
+};
+
 /* =========================================================
    TABS
 ========================================================= */
@@ -1044,8 +1059,10 @@ const handleTabChange = async (tabKey: string) => {
 const filteredApplications = computed(() => {
   const search = searchQuery.value.trim().toLowerCase();
 
+  let result;
+
   if (activeTab.value === "deleted") {
-    return deletedApplications.value.filter((app) => {
+    result = deletedApplications.value.filter((app) => {
       const leaveType =
         app.leave_type?.leave_type_name?.toLowerCase() || "";
 
@@ -1067,37 +1084,52 @@ const filteredApplications = computed(() => {
 
       return matchesSearch && matchesType;
     });
+  } else {
+    result = applications.value.filter((app) => {
+      const status = app.final_status?.toLowerCase() || "";
+
+      const leaveType =
+        app.leave_type?.leave_type_name?.toLowerCase() || "";
+
+      const employeeName = `
+        ${app.employee?.first_name || ""}
+        ${app.employee?.middle_name || ""}
+        ${app.employee?.last_name || ""}
+      `.toLowerCase();
+
+      const matchesTab =
+        activeTab.value === "all" ||
+        status === activeTab.value;
+
+      const matchesSearch =
+        search === "" ||
+        employeeName.includes(search) ||
+        leaveType.includes(search) ||
+        status.includes(search) ||
+        String(app.leave_id).includes(search);
+
+      const matchesType =
+        filterType.value === "" ||
+        leaveType.includes(filterType.value.toLowerCase());
+
+      return matchesTab && matchesSearch && matchesType;
+    });
   }
 
-  return applications.value.filter((app) => {
-    const status = app.final_status?.toLowerCase() || "";
+  // Sort alphabetically if arranged is true
+  if (arranged.value) {
+    return [...result].sort((a, b) => {
+      const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`
+        .trim()
+        .toLowerCase();
+      const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`
+        .trim()
+        .toLowerCase();
+      return aName.localeCompare(bName);
+    });
+  }
 
-    const leaveType =
-      app.leave_type?.leave_type_name?.toLowerCase() || "";
-
-    const employeeName = `
-      ${app.employee?.first_name || ""}
-      ${app.employee?.middle_name || ""}
-      ${app.employee?.last_name || ""}
-    `.toLowerCase();
-
-    const matchesTab =
-      activeTab.value === "all" ||
-      status === activeTab.value;
-
-    const matchesSearch =
-      search === "" ||
-      employeeName.includes(search) ||
-      leaveType.includes(search) ||
-      status.includes(search) ||
-      String(app.leave_id).includes(search);
-
-    const matchesType =
-      filterType.value === "" ||
-      leaveType.includes(filterType.value.toLowerCase());
-
-    return matchesTab && matchesSearch && matchesType;
-  });
+  return result;
 });
 
 /* =========================================================

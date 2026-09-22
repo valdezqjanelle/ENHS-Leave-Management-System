@@ -107,6 +107,34 @@
         </div>
       </div>
 
+      <!-- Search and Sort -->
+      <div class="mb-6">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search employee or activity..."
+            class="flex-1 min-w-0 form-control"
+          />
+
+          <button
+            @click="toggleSort"
+            type="button"
+            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+            :title="arranged ? 'Unsort records' : 'Sort records alphabetically (A to Z)'"
+          >
+            Sort
+          </button>
+
+          <button
+            @click="searchQuery = ''"
+            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table class="credit-table">
           <thead>
@@ -123,7 +151,7 @@
           </thead>
 
           <tbody>
-            <tr v-for="credit in credits" :key="credit.credits_id">
+            <tr v-for="credit in filteredCredits" :key="credit.credits_id">
               <td class="employee-cell">
                 <span class="employee-name">
                   {{ credit.employee?.last_name }},
@@ -213,7 +241,7 @@
               </td>
             </tr>
 
-            <tr v-if="credits.length === 0">
+            <tr v-if="filteredCredits.length === 0">
               <td colspan="8" class="empty-state">
                 No leave credit records found.
               </td>
@@ -494,6 +522,9 @@ interface LeaveCredit {
 const employees = ref<Employee[]>([]);
 const credits = ref<LeaveCredit[]>([]);
 
+const searchQuery = ref("");
+const arranged = ref(false);
+
 const showApplyModal = ref(false);
 const selectedCredit = ref<LeaveCredit | null>(null);
 
@@ -560,6 +591,32 @@ const totalApplied = computed(() => {
 const remainingCredit = computed(
   () => availableCreditDays.value - totalApplied.value,
 );
+
+const filteredCredits = computed(() => {
+  const search = searchQuery.value.trim().toLowerCase();
+  
+  let result = credits.value.filter((credit) => {
+    const employeeName = `${credit.employee?.last_name || ""} ${credit.employee?.first_name || ""}`.toLowerCase();
+    const activityName = credit.activity_name?.toLowerCase() || "";
+    
+    return employeeName.includes(search) || activityName.includes(search);
+  });
+  
+  // Sort alphabetically if arranged is true
+  if (arranged.value) {
+    return [...result].sort((a, b) => {
+      const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`.trim().toLowerCase();
+      const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`.trim().toLowerCase();
+      return aName.localeCompare(bName);
+    });
+  }
+  
+  return result;
+});
+
+const toggleSort = () => {
+  arranged.value = !arranged.value;
+};
 
 const loadEmployees = async () => {
   try {
@@ -865,6 +922,13 @@ onMounted(() => {
 
 .form-control option {
   background: #ffffff;
+
+  color: var(--text);
+}
+
+/* Dark mode overrides for dropdown options */
+.dark .form-control option {
+  background: var(--surface);
 
   color: var(--text);
 }
@@ -1306,6 +1370,13 @@ onMounted(() => {
   color: var(--text);
 }
 
+/* Dark mode overrides for modal dropdown options */
+.dark .modal-form-control option {
+  background: var(--surface);
+
+  color: var(--text);
+}
+
 .readonly-control {
   color: var(--text-muted);
 
@@ -1432,6 +1503,117 @@ onMounted(() => {
   background: #cbd5e1;
 
   transform: translateY(-1px);
+}
+
+/* Dark mode overrides for buttons */
+.dark .cancel-button {
+  background: var(--surface-muted);
+
+  color: var(--text);
+
+  border-color: var(--border);
+}
+
+.dark .cancel-button:hover {
+  background: var(--border);
+}
+
+.dark .readonly-control {
+  background: var(--surface-muted);
+}
+
+.dark .remove-button {
+  background: var(--danger);
+}
+
+.dark .remove-button:hover {
+  background: #b91c1c;
+}
+
+/* Dark mode overrides for status badges */
+.dark .status-pending {
+  background: rgba(251, 191, 36, 0.15);
+
+  color: var(--warning);
+}
+
+.dark .status-applied {
+  background: rgba(74, 222, 128, 0.15);
+
+  color: var(--success);
+}
+
+.dark .applied-text {
+  color: var(--success);
+}
+
+/* Dark mode overrides for credit type colors */
+.dark .credit-service {
+  color: #a78bfa;
+}
+
+.dark .credit-vacation {
+  color: var(--primary);
+}
+
+.dark .credit-sick {
+  color: var(--success);
+}
+
+/* Dark mode overrides for action buttons */
+.dark .apply-button {
+  background: var(--primary);
+}
+
+.dark .apply-button:hover {
+  background: var(--primary-hover);
+}
+
+.dark .primary-button {
+  background: var(--primary);
+}
+
+.dark .primary-button:hover {
+  background: var(--primary-hover);
+}
+
+.dark .confirm-button {
+  background: var(--primary);
+}
+
+.dark .confirm-button:hover {
+  background: var(--primary-hover);
+}
+
+/* Dark mode overrides for table */
+.dark .credit-table tbody tr:hover {
+  background: var(--surface-muted);
+}
+
+/* Dark mode overrides for validation message */
+.dark .validation-message {
+  color: var(--danger) !important;
+}
+
+/* Dark mode overrides for form controls */
+.dark .form-control {
+  background: var(--surface);
+
+  border-color: var(--border);
+}
+
+.dark .form-control:focus {
+  background: var(--surface);
+}
+
+.dark .modal-form-control {
+  background: var(--surface);
+
+  border-color: var(--border);
+}
+
+.dark .modal-form-control:focus {
+  background: var(--surface);
 }
 
 .confirm-button {

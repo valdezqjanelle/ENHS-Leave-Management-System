@@ -46,12 +46,12 @@
           />
 
           <button
-            @click="arrangeAlphabetically"
+            @click="toggleSort"
             type="button"
             class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            title="Arrange employees alphabetically (A to Z)"
+            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
           >
-            Arrange
+            Sort
           </button>
         </div>
       </div>
@@ -508,8 +508,8 @@ const search = ref("");
 // the employee's last name, then first name, then middle name.
 const arranged = ref(false);
 
-const arrangeAlphabetically = () => {
-  arranged.value = true;
+const toggleSort = () => {
+  arranged.value = !arranged.value;
 };
 
 const showFormModal = ref(false);
