@@ -586,7 +586,7 @@
       <!-- ======================================================= -->
       <!-- RECENT ACTIVITIES -->
       <!-- ======================================================= -->
-      <!-- <div class="neo-card p-6">
+      <div class="neo-card p-6">
 
         <h3 class="text-lg font-semibold mb-4 text-white">
           Recent Activities
@@ -595,7 +595,7 @@
         <div
           v-if="recentActivities.length"
           class="space-y-4"
-        > -->
+        >
 
           <div
             v-for="activity in recentActivities"
