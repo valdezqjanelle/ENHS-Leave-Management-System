@@ -293,7 +293,7 @@
             <!-- STATUS + LEAVE TYPE -->
             <!-- ===================================================== -->
 
-            <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div class="grid grid-cols-1 gap-5 xl:grid-cols-20">
 
               <!-- =================================================== -->
               <!-- STATUS -->
@@ -411,7 +411,7 @@
               <!-- =================================================== -->
               <!-- LEAVE BY TYPE -->
               <!-- =================================================== -->
-
+               <!--            
               <div class="summary-panel rounded-xl p-5 sm:p-6">
 
                 <div class="mb-5">
@@ -463,12 +463,15 @@
                     No leave type data available.
                   </p>
                 </div>
+                
 
               </div>
+              -->
 
             </div>
 
           </div>
+          
 
         </template>
 
