@@ -1,19 +1,16 @@
+ 
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
-    <!-- Header -->
-
     <div class="neo-card p-6">
-      <h1 class="text-2xl font-bold text-white">Admin Settings</h1>
+      <h1 class="text-2xl font-bold text-[var(--text)]">Admin Settings</h1>
 
-      <p class="text-gray-400 mt-2">
+      <p class="text-[var(--text-muted)] mt-2">
         Manage system configuration and administration settings.
       </p>
     </div>
 
-    <!-- Tabs -->
-
     <div class="neo-card">
-      <div class="border-b border-[#1e293b] px-6">
+      <div class="border-b border-[#cbd8e8] px-6">
         <nav class="flex flex-wrap gap-6">
           <button
             v-for="tab in tabs"
@@ -22,8 +19,8 @@
             :class="[
               'py-4 text-sm font-medium transition',
               activeTab === tab.id
-                ? 'text-blue-400 border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-gray-200',
+                ? 'text-[#2563eb] border-b-2 border-[#2563eb]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text)]',
             ]"
           >
             {{ tab.name }}
@@ -32,28 +29,26 @@
       </div>
     </div>
 
-    <!-- Account Settings -->
-
     <div v-if="activeTab === 'account'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white mb-2">Account Settings</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
+        Account Settings
+      </h2>
 
-      <p class="text-gray-400 mb-6">
+      <p class="text-[var(--text-muted)] mb-6">
         Manage administrator account information and security.
       </p>
 
-      <!-- Admin Profile -->
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold text-white">
+            <h3 class="text-lg font-semibold text-[var(--text)]">
               Administrator Profile
             </h3>
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Update your administrator information.
             </p>
           </div>
 
-          <!-- Edit button -->
           <button
             v-if="!isEditingProfile"
             @click="startEditProfile"
@@ -63,12 +58,11 @@
             Edit Profile
           </button>
 
-          <!-- Save / Cancel buttons -->
           <div v-else class="flex gap-2">
             <button
               @click="cancelEditProfile"
               type="button"
-              class="px-4 py-2 border border-[#1e293b] text-gray-300 rounded-lg hover:bg-[#0b1420]"
+              class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]"
             >
               Cancel
             </button>
@@ -76,7 +70,7 @@
             <button
               @click="saveAdminProfile"
               type="button"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+              class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
             >
               Save Changes
             </button>
@@ -84,9 +78,8 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- First Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               First Name
             </label>
 
@@ -101,9 +94,8 @@
             />
           </div>
 
-          <!-- Middle Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Middle Name
             </label>
 
@@ -118,9 +110,8 @@
             />
           </div>
 
-          <!-- Last Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Last Name
             </label>
 
@@ -135,9 +126,10 @@
             />
           </div>
 
-          <!-- Sex -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"> Sex </label>
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Sex
+            </label>
 
             <select
               v-model="adminProfile.sex"
@@ -153,11 +145,11 @@
             </select>
           </div>
 
-          <!-- Extension Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Extension Name</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Extension Name
+            </label>
+
             <select
               v-model="adminProfile.extension_name"
               :disabled="!isEditingProfile"
@@ -176,11 +168,11 @@
             </select>
           </div>
 
-          <!-- Date of Birth -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Date of Birth</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Date of Birth
+            </label>
+
             <input
               v-model="adminProfile.date_of_birth"
               type="date"
@@ -192,11 +184,11 @@
             />
           </div>
 
-          <!-- Civil Status -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Civil Status</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Civil Status
+            </label>
+
             <select
               v-model="adminProfile.civil_status"
               :disabled="!isEditingProfile"
@@ -214,11 +206,11 @@
             </select>
           </div>
 
-          <!-- Nationality -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Nationality</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Nationality
+            </label>
+
             <input
               v-model="adminProfile.nationality"
               type="text"
@@ -230,11 +222,11 @@
             />
           </div>
 
-          <!-- Personal Email -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Personal Email</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Personal Email
+            </label>
+
             <input
               v-model="adminProfile.personal_email"
               type="email"
@@ -246,11 +238,11 @@
             />
           </div>
 
-          <!-- Address -->
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-300"
-              >Address</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Address
+            </label>
+
             <textarea
               v-model="adminProfile.address"
               rows="2"
@@ -262,11 +254,11 @@
             ></textarea>
           </div>
 
-          <!-- Emergency Contact Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Emergency Contact Name</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Emergency Contact Name
+            </label>
+
             <input
               v-model="adminProfile.emergency_contact_name"
               type="text"
@@ -278,11 +270,11 @@
             />
           </div>
 
-          <!-- Emergency Contact Number -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Emergency Contact Number</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Emergency Contact Number
+            </label>
+
             <input
               v-model="adminProfile.emergency_contact_number"
               type="tel"
@@ -303,7 +295,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-300">Level</label>
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Level
+            </label>
 
             <select
               v-model="adminProfile.level"
@@ -321,9 +315,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Position</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Position
+            </label>
 
             <select
               v-model="adminProfile.position_id"
@@ -345,11 +339,11 @@
             </select>
           </div>
 
-          <!-- Salary Grade (readonly, derived from position) -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Salary Grade</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Salary Grade
+            </label>
+
             <input
               :value="selectedAdminSalaryGrade || '-'"
               type="text"
@@ -358,11 +352,11 @@
             />
           </div>
 
-          <!-- Salary Step -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Salary Step</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Salary Step
+            </label>
+
             <select
               v-model="adminProfile.salary_step"
               :disabled="!isEditingProfile"
@@ -378,11 +372,11 @@
             </select>
           </div>
 
-          <!-- Current Salary (readonly, auto-computed) -->
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Current Salary</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Current Salary
+            </label>
+
             <input
               :value="formattedAdminSalary"
               type="text"
@@ -392,9 +386,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-300"
-              >Department</label
-            >
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
+              Department
+            </label>
 
             <select
               v-model="adminProfile.department_id"
@@ -416,9 +410,8 @@
             </select>
           </div>
 
-          <!-- Contact Number -->
           <div>
-            <label class="block text-sm font-medium text-gray-300">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Contact Number
             </label>
 
@@ -435,13 +428,11 @@
         </div>
       </div>
 
-      <hr class="my-8 border-[#1e293b]" />
-
-      <!-- Email -->
+      <hr class="my-8 border-[#cbd8e8]" />
 
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-300">
+          <label class="block text-sm font-medium text-[var(--text-muted)]">
             Admin Email
           </label>
 
@@ -454,17 +445,17 @@
 
         <button
           @click="updateEmail"
-          class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+          class="bg-[#2563eb] text-white px-5 py-2 rounded-lg hover:bg-[#1d4ed8]"
         >
           Update Email
         </button>
       </div>
 
-      <hr class="my-8 border-[#1e293b]" />
+      <hr class="my-8 border-[#cbd8e8]" />
 
-      <!-- Password -->
-
-      <h3 class="text-lg font-semibold text-white mb-4">Change Password</h3>
+      <h3 class="text-lg font-semibold text-[var(--text)] mb-4">
+        Change Password
+      </h3>
 
       <div class="space-y-4">
         <input
@@ -497,27 +488,28 @@
       </div>
     </div>
 
-    <!-- Leave Settings -->
-
     <div v-if="activeTab === 'leave'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white">Leave Settings</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)]">Leave Settings</h2>
 
-      <p class="text-gray-400 mt-1 mb-6">
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
         Manage leave types, requirements, and rules for employees.
       </p>
+
       <div class="inner-card p-5">
         <div class="flex items-center justify-between gap-4 mb-5">
           <div>
-            <h3 class="text-lg font-semibold text-white">Leave Types</h3>
+            <h3 class="text-lg font-semibold text-[var(--text)]">
+              Leave Types
+            </h3>
 
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Manage the leave types available to employees.
             </p>
           </div>
 
           <button
             @click="openAddLeaveModal"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
           >
             Add Leave Type
           </button>
@@ -526,16 +518,14 @@
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-[#1e293b] text-left">
-                <th class="px-4 py-3 text-gray-300">Code</th>
-
-                <th class="px-4 py-3 text-gray-300">Leave Type</th>
-
-                <th class="px-4 py-3 text-gray-300">Legal Basis</th>
-
-                <th class="px-4 py-3 text-gray-300">Requirements</th>
-
-                <th class="px-4 py-3 text-gray-300 text-right">Actions</th>
+              <tr class="border-b border-[#cbd8e8] text-left">
+                <th class="px-4 py-3 text-[var(--text-muted)]">Code</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Leave Type</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Legal Basis</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Requirements</th>
+                <th class="px-4 py-3 text-[var(--text-muted)] text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
 
@@ -543,25 +533,25 @@
               <tr
                 v-for="leave in leaveTypes"
                 :key="leave.leave_type_id"
-                class="border-b border-[#1e293b]"
+                class="border-b border-[#cbd8e8]"
               >
                 <td class="px-4 py-3">
                   <span
-                    class="inline-flex px-2 py-1 rounded bg-blue-500/10 text-blue-400 font-semibold"
+                    class="inline-flex px-2 py-1 rounded bg-blue-50 text-blue-600 font-semibold"
                   >
                     {{ leave.code }}
                   </span>
                 </td>
 
-                <td class="px-4 py-3 text-white font-medium">
+                <td class="px-4 py-3 text-[var(--text)] font-medium">
                   {{ leave.leave_type_name }}
                 </td>
 
-                <td class="px-4 py-3 text-gray-400 max-w-md">
+                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
                   {{ leave.legal_basis || "No legal basis provided." }}
                 </td>
 
-                <td class="px-4 py-3 text-gray-400 max-w-md">
+                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
                   {{ leave.requirements || "No requirements provided." }}
                 </td>
 
@@ -569,14 +559,14 @@
                   <div class="flex justify-end gap-2">
                     <button
                       @click="openEditLeaveModal(leave)"
-                      class="px-3 py-1.5 text-blue-400 border border-blue-500/40 rounded hover:bg-blue-500/10"
+                      class="px-3 py-1.5 text-blue-600 border border-blue-200 rounded hover:bg-blue-50"
                     >
                       Edit
                     </button>
 
                     <button
                       @click="removeLeaveType(leave.leave_type_id)"
-                      class="px-3 py-1.5 text-red-400 border border-red-500/40 rounded hover:bg-red-500/10"
+                      class="px-3 py-1.5 text-red-600 border border-red-200 rounded hover:bg-red-50"
                     >
                       Delete
                     </button>
@@ -585,7 +575,10 @@
               </tr>
 
               <tr v-if="leaveTypes.length === 0">
-                <td colspan="5" class="px-4 py-8 text-center text-gray-400">
+                <td
+                  colspan="5"
+                  class="px-4 py-8 text-center text-[var(--text-muted)]"
+                >
                   No leave types found.
                 </td>
               </tr>
@@ -594,14 +587,14 @@
         </div>
       </div>
 
-      <!-- Leave Rules -->
-
       <div class="inner-card p-5 mt-6">
         <div class="flex items-center justify-between mb-5">
           <div>
-            <h3 class="text-lg font-semibold text-white">Leave Rules</h3>
+            <h3 class="text-lg font-semibold text-[var(--text)]">
+              Leave Rules
+            </h3>
 
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-[var(--text-muted)]">
               Configure general rules and requirements that employees should
               follow when filing leave.
             </p>
@@ -609,10 +602,10 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- Advance Filing -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               Minimum Filing Notice
             </label>
 
@@ -624,20 +617,22 @@
                 class="w-full border rounded-lg px-3 py-2 field-editable"
               />
 
-              <span class="text-sm text-gray-400 whitespace-nowrap">
+              <span
+                class="text-sm text-[var(--text-muted)] whitespace-nowrap"
+              >
                 day(s) before leave
               </span>
             </div>
 
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs text-[var(--text-muted)] mt-1">
               Number of days an employee should file leave in advance.
             </p>
           </div>
 
-          <!-- Supporting Documents -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               Supporting Documents
             </label>
 
@@ -646,19 +641,18 @@
               class="w-full border rounded-lg px-3 py-2 field-editable"
             >
               <option :value="false">Not Required</option>
-
               <option :value="true">Required</option>
             </select>
 
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs text-[var(--text-muted)] mt-1">
               Determines whether employees must provide supporting documents.
             </p>
           </div>
 
-          <!-- Maximum Consecutive Days -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               Maximum Consecutive Leave Days
             </label>
 
@@ -670,15 +664,15 @@
               placeholder="Example: 10"
             />
 
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs text-[var(--text-muted)] mt-1">
               Maximum number of consecutive days allowed per application.
             </p>
           </div>
 
-          <!-- General Rule -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               General Leave Policy
             </label>
 
@@ -694,7 +688,7 @@
         <div class="flex justify-end mt-5">
           <button
             @click="saveLeaveRules"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+            class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 rounded-lg"
           >
             Save Leave Rules
           </button>
@@ -703,20 +697,22 @@
     </div>
 
     <div v-if="activeTab === 'approval'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white">Approval Settings</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)]">
+        Approval Settings
+      </h2>
 
-      <p class="text-gray-400 mt-1 mb-6">
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
         Configure the review, endorsement, and approval workflow for leave
         applications.
       </p>
 
       <div class="inner-card p-5">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Leave Approval Workflow
           </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Manage the internal review and endorsement process for leave
             applications.
           </p>
@@ -725,9 +721,9 @@
         <div class="space-y-5">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h4 class="font-medium text-white">Admin Review</h4>
+              <h4 class="font-medium text-[var(--text)]">Admin Review</h4>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Require Admin Personnel to review submitted leave applications.
               </p>
             </div>
@@ -743,9 +739,11 @@
 
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h4 class="font-medium text-white">Principal Endorsement</h4>
+              <h4 class="font-medium text-[var(--text)]">
+                Principal Endorsement
+              </h4>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Require School Principal endorsement before the application is
                 prepared for external submission.
               </p>
@@ -762,9 +760,9 @@
 
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h4 class="font-medium text-white">Admin Remarks</h4>
+              <h4 class="font-medium text-[var(--text)]">Admin Remarks</h4>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Allow Admin Personnel to provide remarks during application
                 review.
               </p>
@@ -783,11 +781,11 @@
 
       <div class="inner-card p-5 mt-6">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Division Office Result
           </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Configure how official Division Office results are recorded and
             processed in the system.
           </p>
@@ -796,11 +794,11 @@
         <div class="space-y-5">
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h4 class="font-medium text-white">
+              <h4 class="font-medium text-[var(--text)]">
                 Automatically Update Application Status
               </h4>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Update the application status when an official Division Office
                 result is recorded.
               </p>
@@ -817,11 +815,11 @@
 
           <div class="flex items-center justify-between gap-4">
             <div>
-              <h4 class="font-medium text-white">
+              <h4 class="font-medium text-[var(--text)]">
                 Automatically Update Leave Balance
               </h4>
 
-              <p class="text-sm text-gray-400">
+              <p class="text-sm text-[var(--text-muted)]">
                 Update the employee's leave balance based on the official
                 Division Office approved leave days.
               </p>
@@ -841,38 +839,38 @@
       <div class="flex justify-end mt-6">
         <button
           @click="saveApprovalSettings"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+          class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 rounded-lg"
         >
           Save Approval Settings
         </button>
       </div>
     </div>
 
-    <!-- System Settings -->
-
     <div v-if="activeTab === 'system'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white">System Settings</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)]">
+        System Settings
+      </h2>
 
-      <p class="text-gray-400 mt-1 mb-6">
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
         Manage general system information and configuration.
       </p>
 
-      <!-- System Information -->
-
       <div class="inner-card p-5">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">System Information</h3>
+          <h3 class="text-lg font-semibold text-[var(--text)]">
+            System Information
+          </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Configure the basic information displayed throughout the system.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <!-- System Name -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               System Name
             </label>
 
@@ -884,10 +882,10 @@
             />
           </div>
 
-          <!-- School Name -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               School Name
             </label>
 
@@ -899,10 +897,10 @@
             />
           </div>
 
-          <!-- System Version -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               System Version
             </label>
 
@@ -914,10 +912,10 @@
             />
           </div>
 
-          <!-- Contact Email -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               Contact Email
             </label>
 
@@ -929,10 +927,10 @@
             />
           </div>
 
-          <!-- Contact Number -->
-
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               Contact Number
             </label>
 
@@ -944,10 +942,10 @@
             />
           </div>
 
-          <!-- System Description -->
-
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+            >
               System Description
             </label>
 
@@ -961,13 +959,11 @@
         </div>
       </div>
 
-      <!-- About Us -->
-
       <div class="inner-card p-5 mt-6">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">About Us</h3>
+          <h3 class="text-lg font-semibold text-[var(--text)]">About Us</h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Information about the leave management system that may be displayed
             to employees.
           </p>
@@ -981,12 +977,10 @@
         ></textarea>
       </div>
 
-      <!-- Save -->
-
       <div class="flex justify-end mt-6">
         <button
           @click="saveSystemSettings"
-          class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
+          class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 rounded-lg"
         >
           Save System Settings
         </button>
@@ -994,26 +988,30 @@
     </div>
 
     <div v-if="activeTab === 'audit'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white">Audit Logs</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)]">Audit Logs</h2>
 
-      <p class="text-gray-400 mt-2">Audit trail of admin and login activity.</p>
+      <p class="text-[var(--text-muted)] mt-2">
+        Audit trail of admin and login activity.
+      </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div class="inner-card p-4">
-          <p class="text-sm text-gray-400">Logged events</p>
-          <p class="text-2xl font-semibold text-white">{{ auditTotal }}</p>
+          <p class="text-sm text-[var(--text-muted)]">Logged events</p>
+          <p class="text-2xl font-semibold text-[var(--text)]">
+            {{ auditTotal }}
+          </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-gray-400">Showing</p>
-          <p class="text-2xl font-semibold text-white">
+          <p class="text-sm text-[var(--text-muted)]">Showing</p>
+          <p class="text-2xl font-semibold text-[var(--text)]">
             {{ auditLogs.length }}
           </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-gray-400">Last event</p>
-          <p class="text-2xl font-semibold text-white">
+          <p class="text-sm text-[var(--text-muted)]">Last event</p>
+          <p class="text-2xl font-semibold text-[var(--text)]">
             {{ lastEventComputed }}
           </p>
         </div>
@@ -1050,26 +1048,29 @@
             auditFilters.date_to
           "
           @click="clearAuditFilters"
-          class="text-sm text-blue-400 hover:underline"
+          class="text-sm text-blue-600 hover:underline"
         >
           Clear filters
         </button>
       </div>
 
-      <div class="mt-4 overflow-x-auto border border-[#1e293b] rounded-lg">
+      <div class="mt-4 overflow-x-auto border border-[#cbd8e8] rounded-lg">
         <table class="min-w-full text-sm">
           <thead class="table-head">
             <tr>
-              <th class="text-left px-4 py-3 font-medium text-gray-400">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
                 User
               </th>
-              <th class="text-left px-4 py-3 font-medium text-gray-400">
+
+              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
                 Action
               </th>
-              <th class="text-left px-4 py-3 font-medium text-gray-400">
+
+              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
                 Description
               </th>
-              <th class="text-left px-4 py-3 font-medium text-gray-400">
+
+              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
                 Date
               </th>
             </tr>
@@ -1077,13 +1078,19 @@
 
           <tbody>
             <tr v-if="auditLoading">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-500">
+              <td
+                colspan="4"
+                class="px-4 py-6 text-center text-[var(--text-muted)]"
+              >
                 Loading...
               </td>
             </tr>
 
             <tr v-else-if="auditLogs.length === 0">
-              <td colspan="4" class="px-4 py-6 text-center text-gray-500">
+              <td
+                colspan="4"
+                class="px-4 py-6 text-center text-[var(--text-muted)]"
+              >
                 No audit log entries yet.
               </td>
             </tr>
@@ -1091,9 +1098,9 @@
             <tr
               v-for="log in auditLogs"
               :key="log.log_id"
-              class="border-t border-[#1e293b]"
+              class="border-t border-[#cbd8e8]"
             >
-              <td class="px-4 py-3 text-white">
+              <td class="px-4 py-3 text-[var(--text)]">
                 {{ log.user?.email ?? "Unknown user" }}
               </td>
 
@@ -1106,9 +1113,13 @@
                 </span>
               </td>
 
-              <td class="px-4 py-3 text-gray-300">{{ log.description }}</td>
+              <td class="px-4 py-3 text-[var(--text-muted)]">
+                {{ log.description }}
+              </td>
 
-              <td class="px-4 py-3 text-gray-400 whitespace-nowrap">
+              <td
+                class="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap"
+              >
                 {{ formatAuditDate(log.created_at) }}
               </td>
             </tr>
@@ -1117,7 +1128,7 @@
       </div>
 
       <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-gray-500">
+        <p class="text-sm text-[var(--text-muted)]">
           Showing {{ auditFrom }}-{{ auditTo }} of {{ auditTotal }}
         </p>
 
@@ -1125,7 +1136,7 @@
           <button
             :disabled="auditPage <= 1"
             @click="loadAuditLogs(auditPage - 1)"
-            class="px-3 py-1.5 border border-[#1e293b] text-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-[#0b1420]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Prev
           </button>
@@ -1133,7 +1144,7 @@
           <button
             :disabled="auditPage >= auditLastPage"
             @click="loadAuditLogs(auditPage + 1)"
-            class="px-3 py-1.5 border border-[#1e293b] text-gray-300 rounded-lg text-sm disabled:opacity-40 hover:bg-[#0b1420]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Next
           </button>
@@ -1141,25 +1152,25 @@
       </div>
     </div>
 
-    <!-- Backup & Recovery -->
-
     <div v-if="activeTab === 'backup'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-white">Backup & Recovery</h2>
+      <h2 class="text-xl font-semibold text-[var(--text)]">
+        Backup & Recovery
+      </h2>
 
-      <p class="text-gray-400 mt-1 mb-6">
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
         Create, manage, and recover system database backups.
       </p>
-
-      <!-- Database Backup -->
 
       <div class="inner-card p-5">
         <div
           class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         >
           <div>
-            <h3 class="text-lg font-semibold text-white">Database Backup</h3>
+            <h3 class="text-lg font-semibold text-[var(--text)]">
+              Database Backup
+            </h3>
 
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Create a digital backup copy of the system database.
             </p>
           </div>
@@ -1167,46 +1178,45 @@
           <button
             @click="createBackup"
             :disabled="backupLoading"
-            class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+            class="bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white px-5 py-2 rounded-lg"
           >
             {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
           </button>
         </div>
 
-        <!-- Last Backup -->
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <div class="inner-card-alt p-4">
-            <p class="text-sm text-gray-400">Last Backup</p>
+            <p class="text-sm text-[var(--text-muted)]">Last Backup</p>
 
-            <p class="text-lg font-semibold text-white mt-1">
+            <p class="text-lg font-semibold text-[var(--text)] mt-1">
               {{ lastBackup.date || "No backup yet" }}
             </p>
           </div>
 
           <div class="inner-card-alt p-4">
-            <p class="text-sm text-gray-400">Backup Type</p>
+            <p class="text-sm text-[var(--text-muted)]">Backup Type</p>
 
-            <p class="text-lg font-semibold text-white mt-1">
+            <p class="text-lg font-semibold text-[var(--text)] mt-1">
               {{ lastBackup.type || "—" }}
             </p>
           </div>
 
           <div class="inner-card-alt p-4">
-            <p class="text-sm text-gray-400">Status</p>
+            <p class="text-sm text-[var(--text-muted)]">Status</p>
 
             <p
               class="text-lg font-semibold mt-1"
               :class="
                 lastBackup.status === 'Successful'
-                  ? 'text-green-400'
-                  : 'text-white'
+                  ? 'text-green-600'
+                  : 'text-[var(--text)]'
               "
             >
               {{ lastBackup.status || "—" }}
             </p>
           </div>
         </div>
+
         <div class="flex justify-end mt-5">
           <button
             @click="downloadLatestBackup"
@@ -1218,46 +1228,42 @@
         </div>
       </div>
 
-      <!-- Backup Methods -->
-
       <div class="inner-card p-5 mt-6">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">Backup Methods</h3>
+          <h3 class="text-lg font-semibold text-[var(--text)]">
+            Backup Methods
+          </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Recommended methods for protecting important system data.
           </p>
         </div>
 
         <div class="space-y-4">
-          <!-- Printed -->
+          <div class="border border-[#cbd8e8] rounded-lg p-4">
+            <h4 class="font-semibold text-[var(--text)]">Printed Backup</h4>
 
-          <div class="border border-[#1e293b] rounded-lg p-4">
-            <h4 class="font-semibold text-white">Printed Backup</h4>
-
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Important reports such as leave, attendance, and employee reports
               may be printed and stored as physical records.
             </p>
           </div>
 
-          <!-- External -->
+          <div class="border border-[#cbd8e8] rounded-lg p-4">
+            <h4 class="font-semibold text-[var(--text)]">
+              Digital / External Backup
+            </h4>
 
-          <div class="border border-[#1e293b] rounded-lg p-4">
-            <h4 class="font-semibold text-white">Digital / External Backup</h4>
-
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Downloaded database backups may be copied to USB drives, external
               hard drives, or other secure storage devices.
             </p>
           </div>
 
-          <!-- Cloud -->
+          <div class="border border-[#cbd8e8] rounded-lg p-4">
+            <h4 class="font-semibold text-[var(--text)]">Cloud Backup</h4>
 
-          <div class="border border-[#1e293b] rounded-lg p-4">
-            <h4 class="font-semibold text-white">Cloud Backup</h4>
-
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-[var(--text-muted)] mt-1">
               Database backup files may be uploaded to an authorized cloud
               storage service for an additional backup copy.
             </p>
@@ -1265,15 +1271,13 @@
         </div>
       </div>
 
-      <!-- Recovery -->
-
       <div class="inner-card p-5 mt-6">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
+          <h3 class="text-lg font-semibold text-[var(--text)]">
             Recovery / Failover Method
           </h3>
 
-          <p class="text-sm text-gray-400 mt-1">
+          <p class="text-sm text-[var(--text-muted)] mt-1">
             Procedure for recovering the system when the primary database
             becomes unavailable.
           </p>
@@ -1282,57 +1286,59 @@
         <div class="space-y-3">
           <div class="flex items-center gap-3">
             <span
-              class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center font-semibold"
+              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
             >
               1
             </span>
 
-            <span class="text-gray-300"> Identify the database failure. </span>
+            <span class="text-[var(--text-muted)]">
+              Identify the database failure.
+            </span>
           </div>
 
           <div class="flex items-center gap-3">
             <span
-              class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center font-semibold"
+              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
             >
               2
             </span>
 
-            <span class="text-gray-300">
+            <span class="text-[var(--text-muted)]">
               Locate the latest valid database backup.
             </span>
           </div>
 
           <div class="flex items-center gap-3">
             <span
-              class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center font-semibold"
+              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
             >
               3
             </span>
 
-            <span class="text-gray-300">
+            <span class="text-[var(--text-muted)]">
               Restore the database from the backup.
             </span>
           </div>
 
           <div class="flex items-center gap-3">
             <span
-              class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-400 flex items-center justify-center font-semibold"
+              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
             >
               4
             </span>
 
-            <span class="text-gray-300">
+            <span class="text-[var(--text-muted)]">
               Verify restored records and resume system operation.
             </span>
           </div>
         </div>
 
         <div
-          class="mt-5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4"
+          class="mt-5 bg-[#fffbeb] border border-[#f1dfad] rounded-lg p-4"
         >
-          <p class="text-sm font-medium text-yellow-400">Restore Database</p>
+          <p class="text-sm font-medium text-[#a16207]">Restore Database</p>
 
-          <p class="text-sm text-yellow-500/80 mt-1 mb-4">
+          <p class="text-sm text-[#a16207] mt-1 mb-4">
             Select a previously downloaded JSON database backup file to restore
             the system data.
           </p>
@@ -1355,14 +1361,17 @@
             </button>
           </div>
 
-          <p v-if="selectedRestoreFile" class="text-sm text-gray-400 mt-3">
+          <p
+            v-if="selectedRestoreFile"
+            class="text-sm text-[var(--text-muted)] mt-3"
+          >
             Selected file:
-            <span class="text-white">
+            <span class="text-[var(--text)]">
               {{ selectedRestoreFile.name }}
             </span>
           </p>
 
-          <p class="text-xs text-red-400 mt-3">
+          <p class="text-xs text-red-600 mt-3">
             Warning: Restoring a backup will replace the current database
             records with the records contained in the selected backup.
           </p>
@@ -1372,16 +1381,20 @@
 
     <div
       v-if="isLeaveModalOpen"
-      class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
     >
       <div class="neo-card w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-        <h2 class="text-xl font-semibold text-white mb-5">
+        <h2 class="text-xl font-semibold text-[var(--text)] mb-5">
           {{ isEditMode ? "Edit Leave Type" : "Add Leave Type" }}
         </h2>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm text-gray-300 mb-1"> Leave Code </label>
+            <label
+              class="block text-sm text-[var(--text-muted)] mb-1"
+            >
+              Leave Code
+            </label>
 
             <input
               v-model="leaveForm.code"
@@ -1398,7 +1411,9 @@
           </div>
 
           <div>
-            <label class="block text-sm text-gray-300 mb-1">
+            <label
+              class="block text-sm text-[var(--text-muted)] mb-1"
+            >
               Leave Type Name
             </label>
 
@@ -1411,7 +1426,9 @@
           </div>
 
           <div>
-            <label class="block text-sm text-gray-300 mb-1">
+            <label
+              class="block text-sm text-[var(--text-muted)] mb-1"
+            >
               Legal Basis
             </label>
 
@@ -1424,7 +1441,9 @@
           </div>
 
           <div>
-            <label class="block text-sm text-gray-300 mb-1">
+            <label
+              class="block text-sm text-[var(--text-muted)] mb-1"
+            >
               Requirements
             </label>
 
@@ -1440,14 +1459,14 @@
         <div class="flex justify-end gap-3 mt-6">
           <button
             @click="closeLeaveModal"
-            class="px-4 py-2 text-gray-300 border border-[#1e293b] rounded-lg hover:bg-[#0b1420]"
+            class="px-4 py-2 text-[var(--text-muted)] border border-[#cbd8e8] rounded-lg hover:bg-[#eef4fb]"
           >
             Cancel
           </button>
 
           <button
             @click="saveLeaveType"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            class="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-lg"
           >
             {{ isEditMode ? "Update" : "Add" }}
           </button>
@@ -1499,7 +1518,6 @@ import {
 
 const activeTab = ref("account");
 
-// AUDIT LOGS
 const auditLogs = ref<any[]>([]);
 const auditActions = ref<string[]>([]);
 const auditFilters = ref({ action: "", date_from: "", date_to: "" });
@@ -1555,13 +1573,13 @@ const clearAuditFilters = () => {
 
 const actionBadgeClass = (action: string) => {
   const a = action.toLowerCase();
-  if (a.includes("login")) return "bg-green-500/15 text-green-400";
-  if (a.includes("approved")) return "bg-blue-500/15 text-blue-400";
+  if (a.includes("login")) return "bg-green-50 text-green-700";
+  if (a.includes("approved")) return "bg-blue-50 text-blue-700";
   if (a.includes("rejected") || a.includes("deleted"))
-    return "bg-red-500/15 text-red-400";
+    return "bg-red-50 text-red-700";
   if (a.includes("updated") || a.includes("created"))
-    return "bg-amber-500/15 text-amber-400";
-  return "bg-gray-500/15 text-gray-400";
+    return "bg-amber-50 text-amber-700";
+  return "bg-slate-100 text-slate-600";
 };
 
 const formatAuditDate = (dateStr: string) => {
@@ -1579,27 +1597,22 @@ const tabs = [
     id: "account",
     name: "Account Settings",
   },
-
   {
     id: "leave",
     name: "Leave Settings",
   },
-
   {
     id: "approval",
     name: "Approval Settings",
   },
-
   {
     id: "system",
     name: "System Settings",
   },
-
   {
     id: "audit",
     name: "Audit Logs",
   },
-
   {
     id: "backup",
     name: "Backup",
@@ -1650,7 +1663,6 @@ const loadPositions = async () => {
   }
 };
 
-// Snapshot used to restore values if the user cancels an edit
 const adminProfileBackup = ref({ ...adminProfile.value });
 
 const isEditingProfile = ref(false);
@@ -1790,6 +1802,7 @@ watch(
     calculateAdminSalary();
   },
 );
+
 const formattedAdminSalary = computed(() => {
   if (
     adminProfile.value.salary === "" ||
@@ -1804,6 +1817,7 @@ const formattedAdminSalary = computed(() => {
     maximumFractionDigits: 2,
   })}`;
 });
+
 const updateEmail = async () => {
   try {
     await updateAdminEmail(adminEmail.value);
@@ -1868,6 +1882,7 @@ const saveLeaveRules = async () => {
     alert(error.response?.data?.message || "Failed to save leave rules.");
   }
 };
+
 interface LeaveType {
   leave_type_id: number;
   code: string;
@@ -1957,6 +1972,7 @@ const saveLeaveType = async () => {
     legal_basis: legalBasis,
     requirements,
   };
+
   console.log("LEAVE TYPE PAYLOAD:", payload);
 
   try {
@@ -2089,6 +2105,7 @@ const loadSystemSettings = async () => {
     console.error("Failed to load system settings:", error);
   }
 };
+
 const saveSystemSettings = async () => {
   try {
     await updateSystemSettings(systemSettings.value);
@@ -2254,7 +2271,6 @@ const handleRestoreFile = async (event: Event) => {
     return;
   }
 
-  // Make sure the file is JSON
   if (
     file.type !== "application/json" &&
     !file.name.toLowerCase().endsWith(".json")
@@ -2291,10 +2307,8 @@ const handleRestoreFile = async (event: Event) => {
 
     selectedRestoreFile.value = null;
 
-    // Reload backup information
     await loadBackups();
 
-    // Reset file input so the same file can be selected again
     input.value = "";
   } catch (error: any) {
     console.error("FULL RESTORE ERROR:", error);
@@ -2312,7 +2326,7 @@ const handleRestoreFile = async (event: Event) => {
 onMounted(() => {
   loadAdmin();
   loadPositions();
-  loadDepartments(); // idagdag ito
+  loadDepartments();
   loadLeaveTypes();
   loadLeaveRules();
   loadApprovalSettings();
@@ -2325,21 +2339,21 @@ onMounted(() => {
 
 <style scoped>
 .settings-shell {
-  background: #080d14;
+  background: var(--app-bg);
 }
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 26px rgba(23, 32, 51, 0.09);
 }
 
 .neo-card h3,
@@ -2349,44 +2363,42 @@ onMounted(() => {
   letter-spacing: -0.01em;
 }
 
-/* Nested panels inside a neo-card, e.g. "Leave Types", "Leave Rules" */
 .inner-card {
-  background: #0b1420;
-  border: 1px solid #1e293b;
+  background: var(--surface-muted);
+  border: 1px solid #c8d8eb;
   border-radius: 1.1rem;
 }
 
-/* Small stat tiles inside an inner-card, e.g. backup summary tiles */
 .inner-card-alt {
-  background: #0d1a2b;
-  border: 1px solid #1e293b;
+  background: #f3f7fc;
+  border: 1px solid #c8d8eb;
   border-radius: 0.9rem;
 }
 
 .table-head {
-  background: #0b1420;
+  background: var(--surface-muted);
 }
 
-/* Editable form fields */
 .field-editable {
-  background: #0b1420;
-  color: #ffffff;
-  border-color: #233045;
+  background: var(--surface-muted);
+  color: var(--text);
+  border-color: #c8d8eb;
 }
 
 .field-editable::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .field-editable:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #7aa7e8;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* Readonly / disabled form fields */
 .field-readonly {
-  background: #0d1626;
-  color: #64748b;
-  border-color: #1e293b;
+  background: #f3f7fc;
+  color: var(--text-muted);
+  border-color: #cbd8e8;
 }
 </style>
+ 

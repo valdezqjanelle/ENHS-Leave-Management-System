@@ -1018,12 +1018,22 @@ const downloadForm = (
 
 
 <style scoped>
+/*
+  Theme-aware styles.
+  These all pull from the CSS custom properties defined once in base.css
+  (:root for light, .dark for dark). Because the values live in variables,
+  this component automatically renders correctly in both themes with no
+  need for duplicated ".dark ..." override blocks - the browser resolves
+  the variable per current theme.
+*/
+
 /* =========================================
    DASHBOARD BACKGROUND
 ========================================= */
 
 .dashboard-shell {
-  background: #080D14;
+  background: var(--app-bg);
+  color: var(--text);
 }
 
 
@@ -1032,23 +1042,15 @@ const downloadForm = (
 ========================================= */
 
 .neo-card {
-  background: #111D2E;
-
-  border: 1px solid #1E293B;
-
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 1.4rem;
-
-  box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.18);
-
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.28);
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
 }
 
 
@@ -1070,41 +1072,28 @@ const downloadForm = (
 ========================================= */
 
 .dark-input {
-  border: 1px solid #334155;
-
+  border: 1px solid var(--border);
   border-radius: 0.65rem;
-
   padding: 0.65rem 0.85rem;
-
-  background: #0f1a2a;
-
-  color: #f8fafc;
-
+  background: var(--surface);
+  color: var(--text);
   font-size: 0.875rem;
-
   outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .dark-input:focus {
-  border-color: #3b82f6;
-
-  box-shadow:
-    0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .dark-input::placeholder {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .dark-input option {
-  background: #111D2E;
-
-  color: #f8fafc;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .btn-action {
@@ -1124,35 +1113,38 @@ const downloadForm = (
 .btn-action:active {
   transform: scale(0.97);
 }
+
 /* =========================================
    TABLE
 ========================================= */
 
 .table-header {
   padding: 0.9rem 1.5rem;
-
   text-align: left;
-
-  color: #64748b;
-
+  color: var(--text-muted);
   font-size: 0.7rem;
-
   font-weight: 600;
-
   text-transform: uppercase;
-
   letter-spacing: 0.05em;
-
   white-space: nowrap;
+  background: var(--surface-muted);
 }
-
 
 .table-cell {
   padding: 1rem 1.5rem;
-
   white-space: nowrap;
-
   font-size: 0.875rem;
+  color: var(--text);
+}
+
+/* Table rows/body should also follow the theme surface, since the
+   template applies text-slate-300 utility classes directly on <td>. */
+tbody {
+  background: var(--surface);
+}
+
+tbody tr:hover {
+  background: var(--surface-muted);
 }
 
 
@@ -1161,47 +1153,33 @@ const downloadForm = (
 ========================================= */
 
 .status-approved {
-  background: rgba(34, 197, 94, 0.12);
-
-  color: #4ade80;
-
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.14);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
-
 
 .status-pending {
-  background: rgba(234, 179, 8, 0.12);
-
-  color: #facc15;
-
-  border: 1px solid rgba(234, 179, 8, 0.2);
+  background: rgba(234, 179, 8, 0.14);
+  color: var(--warning);
+  border: 1px solid rgba(234, 179, 8, 0.3);
 }
-
 
 .status-disapproved {
-  background: rgba(239, 68, 68, 0.12);
-
-  color: #f87171;
-
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
-
 
 .status-pr {
-  background: rgba(59, 130, 246, 0.12);
-
-  color: #60a5fa;
-
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.14);
+  color: var(--primary);
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-
 .status-default {
-  background: rgba(100, 116, 139, 0.12);
-
-  color: #94a3b8;
-
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: rgba(100, 116, 139, 0.14);
+  color: var(--text-muted);
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 
@@ -1210,41 +1188,28 @@ const downloadForm = (
 ========================================= */
 
 .modal-section {
-  background: #0D1827;
-
-  border: 1px solid #263548;
-
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 1rem;
-
   padding: 1.25rem;
 }
 
-
 .modal-title {
-  color: #f8fafc;
-
+  color: var(--text);
   font-size: 1rem;
-
   font-weight: 600;
-
   margin-bottom: 1.25rem;
 }
 
-
 .modal-label {
-  color: #64748b;
-
+  color: var(--text-muted);
   font-size: 0.75rem;
-
   margin-bottom: 0.3rem;
 }
 
-
 .modal-value {
-  color: #e2e8f0;
-
+  color: var(--text);
   font-size: 0.875rem;
-
   font-weight: 500;
 }
 

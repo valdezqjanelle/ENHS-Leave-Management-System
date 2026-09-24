@@ -35,12 +35,25 @@
       <!-- ========================================================= -->
 
       <div class="neo-card w-full p-6">
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search non-teaching personnel..."
-          class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-        />
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+        >
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search non-teaching personnel..."
+            class="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          />
+
+          <button
+            @click="toggleSort"
+            type="button"
+            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
+          >
+            Sort
+          </button>
+        </div>
       </div>
 
       <!-- ========================================================= -->
@@ -50,8 +63,8 @@
       <div class="neo-card w-full p-6">
         <div class="table-wrapper">
           <table class="non-teaching-table">
-            <thead class="bg-gray-100">
-              <tr class="text-left text-black font-semibold">
+            <thead>
+              <tr class="text-left text-white font-semibold">
                 <th class="px-3 py-3">Employee Code</th>
                 <th class="px-3 py-3">Employee</th>
                 <th class="px-3 py-3">Position</th>
@@ -66,7 +79,7 @@
               <tr
                 v-for="record in filteredRecords"
                 :key="record.non_teaching_record_id"
-                class="border-t hover:bg-gray-800 transition-colors duration-200"
+                class="table-row transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
@@ -460,6 +473,14 @@ const employees = ref<Employee[]>([]);
 
 const search = ref("");
 
+// When true, the table is arranged alphabetically (A → Z) by
+// the employee's last name, then first name, then middle name.
+const arranged = ref(false);
+
+const toggleSort = () => {
+  arranged.value = !arranged.value;
+};
+
 const showFormModal = ref(false);
 const showViewModal = ref(false);
 
@@ -488,48 +509,76 @@ const nonTeachingEmployees = computed(() => {
 });
 
 /* ========================================================= */
-/* SEARCH */
+/* SEARCH + ARRANGE */
 /* ========================================================= */
 
 const filteredRecords = computed(() => {
   const keyword = search.value.toLowerCase().trim();
 
-  if (!keyword) {
-    return records.value;
+  const result = !keyword
+    ? records.value
+    : records.value.filter((record) => {
+        const employee = record.employee;
+
+        const name = employee
+          ? `${employee.first_name} ${
+              employee.middle_name || ""
+            } ${employee.last_name}`.toLowerCase()
+          : "";
+
+        const code =
+          employee?.employee_code?.toLowerCase() || "";
+
+        const position =
+          employee?.position?.name?.toLowerCase() || "";
+
+        const department =
+          employee?.department?.department_name?.toLowerCase() || "";
+
+        const office =
+          record.office_assignment?.toLowerCase() || "";
+
+        const job =
+          record.job_assignment?.toLowerCase() || "";
+
+        return (
+          name.includes(keyword) ||
+          code.includes(keyword) ||
+          position.includes(keyword) ||
+          department.includes(keyword) ||
+          office.includes(keyword) ||
+          job.includes(keyword)
+        );
+      });
+
+  // Only sort once the Arrange button has been clicked; otherwise
+  // keep the original (load/creation) order.
+  if (!arranged.value) {
+    return result;
   }
 
-  return records.value.filter((record) => {
-    const employee = record.employee;
+  // Sort alphabetically A → Z by last name, then first name, then middle name.
+  return [...result].sort((a, b) => {
+    const aEmployee = a.employee;
+    const bEmployee = b.employee;
 
-    const name = employee
-      ? `${employee.first_name} ${
-          employee.middle_name || ""
-        } ${employee.last_name}`.toLowerCase()
+    const aName = aEmployee
+      ? `${aEmployee.last_name || ""} ${aEmployee.first_name || ""} ${
+          aEmployee.middle_name || ""
+        }`
+          .trim()
+          .toLowerCase()
       : "";
 
-    const code =
-      employee?.employee_code?.toLowerCase() || "";
+    const bName = bEmployee
+      ? `${bEmployee.last_name || ""} ${bEmployee.first_name || ""} ${
+          bEmployee.middle_name || ""
+        }`
+          .trim()
+          .toLowerCase()
+      : "";
 
-    const position =
-      employee?.position?.name?.toLowerCase() || "";
-
-    const department =
-      employee?.department?.department_name?.toLowerCase() || "";
-
-    const office =
-      record.office_assignment?.toLowerCase() || "";
-
-    const job =
-      record.job_assignment?.toLowerCase() || "";
-
-    return (
-      name.includes(keyword) ||
-      code.includes(keyword) ||
-      position.includes(keyword) ||
-      department.includes(keyword) ||
-      office.includes(keyword) ||
-      job.includes(keyword)
-    );
+    return aName.localeCompare(bName);
   });
 });
 
@@ -791,10 +840,13 @@ onMounted(async () => {
 <style scoped>
 /* ========================================================= */
 /* MAIN PAGE                                                  */
+/* Matches the dashboard's theme: uses the same CSS variables */
+/* instead of hardcoded dark colors, so this page looks like  */
+/* the rest of the app.                                       */
 /* ========================================================= */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--app-bg);
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -805,10 +857,15 @@ onMounted(async () => {
 /* ========================================================= */
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+
+  box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 
   width: 100%;
   max-width: none;
@@ -818,7 +875,49 @@ onMounted(async () => {
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.09);
+}
+
+/* Same text-color mapping the dashboard uses, so "text-white" */
+/* renders as the theme's actual text color on light cards.    */
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.neo-card button.text-white,
+.neo-card a.text-white {
+  color: #ffffff !important;
+}
+
+/* ========================================================= */
+/* TABLE HEADER                                                */
+/* ========================================================= */
+
+.non-teaching-table thead {
+  background: var(--surface-muted);
+}
+
+.non-teaching-table thead tr {
+  color: var(--text-muted);
+}
+
+/* ========================================================= */
+/* TABLE ROWS                                                 */
+/* ========================================================= */
+
+.table-row {
+  border-top: 1px solid var(--border);
+}
+
+.table-row:hover {
+  background: #eef4fb;
 }
 
 /* ========================================================= */

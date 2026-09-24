@@ -1,27 +1,25 @@
+```vue
 <template>
   <div class="records-shell p-8 min-h-screen space-y-6">
-   
-
-    <!-- Profile -->
     <div class="neo-card p-6">
       <div class="flex items-center gap-5">
         <div
-          class="w-20 h-20 rounded-full bg-blue-500 text-white flex items-center justify-center text-3xl font-bold"
+          class="w-20 h-20 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-bold"
         >
           {{ initials }}
         </div>
 
         <div>
-          <h3 class="text-xl font-semibold text-white">
+          <h3 class="text-xl font-semibold text-[var(--text)]">
             {{ fullName }}
           </h3>
 
-          <p class="text-gray-400">
+          <p class="text-[var(--text-muted)]">
             {{ employee.position }}
           </p>
 
           <span
-            class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-green-500/10 text-green-400"
+            class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-green-50 text-green-700"
           >
             {{ employee.employment_status }}
           </span>
@@ -29,59 +27,58 @@
       </div>
     </div>
 
-    <!-- Recent Leave Applications -->
-
     <div class="neo-card">
-      <div class="px-6 py-4 border-b border-[#1e293b]">
-        <h3 class="text-lg font-semibold text-white">
+      <div class="px-6 py-4 border-b border-[#cbd8e8]">
+        <h3 class="text-lg font-semibold text-[var(--text)]">
           Recent Leave Applications
         </h3>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-[#1e293b]">
-          <thead class="bg-[#0d1520]">
+        <table class="min-w-full divide-y divide-[#cbd8e8]">
+          <thead class="bg-[var(--surface-muted)]">
             <tr>
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                class="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase"
               >
                 Leave Type
               </th>
 
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                class="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase"
               >
                 Date Filed
               </th>
 
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                class="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase"
               >
                 Days
               </th>
 
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                class="px-6 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase"
               >
                 Status
               </th>
             </tr>
           </thead>
 
-          <tbody class="divide-y divide-[#1e293b]">
+          <tbody class="divide-y divide-[#cbd8e8]">
             <tr v-for="leave in recentLeaves" :key="leave.leave_id">
-              <td class="px-6 py-4 text-white font-medium">
+              <td class="px-6 py-4 text-[var(--text)] font-medium">
                 {{ leave.leave_type?.leave_type_name || "-" }}
               </td>
-              <td class="px-6 py-4 text-white">
+
+              <td class="px-6 py-4 text-[var(--text)]">
                 {{ formatDate(leave.date_filed) }}
               </td>
 
-              <td class="px-6 py-4 text-white">
+              <td class="px-6 py-4 text-[var(--text)]">
                 {{ leave.number_of_days }}
               </td>
 
-              <td class="px-6 py-4 text-white">
+              <td class="px-6 py-4 text-[var(--text)]">
                 <span
                   class="px-3 py-1 rounded-full text-xs font-semibold"
                   :class="statusClass(leave.final_status)"
@@ -96,6 +93,7 @@
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
@@ -163,11 +161,14 @@ const normalizeStatus = (status: unknown): string => {
 const loadProfile = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.get("https://enhs-leave-management-system.onrender.com/api/my-profile", {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await axios.get(
+    "https://enhs-leave-management-system.onrender.com/api/my-profile",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 
   employee.value = response.data;
 };
@@ -200,32 +201,32 @@ const loadRecentLeaves = async () => {
 };
 
 const formatDate = (dateString: string) => {
-    if (!dateString) return '-'
+  if (!dateString) return "-";
 
-    return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    })
-}
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 
 const statusClass = (status: string) => {
   switch (normalizeStatus(status)) {
     case "approved":
-      return "bg-green-500/10 text-green-400";
+      return "bg-green-50 text-green-700";
 
     case "pending":
     case "for approval":
     case "for_approval":
-      return "bg-yellow-500/10 text-yellow-400";
+      return "bg-yellow-50 text-yellow-700";
 
     case "disapproved":
     case "rejected":
     case "denied":
-      return "bg-red-500/10 text-red-400";
+      return "bg-red-50 text-red-700";
 
     default:
-      return "bg-gray-500/10 text-gray-400";
+      return "bg-slate-100 text-slate-600";
   }
 };
 
@@ -237,19 +238,19 @@ onMounted(async () => {
 
 <style scoped>
 .records-shell {
-  background: #080d14;
+  background: var(--app-bg);
 }
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .neo-card:hover {
-  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 26px rgba(23, 32, 51, 0.09);
 }
 
 .stats-card {
@@ -268,3 +269,4 @@ onMounted(async () => {
   letter-spacing: -0.01em;
 }
 </style>
+```

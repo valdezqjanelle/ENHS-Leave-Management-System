@@ -24,9 +24,16 @@
       "
     >
       <div class="p-6 flex items-center justify-between">
-        <div class="brand-block">
-          <h1 class="text-xl font-bold text-white">ENHS</h1>
-          <p class="text-sm text-blue-100">Leave Management System</p>
+        <div class="brand-block flex items-center gap-3">
+          <img
+            src="@/assets/logo.png"
+            alt="ENHS Logo"
+            class="brand-logo"
+          />
+          <div>
+            <h1 class="text-xl font-bold text-white">ENHS</h1>
+            <p class="text-sm text-blue-100">Leave Management System</p>
+          </div>
         </div>
 
         <!-- Close button lives inside the sidebar's own header, right-aligned -->
@@ -150,14 +157,7 @@
           My Applications
         </router-link>
 
-        <router-link
-          v-if="currentUser.role === 'employee'"
-          to="/records"
-          class="nav-item"
-        >
-          <Users class="icon" />
-          Records
-        </router-link>
+        
 
         <router-link
           v-if="currentUser.role === 'admin'"
@@ -220,16 +220,28 @@
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
       <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
-        <h2 class="text-blue-600 font-bold text-xl tracking-tight">
+        <h2 class="font-bold text-xl tracking-tight" style="color: var(--primary);">
           {{ pageTitle }}
         </h2>
 
-        <div class="user-summary" aria-label="Current user">
-          <span class="user-avatar">{{ currentUser.name.charAt(0).toUpperCase() }}</span>
-          <span class="hidden sm:block">
-            <strong>{{ currentUser.name }}</strong>
-            <small>{{ currentUser.role }}</small>
-          </span>
+        <div class="flex items-center gap-4">
+          <!-- Dark Mode Toggle -->
+          <button
+            @click="toggleDarkMode"
+            class="p-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-300 transition-colors"
+            :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          >
+            <Sun v-if="isDarkMode" class="w-5 h-5 text-white dark:text-white" />
+            <Moon v-else class="w-5 h-5 text-black dark:text-black" />
+          </button>
+
+          <div class="user-summary" aria-label="Current user">
+            <span class="user-avatar">{{ currentUser.name.charAt(0).toUpperCase() }}</span>
+            <span class="hidden sm:block">
+              <strong>{{ currentUser.name }}</strong>
+              <small>{{ currentUser.role }}</small>
+            </span>
+          </div>
         </div>
       </header>
 
@@ -242,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { logout as logoutService } from "@/services/auth";
 
@@ -263,6 +275,8 @@ import {
   UserCircle2,
   ChevronDown,
   GraduationCap,
+  Sun,
+  Moon,
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -271,6 +285,22 @@ const router = useRouter();
 const sidebarOpen = ref(false);
 const personnelMenuOpen = ref(false);
 const leaveMenuOpen = ref(false);
+
+// Dark mode
+const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+  localStorage.setItem('darkMode', isDarkMode.value.toString());
+  document.documentElement.classList.toggle('dark', isDarkMode.value);
+};
+
+// Initialize dark mode on mount
+onMounted(() => {
+  if (isDarkMode.value) {
+    document.documentElement.classList.add('dark');
+  }
+});
 
 const togglePersonnelMenu = () => {
   personnelMenuOpen.value = !personnelMenuOpen.value;
@@ -312,6 +342,9 @@ const pageTitle = computed(() => {
     "/dashboard": "Dashboard",
     "/admin-applications": "Applications",
     "/employees": "Employees",
+    "/teaching-personnel": "Teaching Personnel",
+    "/teaching-setup": "Teaching Setup",
+    "/non-teaching-personnel": "Non-Teaching Personnel",
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
@@ -319,7 +352,7 @@ const pageTitle = computed(() => {
     "/admin-settings": "Settings",
 
     "/attendance": "Attendance",
-    "/records": "Records",
+   
     "/reports": "Reports",
     "/settings": "Settings",
     "/profile": "Profile",
@@ -349,15 +382,18 @@ const logout = async () => {
   width: 100vw;
   overflow: hidden;
   background: var(--app-bg);
+  transition: background 0.3s ease;
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #12355b 0%, #0e2b4b 100%);
+  background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-hover) 100%);
   box-shadow: 2px 0 18px rgba(15, 47, 82, 0.14);
+  transition: background 0.3s ease;
 }
 
 .main-shell {
   background: var(--app-bg);
+  transition: background 0.3s ease;
 }
 
 .topbar {
@@ -365,6 +401,11 @@ const logout = async () => {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 2px 10px rgba(23, 32, 51, 0.05);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.topbar h2 {
+  color: var(--text);
 }
 
 .content-panel {
@@ -410,12 +451,33 @@ const logout = async () => {
   min-width: 0;
 }
 
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
 .user-summary {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   color: var(--text);
   text-transform: capitalize;
+}
+
+.user-avatar {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 800;
 }
 
 .user-summary strong,
@@ -432,18 +494,6 @@ const logout = async () => {
   margin-top: 0.15rem;
   color: var(--text-muted);
   font-size: 0.72rem;
-}
-
-.user-avatar {
-  display: inline-flex;
-  width: 38px;
-  height: 38px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background: #dbeafe;
-  color: #1e40af;
-  font-weight: 800;
 }
 
 @media (max-width: 640px) {

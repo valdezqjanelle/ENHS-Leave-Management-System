@@ -35,12 +35,25 @@
       <!-- ========================================================= -->
 
       <div class="neo-card w-full p-6">
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Search teaching personnel..."
-          class="w-full min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-        />
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+        >
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search teaching personnel..."
+            class="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+          />
+
+          <button
+            @click="toggleSort"
+            type="button"
+            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
+          >
+            Sort
+          </button>
+        </div>
       </div>
 
       <!-- ========================================================= -->
@@ -66,7 +79,7 @@
               <tr
                 v-for="record in filteredRecords"
                 :key="record.teaching_record_id"
-                class="border-t hover:bg-gray-800 transition-colors duration-200"
+                class="border-t border-gray-200 hover:bg-gray-50 transition-colors duration-200"
               >
                 <td class="px-3 py-4 text-white font-semibold">
                   {{ record.employee?.employee_code || "-" }}
@@ -390,7 +403,7 @@
           <div class="md:col-span-2">
             <span class="font-semibold">Teaching Assignments</span>
             <div v-if="selectedRecord.assignments?.length" class="mt-2 space-y-2">
-              <div v-for="assignment in selectedRecord.assignments" :key="assignment.assignment_id" class="rounded-lg border border-slate-600 p-3">
+              <div v-for="assignment in selectedRecord.assignments" :key="assignment.assignment_id" class="rounded-lg border border-slate-300 p-3">
                 <p>{{ assignment.subject?.subject_name || "Subject" }} — {{ assignment.grade_level?.grade_name || "Grade" }}<span v-if="assignment.section">, {{ assignment.section.section_name }}</span></p>
                 <p class="text-xs opacity-80">S.Y. {{ assignment.school_year }}<span v-if="assignment.is_advisory"> · Advisory class</span><span v-if="assignment.teaching_hours !== null"> · {{ assignment.teaching_hours }} hour(s)</span></p>
               </div>
@@ -491,6 +504,14 @@ const employees = ref<Employee[]>([]);
 
 const search = ref("");
 
+// When true, the table is arranged alphabetically (A → Z) by
+// the employee's last name, then first name, then middle name.
+const arranged = ref(false);
+
+const toggleSort = () => {
+  arranged.value = !arranged.value;
+};
+
 const showFormModal = ref(false);
 const showViewModal = ref(false);
 
@@ -582,57 +603,85 @@ const teachingEmployees = computed(() => {
 });
 
 /* ========================================================= */
-/* SEARCH */
+/* SEARCH + ARRANGE */
 /* ========================================================= */
 
 const filteredRecords = computed(() => {
   const keyword = search.value.toLowerCase().trim();
 
-  if (!keyword) {
-    return records.value;
+  const result = !keyword
+    ? records.value
+    : records.value.filter((record) => {
+        const employee = record.employee;
+
+        const name = employee
+          ? `${employee.first_name} ${employee.middle_name || ""} ${employee.last_name}`
+              .toLowerCase()
+          : "";
+
+        const code = employee?.employee_code?.toLowerCase() || "";
+
+        const position =
+          employee?.position?.name?.toLowerCase() || "";
+
+        const specialization =
+          record.subject_specialization?.toLowerCase() || "";
+
+        const grade =
+          record.grade_level_handled?.toLowerCase() || "";
+
+        const advisory =
+          record.advisory_class?.toLowerCase() || "";
+
+        const assignments = (record.assignments || [])
+          .map((assignment: any) => [
+            assignment.subject?.subject_name,
+            assignment.grade_level?.grade_name,
+            assignment.section?.section_name,
+            assignment.school_year,
+          ].filter(Boolean).join(" "))
+          .join(" ")
+          .toLowerCase();
+
+        return (
+          name.includes(keyword) ||
+          code.includes(keyword) ||
+          position.includes(keyword) ||
+          specialization.includes(keyword) ||
+          grade.includes(keyword) ||
+          advisory.includes(keyword) ||
+          assignments.includes(keyword)
+        );
+      });
+
+  // Only sort once the Arrange button has been clicked; otherwise
+  // keep the original (load/creation) order.
+  if (!arranged.value) {
+    return result;
   }
 
-  return records.value.filter((record) => {
-    const employee = record.employee;
+  // Sort alphabetically A → Z by last name, then first name, then middle name.
+  return [...result].sort((a, b) => {
+    const aEmployee = a.employee;
+    const bEmployee = b.employee;
 
-    const name = employee
-      ? `${employee.first_name} ${employee.middle_name || ""} ${employee.last_name}`
+    const aName = aEmployee
+      ? `${aEmployee.last_name || ""} ${aEmployee.first_name || ""} ${
+          aEmployee.middle_name || ""
+        }`
+          .trim()
           .toLowerCase()
       : "";
 
-    const code = employee?.employee_code?.toLowerCase() || "";
+    const bName = bEmployee
+      ? `${bEmployee.last_name || ""} ${bEmployee.first_name || ""} ${
+          bEmployee.middle_name || ""
+        }`
+          .trim()
+          .toLowerCase()
+      : "";
 
-    const position =
-      employee?.position?.name?.toLowerCase() || "";
-
-    const specialization =
-      record.subject_specialization?.toLowerCase() || "";
-
-    const grade =
-      record.grade_level_handled?.toLowerCase() || "";
-
-    const advisory =
-      record.advisory_class?.toLowerCase() || "";
-
-    const assignments = (record.assignments || [])
-      .map((assignment: any) => [
-        assignment.subject?.subject_name,
-        assignment.grade_level?.grade_name,
-        assignment.section?.section_name,
-        assignment.school_year,
-      ].filter(Boolean).join(" "))
-      .join(" ")
-      .toLowerCase();
-
-    return (
-      name.includes(keyword) ||
-      code.includes(keyword) ||
-      position.includes(keyword) ||
-      specialization.includes(keyword) ||
-      grade.includes(keyword) ||
-      advisory.includes(keyword) ||
-      assignments.includes(keyword)
-    );
+    return aName.localeCompare(bName);
   });
 });
 
@@ -914,7 +963,7 @@ onMounted(async () => {
 /* ========================================================= */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--app-bg);
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -925,8 +974,8 @@ onMounted(async () => {
 /* ========================================================= */
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--surface);
+  border: 1px solid #cbd8e8;
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.04);
 
@@ -939,6 +988,21 @@ onMounted(async () => {
 
 .neo-card:hover {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.06);
+}
+
+.neo-card .text-white {
+  color: var(--text) !important;
+}
+
+.neo-card .text-gray-300,
+.neo-card .text-gray-400,
+.neo-card .text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.neo-card button.text-white,
+.neo-card a.text-white {
+  color: #ffffff !important;
 }
 
 /* ========================================================= */

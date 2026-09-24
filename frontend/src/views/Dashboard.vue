@@ -1,4 +1,3 @@
-
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
 
@@ -325,14 +324,14 @@
 
             <div
               v-if="pieChartData.length"
-              class="flex flex-col md:flex-row items-center justify-center gap-8"
+              class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-1"
             >
 
               <div class="relative flex-shrink-0">
 
                 <svg
                   viewBox="0 0 200 200"
-                  class="w-64 h-64"
+                  class="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64"
                 >
 
                   <path
@@ -347,13 +346,13 @@
                   <circle
                     cx="100"
                     cy="100"
-                    r="45"
+                    r="35"
                     fill="#0B1420"
                   />
 
                   <text
                     x="100"
-                    y="94"
+                    y="100"
                     text-anchor="middle"
                     fill="white"
                     font-size="20"
@@ -376,22 +375,22 @@
 
               </div>
 
-              <div class="space-y-3 w-full md:w-auto">
+              <div class="space-y-2 md:space-y-3 w-full max-w-xs mx-auto md:max-w-none md:mx-0 md:w-auto">
 
                 <div
                   v-for="item in pieChartData"
                   :key="item.name"
-                  class="flex items-center justify-between gap-6"
+                  class="flex items-center justify-between gap-2 md:gap-0"
                 >
 
                   <div class="flex items-center min-w-0">
 
                     <span
-                      class="w-3 h-3 rounded-full mr-3 flex-shrink-0"
+                      class="w-2 h-3 rounded-full mr-2 md:mr-3 flex-shrink-0"
                       :style="{ backgroundColor: item.color }"
                     ></span>
 
-                    <span class="text-sm text-gray-300 truncate">
+                    <span class="text-xs md:text-sm text-black truncate">
                       {{ item.name }}
                     </span>
 
@@ -399,11 +398,11 @@
 
                   <div class="text-right flex-shrink-0">
 
-                    <span class="text-sm font-semibold text-white">
+                    <span class="text-xs md:text-sm font-semibold text-white">
                       {{ item.value }}
                     </span>
 
-                    <span class="text-xs text-gray-500 ml-1">
+                    <span class="text-[10px] md:text-xs text-black ml-1">
                       ({{ item.percentage }}%)
                     </span>
 
@@ -417,7 +416,7 @@
 
             <div
               v-else
-              class="h-80 flex items-center justify-center text-gray-400"
+              class="h-80 flex items-center justify-center text-black"
             >
               No leave type data available.
             </div>
@@ -2783,6 +2782,7 @@ onMounted(
   border-radius: 1rem;
   padding: 1.5rem;
   min-height: 390px;
+  overflow: hidden;
 }
 
 /* ============================================================
@@ -3105,11 +3105,6 @@ button:hover {
     padding: 1rem;
   }
 
-  .chart-card svg {
-    width: 220px;
-    height: 220px;
-  }
-
   .bars-container {
     justify-content: flex-start;
   }
@@ -3121,4 +3116,3 @@ button:hover {
 }
 
 </style>
-
