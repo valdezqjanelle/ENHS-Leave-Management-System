@@ -39,8 +39,13 @@ class ReportController extends Controller
             'leaveType'
         ])
             ->whereNotNull('leave_type_id')
-            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
-            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
+            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->where(function ($query) use ($date) {
+                $query->whereDate('end_date', '>=', $date)
+                    ->orWhere(function ($missingEnd) use ($date) {
+                        $missingEnd->whereNull('end_date')->whereDate('start_date', '>=', $date);
+                    });
+            }))
+            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('start_date', '<=', $date))
             ->get();
 
         $summary = [];
@@ -101,40 +106,23 @@ class ReportController extends Controller
         ]);
     }
 
-    public function leaveCredits(Request $request)
+    public function leaveCredits()
     {
-        $dates = $this->reportDates($request);
-        $hasRange = !empty($dates['start_date']) || !empty($dates['end_date']);
-
-        // Credit entries determine which employees belong to the selected period.
-        // Balances are current snapshots, not historical balances.
-        $credits = LeaveCredit::query()
-            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('date_recorded', '>=', $date))
-            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('date_recorded', '<=', $date))
-            ->get();
-
-        $employeeIds = $credits->pluck('employee_id')->unique();
-        if (!$hasRange) {
-            $employeeIds = $employeeIds->merge(LeaveBalance::query()->pluck('employee_id'))->unique();
-        }
+        // Include employees with balances even when they have no credit entries.
+        $employeeIds = LeaveCredit::query()->pluck('employee_id')
+            ->merge(LeaveBalance::query()->pluck('employee_id'))->unique();
 
         $employees = EmployeeRecord::with(['department', 'leaveBalance'])
             ->whereIn('employee_id', $employeeIds)
             ->get()
-            ->map(function ($employee) use ($credits, $hasRange) {
+            ->map(function ($employee) {
                 $balance = $employee->leaveBalance;
-                $periodCredits = $credits->where('employee_id', $employee->employee_id)
-                    ->where('status', 'Applied');
                 return [
                     'employee_id' => $employee->employee_id,
                     'employee_name' => trim($employee->first_name . ' ' . $employee->last_name),
                     'department_name' => $employee->department?->department_name ?? 'Unknown',
-                    'vacation_earned' => $hasRange
-                        ? $periodCredits->filter(fn ($credit) => strcasecmp($credit->credit_type, 'Vacation') === 0)->sum('equivalent_leave_days')
-                        : (float) ($balance?->vacation_earned ?? 0),
-                    'sick_earned' => $hasRange
-                        ? $periodCredits->filter(fn ($credit) => strcasecmp($credit->credit_type, 'Sick') === 0)->sum('equivalent_leave_days')
-                        : (float) ($balance?->sick_earned ?? 0),
+                    'vacation_earned' => (float) ($balance?->vacation_earned ?? 0),
+                    'sick_earned' => (float) ($balance?->sick_earned ?? 0),
                     'vacation_balance' => (float) ($balance?->vacation_balance ?? 0),
                     'sick_balance' => (float) ($balance?->sick_balance ?? 0),
                     'used_leave' => (float) ($balance?->used_leave ?? 0),
@@ -183,16 +171,13 @@ class ReportController extends Controller
         ]);
     }
 
-  public function employeeReport(Request $request)
+  public function employeeReport()
 {
-    $dates = $this->reportDates($request);
     $employees = \App\Models\EmployeeRecord::with([
         'position',
         'department',
         'leaveBalance',
-        'leaveApplications' => fn ($q) => $q
-            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
-            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date)),
+        'leaveApplications',
     ])->get();
 
     $report = [];

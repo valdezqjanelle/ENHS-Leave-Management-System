@@ -81,7 +81,7 @@
       <!-- DATE RANGE SELECTION -->
       <!-- ========================================================= -->
 
-      <div class="neo-card w-full p-5 sm:p-6">
+      <div v-if="selectedReportType === 'leave-summary'" class="neo-card w-full p-5 sm:p-6">
 
         <div class="mb-5">
           <h3 class="text-lg font-semibold text-white">
@@ -89,7 +89,7 @@
           </h3>
 
           <p class="mt-1 text-sm text-gray-400">
-            Select the reporting period.
+            Show leave applications whose leave dates overlap this period.
           </p>
         </div>
 
@@ -171,12 +171,6 @@
       <div v-if="reportError" role="alert" class="neo-card w-full p-4 text-red-400">
         {{ reportError }}
       </div>
-      <p v-if="selectedReportType === 'leave-credits'" class="text-sm text-gray-400">
-        The date range selects recorded credits. Balances and used leave show current values.
-      </p>
-      <p v-if="selectedReportType === 'faculty-performance'" class="text-sm text-gray-400">
-        Leave application counts use the selected date range. Employee details and balances are current.
-      </p>
 
       <div class="neo-card w-full overflow-hidden">
 
@@ -1449,7 +1443,7 @@ async function loadLeaveCredits() {
   try {
 
     const response =
-      await api.get('/reports/leave-credits', { params: reportParams() })
+      await api.get('/reports/leave-credits')
 
     creditsData.value =
       response.data.employees || []
@@ -1481,7 +1475,7 @@ async function loadEmployeeReport() {
   try {
 
     const response =
-      await api.get('/reports/employees', { params: reportParams() })
+      await api.get('/reports/employees')
 
     employeeData.value =
       response.data.employees || []
@@ -1904,7 +1898,7 @@ watch(
   [selectedReportType, () => dateRange.value.start, () => dateRange.value.end],
   async () => {
     reportError.value = ''
-    if (dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
+    if (selectedReportType.value === 'leave-summary' && dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
       reportError.value = 'Start date must be on or before end date.'
       return
     }
