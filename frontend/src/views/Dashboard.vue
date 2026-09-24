@@ -1,3 +1,4 @@
+
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
 
@@ -6,7 +7,7 @@
     <!-- ========================================================= -->
     <div
       v-if="loading"
-      class="text-center py-10 text-slate-700 font-medium"
+      class="text-center py-10 text-white"
     >
       Loading dashboard...
     </div>
@@ -139,7 +140,7 @@
             </h3>
 
             <span
-              class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-800 whitespace-nowrap flex-shrink-0"
+              class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 whitespace-nowrap flex-shrink-0"
             >
               {{ recentApplications.length }}
             </span>
@@ -178,7 +179,7 @@
 
                 <span
                   :class="getStatusClass(getAppStatus(app))"
-                  class="inline-block px-2 py-1 rounded-full text-xs text-yellow-800 font-semibold"
+                  class="inline-block px-2 py-1 rounded-full text-xs font-semibold"
                 >
                   {{ formatStatus(getAppStatus(app)) }}
                 </span>
@@ -211,7 +212,7 @@
 
             <span
               v-if="pendingRequests.length"
-              class="text-xs px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-800 whitespace-nowrap flex-shrink-0"
+              class="text-xs px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 whitespace-nowrap flex-shrink-0"
             >
               {{ pendingRequests.length }} Pending
             </span>
@@ -324,14 +325,14 @@
 
             <div
               v-if="pieChartData.length"
-              class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-1"
+              class="flex flex-col md:flex-row items-center justify-center gap-8"
             >
 
               <div class="relative flex-shrink-0">
 
                 <svg
                   viewBox="0 0 200 200"
-                  class="w-44 h-44 sm:w-52 sm:h-52 md:w-64 md:h-64"
+                  class="w-64 h-64"
                 >
 
                   <path
@@ -339,20 +340,20 @@
                     :key="slice.name"
                     :d="slice.path"
                     :fill="slice.color"
-                    stroke="#ffffff"
+                    stroke="#0B1420"
                     stroke-width="2"
                   />
 
                   <circle
                     cx="100"
                     cy="100"
-                    r="35"
+                    r="45"
                     fill="#0B1420"
                   />
 
                   <text
                     x="100"
-                    y="100"
+                    y="94"
                     text-anchor="middle"
                     fill="white"
                     font-size="20"
@@ -375,22 +376,22 @@
 
               </div>
 
-              <div class="space-y-2 md:space-y-3 w-full max-w-xs mx-auto md:max-w-none md:mx-0 md:w-auto">
+              <div class="space-y-3 w-full md:w-auto">
 
                 <div
                   v-for="item in pieChartData"
                   :key="item.name"
-                  class="flex items-center justify-between gap-2 md:gap-0"
+                  class="flex items-center justify-between gap-6"
                 >
 
                   <div class="flex items-center min-w-0">
 
                     <span
-                      class="w-2 h-3 rounded-full mr-2 md:mr-3 flex-shrink-0"
+                      class="w-3 h-3 rounded-full mr-3 flex-shrink-0"
                       :style="{ backgroundColor: item.color }"
                     ></span>
 
-                    <span class="text-xs md:text-sm text-black truncate">
+                    <span class="text-sm text-gray-300 truncate">
                       {{ item.name }}
                     </span>
 
@@ -398,11 +399,11 @@
 
                   <div class="text-right flex-shrink-0">
 
-                    <span class="text-xs md:text-sm font-semibold text-white">
+                    <span class="text-sm font-semibold text-white">
                       {{ item.value }}
                     </span>
 
-                    <span class="text-[10px] md:text-xs text-black ml-1">
+                    <span class="text-xs text-gray-500 ml-1">
                       ({{ item.percentage }}%)
                     </span>
 
@@ -416,7 +417,7 @@
 
             <div
               v-else
-              class="h-80 flex items-center justify-center text-black"
+              class="h-80 flex items-center justify-center text-gray-400"
             >
               No leave type data available.
             </div>
@@ -435,7 +436,7 @@
               class="department-chart"
             >
 
-              <div class="chart-y-axis text-black">
+              <div class="chart-y-axis">
 
                 <span>
                   {{ departmentMax }}
@@ -549,15 +550,15 @@
                     {{ dept.total }}
                   </td>
 
-                  <td class="text-green-700">
+                  <td class="text-green-400">
                     {{ dept.approved }}
                   </td>
 
-                  <td class="text-yellow-500">
+                  <td class="text-yellow-400">
                     {{ dept.pending }}
                   </td>
 
-                  <td class="text-red-600">
+                  <td class="text-red-400">
                     {{ dept.disapproved }}
                   </td>
 
@@ -585,7 +586,7 @@
       <!-- ======================================================= -->
       <!-- RECENT ACTIVITIES -->
       <!-- ======================================================= -->
-      <div class="neo-card p-6">
+      <!-- <div class="neo-card p-6">
 
         <h3 class="text-lg font-semibold mb-4 text-white">
           Recent Activities
@@ -594,7 +595,7 @@
         <div
           v-if="recentActivities.length"
           class="space-y-4"
-        >
+        > -->
 
           <div
             v-for="activity in recentActivities"
@@ -842,7 +843,7 @@
         <!-- Recent Leave Applications -->
         <div class="neo-card">
 
-          <div class="px-6 py-4 border-b border-slate-200">
+          <div class="px-6 py-4 border-b border-[#1e293b]">
             <h3 class="text-lg font-semibold text-white">
               Recent Leave Applications
             </h3>
@@ -850,9 +851,9 @@
 
           <div class="overflow-x-auto">
 
-            <table class="min-w-full divide-y divide-slate-200">
+            <table class="min-w-full divide-y divide-[#1e293b]">
 
-              <thead class="bg-slate-50">
+              <thead class="bg-[#0d1520]">
                 <tr>
 
                   <th
@@ -870,7 +871,7 @@
                 </tr>
               </thead>
 
-              <tbody class="divide-y divide-slate-200">
+              <tbody class="divide-y divide-[#1e293b]">
 
                 <tr
                   v-for="leave in myApplications"
@@ -2692,7 +2693,7 @@ onMounted(
    ============================================================ */
 
 .dashboard-shell {
-  background: var(--app-bg);
+  background: #080d14;
   min-height: 100vh;
 }
 
@@ -2701,12 +2702,12 @@ onMounted(
    ============================================================ */
 
 .neo-card {
-  background: var(--surface);
-  border: 1px solid #cbd8e8;
-  border-radius: 1rem;
+  background: #111d2e;
+  border: 1px solid #1e293b;
+  border-radius: 1.4rem;
 
   box-shadow:
-    0 6px 18px rgba(23, 32, 51, 0.06);
+    0 10px 22px rgba(15, 23, 42, 0.04);
 
   transition:
     box-shadow 0.2s ease,
@@ -2715,22 +2716,7 @@ onMounted(
 
 .neo-card:hover {
   box-shadow:
-    0 10px 24px rgba(23, 32, 51, 0.09);
-}
-
-.neo-card .text-white {
-  color: var(--text) !important;
-}
-
-.neo-card .text-gray-300,
-.neo-card .text-gray-400,
-.neo-card .text-gray-500 {
-  color: var(--text-muted) !important;
-}
-
-.neo-card button.text-white,
-.neo-card a.text-white {
-  color: #ffffff !important;
+    0 14px 26px rgba(15, 23, 42, 0.08);
 }
 
 /* ============================================================
@@ -2738,33 +2724,7 @@ onMounted(
    ============================================================ */
 
 .stats-card {
-  border-left-width: 4px;
-  border-left-style: solid;
-  overflow: hidden;
-}
-
-.stats-card.border-blue-500 {
-  background: linear-gradient(135deg, #ffffff 55%, #eff6ff 100%);
-  border-color: #d6e4f7;
-  border-left-color: #2563eb;
-}
-
-.stats-card.border-orange-500 {
-  background: linear-gradient(135deg, #ffffff 55%, #fffbeb 100%);
-  border-color: #f1dfad;
-  border-left-color: #d97706;
-}
-
-.stats-card.border-green-500 {
-  background: linear-gradient(135deg, #ffffff 55%, #f0fdf4 100%);
-  border-color: #cce8d5;
-  border-left-color: #16a34a;
-}
-
-.stats-card.border-red-700 {
-  background: linear-gradient(135deg, #ffffff 55%, #fef2f2 100%);
-  border-color: #f0cccc;
-  border-left-color: #dc2626;
+  border-left: 4px solid currentColor;
 }
 
 .stats-card .p-3 {
@@ -2776,13 +2736,11 @@ onMounted(
    ============================================================ */
 
 .chart-card {
-  background: var(--surface-muted);
-  border: 1px solid #c8d8eb;
-  border-top: 3px solid #7aa7e8;
+  background: #0b1420;
+  border: 1px solid #1e293b;
   border-radius: 1rem;
   padding: 1.5rem;
   min-height: 390px;
-  overflow: hidden;
 }
 
 /* ============================================================
@@ -2824,7 +2782,7 @@ onMounted(
 
   padding-right: 10px;
 
-  color: var(--text-muted);
+  color: #64748b;
   font-size: 11px;
 }
 
@@ -2832,7 +2790,7 @@ onMounted(
   position: relative;
   flex: 1;
   height: 300px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #334155;
 }
 
 .chart-grid {
@@ -2848,7 +2806,7 @@ onMounted(
 
 .chart-grid div {
   width: 100%;
-  border-top: 1px dashed #d6deea;
+  border-top: 1px dashed #263548;
 }
 
 .bars-container {
@@ -2916,7 +2874,7 @@ onMounted(
     var(--bar-height, 0%) + 8px
   );
 
-  color: var(--text);
+  color: white;
   font-size: 11px;
   font-weight: 700;
 
@@ -2932,7 +2890,7 @@ onMounted(
 
   text-align: center;
 
-  color: var(--text-muted);
+  color: #94a3b8;
   font-size: 10px;
 
   overflow: hidden;
@@ -2947,7 +2905,7 @@ onMounted(
 .summary-table {
   overflow-x: auto;
 
-  border: 1px solid #c7d6e7;
+  border: 1px solid #1e293b;
   border-radius: 0.9rem;
 }
 
@@ -2957,7 +2915,7 @@ onMounted(
 }
 
 .summary-table thead {
-  background: var(--surface-muted);
+  background: #0b1420;
 }
 
 .summary-table th {
@@ -2965,7 +2923,7 @@ onMounted(
 
   text-align: left;
 
-  color: var(--text-muted);
+  color: #94a3b8;
 
   font-size: 0.72rem;
   font-weight: 600;
@@ -2974,7 +2932,7 @@ onMounted(
   letter-spacing: 0.05em;
 
   border-bottom:
-    1px solid var(--border);
+    1px solid #1e293b;
 }
 
 .summary-table td {
@@ -2983,7 +2941,7 @@ onMounted(
   font-size: 0.875rem;
 
   border-bottom:
-    1px solid var(--border);
+    1px solid #1e293b;
 }
 
 .summary-table tbody tr {
@@ -2992,7 +2950,7 @@ onMounted(
 }
 
 .summary-table tbody tr:hover {
-  background: #f3f7fc;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .summary-table tbody tr:last-child td {
@@ -3004,9 +2962,8 @@ onMounted(
    ============================================================ */
 
 .application-item {
-  background: var(--surface-muted);
-  border: 1px solid #cfdaea;
-  border-left: 3px solid #60a5fa;
+  background: #172337;
+  border: 1px solid #24344d;
 
   transition:
     background 0.2s ease,
@@ -3015,8 +2972,8 @@ onMounted(
 }
 
 .application-item:hover {
-  background: #eef4fb;
-  border-color: #b9c9dc;
+  background: #1b2a40;
+  border-color: #334968;
 
   transform: translateY(-1px);
 }
@@ -3026,9 +2983,9 @@ onMounted(
    ============================================================ */
 
 .request-item {
-  background: #fffbeb;
+  background: #172337;
 
-  border: 1px solid #f0d890;
+  border: 1px solid #3b3b27;
   border-left: 4px solid #eab308;
 
   transition:
@@ -3038,8 +2995,8 @@ onMounted(
 }
 
 .request-item:hover {
-  background: #fff7d6;
-  border-color: #d6b64d;
+  background: #1b2a40;
+  border-color: #5b5a31;
 
   transform: translateY(-1px);
 }
@@ -3049,8 +3006,8 @@ onMounted(
    ============================================================ */
 
 .leave-type-item {
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
+  background: #172337;
+  border: 1px solid #24344d;
 
   transition:
     background 0.2s ease,
@@ -3058,22 +3015,8 @@ onMounted(
 }
 
 .leave-type-item:hover {
-  background: #eef4fb;
+  background: #1b2a40;
   transform: translateY(-1px);
-}
-
-.dashboard-shell button.bg-blue-400,
-.dashboard-shell button.bg-green-400,
-.dashboard-shell button.bg-purple-400 {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-}
-
-.dashboard-shell button.bg-blue-400:hover,
-.dashboard-shell button.bg-green-400:hover,
-.dashboard-shell button.bg-purple-400:hover {
-  background: var(--primary-hover) !important;
 }
 
 /* ============================================================
@@ -3105,6 +3048,11 @@ button:hover {
     padding: 1rem;
   }
 
+  .chart-card svg {
+    width: 220px;
+    height: 220px;
+  }
+
   .bars-container {
     justify-content: flex-start;
   }
@@ -3116,3 +3064,4 @@ button:hover {
 }
 
 </style>
+
