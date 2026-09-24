@@ -88,8 +88,8 @@
       </div>
 
       <div class="mt-6">
-        <button @click="saveCredit" type="button" class="primary-button">
-          Save Credit
+        <button @click="applyCredit" type="button" class="primary-button">
+          Apply Credit
         </button>
       </div>
     </div>
@@ -145,7 +145,6 @@
               <th>Hours Rendered</th>
               <th>Equivalent Days</th>
               <th>Date Recorded</th>
-              <th>Status</th>
               <th class="action-column">Action</th>
             </tr>
           </thead>
@@ -203,288 +202,26 @@
                 {{ formatDate(credit.date_recorded) }}
               </td>
 
-              <td>
-                <span
-                  :class="
-                    credit.status === 'Applied'
-                      ? 'status-applied'
-                      : 'status-pending'
-                  "
-                >
-                  {{ credit.status || "Pending" }}
-                </span>
-              </td>
-
               <td class="action-cell">
                 <div class="action-buttons">
                   <button
-                    v-if="credit.status !== 'Applied'"
-                    @click="applyCredit(credit.credits_id)"
-                    type="button"
-                    class="apply-button"
-                  >
-                    Apply Credit
-                  </button>
-
-                  <span v-else class="applied-text">
-                    Applied
-                  </span>
-
-                  <button
-                    @click="removeCredit(credit.credits_id)"
+                    @click="revokeCredit(credit.credits_id)"
                     type="button"
                     class="remove-button"
                   >
-                    Remove
+                    Revoke Credits
                   </button>
                 </div>
               </td>
             </tr>
 
             <tr v-if="filteredCredits.length === 0">
-              <td colspan="8" class="empty-state">
+              <td colspan="7" class="empty-state">
                 No leave credit records found.
               </td>
             </tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <div
-      v-if="showApplyModal"
-      class="modal-overlay"
-      @click.self="closeApplyModal"
-    >
-      <div class="modal-card">
-        <h2 class="text-xl font-semibold text-white">
-          Apply Leave Credit
-        </h2>
-
-        <p class="text-gray-300 mt-3">
-          Choose where this credit should be applied. This will update the
-          employee's leave balance.
-        </p>
-
-        <div v-if="selectedCredit" class="credit-details">
-          <div class="detail-row">
-            <span class="detail-label">
-              Employee:
-            </span>
-
-            <span class="detail-value">
-              {{ selectedCredit.employee?.last_name }},
-              {{ selectedCredit.employee?.first_name }}
-            </span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">
-              Credit Type:
-            </span>
-
-            <span class="detail-value">
-              {{ selectedCredit.credit_type }}
-            </span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">
-              Activity:
-            </span>
-
-            <span class="detail-value">
-              {{ selectedCredit.activity_name }}
-            </span>
-          </div>
-
-          <div class="detail-row">
-            <span class="detail-label">
-              Equivalent Days:
-            </span>
-
-            <span class="detail-value">
-              {{ selectedCredit.equivalent_leave_days }}
-            </span>
-          </div>
-
-          <div class="available-credit">
-            <span class="font-medium text-gray-400">
-              Available Credit:
-            </span>
-
-            {{ availableCreditDays.toFixed(2) }} days
-          </div>
-        </div>
-
-        <div
-          v-if="selectedCredit"
-          class="mt-4 space-y-4 text-sm text-white"
-        >
-          <template v-if="selectedCredit.credit_type === 'Service'">
-            <div>
-              <label class="block font-medium text-white mb-2">
-                Apply To
-              </label>
-
-              <select
-                v-model="applyForm.leave_type"
-                @change="handleApplyTypeChange"
-                :disabled="applyForm.split"
-                class="modal-form-control"
-              >
-                <option value="Service">
-                  Service Credits
-                </option>
-
-                <option value="Vacation">
-                  Vacation Leave
-                </option>
-
-                <option value="Sick">
-                  Sick Leave
-                </option>
-              </select>
-            </div>
-
-            <label
-              v-if="applyForm.leave_type !== 'Service'"
-              class="flex items-center gap-2 text-white"
-            >
-              <input
-                v-model="applyForm.split"
-                type="checkbox"
-                class="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-              />
-
-              Split Application
-            </label>
-
-            <div v-if="!applyForm.split">
-              <label class="block font-medium text-white mb-2">
-                Days to Apply
-              </label>
-
-              <input
-                v-model.number="applyForm.days"
-                type="number"
-                min="0"
-                step="0.25"
-                class="modal-form-control"
-              />
-            </div>
-
-            <div v-else class="space-y-3">
-              <div>
-                <label class="block font-medium text-white mb-2">
-                  Vacation Leave Allocation
-                </label>
-
-                <input
-                  v-model.number="applyForm.vacation_days"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  class="modal-form-control"
-                />
-              </div>
-
-              <div>
-                <label class="block font-medium text-white mb-2">
-                  Sick Leave Allocation
-                </label>
-
-                <input
-                  v-model.number="applyForm.sick_days"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  class="modal-form-control"
-                />
-              </div>
-            </div>
-
-            <div class="calculation-box">
-              <div class="flex justify-between">
-                <span class="text-gray-400">
-                  Total Applied:
-                </span>
-
-                <span>
-                  {{ totalApplied.toFixed(2) }} days
-                </span>
-              </div>
-
-              <div class="flex justify-between">
-                <span class="text-gray-400">
-                  Remaining:
-                </span>
-
-                <span>
-                  {{ remainingCredit.toFixed(2) }} days
-                </span>
-              </div>
-            </div>
-          </template>
-
-          <template v-else>
-            <div>
-              <label class="block font-medium text-white mb-2">
-                Apply To
-              </label>
-
-              <input
-                :value="
-                  selectedCredit.credit_type === 'Vacation'
-                    ? 'Vacation Leave'
-                    : 'Sick Leave'
-                "
-                type="text"
-                readonly
-                class="modal-form-control readonly-control"
-              />
-            </div>
-
-            <div>
-              <label class="block font-medium text-white mb-2">
-                Days to Apply
-              </label>
-
-              <input
-                :value="selectedCredit.equivalent_leave_days"
-                type="number"
-                readonly
-                class="modal-form-control readonly-control"
-              />
-            </div>
-          </template>
-
-          <p
-            v-if="validationMessage"
-            class="validation-message"
-            role="alert"
-          >
-            {{ validationMessage }}
-          </p>
-        </div>
-
-        <div class="modal-actions">
-          <button
-            @click="closeApplyModal"
-            type="button"
-            class="cancel-button"
-          >
-            Cancel
-          </button>
-
-          <button
-            @click="confirmApplyCredit"
-            type="button"
-            class="confirm-button"
-          >
-            Apply Credit
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -525,19 +262,6 @@ const credits = ref<LeaveCredit[]>([]);
 const searchQuery = ref("");
 const arranged = ref(false);
 
-const showApplyModal = ref(false);
-const selectedCredit = ref<LeaveCredit | null>(null);
-
-const applyForm = ref({
-  leave_type: "Vacation",
-  days: 0,
-  split: false,
-  vacation_days: 0,
-  sick_days: 0,
-});
-
-const validationMessage = ref("");
-
 const form = ref({
   employee_id: "",
   activity_name: "",
@@ -545,52 +269,6 @@ const form = ref({
   equivalent_leave_days: "",
   credit_type: "",
 });
-
-const resetApplyForm = () => {
-  applyForm.value = {
-    leave_type: "Vacation",
-    days: 0,
-    split: false,
-    vacation_days: 0,
-    sick_days: 0,
-  };
-
-  validationMessage.value = "";
-};
-
-const handleApplyTypeChange = () => {
-  applyForm.value.split = false;
-  applyForm.value.vacation_days = 0;
-  applyForm.value.sick_days = 0;
-  applyForm.value.days = availableCreditDays.value;
-};
-
-const availableCreditDays = computed(() =>
-  Number(selectedCredit.value?.equivalent_leave_days ?? 0),
-);
-
-const totalApplied = computed(() => {
-  if (!selectedCredit.value) {
-    return 0;
-  }
-
-  if (selectedCredit.value.credit_type !== "Service") {
-    return availableCreditDays.value;
-  }
-
-  if (applyForm.value.split) {
-    return (
-      Number(applyForm.value.vacation_days || 0) +
-      Number(applyForm.value.sick_days || 0)
-    );
-  }
-
-  return Number(applyForm.value.days || 0);
-});
-
-const remainingCredit = computed(
-  () => availableCreditDays.value - totalApplied.value,
-);
 
 const filteredCredits = computed(() => {
   const search = searchQuery.value.trim().toLowerCase();
@@ -634,13 +312,13 @@ const loadCredits = async () => {
   }
 };
 
-const saveCredit = async () => {
+const applyCredit = async () => {
   try {
-    console.log("Sending credit data:", form.value);
+    console.log("Applying credit data:", form.value);
 
     await addLeaveCredit(form.value);
 
-    alert("Leave credit added successfully!");
+    alert("Leave credit applied successfully!");
 
     form.value = {
       employee_id: "",
@@ -659,138 +337,24 @@ const saveCredit = async () => {
       error.response?.data?.message ??
         JSON.stringify(
           error.response?.data?.errors ??
-            "Unable to save leave credit.",
+            "Unable to apply leave credit.",
         ),
     );
   }
 };
 
-const applyCredit = (id: number) => {
-  const credit = credits.value.find(
-    (credit) => credit.credits_id === id,
-  );
-
-  if (!credit) {
-    return;
-  }
-
-  selectedCredit.value = credit;
-
-  resetApplyForm();
-
-  applyForm.value.leave_type = credit.credit_type;
-  applyForm.value.days =
-    Number(credit.equivalent_leave_days);
-
-  applyForm.value.split = false;
-  applyForm.value.vacation_days = 0;
-  applyForm.value.sick_days = 0;
-
-  showApplyModal.value = true;
-};
-
-const closeApplyModal = () => {
-  showApplyModal.value = false;
-  selectedCredit.value = null;
-  resetApplyForm();
-};
-
-const confirmApplyCredit = async () => {
-  if (!selectedCredit.value) {
-    return;
-  }
-
-  const total = totalApplied.value;
-
-  if (!Number.isFinite(total) || total <= 0) {
-    validationMessage.value =
-      "Total applied days must be greater than 0.";
-
-    return;
-  }
-
-  if (total > availableCreditDays.value) {
-    validationMessage.value =
-      "Total applied days cannot exceed the available credit.";
-
-    return;
-  }
-
-  validationMessage.value = "";
-
-  try {
-    await applyLeaveCredit({
-      credits_id: selectedCredit.value.credits_id,
-      leave_type: applyForm.value.leave_type,
-      days: applyForm.value.split
-        ? total
-        : Number(applyForm.value.days),
-      split: applyForm.value.split,
-      vacation_days: Number(
-        applyForm.value.vacation_days || 0,
-      ),
-      sick_days: Number(
-        applyForm.value.sick_days || 0,
-      ),
-    });
-
-    alert("Leave credit applied successfully!");
-
-    closeApplyModal();
-
-    await loadCredits();
-  } catch (error: any) {
-    console.error(
-      "Failed to apply leave credit:",
-      error.response?.data || error,
-    );
-
-    validationMessage.value =
-      error.response?.data?.message ||
-      "Unable to apply leave credit.";
-  }
-};
-
-const removeCredit = async (id: number) => {
-  const credit = credits.value.find(
-    (credit) => credit.credits_id === id,
-  );
-
-  if (!credit) {
-    return;
-  }
-
-  const employeeName =
-    `${credit.employee?.last_name ?? ""}, ${credit.employee?.first_name ?? ""}`;
-
-  const confirmed = window.confirm(
-    `Are you sure you want to remove this leave credit?\n\n` +
-      `Employee: ${employeeName}\n` +
-      `Activity: ${credit.activity_name}\n` +
-      `Credit: ${credit.equivalent_leave_days} days\n\n` +
-      `This will only remove it from the active records.`,
-  );
-
-  if (!confirmed) {
+const revokeCredit = async (id: number) => {
+  if (!confirm("Are you sure you want to revoke this credit?")) {
     return;
   }
 
   try {
     await deleteLeaveCredit(id);
-
-    alert("Leave credit removed successfully.");
-
+    alert("Leave credit revoked successfully!");
     await loadCredits();
   } catch (error: any) {
-    console.error(
-      "Failed to remove leave credit:",
-      error.response?.data || error,
-    );
-
-    alert(
-      error.response?.data?.message ||
-        "Unable to remove leave credit.",
-    );
+    console.error("Failed to revoke credit:", error);
+    alert("Unable to revoke leave credit.");
   }
 };
 
