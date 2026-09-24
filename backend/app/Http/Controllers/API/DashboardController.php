@@ -63,7 +63,7 @@ class DashboardController extends Controller
 
                 return [
                     "name" =>
-                        $leave->leaveType->leave_type_name,
+                        $leave->leaveType?->leave_type_name ?? 'Unknown',
 
                     "count" =>
                         $leave->total
@@ -83,7 +83,7 @@ class DashboardController extends Controller
             ->get()
             ->groupBy(function($leave){
 
-                return $leave->employee->department?->department_name ?? 'Unknown';
+                return $leave->employee?->department?->department_name ?? 'Unknown';
 
             })
             ->map(function($department, $name){
@@ -114,13 +114,13 @@ class DashboardController extends Controller
                 return [
 
                     "employee" =>
-                        $leave->employee->first_name
+                        ($leave->employee?->first_name ?? 'Unknown')
                         ." "
-                        .$leave->employee->last_name,
+                        .($leave->employee?->last_name ?? 'Employee'),
 
 
                     "leave_type" =>
-                        $leave->leaveType->leave_type_name,
+                        $leave->leaveType?->leave_type_name ?? 'Unknown',
 
 
                     "status" =>
@@ -128,8 +128,7 @@ class DashboardController extends Controller
 
 
                     "date" =>
-                        $leave->created_at
-                            ->format('M d, Y')
+                        $leave->created_at?->format('M d, Y')
 
                 ];
 
