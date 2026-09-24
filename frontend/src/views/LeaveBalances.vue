@@ -2,156 +2,92 @@
   <div class="dashboard-shell min-h-screen p-8">
     <div class="dashboard-content w-full space-y-6">
 
-      <!-- ===================================================== -->
       <!-- HEADER -->
-      <!-- ===================================================== -->
-
       <div class="neo-card w-full p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-bold text-white">
-              Leave Balances
-            </h2>
-
-            <p class="text-gray-400 mt-1">
-              View and manage employee leave balances.
-            </p>
+            <h2 class="text-2xl font-bold text-white">Leave Balances</h2>
+            <p class="text-gray-400 mt-1">View and manage employee leave balances.</p>
           </div>
 
-          <button
-            @click="toggleSort"
-            type="button"
-            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
-          >
-            Sort
-          </button>
+          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              @click="loadBalances"
+              type="button"
+              class="w-full sm:w-auto flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+              title="Reload balances (picks up newly applied credits)"
+            >
+              Refresh
+            </button>
+
+            <button
+              @click="toggleSort"
+              type="button"
+              class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+              :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
+            >
+              Sort
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- ===================================================== -->
       <!-- TABLE -->
-      <!-- ===================================================== -->
-
       <div class="neo-card table-card w-full overflow-hidden">
-
         <div class="table-wrapper w-full overflow-x-auto">
-
           <table class="leave-balance-table w-full">
-
-            <!-- ================================================= -->
-            <!-- TABLE HEADER -->
-            <!-- ================================================= -->
-
             <thead>
               <tr class="text-left text-white">
-
-                <th class="employee-column px-6 py-4">
-                  Employee
-                </th>
-
-                <th class="balance-column px-6 py-4">
-                  Service Credits
-                </th>
-
-                <th class="balance-column px-6 py-4">
-                  Vacation Balance
-                </th>
-
-                <th class="balance-column px-6 py-4">
-                  Sick Balance
-                </th>
-
-                <th class="total-column px-6 py-4">
-                  Total Available
-                </th>
-
-                <th class="used-column px-6 py-4">
-                  Used Leave
-                </th>
-
-                <th class="action-column px-6 py-4">
-                  Action
-                </th>
-
+                <th class="employee-column px-6 py-4">Employee</th>
+                <th class="balance-column px-6 py-4">Service Credits</th>
+                <th class="balance-column px-6 py-4">Vacation Balance</th>
+                <th class="balance-column px-6 py-4">Sick Balance</th>
+                <th class="total-column px-6 py-4">Total Available</th>
+                <th class="used-column px-6 py-4">Used Leave</th>
+                <th class="action-column px-6 py-4">Action</th>
               </tr>
             </thead>
 
-            <!-- ================================================= -->
-            <!-- TABLE BODY -->
-            <!-- ================================================= -->
-
             <tbody>
-
               <tr
                 v-for="balance in displayedBalances"
                 :key="balance.employee_id"
                 class="balance-row"
               >
-
-                <!-- Employee -->
-
                 <td class="px-6 py-5 font-medium text-white employee-cell">
-
                   <div class="employee-name">
-                    {{ balance.employee.last_name }},
-                    {{ balance.employee.first_name }}
+                    {{ balance.employee.last_name }}, {{ balance.employee.first_name }}
                   </div>
-
                 </td>
 
-                <!-- Service Credits -->
-
                 <td class="px-6 py-5">
-
                   <span :class="balanceColor(balance.service_credits)">
                     {{ formatNumber(balance.service_credits) }}
                   </span>
-
                 </td>
 
-                <!-- Vacation Balance -->
-
                 <td class="px-6 py-5">
-
                   <span :class="balanceColor(balance.vacation_balance)">
                     {{ formatNumber(balance.vacation_balance) }}
                   </span>
-
                 </td>
 
-                <!-- Sick Balance -->
-
                 <td class="px-6 py-5">
-
                   <span :class="balanceColor(balance.sick_balance)">
                     {{ formatNumber(balance.sick_balance) }}
                   </span>
-
                 </td>
-
-                <!-- Total Available -->
 
                 <td class="px-6 py-5 font-semibold total-value">
-
                   {{ totalBalance(balance) }}
-
                 </td>
-
-                <!-- Used Leave -->
 
                 <td class="px-6 py-5 used-value">
-
                   {{ formatNumber(balance.used_leave) }}
-
                 </td>
 
-                <!-- Action -->
-
                 <td class="px-6 py-5">
-
                   <div class="flex items-center gap-2">
-
                     <button
                       @click="openModal(balance)"
                       type="button"
@@ -167,188 +103,68 @@
                     >
                       Clear Balance
                     </button>
-
                   </div>
-
                 </td>
-
               </tr>
-
-              <!-- ================================================= -->
-              <!-- EMPTY STATE -->
-              <!-- ================================================= -->
 
               <tr v-if="displayedBalances.length === 0">
-
-                <td
-                  colspan="7"
-                  class="px-6 py-12 text-center text-gray-400"
-                >
+                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
                   No leave balance records found.
                 </td>
-
               </tr>
-
             </tbody>
-
           </table>
-
         </div>
-
       </div>
 
-      <!-- ===================================================== -->
       <!-- EDIT MODAL -->
-      <!-- ===================================================== -->
-
       <div
         v-if="showModal"
         class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4"
         @click.self="closeModal"
       >
-
         <div class="neo-card modal-card w-full max-w-lg p-6">
-
-          <!-- Modal Header -->
-
-          <h3 class="text-xl font-bold text-white mb-5">
-            Edit Leave Balance
-          </h3>
-
-          <!-- Employee -->
+          <h3 class="text-xl font-bold text-white mb-5">Edit Leave Balance</h3>
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Employee
-            </label>
-
+            <label class="block text-sm font-semibold text-white mb-2">Employee</label>
             <input
               disabled
-              :value="
-                selectedBalance.employee.last_name +
-                ', ' +
-                selectedBalance.employee.first_name
-              "
+              :value="selectedBalance.employee.last_name + ', ' + selectedBalance.employee.first_name"
               class="balance-input w-full"
             />
-
           </div>
-
-          <!-- Service Credits -->
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Service Credits
-            </label>
-
-            <input
-              v-model.number="selectedBalance.service_credits"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-
+            <label class="block text-sm font-semibold text-white mb-2">Service Credits</label>
+            <input v-model.number="selectedBalance.service_credits" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
-
-          <!-- Vacation Earned -->
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Vacation Earned
-            </label>
-
-            <input
-              v-model.number="selectedBalance.vacation_earned"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-
+            <label class="block text-sm font-semibold text-white mb-2">Vacation Earned</label>
+            <input v-model.number="selectedBalance.vacation_earned" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
-
-          <!-- Sick Earned -->
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Sick Earned
-            </label>
-
-            <input
-              v-model.number="selectedBalance.sick_earned"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-
+            <label class="block text-sm font-semibold text-white mb-2">Sick Earned</label>
+            <input v-model.number="selectedBalance.sick_earned" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
-
-          <!-- Vacation Balance -->
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Vacation Balance
-            </label>
-
-            <input
-              v-model.number="selectedBalance.vacation_balance"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-
+            <label class="block text-sm font-semibold text-white mb-2">Vacation Balance</label>
+            <input v-model.number="selectedBalance.vacation_balance" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
-
-          <!-- Sick Balance -->
 
           <div class="mb-4">
-
-            <label class="block text-sm font-semibold text-white mb-2">
-              Sick Balance
-            </label>
-
-            <input
-              v-model.number="selectedBalance.sick_balance"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-
+            <label class="block text-sm font-semibold text-white mb-2">Sick Balance</label>
+            <input v-model.number="selectedBalance.sick_balance" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
-
-          <!-- Buttons -->
 
           <div class="flex justify-end gap-3 mt-6">
-
-            <button
-              @click="closeModal"
-              type="button"
-              class="btn-action-lg cancel-button"
-            >
-              Cancel
-            </button>
-
-            <button
-              @click="updateBalance"
-              type="button"
-              class="btn-action-lg save-button"
-            >
-              Save
-            </button>
-
+            <button @click="closeModal" type="button" class="btn-action-lg cancel-button">Cancel</button>
+            <button @click="updateBalance" type="button" class="btn-action-lg save-button">Save</button>
           </div>
-
         </div>
-
       </div>
 
     </div>
@@ -356,15 +172,9 @@
 </template>
 
 <script setup lang="ts">
-
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
-
-
-/* ============================================================
-   TYPES
-   ============================================================ */
 
 interface Employee {
   employee_id: number;
@@ -372,478 +182,182 @@ interface Employee {
   last_name: string;
 }
 
-
 interface LeaveBalance {
   balance_id: number | null;
   employee_id: number;
-
   vacation_earned: number;
   sick_earned: number;
-
   vacation_balance: number;
   sick_balance: number;
-
   service_credits: number;
-
   used_leave: number;
-
   employee: Employee;
 }
 
-
-/* ============================================================
-   DATA
-   ============================================================ */
-
 const balances = ref<LeaveBalance[]>([]);
-
-// When true, the table is arranged alphabetically (A → Z) by
-// the employee's last name, then first name.
 const arranged = ref(false);
-
-const toggleSort = () => {
-  arranged.value = !arranged.value;
-};
+const toggleSort = () => { arranged.value = !arranged.value; };
 
 const displayedBalances = computed(() => {
-
-  if (!arranged.value) {
-    return balances.value;
-  }
-
+  if (!arranged.value) return balances.value;
   return [...balances.value].sort((a, b) => {
-
-    const aName = `${a.employee?.last_name || ""} ${
-      a.employee?.first_name || ""
-    }`
-      .trim()
-      .toLowerCase();
-
-    const bName = `${b.employee?.last_name || ""} ${
-      b.employee?.first_name || ""
-    }`
-      .trim()
-      .toLowerCase();
-
+    const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`.trim().toLowerCase();
+    const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`.trim().toLowerCase();
     return aName.localeCompare(bName);
-
   });
-
 });
 
 const showModal = ref(false);
-
 const selectedBalance = ref<LeaveBalance>({
   balance_id: null,
-
   employee_id: 0,
-
   vacation_earned: 0,
   sick_earned: 0,
-
   vacation_balance: 0,
   sick_balance: 0,
-
   service_credits: 0,
-
   used_leave: 0,
-
-  employee: {
-    employee_id: 0,
-    first_name: "",
-    last_name: "",
-  },
+  employee: { employee_id: 0, first_name: "", last_name: "" },
 });
 
-
-/* ============================================================
-   API BASE URL
-   ============================================================ */
-
-const API_BASE =
-  "https://enhs-leave-management-system.onrender.com/api";
-
-
-/* ============================================================
-   LOAD BALANCES
-   ============================================================ */
+const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
 
 const loadBalances = async () => {
-
   try {
-
     const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_BASE}/leave-balances`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    const response = await axios.get(
-      `${API_BASE}/leave-balances`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = Array.isArray(response.data)
-      ? response.data
-      : [];
+    const data = Array.isArray(response.data) ? response.data : [];
 
     balances.value = data.map((balance: any) => ({
       balance_id: balance.balance_id ?? null,
-
       employee_id: Number(balance.employee_id),
-
-      vacation_earned:
-        Number(balance.vacation_earned ?? 0),
-
-      sick_earned:
-        Number(balance.sick_earned ?? 0),
-
-      vacation_balance:
-        Number(balance.vacation_balance ?? 0),
-
-      sick_balance:
-        Number(balance.sick_balance ?? 0),
-
-      service_credits:
-        Number(balance.service_credits ?? 0),
-
-      used_leave:
-        Number(balance.used_leave ?? 0),
-
+      vacation_earned: Number(balance.vacation_earned ?? 0),
+      sick_earned: Number(balance.sick_earned ?? 0),
+      vacation_balance: Number(balance.vacation_balance ?? 0),
+      sick_balance: Number(balance.sick_balance ?? 0),
+      service_credits: Number(balance.service_credits ?? 0),
+      used_leave: Number(balance.used_leave ?? 0),
       employee: {
-        employee_id:
-          Number(
-            balance.employee?.employee_id ??
-            balance.employee_id
-          ),
-
-        first_name:
-          balance.employee?.first_name ?? "",
-
-        last_name:
-          balance.employee?.last_name ?? "",
+        employee_id: Number(balance.employee?.employee_id ?? balance.employee_id),
+        first_name: balance.employee?.first_name ?? "",
+        last_name: balance.employee?.last_name ?? "",
       },
     }));
-
   } catch (error: any) {
-
-    console.error(
-      "Failed loading balances:",
-      error.response?.data || error
-    );
-
+    console.error("Failed loading balances:", error.response?.data || error);
   }
-
 };
 
-
-/* ============================================================
-   OPEN EDIT MODAL
-   ============================================================ */
-
 const openModal = (balance: LeaveBalance) => {
-
   selectedBalance.value = {
     balance_id: balance.balance_id,
-
     employee_id: balance.employee_id,
-
-    vacation_earned:
-      Number(balance.vacation_earned ?? 0),
-
-    sick_earned:
-      Number(balance.sick_earned ?? 0),
-
-    vacation_balance:
-      Number(balance.vacation_balance ?? 0),
-
-    sick_balance:
-      Number(balance.sick_balance ?? 0),
-
-    service_credits:
-      Number(balance.service_credits ?? 0),
-
-    used_leave:
-      Number(balance.used_leave ?? 0),
-
+    vacation_earned: Number(balance.vacation_earned ?? 0),
+    sick_earned: Number(balance.sick_earned ?? 0),
+    vacation_balance: Number(balance.vacation_balance ?? 0),
+    sick_balance: Number(balance.sick_balance ?? 0),
+    service_credits: Number(balance.service_credits ?? 0),
+    used_leave: Number(balance.used_leave ?? 0),
     employee: {
-      employee_id:
-        balance.employee?.employee_id ??
-        balance.employee_id,
-
-      first_name:
-        balance.employee?.first_name ?? "",
-
-      last_name:
-        balance.employee?.last_name ?? "",
+      employee_id: balance.employee?.employee_id ?? balance.employee_id,
+      first_name: balance.employee?.first_name ?? "",
+      last_name: balance.employee?.last_name ?? "",
     },
   };
-
   showModal.value = true;
 };
 
-
-/* ============================================================
-   CLOSE MODAL
-   ============================================================ */
-
-const closeModal = () => {
-
-  showModal.value = false;
-
-};
-
-
-/* ============================================================
-   UPDATE BALANCE
-   ============================================================ */
+const closeModal = () => { showModal.value = false; };
 
 const updateBalance = async () => {
-
   try {
-
     const token = localStorage.getItem("token");
-
-    /*
-    |--------------------------------------------------------------------------
-    | Normalize all values before sending.
-    |--------------------------------------------------------------------------
-    */
-
     const payload = {
-
-      vacation_earned:
-        Number(selectedBalance.value.vacation_earned ?? 0),
-
-      sick_earned:
-        Number(selectedBalance.value.sick_earned ?? 0),
-
-      vacation_balance:
-        Number(selectedBalance.value.vacation_balance ?? 0),
-
-      sick_balance:
-        Number(selectedBalance.value.sick_balance ?? 0),
-
-      service_credits:
-        Number(selectedBalance.value.service_credits ?? 0),
-
+      vacation_earned: Number(selectedBalance.value.vacation_earned ?? 0),
+      sick_earned: Number(selectedBalance.value.sick_earned ?? 0),
+      vacation_balance: Number(selectedBalance.value.vacation_balance ?? 0),
+      sick_balance: Number(selectedBalance.value.sick_balance ?? 0),
+      service_credits: Number(selectedBalance.value.service_credits ?? 0),
     };
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Client-side validation
-    |--------------------------------------------------------------------------
-    */
-
     const values = Object.values(payload);
-
-    if (
-      values.some(
-        (value) =>
-          !Number.isFinite(value) ||
-          value < 0
-      )
-    ) {
-
-      alert(
-        "All leave balance values must be valid numbers greater than or equal to zero."
-      );
-
+    if (values.some((value) => !Number.isFinite(value) || value < 0)) {
+      alert("All leave balance values must be valid numbers greater than or equal to zero.");
       return;
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update backend
-    |--------------------------------------------------------------------------
-    */
 
     await axios.put(
       `${API_BASE}/leave-balances/${selectedBalance.value.employee_id}`,
       payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" } }
     );
 
-
-    alert(
-      "Leave balance updated successfully."
-    );
-
-
+    alert("Leave balance updated successfully.");
     closeModal();
-
     await loadBalances();
-
   } catch (error: any) {
-
-    console.error(
-      "Failed updating balance:",
-      error.response?.data || error
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Show actual Laravel validation error
-    |--------------------------------------------------------------------------
-    */
-
-    const errors =
-      error.response?.data?.errors;
-
+    console.error("Failed updating balance:", error.response?.data || error);
+    const errors = error.response?.data?.errors;
     if (errors) {
-
-      const messages = Object.values(errors)
-        .flat()
-        .join("\n");
-
-      alert(messages);
-
+      alert(Object.values(errors).flat().join("\n"));
       return;
     }
-
-
-    alert(
-      error.response?.data?.message ||
-      "Failed updating balance."
-    );
-
+    alert(error.response?.data?.message || "Failed updating balance.");
   }
-
 };
 
-
-/* ============================================================
-   CLEAR BALANCE
-   ============================================================ */
-
-const deleteBalance = async (
-  employee_id: number
-) => {
-
+const deleteBalance = async (employee_id: number) => {
   const confirmed = confirm(
     "Are you sure you want to clear this leave balance?\n\n" +
     "Vacation, Sick, and Service Credit balances will be reset to zero."
   );
-
-  if (!confirmed) {
-    return;
-  }
-
+  if (!confirmed) return;
 
   try {
-
     await deleteLeaveBalance(employee_id);
-
-
-    alert(
-      "Leave balance cleared successfully."
-    );
-
-
+    alert("Leave balance cleared successfully.");
     await loadBalances();
-
   } catch (error: any) {
-
-    console.error(
-      "Failed clearing balance:",
-      error.response?.data || error
-    );
-
-
-    alert(
-      error.response?.data?.message ||
-      "Failed clearing balance."
-    );
-
+    console.error("Failed clearing balance:", error.response?.data || error);
+    alert(error.response?.data?.message || "Failed clearing balance.");
   }
-
 };
 
-
-/* ============================================================
-   TOTAL BALANCE
-   ============================================================ */
-
-const totalBalance = (
-  balance: LeaveBalance
-) => {
-
-  /*
-   * Total Available includes every balance that can be
-   * selected for deduction during leave approval.
-   */
-
-  return (
+const totalBalance = (balance: LeaveBalance) =>
+  (
     Number(balance.vacation_balance ?? 0) +
     Number(balance.sick_balance ?? 0) +
     Number(balance.service_credits ?? 0)
   ).toFixed(2);
 
-};
+const formatNumber = (value: number | string | null | undefined) =>
+  Number(value ?? 0).toFixed(2);
 
-
-/* ============================================================
-   FORMAT NUMBER
-   ============================================================ */
-
-const formatNumber = (
-  value: number | string | null | undefined
-) => {
-
-  return Number(value ?? 0).toFixed(2);
-
-};
-
-
-/* ============================================================
-   BALANCE COLOR
-   ============================================================ */
-
-const balanceColor = (
-  value: number | string | null | undefined
-) => {
-
+const balanceColor = (value: number | string | null | undefined) => {
   const amount = Number(value ?? 0);
-
-  if (amount <= 0) {
-
-    return "balance-zero";
-
-  }
-
-  if (amount <= 5) {
-
-    return "balance-low";
-
-  }
-
+  if (amount <= 0) return "balance-zero";
+  if (amount <= 5) return "balance-low";
   return "balance-good";
-
 };
 
-
-/* ============================================================
-   INITIAL LOAD
-   ============================================================ */
+/* Auto-reload balances whenever the tab regains focus so newly
+   applied credits from LeaveCredits.vue show up immediately. */
+const handleVisibility = () => {
+  if (document.visibilityState === "visible") loadBalances();
+};
 
 onMounted(() => {
-
   loadBalances();
-
+  document.addEventListener("visibilitychange", handleVisibility);
 });
 
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", handleVisibility);
+});
 </script>
-
 
 <style scoped>
 

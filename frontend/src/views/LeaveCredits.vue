@@ -23,8 +23,7 @@
               :key="employee.employee_id"
               :value="employee.employee_id"
             >
-              {{ employee.last_name }},
-              {{ employee.first_name }}
+              {{ employee.last_name }}, {{ employee.first_name }}
             </option>
           </select>
         </div>
@@ -36,11 +35,8 @@
 
           <select v-model="form.credit_type" class="form-control">
             <option value="">Select Credit Type</option>
-
             <option value="Service">Service Credits</option>
-
             <option value="Vacation">Vacation Leave</option>
-
             <option value="Sick">Sick Leave</option>
           </select>
         </div>
@@ -153,8 +149,7 @@
             <tr v-for="credit in filteredCredits" :key="credit.credits_id">
               <td class="employee-cell">
                 <span class="employee-name">
-                  {{ credit.employee?.last_name }},
-                  {{ credit.employee?.first_name }}
+                  {{ credit.employee?.last_name }}, {{ credit.employee?.first_name }}
                 </span>
               </td>
 
@@ -162,16 +157,9 @@
                 <span
                   :class="{
                     'credit-service': credit.credit_type === 'Service',
-
                     'credit-vacation': credit.credit_type === 'Vacation',
-
                     'credit-sick': credit.credit_type === 'Sick',
-
-                    'credit-other': ![
-                      'Service',
-                      'Vacation',
-                      'Sick',
-                    ].includes(credit.credit_type),
+                    'credit-other': !['Service', 'Vacation', 'Sick'].includes(credit.credit_type),
                   }"
                 >
                   {{
@@ -205,7 +193,7 @@
               <td class="action-cell">
                 <div class="action-buttons">
                   <button
-                    @click="revokeCredit(credit.credits_id)"
+                    @click="revokeCredit(credit)"
                     type="button"
                     class="remove-button"
                   >
@@ -229,6 +217,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
+import axios from "axios";
 
 import {
   getEmployees,
@@ -270,17 +259,92 @@ const form = ref({
   credit_type: "",
 });
 
+/* ============================================================
+   API BASE — used to keep the employee's leave balance in sync
+   whenever a credit is recorded or revoked.
+   ============================================================ */
+const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
+
+const authHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+};
+
+/* ============================================================
+   Apply / revert a credit against the employee's leave balance.
+   direction = +1 when applying a credit, -1 when revoking one.
+   ============================================================ */
+const syncBalanceWithCredit = async (
+  employee_id: number,
+  credit_type: string,
+  equivalent_leave_days: number,
+  direction: 1 | -1
+) => {
+  const days = Number(equivalent_leave_days || 0);
+  if (!employee_id || !days) return;
+
+  // 1. Fetch the current balance for this employee.
+  const { data } = await axios.get(
+    `${API_BASE}/leave-balances`,
+    { headers: authHeaders() }
+  );
+
+  const list = Array.isArray(data) ? data : [];
+  const current = list.find(
+    (b: any) => Number(b.employee_id) === Number(employee_id)
+  ) || {};
+
+  // 2. Start from current values (default to 0).
+  const payload = {
+    vacation_earned: Number(current.vacation_earned ?? 0),
+    sick_earned: Number(current.sick_earned ?? 0),
+    vacation_balance: Number(current.vacation_balance ?? 0),
+    sick_balance: Number(current.sick_balance ?? 0),
+    service_credits: Number(current.service_credits ?? 0),
+  };
+
+  // 3. Apply the delta to the correct bucket.
+  const delta = direction * days;
+
+  if (credit_type === "Service") {
+    payload.service_credits += delta;
+  } else if (credit_type === "Vacation") {
+    payload.vacation_earned += delta;
+    payload.vacation_balance += delta;
+  } else if (credit_type === "Sick") {
+    payload.sick_earned += delta;
+    payload.sick_balance += delta;
+  } else {
+    return;
+  }
+
+  // 4. Clamp to zero so balances can never go negative.
+  (Object.keys(payload) as (keyof typeof payload)[]).forEach((k) => {
+    if (payload[k] < 0) payload[k] = 0;
+    payload[k] = Number(payload[k].toFixed(2));
+  });
+
+  // 5. Persist the updated balance.
+  await axios.put(
+    `${API_BASE}/leave-balances/${employee_id}`,
+    payload,
+    { headers: authHeaders() }
+  );
+};
+
 const filteredCredits = computed(() => {
   const search = searchQuery.value.trim().toLowerCase();
-  
+
   let result = credits.value.filter((credit) => {
     const employeeName = `${credit.employee?.last_name || ""} ${credit.employee?.first_name || ""}`.toLowerCase();
     const activityName = credit.activity_name?.toLowerCase() || "";
-    
     return employeeName.includes(search) || activityName.includes(search);
   });
-  
-  // Sort alphabetically if arranged is true
+
   if (arranged.value) {
     return [...result].sort((a, b) => {
       const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`.trim().toLowerCase();
@@ -288,7 +352,7 @@ const filteredCredits = computed(() => {
       return aName.localeCompare(bName);
     });
   }
-  
+
   return result;
 });
 
@@ -316,7 +380,26 @@ const applyCredit = async () => {
   try {
     console.log("Applying credit data:", form.value);
 
+    // 1. Create the credit record.
     await addLeaveCredit(form.value);
+
+    // 2. Add the equivalent days to the correct leave balance bucket.
+    try {
+      await syncBalanceWithCredit(
+        Number(form.value.employee_id),
+        form.value.credit_type,
+        Number(form.value.equivalent_leave_days || 0),
+        1
+      );
+    } catch (balanceError: any) {
+      console.error(
+        "Credit saved but balance sync failed:",
+        balanceError.response?.data || balanceError
+      );
+      alert(
+        "Credit was saved, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page."
+      );
+    }
 
     alert("Leave credit applied successfully!");
 
@@ -337,19 +420,39 @@ const applyCredit = async () => {
       error.response?.data?.message ??
         JSON.stringify(
           error.response?.data?.errors ??
-            "Unable to apply leave credit.",
-        ),
+            "Unable to apply leave credit."
+        )
     );
   }
 };
 
-const revokeCredit = async (id: number) => {
+const revokeCredit = async (credit: LeaveCredit) => {
   if (!confirm("Are you sure you want to revoke this credit?")) {
     return;
   }
 
   try {
-    await deleteLeaveCredit(id);
+    // 1. Delete the credit record.
+    await deleteLeaveCredit(credit.credits_id);
+
+    // 2. Subtract the same amount from the employee's balance.
+    try {
+      await syncBalanceWithCredit(
+        Number(credit.employee_id),
+        credit.credit_type,
+        Number(credit.equivalent_leave_days || 0),
+        -1
+      );
+    } catch (balanceError: any) {
+      console.error(
+        "Credit revoked but balance sync failed:",
+        balanceError.response?.data || balanceError
+      );
+      alert(
+        "Credit was revoked, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page."
+      );
+    }
+
     alert("Leave credit revoked successfully!");
     await loadCredits();
   } catch (error: any) {
@@ -359,16 +462,9 @@ const revokeCredit = async (id: number) => {
 };
 
 const formatDate = (date: string) => {
-  if (!date) {
-    return "—";
-  }
-
+  if (!date) return "—";
   const parsedDate = new Date(date);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return date;
-  }
-
+  if (Number.isNaN(parsedDate.getTime())) return date;
   return parsedDate.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
