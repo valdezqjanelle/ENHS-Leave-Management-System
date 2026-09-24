@@ -134,7 +134,7 @@
               class="report-input w-full"
             >
               <option value="">
-                Custom Range
+                All Dates / Custom Range
               </option>
 
               <option value="today">
@@ -166,6 +166,17 @@
       <!-- ========================================================= -->
       <!-- REPORT DISPLAY -->
       <!-- ========================================================= -->
+
+      <p v-if="loading" class="text-sm text-gray-400">Loading report...</p>
+      <div v-if="reportError" role="alert" class="neo-card w-full p-4 text-red-400">
+        {{ reportError }}
+      </div>
+      <p v-if="selectedReportType === 'leave-credits'" class="text-sm text-gray-400">
+        The date range selects recorded credits. Balances and used leave show current values.
+      </p>
+      <p v-if="selectedReportType === 'faculty-performance'" class="text-sm text-gray-400">
+        Leave application counts use the selected date range. Employee details and balances are current.
+      </p>
 
       <div class="neo-card w-full overflow-hidden">
 
@@ -535,7 +546,7 @@
                     </td>
 
                     <td class="px-6 py-4">
-                      {{ employee.department_name }}
+                      {{ employee.department_name || employee.department || "Unknown" }}
                     </td>
 
                     <td class="px-6 py-4">
@@ -715,7 +726,7 @@
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ employee.department_name }}
+                      {{ employee.department_name || employee.department || "Unknown" }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
@@ -765,7 +776,6 @@
 
 import {
   ref,
-  onMounted,
   nextTick,
   watch,
   computed
@@ -793,11 +803,7 @@ import {
   PieController
 } from 'chart.js'
 
-import {
-  getLeaveSummary,
-  getLeaveCredits,
-  getEmployeesReport
-} from '@/services/report'
+import api from '@/services/api'
 
 
 /*
@@ -839,21 +845,20 @@ ChartJS.defaults.borderColor = '#cbd8e8'
 
 const selectedReportType = ref('leave-summary')
 
-const dateRange = ref({
+const localDate = (date: Date) => [
+  date.getFullYear(),
+  String(date.getMonth() + 1).padStart(2, '0'),
+  String(date.getDate()).padStart(2, '0')
+].join('-')
 
-  start: new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1
-  )
-    .toISOString()
-    .split('T')[0],
+const dateRange = ref({ start: '', end: '' })
 
-  end: new Date()
-    .toISOString()
-    .split('T')[0]
-
+const reportParams = () => ({
+  ...(dateRange.value.start && { start_date: dateRange.value.start }),
+  ...(dateRange.value.end && { end_date: dateRange.value.end })
 })
+
+const reportError = ref('')
 
 
 /*
@@ -1047,12 +1052,10 @@ function calculatePercentage(value: number) {
 
 async function loadLeaveSummary() {
 
-  loading.value = true
-
   try {
 
     const response =
-      await getLeaveSummary()
+      await api.get('/reports/leave-summary', { params: reportParams() })
 
     leaveSummaryData.value =
       response.data.summary || []
@@ -1070,10 +1073,7 @@ async function loadLeaveSummary() {
       'Failed to load leave summary:',
       error
     )
-
-  } finally {
-
-    loading.value = false
+    throw error
 
   }
 
@@ -1449,7 +1449,7 @@ async function loadLeaveCredits() {
   try {
 
     const response =
-      await getLeaveCredits()
+      await api.get('/reports/leave-credits', { params: reportParams() })
 
     creditsData.value =
       response.data.employees || []
@@ -1463,6 +1463,7 @@ async function loadLeaveCredits() {
       'Failed to load leave credits:',
       error
     )
+    throw error
 
   }
 
@@ -1480,13 +1481,13 @@ async function loadEmployeeReport() {
   try {
 
     const response =
-      await getEmployeesReport()
+      await api.get('/reports/employees', { params: reportParams() })
 
     employeeData.value =
       response.data.employees || []
 
     totalEmployees.value =
-      response.data.total_employees || 0
+      response.data.totals?.employees ?? response.data.employees?.length ?? 0
 
   } catch (error) {
 
@@ -1494,6 +1495,7 @@ async function loadEmployeeReport() {
       'Failed to load employee report:',
       error
     )
+    throw error
 
   }
 
@@ -1565,6 +1567,11 @@ const setQuickDateRange = (
   const value =
     select.value
 
+  if (!value) {
+    dateRange.value = { start: '', end: '' }
+    return
+  }
+
   const today =
     new Date()
 
@@ -1584,7 +1591,7 @@ const setQuickDateRange = (
     case 'week':
 
       start.setDate(
-        today.getDate() - 7
+        today.getDate() - ((today.getDay() + 6) % 7)
       )
 
       break
@@ -1629,15 +1636,8 @@ const setQuickDateRange = (
 
   if (value) {
 
-    dateRange.value.start =
-      start
-        .toISOString()
-        .split('T')[0]
-
-    dateRange.value.end =
-      today
-        .toISOString()
-        .split('T')[0]
+    dateRange.value.start = localDate(start)
+    dateRange.value.end = localDate(today)
 
   }
 
@@ -1711,7 +1711,7 @@ const exportReport = () => {
               employee.employee_name ?? '',
 
             Department:
-              employee.department_name ?? '',
+              employee.department_name ?? employee.department ?? '',
 
             'Vacation Balance':
               employee.vacation_balance ?? 0,
@@ -1741,7 +1741,7 @@ const exportReport = () => {
               employee.employee_name ?? '',
 
             Department:
-              employee.department_name ?? '',
+              employee.department_name ?? employee.department ?? '',
 
             Position:
               employee.position?.name ?? employee.position ?? '',
@@ -1896,57 +1896,39 @@ const printReport = () => {
 
 /*
 |--------------------------------------------------------------------------
-| Initial Load
-|--------------------------------------------------------------------------
-*/
-
-onMounted(() => {
-
-  loadLeaveSummary()
-
-})
-
-
-/*
-|--------------------------------------------------------------------------
-| Report Type Watcher
+| Refresh when the report or either date changes
 |--------------------------------------------------------------------------
 */
 
 watch(
-  selectedReportType,
-  async (value) => {
-
-    switch (value) {
-
-      case 'leave-summary':
-
-        await loadLeaveSummary()
-
-        break
-
-
-      case 'leave-credits':
-
-        await loadLeaveCredits()
-
-        break
-
-
-      case 'faculty-performance':
-
-        await loadEmployeeReport()
-
-        break
-
-
-      case 'attendance':
-
-        break
-
+  [selectedReportType, () => dateRange.value.start, () => dateRange.value.end],
+  async () => {
+    reportError.value = ''
+    if (dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
+      reportError.value = 'Start date must be on or before end date.'
+      return
     }
-
-  }
+    loading.value = true
+    try {
+      switch (selectedReportType.value) {
+        case 'leave-summary':
+          await loadLeaveSummary()
+          break
+        case 'leave-credits':
+          await loadLeaveCredits()
+          break
+        case 'faculty-performance':
+          await loadEmployeeReport()
+          break
+      }
+    } catch (error) {
+      console.error('Failed to load report:', error)
+      reportError.value = 'Could not load the report. Please try again.'
+    } finally {
+      loading.value = false
+    }
+  },
+  { immediate: true }
 )
 
 </script>
@@ -2442,4 +2424,3 @@ canvas {
 }
 
 </style>
-

@@ -9,6 +9,8 @@ use App\Models\Report;
 use App\Models\LeaveApplication;
 use App\Models\AttendanceRecord;
 use App\Models\LeaveBalance;
+use App\Models\LeaveCredit;
+use App\Models\EmployeeRecord;
 
 use Carbon\Carbon;
 use PDF;
@@ -21,20 +23,31 @@ class ReportController extends Controller
         return Report::latest()->get();
     }
 
+    private function reportDates(Request $request): array
+    {
+        return $request->validate([
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
+        ]);
+    }
+
     public function leaveSummary(Request $request)
     {
+        $dates = $this->reportDates($request);
         $leaves = LeaveApplication::with([
             'employee.department',
             'leaveType'
         ])
             ->whereNotNull('leave_type_id')
+            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
             ->get();
 
         $summary = [];
 
         foreach ($leaves as $leave) {
 
-            $department = $leave->employee->department?->department_name ?? 'Unknown';
+            $department = $leave->employee?->department?->department_name ?? 'Unknown';
 
             if (!isset($summary[$department])) {
 
@@ -88,66 +101,56 @@ class ReportController extends Controller
         ]);
     }
 
-    public function leaveCredits()
+    public function leaveCredits(Request $request)
     {
-        $balances = LeaveBalance::with('employee.department')->get();
+        $dates = $this->reportDates($request);
+        $hasRange = !empty($dates['start_date']) || !empty($dates['end_date']);
 
-        $employees = [];
+        // Credit entries determine which employees belong to the selected period.
+        // Balances are current snapshots, not historical balances.
+        $credits = LeaveCredit::query()
+            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('date_recorded', '>=', $date))
+            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('date_recorded', '<=', $date))
+            ->get();
 
-        $totalVacationEarned = 0;
-        $totalSickEarned = 0;
-
-        $totalVacationBalance = 0;
-        $totalSickBalance = 0;
-
-        $totalUsedLeave = 0;
-
-        foreach ($balances as $balance) {
-
-            $employee = $balance->employee;
-
-            $employees[] = [
-                'employee_id' => $employee->employee_id,
-                'employee_name' =>
-                $employee->first_name . ' ' .
-                    $employee->last_name,
-
-                'department' => $employee->department?->department_name,
-
-                'vacation_earned' => $balance->vacation_earned,
-                'sick_earned' => $balance->sick_earned,
-
-                'vacation_balance' => $balance->vacation_balance,
-                'sick_balance' => $balance->sick_balance,
-
-                'used_leave' => $balance->used_leave
-            ];
-
-            $totalVacationEarned += $balance->vacation_earned;
-            $totalSickEarned += $balance->sick_earned;
-
-            $totalVacationBalance += $balance->vacation_balance;
-            $totalSickBalance += $balance->sick_balance;
-
-            $totalUsedLeave += $balance->used_leave;
+        $employeeIds = $credits->pluck('employee_id')->unique();
+        if (!$hasRange) {
+            $employeeIds = $employeeIds->merge(LeaveBalance::query()->pluck('employee_id'))->unique();
         }
 
+        $employees = EmployeeRecord::with(['department', 'leaveBalance'])
+            ->whereIn('employee_id', $employeeIds)
+            ->get()
+            ->map(function ($employee) use ($credits, $hasRange) {
+                $balance = $employee->leaveBalance;
+                $periodCredits = $credits->where('employee_id', $employee->employee_id)
+                    ->where('status', 'Applied');
+                return [
+                    'employee_id' => $employee->employee_id,
+                    'employee_name' => trim($employee->first_name . ' ' . $employee->last_name),
+                    'department_name' => $employee->department?->department_name ?? 'Unknown',
+                    'vacation_earned' => $hasRange
+                        ? $periodCredits->filter(fn ($credit) => strcasecmp($credit->credit_type, 'Vacation') === 0)->sum('equivalent_leave_days')
+                        : (float) ($balance?->vacation_earned ?? 0),
+                    'sick_earned' => $hasRange
+                        ? $periodCredits->filter(fn ($credit) => strcasecmp($credit->credit_type, 'Sick') === 0)->sum('equivalent_leave_days')
+                        : (float) ($balance?->sick_earned ?? 0),
+                    'vacation_balance' => (float) ($balance?->vacation_balance ?? 0),
+                    'sick_balance' => (float) ($balance?->sick_balance ?? 0),
+                    'used_leave' => (float) ($balance?->used_leave ?? 0),
+                ];
+            })->values();
+
         return response()->json([
-
             'employees' => $employees,
-
             'totals' => [
-
-                'employees' => count($employees),
-
-                'vacation_earned' => $totalVacationEarned,
-                'sick_earned' => $totalSickEarned,
-
-                'vacation_balance' => $totalVacationBalance,
-                'sick_balance' => $totalSickBalance,
-
-                'used_leave' => $totalUsedLeave
-            ]
+                'employees' => $employees->count(),
+                'vacation_earned' => $employees->sum('vacation_earned'),
+                'sick_earned' => $employees->sum('sick_earned'),
+                'vacation_balance' => $employees->sum('vacation_balance'),
+                'sick_balance' => $employees->sum('sick_balance'),
+                'used_leave' => $employees->sum('used_leave'),
+            ],
         ]);
     }
 
@@ -180,13 +183,16 @@ class ReportController extends Controller
         ]);
     }
 
-  public function employeeReport()
+  public function employeeReport(Request $request)
 {
+    $dates = $this->reportDates($request);
     $employees = \App\Models\EmployeeRecord::with([
         'position',
         'department',
-        'leaveApplications.leaveType',
-        'leaveBalance'
+        'leaveBalance',
+        'leaveApplications' => fn ($q) => $q
+            ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date)),
     ])->get();
 
     $report = [];
@@ -213,7 +219,8 @@ class ReportController extends Controller
                 $employee->first_name . ' ' .
                 $employee->last_name,
 
-            'department' => $employee->department?->department_name,
+            'department_name' => $employee->department?->department_name ?? 'Unknown',
+            'department' => $employee->department?->department_name ?? 'Unknown',
 
             'position' => $employee->position
                 ? [
