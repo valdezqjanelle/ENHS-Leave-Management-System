@@ -1143,7 +1143,7 @@
             </p>
 
             <p class="text-xs text-gray-400 mt-1">
-              {{ activity.time }}
+              {{ formatDateShort(activity.time) }}
             </p>
 
           </div>
