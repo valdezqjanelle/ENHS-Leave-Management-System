@@ -477,121 +477,6 @@
 
 
         <!-- ========================================================= -->
-        <!-- EMPLOYEE PERFORMANCE -->
-        <!-- ========================================================= -->
-
-        <template v-else-if="selectedReportType === 'faculty-performance'">
-
-          <div class="p-5 sm:p-6">
-
-            <div class="mb-5">
-
-            </div>
-
-
-            <div class="overflow-x-auto">
-
-              <table class="report-table w-full min-w-[1000px]">
-
-                <thead>
-
-                  <tr>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Employee
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Department
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Position
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Employment Status
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Vacation Balance
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Sick Balance
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Used Leave
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  <tr
-                    v-for="employee in employeeData"
-                    :key="employee.employee_id"
-                    class="transition"
-                  >
-
-                    <td class="px-6 py-4">
-                      {{ employee.employee_name }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.department_name || employee.department || "Unknown" }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.position?.name || employee.position || "-" }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.employment_status }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.vacation_balance }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.sick_balance }}
-                    </td>
-
-                    <td class="px-6 py-4">
-                      {{ employee.used_leave }}
-                    </td>
-
-                  </tr>
-
-
-                  <tr v-if="employeeData.length === 0">
-
-                    <td
-                      colspan="7"
-                      class="px-6 py-8 text-center text-gray-500"
-                    >
-                      No employee records found.
-                    </td>
-
-                  </tr>
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-
-        </template>
-
-
-        <!-- ========================================================= -->
         <!-- LEAVE CREDITS -->
         <!-- ========================================================= -->
 
@@ -801,6 +686,7 @@ import {
 } from 'chart.js'
 
 import api from '@/services/api'
+import { getEmployees } from '@/services/employee'
 
 
 /*
@@ -875,14 +761,6 @@ const reportTypes = [
   },
 
   {
-    id: 'faculty-performance',
-    name: 'Employee Performance',
-    description: 'Individual performance metrics',
-    icon: TrendingUp,
-    iconColor: 'text-purple-500'
-  },
-
-  {
     id: 'leave-credits',
     name: 'Leave Credits',
     description: 'Credit usage and availability',
@@ -900,10 +778,6 @@ const reportTypes = [
 */
 
 const leaveSummaryData = ref<any[]>([])
-
-const employeeData = ref<any[]>([])
-
-const totalEmployees = ref(0)
 
 const creditsData = ref<any[]>([])
 
@@ -1448,48 +1322,38 @@ async function loadLeaveCredits() {
     const response =
       await api.get('/reports/leave-credits')
 
-    creditsData.value =
+    const creditsEmployees =
       response.data.employees || []
 
     leaveTotals.value =
       response.data.totals || {}
 
+    // Fetch all employees to ensure all are listed
+    const allEmployees = await getEmployees()
+
+    // Create a map of existing credits by employee_id
+    const creditsMap = new Map()
+    creditsEmployees.forEach((emp: any) => {
+      creditsMap.set(emp.employee_id, emp)
+    })
+
+    // Merge all employees with their credits, defaulting to 0 if not found
+    creditsData.value = allEmployees.map((emp: any) => {
+      const existingCredit = creditsMap.get(emp.employee_id)
+      return existingCredit || {
+        employee_id: emp.employee_id,
+        employee_name: `${emp.last_name}, ${emp.first_name}`,
+        department_name: emp.department?.department_name || emp.department || 'Unknown',
+        vacation_balance: 0,
+        sick_balance: 0,
+        used_leave: 0
+      }
+    })
+
   } catch (error) {
 
     console.error(
       'Failed to load leave credits:',
-      error
-    )
-    throw error
-
-  }
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Load Employee Report
-|--------------------------------------------------------------------------
-*/
-
-async function loadEmployeeReport() {
-
-  try {
-
-    const response =
-      await api.get('/reports/employees')
-
-    employeeData.value =
-      response.data.employees || []
-
-    totalEmployees.value =
-      response.data.totals?.employees ?? response.data.employees?.length ?? 0
-
-  } catch (error) {
-
-    console.error(
-      'Failed to load employee report:',
       error
     )
     throw error
@@ -1727,42 +1591,6 @@ const exportReport = () => {
 
       break
 
-
-    case 'faculty-performance':
-
-      data =
-        employeeData.value.map(
-          (employee: any) => ({
-
-            Employee:
-              employee.employee_name ?? '',
-
-            Department:
-              employee.department_name ?? employee.department ?? '',
-
-            Position:
-              employee.position?.name ?? employee.position ?? '',
-
-            'Employment Status':
-              employee.employment_status ?? '',
-
-            'Vacation Balance':
-              employee.vacation_balance ?? 0,
-
-            'Sick Balance':
-              employee.sick_balance ?? 0,
-
-            'Used Leave':
-              employee.used_leave ?? 0
-
-          })
-        )
-
-      filename =
-        'employee-performance-report.csv'
-
-      break
-
   }
 
 
@@ -1913,9 +1741,6 @@ watch(
           break
         case 'leave-credits':
           await loadLeaveCredits()
-          break
-        case 'faculty-performance':
-          await loadEmployeeReport()
           break
       }
     } catch (error) {
