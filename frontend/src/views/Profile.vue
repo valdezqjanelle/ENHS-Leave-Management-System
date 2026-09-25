@@ -1,4 +1,3 @@
-
 <template>
   <div class="records-shell p-8 min-h-screen space-y-6">
     <div class="neo-card p-8">
@@ -148,13 +147,15 @@
             </p>
           </div>
 
+          <!-- FIX: use resolvedSalaryGrade instead of employee.salary_grade directly,
+               so the value still shows even if the profile API omits it but returns position_id -->
           <div>
             <p class="text-sm text-[var(--text-muted)]">
               Salary Grade
             </p>
 
             <p class="font-medium text-[var(--text)] mt-1">
-              {{ employee.salary_grade || "—" }}
+              {{ resolvedSalaryGrade || "—" }}
             </p>
           </div>
 
@@ -709,6 +710,16 @@ const employee = ref({
 
   employment_status: "",
   date_hired: "",
+});
+
+// NOTE: The /positions endpoint is admin-only on the backend (confirmed by
+// a 403 for employee accounts), so it can't be used here as a fallback.
+// The real fix is on the backend: the route behind getMyProfile() must
+// include salary_grade (or an eager-loaded position.salary_grade) in its
+// response for the logged-in employee. Until that's in place, this will
+// show "—".
+const resolvedSalaryGrade = computed(() => {
+  return employee.value.salary_grade || "";
 });
 
 const isEditing = ref(false);

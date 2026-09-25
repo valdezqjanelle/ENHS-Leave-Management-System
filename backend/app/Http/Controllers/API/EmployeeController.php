@@ -339,6 +339,7 @@ return response()->json([
             'department_name' => $employee->department?->department_name,
             'position_id' => $employee->position_id,
             'position' => $employee->position?->name,
+            'salary_grade' => $employee->position?->salary_grade,
             'supervisor_id' => $employee->supervisor_id,
             'supervisor' => $employee->supervisor
                 ? $employee->supervisor->first_name . ' ' . $employee->supervisor->last_name
