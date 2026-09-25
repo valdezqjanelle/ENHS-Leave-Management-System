@@ -292,28 +292,11 @@ const buildFileName = () => {
 };
 
 const goBack = () => {
-
-  const routeName =
-    String(route.name || "").toLowerCase();
-
-  const currentPath =
-    route.path.toLowerCase();
-
-  const isAdmin =
-    routeName.includes("admin") ||
-    currentPath.includes("/admin") ||
-    currentPath.includes("admin-applications");
-
-  if (isAdmin) {
-
-    router.push("/admin-applications");
-
-    return;
-
+  if (window.history.state?.back) {
+    router.back();
+  } else {
+    router.push("/my-applications");
   }
-
-  router.push("/my-applications");
-
 };
 
 const previewSrc = computed(() => {
