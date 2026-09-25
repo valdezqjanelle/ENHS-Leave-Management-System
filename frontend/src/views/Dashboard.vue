@@ -1,4 +1,3 @@
-
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
 
@@ -7,7 +6,7 @@
     <!-- ========================================================= -->
     <div
       v-if="loading"
-      class="text-center py-10 text-white"
+      class="text-center py-10 text-gray-900 dark:text-white"
     >
       Loading dashboard...
     </div>
@@ -17,13 +16,13 @@
     <!-- ========================================================= -->
     <div
       v-else-if="loadError"
-      class="neo-card p-6 border-l-4 border-red-600 text-white space-y-2"
+      class="neo-card p-6 border-l-4 border-red-600 text-gray-900 dark:text-white space-y-2"
     >
       <h3 class="text-lg font-semibold">
         Couldn't load your dashboard
       </h3>
 
-      <p class="text-sm text-gray-300">
+      <p class="text-sm text-gray-600 dark:text-gray-300">
         {{ loadError }}
       </p>
 
@@ -51,16 +50,16 @@
         <!-- Employees -->
         <div class="neo-card stats-card border-blue-500 p-4 md:p-6">
           <div class="flex flex-col items-center text-center gap-2 md:flex-row md:items-center md:text-left md:gap-0">
-            <div class="p-2.5 md:p-3 bg-blue-100 rounded-lg">
+            <div class="p-2.5 md:p-3 bg-blue-100 dark:bg-blue-100 rounded-lg">
               <Users class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
             </div>
 
             <div class="md:ml-5">
-              <h3 class="text-xs md:text-sm text-white">
+              <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">
                 Total Employees
               </h3>
 
-              <p class="text-xl md:text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ totalEmployees }}
               </p>
             </div>
@@ -75,11 +74,11 @@
             </div>
 
             <div class="md:ml-4">
-              <h3 class="text-xs md:text-sm text-white">
+              <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">
                 Pending Leaves
               </h3>
 
-              <p class="text-xl md:text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ pendingLeaves }}
               </p>
             </div>
@@ -94,11 +93,11 @@
             </div>
 
             <div class="md:ml-4">
-              <h3 class="text-xs md:text-sm text-white">
+              <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">
                 Approved Leaves
               </h3>
 
-              <p class="text-xl md:text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ approvedLeaves }}
               </p>
             </div>
@@ -113,11 +112,11 @@
             </div>
 
             <div class="md:ml-4">
-              <h3 class="text-xs md:text-sm text-white">
+              <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">
                 Disapproved Leaves
               </h3>
 
-              <p class="text-xl md:text-2xl font-semibold text-white">
+              <p class="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white">
                 {{ disapprovedLeaves }}
               </p>
             </div>
@@ -135,12 +134,12 @@
         <div class="neo-card p-4 md:p-6">
 
           <div class="flex justify-between items-start gap-3 mb-4">
-            <h3 class="text-base md:text-lg font-semibold text-white flex-1 min-w-0">
+            <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex-1 min-w-0">
               Recent Leave Applications
             </h3>
 
             <span
-              class="text-xs px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 whitespace-nowrap flex-shrink-0"
+              class="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 whitespace-nowrap flex-shrink-0"
             >
               {{ recentApplications.length }}
             </span>
@@ -165,11 +164,11 @@
                 </div>
 
                 <div class="min-w-0">
-                  <p class="text-sm md:text-base font-medium text-white truncate">
+                  <p class="text-sm md:text-base font-medium text-gray-900 dark:text-white truncate">
                     {{ getEmployeeName(app) }}
                   </p>
 
-                  <p class="text-xs md:text-sm text-gray-300 truncate">
+                  <p class="text-xs md:text-sm text-gray-600 dark:text-gray-300 truncate">
                     {{ getLeaveType(app) }}
                   </p>
                 </div>
@@ -184,7 +183,7 @@
                   {{ formatStatus(getAppStatus(app)) }}
                 </span>
 
-                <p class="text-xs text-gray-400 md:mt-1">
+                <p class="text-xs text-gray-500 dark:text-gray-400 md:mt-1">
                   {{ formatDateShort(app.date || app.created_at) }}
                 </p>
               </div>
@@ -194,7 +193,7 @@
 
           <p
             v-else
-            class="text-gray-400 text-sm"
+            class="text-gray-500 dark:text-gray-400 text-sm"
           >
             No recent applications.
           </p>
@@ -206,13 +205,13 @@
 
           <div class="flex justify-between items-start gap-3 mb-4">
 
-            <h3 class="text-base md:text-lg font-semibold text-white flex-1 min-w-0">
+            <h3 class="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex-1 min-w-0">
               Leave Requests Needing Action
             </h3>
 
             <span
               v-if="pendingRequests.length"
-              class="text-xs px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 whitespace-nowrap flex-shrink-0"
+              class="text-xs px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300 whitespace-nowrap flex-shrink-0"
             >
               {{ pendingRequests.length }} Pending
             </span>
@@ -232,11 +231,11 @@
 
               <div class="min-w-0">
 
-                <p class="font-medium text-white truncate">
+                <p class="font-medium text-gray-900 dark:text-white truncate">
                   {{ getEmployeeName(request) }}
                 </p>
 
-                <p class="text-sm text-gray-300">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
                   {{ getLeaveType(request) }}
 
                   <span v-if="getDays(request) !== null">
@@ -247,7 +246,7 @@
 
                 <p
                   v-if="request.start_date || request.end_date"
-                  class="text-xs text-gray-400 mt-1"
+                  class="text-xs text-gray-500 dark:text-gray-400 mt-1"
                 >
                   {{ formatDateShort(request.start_date) }}
 
@@ -277,16 +276,16 @@
             class="py-8 text-center"
           >
             <div
-              class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-500/10 flex items-center justify-center"
+              class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 dark:bg-green-500/10 flex items-center justify-center"
             >
-              <CheckCircle class="w-6 h-6 text-green-400" />
+              <CheckCircle class="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
 
-            <p class="text-white font-medium">
+            <p class="text-gray-900 dark:text-white font-medium">
               No pending requests
             </p>
 
-            <p class="text-gray-400 text-sm mt-1">
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
               All leave applications have been reviewed.
             </p>
           </div>
@@ -303,11 +302,11 @@
         <div class="flex justify-between items-center mb-6">
 
           <div>
-            <h3 class="text-xl font-semibold text-white">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
               Leave Analytics
             </h3>
 
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Overview of leave applications by type and department
             </p>
           </div>
@@ -319,7 +318,7 @@
           <!-- PIE CHART -->
           <div class="chart-card">
 
-            <h4 class="text-lg font-semibold text-white mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
               Leave by Type
             </h4>
 
@@ -340,7 +339,7 @@
                     :key="slice.name"
                     :d="slice.path"
                     :fill="slice.color"
-                    stroke="#0B1420"
+                    class="stroke-white dark:stroke-[#0B1420]"
                     stroke-width="2"
                   />
 
@@ -348,14 +347,14 @@
                     cx="100"
                     cy="100"
                     r="45"
-                    fill="#0B1420"
+                    class="fill-white dark:fill-[#0B1420]"
                   />
 
                   <text
                     x="100"
                     y="94"
                     text-anchor="middle"
-                    fill="white"
+                    class="fill-slate-900 dark:fill-white"
                     font-size="20"
                     font-weight="700"
                   >
@@ -366,7 +365,7 @@
                     x="100"
                     y="116"
                     text-anchor="middle"
-                    fill="#94a3b8"
+                    class="fill-slate-500 dark:fill-[#94a3b8]"
                     font-size="10"
                   >
                     TOTAL
@@ -391,7 +390,7 @@
                       :style="{ backgroundColor: item.color }"
                     ></span>
 
-                    <span class="text-sm text-gray-300 truncate">
+                    <span class="text-sm text-gray-600 dark:text-gray-300 truncate">
                       {{ item.name }}
                     </span>
 
@@ -399,11 +398,11 @@
 
                   <div class="text-right flex-shrink-0">
 
-                    <span class="text-sm font-semibold text-white">
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">
                       {{ item.value }}
                     </span>
 
-                    <span class="text-xs text-gray-500 ml-1">
+                    <span class="text-xs text-gray-500 dark:text-gray-500 ml-1">
                       ({{ item.percentage }}%)
                     </span>
 
@@ -417,7 +416,7 @@
 
             <div
               v-else
-              class="h-80 flex items-center justify-center text-gray-400"
+              class="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400"
             >
               No leave type data available.
             </div>
@@ -427,7 +426,7 @@
           <!-- BAR GRAPH -->
           <div class="chart-card">
 
-            <h4 class="text-lg font-semibold text-white mb-6">
+            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
               Leave by Department
             </h4>
 
@@ -505,7 +504,7 @@
 
             <div
               v-else
-              class="h-80 flex items-center justify-center text-gray-400"
+              class="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400"
             >
               No department data available.
             </div>
@@ -517,7 +516,7 @@
         <!-- SUMMARY TABLE -->
         <div class="mt-8">
 
-          <h4 class="text-lg font-semibold text-white mb-4">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Department Summary
           </h4>
 
@@ -542,23 +541,23 @@
                   :key="dept.department"
                 >
 
-                  <td class="font-medium text-white">
+                  <td class="font-medium text-gray-900 dark:text-white">
                     {{ dept.department }}
                   </td>
 
-                  <td class="text-white">
+                  <td class="text-gray-900 dark:text-white">
                     {{ dept.total }}
                   </td>
 
-                  <td class="text-green-400">
+                  <td class="text-green-600 dark:text-green-400">
                     {{ dept.approved }}
                   </td>
 
-                  <td class="text-yellow-400">
+                  <td class="text-yellow-600 dark:text-yellow-400">
                     {{ dept.pending }}
                   </td>
 
-                  <td class="text-red-400">
+                  <td class="text-red-600 dark:text-red-400">
                     {{ dept.disapproved }}
                   </td>
 
@@ -567,7 +566,7 @@
                 <tr v-if="!leaveSummaryData.length">
                   <td
                     colspan="5"
-                    class="text-center text-gray-400 py-8"
+                    class="text-center text-gray-500 dark:text-gray-400 py-8"
                   >
                     No department summary data available.
                   </td>
@@ -588,7 +587,7 @@
       <!-- ======================================================= -->
       <div class="neo-card p-6">
 
-        <h3 class="text-lg font-semibold mb-4 text-white">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Recent Activities
         </h3>
 
@@ -610,11 +609,11 @@
             </div>
 
             <div>
-              <p class="text-sm text-white">
+              <p class="text-sm text-gray-900 dark:text-white">
                 {{ activity.message }}
               </p>
 
-              <p class="text-xs text-gray-400 mt-1">
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {{ activity.time }}
               </p>
             </div>
@@ -625,7 +624,7 @@
 
         <p
           v-else
-          class="text-gray-400"
+          class="text-gray-500 dark:text-gray-400"
         >
           No recent activities.
         </p>
@@ -637,7 +636,7 @@
       <!-- ======================================================= -->
       <div class="neo-card p-6">
 
-        <h3 class="text-lg font-semibold mb-4 text-white">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Quick Actions
         </h3>
 
@@ -685,11 +684,11 @@
 
           <div>
 
-            <h2 class="text-3xl font-bold text-white">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
               Welcome, {{ employeeInfo.name }}!
             </h2>
 
-            <p class="text-gray-300 mt-2">
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
               {{ employeeInfo.department_name }}
 
               <span
@@ -718,8 +717,8 @@
             <FileCheck class="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
           </div>
           <div class="mt-2 md:mt-0 md:ml-5">
-            <h3 class="text-xs md:text-sm text-white">Total Applications</h3>
-            <p class="text-lg md:text-2xl font-semibold text-white">
+            <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">Total Applications</h3>
+            <p class="text-lg md:text-2xl font-semibold text-gray-900 dark:text-white">
               {{ totalEmployeeApplications }}
             </p>
           </div>
@@ -730,8 +729,8 @@
             <Clock class="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
           </div>
           <div class="mt-2 md:mt-0 md:ml-4">
-            <h3 class="text-xs md:text-sm text-white">Pending</h3>
-            <p class="text-lg md:text-2xl font-semibold text-white">
+            <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">Pending</h3>
+            <p class="text-lg md:text-2xl font-semibold text-gray-900 dark:text-white">
               {{ totalPendingLeaves }}
             </p>
           </div>
@@ -742,8 +741,8 @@
             <CheckCircle class="w-5 h-5 md:w-6 md:h-6 text-green-600" />
           </div>
           <div class="mt-2 md:mt-0 md:ml-4">
-            <h3 class="text-xs md:text-sm text-white">Approved</h3>
-            <p class="text-lg md:text-2xl font-semibold text-white">
+            <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">Approved</h3>
+            <p class="text-lg md:text-2xl font-semibold text-gray-900 dark:text-white">
               {{ totalApprovedLeaves }}
             </p>
           </div>
@@ -754,8 +753,8 @@
             <AlertCircle class="w-5 h-5 md:w-6 md:h-6 text-red-600" />
           </div>
           <div class="mt-2 md:mt-0 md:ml-4">
-            <h3 class="text-xs md:text-sm text-white">Disapproved</h3>
-            <p class="text-lg md:text-2xl font-semibold text-white">
+            <h3 class="text-xs md:text-sm text-gray-500 dark:text-white">Disapproved</h3>
+            <p class="text-lg md:text-2xl font-semibold text-gray-900 dark:text-white">
               {{ totalDisapprovedLeaves }}
             </p>
           </div>
@@ -771,15 +770,15 @@
         <div
           class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
         >
-          <h4 class="text-gray-400 text-xs md:text-sm">
+          <h4 class="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             Service Credits
           </h4>
 
-          <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+          <p class="text-xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 md:mt-2">
             {{ formatBalance(leaveBalance.service_credits) }}
           </p>
 
-          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+          <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
             Remaining
           </span>
         </div>
@@ -788,15 +787,15 @@
         <div
           class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
         >
-          <h4 class="text-gray-400 text-xs md:text-sm">
+          <h4 class="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             Vacation Leave
           </h4>
 
-          <p class="text-xl md:text-3xl font-bold text-blue-400 mt-1 md:mt-2">
+          <p class="text-xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 md:mt-2">
             {{ formatBalance(leaveBalance.vacation_balance) }}
           </p>
 
-          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+          <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
             Remaining
           </span>
         </div>
@@ -805,15 +804,15 @@
         <div
           class="neo-card stats-card border-red-700 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
         >
-          <h4 class="text-gray-400 text-xs md:text-sm">
+          <h4 class="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             Sick Leave
           </h4>
 
-          <p class="text-xl md:text-3xl font-bold text-red-400 mt-1 md:mt-2">
+          <p class="text-xl md:text-3xl font-bold text-red-600 dark:text-red-400 mt-1 md:mt-2">
             {{ formatBalance(leaveBalance.sick_balance) }}
           </p>
 
-          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+          <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
             Remaining
           </span>
         </div>
@@ -822,15 +821,15 @@
         <div
           class="neo-card stats-card border-green-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
         >
-          <h4 class="text-gray-400 text-xs md:text-sm">
+          <h4 class="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             Used Leave
           </h4>
 
-          <p class="text-xl md:text-3xl font-bold text-green-400 mt-1 md:mt-2">
+          <p class="text-xl md:text-3xl font-bold text-green-600 dark:text-green-400 mt-1 md:mt-2">
             {{ formatBalance(leaveBalance.used_leave) }}
           </p>
 
-          <span class="text-[10px] md:text-xs text-gray-500 mt-1">
+          <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
             Total Used
           </span>
         </div>
@@ -843,27 +842,27 @@
         <!-- Recent Leave Applications -->
         <div class="neo-card">
 
-          <div class="px-6 py-4 border-b border-[#1e293b]">
-            <h3 class="text-lg font-semibold text-white">
+          <div class="px-6 py-4 border-b border-gray-200 dark:border-[#1e293b]">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               Recent Leave Applications
             </h3>
           </div>
 
           <div class="overflow-x-auto">
 
-            <table class="min-w-full divide-y divide-[#1e293b]">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-[#1e293b]">
 
-              <thead class="bg-[#0d1520]">
+              <thead class="bg-gray-50 dark:bg-[#0d1520]">
                 <tr>
 
                   <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
                   >
                     Leave Type
                   </th>
 
                   <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase"
                   >
                     Status
                   </th>
@@ -871,14 +870,14 @@
                 </tr>
               </thead>
 
-              <tbody class="divide-y divide-[#1e293b]">
+              <tbody class="divide-y divide-gray-200 dark:divide-[#1e293b]">
 
                 <tr
                   v-for="leave in myApplications"
                   :key="leave.leave_id || leave.id"
                 >
 
-                  <td class="px-6 py-4 text-white font-medium">
+                  <td class="px-6 py-4 text-gray-900 dark:text-white font-medium">
                     {{ getLeaveType(leave) }}
                   </td>
 
@@ -899,7 +898,7 @@
 
                   <td
                     colspan="2"
-                    class="text-center text-gray-400 py-8"
+                    class="text-center text-gray-500 dark:text-gray-400 py-8"
                   >
                     No leave applications yet.
                   </td>
@@ -917,7 +916,7 @@
         <!-- Upcoming Leaves -->
         <div class="neo-card p-6">
 
-          <h3 class="text-lg font-semibold mb-4 text-white">
+          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
             Upcoming Leaves
           </h3>
 
@@ -960,7 +959,7 @@
 
           <p
             v-else
-            class="text-white"
+            class="text-gray-500 dark:text-gray-400"
           >
             No upcoming approved leaves.
           </p>
@@ -975,7 +974,7 @@
         <!-- Status -->
         <div class="neo-card p-6">
 
-          <h3 class="text-lg font-bold text-white mb-4">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
             Leave Status Overview
           </h3>
 
@@ -986,17 +985,17 @@
 
               <div class="flex justify-between mb-1">
 
-                <span class="text-sm text-white">
+                <span class="text-sm text-gray-700 dark:text-white">
                   Approved
                 </span>
 
-                <span class="text-sm font-semibold text-white">
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">
                   {{ employeeStatusChart.approved }}
                 </span>
 
               </div>
 
-              <div class="w-full bg-gray-700 rounded-full h-3">
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
 
                 <div
                   class="bg-green-500 h-3 rounded-full"
@@ -1017,17 +1016,17 @@
 
               <div class="flex justify-between mb-1">
 
-                <span class="text-sm text-white">
+                <span class="text-sm text-gray-700 dark:text-white">
                   Pending
                 </span>
 
-                <span class="text-sm font-semibold text-white">
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">
                   {{ employeeStatusChart.pending }}
                 </span>
 
               </div>
 
-              <div class="w-full bg-gray-700 rounded-full h-3">
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
 
                 <div
                   class="bg-yellow-500 h-3 rounded-full"
@@ -1048,17 +1047,17 @@
 
               <div class="flex justify-between mb-1">
 
-                <span class="text-sm text-white">
+                <span class="text-sm text-gray-700 dark:text-white">
                   Disapproved
                 </span>
 
-                <span class="text-sm font-semibold text-white">
+                <span class="text-sm font-semibold text-gray-900 dark:text-white">
                   {{ employeeStatusChart.disapproved }}
                 </span>
 
               </div>
 
-              <div class="w-full bg-gray-700 rounded-full h-3">
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
 
                 <div
                   class="bg-red-500 h-3 rounded-full"
@@ -1081,7 +1080,7 @@
         <!-- Leave By Type -->
         <div class="neo-card p-6">
 
-          <h3 class="font-semibold mb-4 text-white">
+          <h3 class="font-semibold mb-4 text-gray-900 dark:text-white">
             Leave Applications by Type
           </h3>
 
@@ -1095,11 +1094,11 @@
 
               <div class="flex justify-between items-center">
 
-                <p class="text-sm font-medium text-white">
+                <p class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ leave.name }}
                 </p>
 
-                <p class="text-2xl font-bold text-blue-400">
+                <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {{ leave.count }}
                 </p>
 
@@ -1109,7 +1108,7 @@
 
             <div
               v-if="employeeLeaveByType.length === 0"
-              class="text-center text-gray-400 py-4"
+              class="text-center text-gray-500 dark:text-gray-400 py-4"
             >
               No leave applications yet.
             </div>
@@ -1123,7 +1122,7 @@
       <!-- Employee Activities -->
       <div class="neo-card p-6">
 
-        <h3 class="text-lg font-semibold mb-4 text-white">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Recent Activities
         </h3>
 
@@ -1138,11 +1137,11 @@
             class="border-l-4 border-blue-400 pl-4 py-2"
           >
 
-            <p class="text-sm text-white">
+            <p class="text-sm text-gray-900 dark:text-white">
               {{ activity.message }}
             </p>
 
-            <p class="text-xs text-gray-400 mt-1">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {{ formatDateShort(activity.time) }}
             </p>
 
@@ -1152,7 +1151,7 @@
 
         <p
           v-else
-          class="text-white"
+          class="text-gray-500 dark:text-gray-400"
         >
           No recent activities.
         </p>
@@ -1162,7 +1161,7 @@
       <!-- Employee Quick Actions -->
       <div class="neo-card p-6">
 
-        <h3 class="text-lg font-semibold mb-4 text-white">
+        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
           Quick Actions
         </h3>
 
@@ -1501,7 +1500,7 @@ const getStatusClass = (
     normalizeStatus(status);
 
   if (normalized === "approved") {
-    return "bg-green-500/20 text-green-300";
+    return "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300";
   }
 
   if (
@@ -1509,7 +1508,7 @@ const getStatusClass = (
     normalized === "for approval" ||
     normalized === "for_approval"
   ) {
-    return "bg-yellow-500/20 text-yellow-300";
+    return "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300";
   }
 
   if (
@@ -1517,10 +1516,10 @@ const getStatusClass = (
     normalized === "rejected" ||
     normalized === "denied"
   ) {
-    return "bg-red-500/20 text-red-300";
+    return "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300";
   }
 
-  return "bg-gray-500/20 text-gray-300";
+  return "bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-300";
 };
 
 // ============================================================
@@ -2689,11 +2688,51 @@ onMounted(
 <style scoped>
 
 /* ============================================================
+   THEME VARIABLES
+   Light mode = default. Dark mode = ancestor with a `.dark`
+   class (matches the light/dark toggle in the app header).
+   ============================================================ */
+
+:global(:root) {
+  --shell-bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --subcard-bg: #f8fafc;
+  --subcard-border: #e2e8f0;
+  --muted-text: #64748b;
+  --primary-text: #0f172a;
+  --faint-border: #cbd5e1;
+  --row-bg: #f8fafc;
+  --row-border: #e2e8f0;
+  --request-row-bg: #fffbeb;
+  --request-row-border: #fde68a;
+  --table-head-bg: #f8fafc;
+  --table-border: #e2e8f0;
+}
+
+:global(.dark) {
+  --shell-bg: #080d14;
+  --card-bg: #111d2e;
+  --card-border: #1e293b;
+  --subcard-bg: #0b1420;
+  --subcard-border: #1e293b;
+  --muted-text: #94a3b8;
+  --primary-text: #ffffff;
+  --faint-border: #263548;
+  --row-bg: #172337;
+  --row-border: #24344d;
+  --request-row-bg: #172337;
+  --request-row-border: #3b3b27;
+  --table-head-bg: #0d1520;
+  --table-border: #1e293b;
+}
+
+/* ============================================================
    DASHBOARD
    ============================================================ */
 
 .dashboard-shell {
-  background: #080d14;
+  background: var(--shell-bg);
   min-height: 100vh;
 }
 
@@ -2702,21 +2741,23 @@ onMounted(
    ============================================================ */
 
 .neo-card {
-  background: #111d2e;
-  border: 1px solid #1e293b;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 1.4rem;
 
   box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.04);
+    0 10px 22px rgba(15, 23, 42, 0.06);
 
   transition:
     box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .neo-card:hover {
   box-shadow:
-    0 14px 26px rgba(15, 23, 42, 0.08);
+    0 14px 26px rgba(15, 23, 42, 0.1);
 }
 
 /* ============================================================
@@ -2736,11 +2777,14 @@ onMounted(
    ============================================================ */
 
 .chart-card {
-  background: #0b1420;
-  border: 1px solid #1e293b;
+  background: var(--subcard-bg);
+  border: 1px solid var(--subcard-border);
   border-radius: 1rem;
   padding: 1.5rem;
   min-height: 390px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 /* ============================================================
@@ -2782,7 +2826,7 @@ onMounted(
 
   padding-right: 10px;
 
-  color: #64748b;
+  color: var(--muted-text);
   font-size: 11px;
 }
 
@@ -2790,7 +2834,7 @@ onMounted(
   position: relative;
   flex: 1;
   height: 300px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--faint-border);
 }
 
 .chart-grid {
@@ -2806,7 +2850,7 @@ onMounted(
 
 .chart-grid div {
   width: 100%;
-  border-top: 1px dashed #263548;
+  border-top: 1px dashed var(--faint-border);
 }
 
 .bars-container {
@@ -2874,7 +2918,7 @@ onMounted(
     var(--bar-height, 0%) + 8px
   );
 
-  color: white;
+  color: var(--primary-text);
   font-size: 11px;
   font-weight: 700;
 
@@ -2890,7 +2934,7 @@ onMounted(
 
   text-align: center;
 
-  color: #94a3b8;
+  color: var(--muted-text);
   font-size: 10px;
 
   overflow: hidden;
@@ -2905,7 +2949,7 @@ onMounted(
 .summary-table {
   overflow-x: auto;
 
-  border: 1px solid #1e293b;
+  border: 1px solid var(--table-border);
   border-radius: 0.9rem;
 }
 
@@ -2915,7 +2959,7 @@ onMounted(
 }
 
 .summary-table thead {
-  background: #0b1420;
+  background: var(--table-head-bg);
 }
 
 .summary-table th {
@@ -2923,7 +2967,7 @@ onMounted(
 
   text-align: left;
 
-  color: #94a3b8;
+  color: var(--muted-text);
 
   font-size: 0.72rem;
   font-weight: 600;
@@ -2932,7 +2976,7 @@ onMounted(
   letter-spacing: 0.05em;
 
   border-bottom:
-    1px solid #1e293b;
+    1px solid var(--table-border);
 }
 
 .summary-table td {
@@ -2941,7 +2985,7 @@ onMounted(
   font-size: 0.875rem;
 
   border-bottom:
-    1px solid #1e293b;
+    1px solid var(--table-border);
 }
 
 .summary-table tbody tr {
@@ -2950,7 +2994,7 @@ onMounted(
 }
 
 .summary-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(100, 116, 139, 0.08);
 }
 
 .summary-table tbody tr:last-child td {
@@ -2962,8 +3006,8 @@ onMounted(
    ============================================================ */
 
 .application-item {
-  background: #172337;
-  border: 1px solid #24344d;
+  background: var(--row-bg);
+  border: 1px solid var(--row-border);
 
   transition:
     background 0.2s ease,
@@ -2972,8 +3016,8 @@ onMounted(
 }
 
 .application-item:hover {
-  background: #1b2a40;
-  border-color: #334968;
+  background: rgba(100, 116, 139, 0.12);
+  border-color: var(--faint-border);
 
   transform: translateY(-1px);
 }
@@ -2983,9 +3027,9 @@ onMounted(
    ============================================================ */
 
 .request-item {
-  background: #172337;
+  background: var(--request-row-bg);
 
-  border: 1px solid #3b3b27;
+  border: 1px solid var(--request-row-border);
   border-left: 4px solid #eab308;
 
   transition:
@@ -2995,9 +3039,6 @@ onMounted(
 }
 
 .request-item:hover {
-  background: #1b2a40;
-  border-color: #5b5a31;
-
   transform: translateY(-1px);
 }
 
@@ -3006,8 +3047,8 @@ onMounted(
    ============================================================ */
 
 .leave-type-item {
-  background: #172337;
-  border: 1px solid #24344d;
+  background: var(--row-bg);
+  border: 1px solid var(--row-border);
 
   transition:
     background 0.2s ease,
@@ -3015,7 +3056,7 @@ onMounted(
 }
 
 .leave-type-item:hover {
-  background: #1b2a40;
+  background: rgba(100, 116, 139, 0.12);
   transform: translateY(-1px);
 }
 
@@ -3064,4 +3105,3 @@ button:hover {
 }
 
 </style>
-
