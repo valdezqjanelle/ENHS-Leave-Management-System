@@ -1,4 +1,4 @@
-```vue
+
 <template>
   <div class="records-shell p-8 min-h-screen space-y-6">
     <div class="neo-card p-6">
@@ -269,4 +269,3 @@ onMounted(async () => {
   letter-spacing: -0.01em;
 }
 </style>
-```

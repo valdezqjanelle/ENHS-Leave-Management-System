@@ -196,6 +196,16 @@
             <div class="flex w-full gap-2 sm:w-auto">
 
               <button
+                v-if="selectedReportType === 'leave-credits'"
+                @click="toggleCreditsSort"
+                type="button"
+                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
+                :title="creditsSorted ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
+              >
+                Sort
+              </button>
+
+              <button
                 @click="exportReport"
                 class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
               >
@@ -564,7 +574,7 @@
             <!-- Employee Leave Balances -->
             <div class="overflow-x-auto">
 
-              <table class="report-table w-full min-w-[700px]">
+              <table class="report-table w-full min-w-[900px]">
 
                 <thead>
 
@@ -579,11 +589,19 @@
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
+                      Service Credits
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Vacation Balance
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
                       Sick Balance
+                    </th>
+
+                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
+                      Total Available
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
@@ -598,7 +616,7 @@
                 <tbody>
 
                   <tr
-                    v-for="employee in creditsData"
+                    v-for="employee in displayedCreditsData"
                     :key="employee.employee_id"
                     class="transition"
                   >
@@ -612,24 +630,32 @@
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ employee.vacation_balance }}
+                      {{ formatNumber(employee.service_credits) }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ employee.sick_balance }}
+                      {{ formatNumber(employee.vacation_balance) }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ employee.used_leave }}
+                      {{ formatNumber(employee.sick_balance) }}
+                    </td>
+
+                    <td class="px-6 py-4 text-sm font-semibold">
+                      {{ employee.total_available }}
+                    </td>
+
+                    <td class="px-6 py-4 text-sm">
+                      {{ formatNumber(employee.used_leave) }}
                     </td>
 
                   </tr>
 
 
-                  <tr v-if="creditsData.length === 0">
+                  <tr v-if="displayedCreditsData.length === 0">
 
                     <td
-                      colspan="5"
+                      colspan="7"
                       class="px-6 py-8 text-center text-gray-500"
                     >
                       No leave credit records found.
@@ -788,6 +814,30 @@ const loading = ref(false)
 
 /*
 |--------------------------------------------------------------------------
+| Leave Credits Sort
+| Mirrors the "Sort" toggle on LeaveBalances.vue: click once to sort
+| employees A-Z by name, click again to revert to original order.
+|--------------------------------------------------------------------------
+*/
+
+const creditsSorted = ref(false)
+
+const toggleCreditsSort = () => {
+  creditsSorted.value = !creditsSorted.value
+}
+
+const displayedCreditsData = computed(() => {
+  if (!creditsSorted.value) return creditsData.value
+  return [...creditsData.value].sort((a, b) => {
+    const aName = String(a.employee_name || '').trim().toLowerCase()
+    const bName = String(b.employee_name || '').trim().toLowerCase()
+    return aName.localeCompare(bName)
+  })
+})
+
+
+/*
+|--------------------------------------------------------------------------
 | Computed Leave Summary Data
 |--------------------------------------------------------------------------
 */
@@ -889,6 +939,17 @@ let leaveTypeInstance: ChartJS | null = null
 let departmentInstance: ChartJS | null = null
 
 let attendanceTrendInstance: ChartJS | null = null
+
+
+/*
+|--------------------------------------------------------------------------
+| Number Formatting Helper
+| (matches LeaveBalances.vue so figures always agree)
+|--------------------------------------------------------------------------
+*/
+
+const formatNumber = (value: number | string | null | undefined) =>
+  Number(value ?? 0).toFixed(2)
 
 
 /*
@@ -1312,6 +1373,12 @@ function createLeaveCharts() {
 /*
 |--------------------------------------------------------------------------
 | Load Leave Credits
+|
+| Pulls straight from the same /leave-balances endpoint that powers
+| LeaveBalances.vue, so Service Credits / Vacation / Sick / Used Leave
+| shown here always match the Leave Balances page exactly. Employees
+| with no balance record yet still appear (defaulted to 0) so the list
+| stays complete.
 |--------------------------------------------------------------------------
 */
 
@@ -1320,35 +1387,91 @@ async function loadLeaveCredits() {
   try {
 
     const response =
-      await api.get('/reports/leave-credits')
+      await api.get('/leave-balances')
 
-    const creditsEmployees =
-      response.data.employees || []
+    const balances =
+      Array.isArray(response.data)
+        ? response.data
+        : []
 
-    leaveTotals.value =
-      response.data.totals || {}
+    const balanceMap = new Map<number, any>()
 
-    // Fetch all employees to ensure all are listed
-    const allEmployees = await getEmployees()
-
-    // Create a map of existing credits by employee_id
-    const creditsMap = new Map()
-    creditsEmployees.forEach((emp: any) => {
-      creditsMap.set(emp.employee_id, emp)
+    balances.forEach((balance: any) => {
+      balanceMap.set(
+        Number(balance.employee_id),
+        balance
+      )
     })
 
-    // Merge all employees with their credits, defaulting to 0 if not found
-    creditsData.value = allEmployees.map((emp: any) => {
-      const existingCredit = creditsMap.get(emp.employee_id)
-      return existingCredit || {
-        employee_id: emp.employee_id,
-        employee_name: `${emp.last_name}, ${emp.first_name}`,
-        department_name: emp.department?.department_name || emp.department || 'Unknown',
-        vacation_balance: 0,
-        sick_balance: 0,
-        used_leave: 0
-      }
-    })
+    const allEmployees =
+      await getEmployees()
+
+    creditsData.value =
+      allEmployees.map((emp: any) => {
+
+        const balance =
+          balanceMap.get(Number(emp.employee_id))
+
+        const service_credits =
+          Number(balance?.service_credits ?? 0)
+
+        const vacation_balance =
+          Number(balance?.vacation_balance ?? 0)
+
+        const sick_balance =
+          Number(balance?.sick_balance ?? 0)
+
+        const used_leave =
+          Number(balance?.used_leave ?? 0)
+
+        return {
+          employee_id: emp.employee_id,
+          employee_name: `${emp.last_name}, ${emp.first_name}`,
+          department_name:
+            emp.department?.department_name ||
+            emp.department ||
+            'Unknown',
+          service_credits,
+          vacation_balance,
+          sick_balance,
+          used_leave,
+          total_available:
+            (
+              vacation_balance +
+              sick_balance +
+              service_credits
+            ).toFixed(2)
+        }
+
+      })
+
+    leaveTotals.value = {
+
+      employees:
+        creditsData.value.length,
+
+      vacation_earned:
+        balances.reduce(
+          (sum: number, b: any) =>
+            sum + Number(b.vacation_earned ?? 0),
+          0
+        ),
+
+      sick_earned:
+        balances.reduce(
+          (sum: number, b: any) =>
+            sum + Number(b.sick_earned ?? 0),
+          0
+        ),
+
+      used_leave:
+        creditsData.value.reduce(
+          (sum: number, e: any) =>
+            sum + Number(e.used_leave ?? 0),
+          0
+        )
+
+    }
 
   } catch (error) {
 
@@ -1565,7 +1688,7 @@ const exportReport = () => {
     case 'leave-credits':
 
       data =
-        creditsData.value.map(
+        displayedCreditsData.value.map(
           (employee: any) => ({
 
             Employee:
@@ -1574,11 +1697,17 @@ const exportReport = () => {
             Department:
               employee.department_name ?? employee.department ?? '',
 
+            'Service Credits':
+              employee.service_credits ?? 0,
+
             'Vacation Balance':
               employee.vacation_balance ?? 0,
 
             'Sick Balance':
               employee.sick_balance ?? 0,
+
+            'Total Available':
+              employee.total_available ?? 0,
 
             'Used Leave':
               employee.used_leave ?? 0
