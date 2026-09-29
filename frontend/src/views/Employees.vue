@@ -1,12 +1,8 @@
 <template>
   <div class="w-full min-h-screen">
-    <div
-      class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6"
-    >
+    <div class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6">
       <div class="neo-card w-full p-6">
-        <div
-          class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
-        >
+        <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           <div class="min-w-0">
             <h2 class="text-2xl font-bold text-[var(--text)]">
               Employee Management
@@ -17,20 +13,14 @@
             </p>
           </div>
 
-          <div
-            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-          >
-            <button
-              @click="openDeletedEmployees"
-              class="bg-red-600 hover:bg-slate-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            >
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button @click="openDeletedEmployees"
+              class="bg-red-600 hover:bg-slate-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
               Deleted Employees
             </button>
 
-            <button
-              @click="showCreateModal = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            >
+            <button @click="showCreateModal = true"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
               + Create Employee
             </button>
           </div>
@@ -38,31 +28,20 @@
       </div>
 
       <div class="neo-card w-full p-6">
-        <div
-          class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-        >
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Search employee..."
-            class="flex-1 min-w-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <input v-model="search" type="text" placeholder="Search employee..."
+            class="flex-1 min-w-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
 
-          <select
-            v-model="statusFilter"
-            class="w-full sm:w-48 flex-shrink-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
+          <select v-model="statusFilter"
+            class="w-full sm:w-48 flex-shrink-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="all">All Statuses</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
 
-          <button
-            @click="toggleSort"
-            type="button"
+          <button @click="toggleSort" type="button"
             class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
-          >
+            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'">
             Sort
           </button>
         </div>
@@ -88,20 +67,13 @@
             </thead>
 
             <tbody>
-              <tr
-                v-for="employee in filteredEmployees"
-                :key="employee.employee_id"
-                class="border-t border-[#cbd8e8] hover:bg-[#eef4fb] transition-colors duration-200"
-              >
-                <td
-                  class="px-2 sm:px-3 py-4 text-[var(--text)] font-semibold break-words"
-                >
+              <tr v-for="employee in filteredEmployees" :key="employee.employee_id"
+                class="border-t border-[#cbd8e8] hover:bg-[#eef4fb] transition-colors duration-200">
+                <td class="px-2 sm:px-3 py-4 text-[var(--text)] font-semibold break-words">
                   {{ employee.employee_code }}
                 </td>
 
-                <td
-                  class="px-2 sm:px-3 py-4 text-[var(--text)] font-medium break-words"
-                >
+                <td class="px-2 sm:px-3 py-4 text-[var(--text)] font-medium break-words">
                   {{ employee.last_name }},
                   {{ employee.first_name }}
                   {{ employee.middle_name || "" }}
@@ -125,39 +97,29 @@
                 </td>
 
                 <td class="px-2 sm:px-3 py-4 text-[var(--text)]">
-                  <span
-                    :class="
-                      normalizeEmploymentStatus(employee.employment_status) ===
-                      'active'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-100 text-slate-700'
-                    "
-                    class="inline-block px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                  >
+                  <span :class="normalizeEmploymentStatus(employee.employment_status) ===
+                    'active'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-slate-100 text-slate-700'
+                    " class="inline-block px-2 py-1 rounded-full text-xs whitespace-nowrap">
                     {{ employee.employment_status || "Inactive" }}
                   </span>
                 </td>
 
                 <td class="px-2 sm:px-3 py-4">
                   <div class="flex flex-wrap items-center justify-center gap-1">
-                    <button
-                      @click="viewEmployee(employee)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                    <button @click="viewEmployee(employee)"
+                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       View
                     </button>
 
-                    <button
-                      @click="editEmployee(employee)"
-                      class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                    <button @click="editEmployee(employee)"
+                      class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       Edit
                     </button>
 
-                    <button
-                      @click="deleteEmployee(employee)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200"
-                    >
+                    <button @click="deleteEmployee(employee)"
+                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
                       Delete
                     </button>
                   </div>
@@ -175,13 +137,9 @@
       </div>
     </div>
 
-    <div
-      v-if="showCreateModal"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden"
-      >
+    <div v-if="showCreateModal"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
+      <div class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden">
         <div class="bg-blue-600 text-white px-6 py-4">
           <h3 class="text-xl font-semibold">Create Employee</h3>
 
@@ -202,12 +160,8 @@
                   Email
                 </label>
 
-                <input
-                  v-model="form.email"
-                  type="email"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="employee@email.com"
-                />
+                <input v-model="form.email" type="email" class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  placeholder="employee@email.com" />
               </div>
             </div>
           </div>
@@ -227,11 +181,7 @@
                   First Name
                 </label>
 
-                <input
-                  v-model="form.first_name"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="form.first_name" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -239,11 +189,7 @@
                   Middle Name
                 </label>
 
-                <input
-                  v-model="form.middle_name"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="form.middle_name" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -251,11 +197,7 @@
                   Last Name
                 </label>
 
-                <input
-                  v-model="form.last_name"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="form.last_name" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -263,10 +205,7 @@
                   Extension Name
                 </label>
 
-                <select
-                  v-model="form.extension_name"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.extension_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">None</option>
                   <option value="Jr.">Jr.</option>
                   <option value="Sr.">Sr.</option>
@@ -282,11 +221,8 @@
                   Date of Birth
                 </label>
 
-                <input
-                  v-model="form.date_of_birth"
-                  type="date"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="form.date_of_birth" type="date"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -294,10 +230,7 @@
                   Sex
                 </label>
 
-                <select
-                  v-model="form.sex"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.sex" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -310,10 +243,7 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <select
-                  v-model="form.civil_status"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.civil_status" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Single">Single</option>
                   <option value="Married">Married</option>
@@ -329,12 +259,8 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <input
-                  v-model="form.nationality"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="e.g. Filipino"
-                />
+                <input v-model="form.nationality" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  placeholder="e.g. Filipino" />
               </div>
 
               <div>
@@ -343,19 +269,11 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <input
-                  v-model="form.contact_number"
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="11"
-                  @input="
-                    form.contact_number = form.contact_number
-                      .replace(/\D/g, '')
-                      .slice(0, 11)
-                  "
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="09XXXXXXXXX"
-                />
+                <input v-model="form.contact_number" type="tel" inputmode="numeric" maxlength="11" @input="
+                  form.contact_number = form.contact_number
+                    .replace(/\D/g, '')
+                    .slice(0, 11)
+                  " class="w-full min-w-0 field-input rounded-lg px-3 py-2" placeholder="09XXXXXXXXX" />
               </div>
 
               <div>
@@ -364,12 +282,8 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <input
-                  v-model="form.personal_email"
-                  type="email"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="personal@email.com"
-                />
+                <input v-model="form.personal_email" type="email"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" placeholder="personal@email.com" />
               </div>
 
               <div class="md:col-span-2">
@@ -378,12 +292,9 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <textarea
-                  v-model="form.address"
-                  rows="3"
+                <textarea v-model="form.address" rows="3"
                   class="w-full min-w-0 field-input rounded-lg px-3 py-2 resize-none"
-                  placeholder="Complete residential address"
-                ></textarea>
+                  placeholder="Complete residential address"></textarea>
               </div>
             </div>
           </div>
@@ -404,12 +315,8 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <input
-                  v-model="form.emergency_contact_name"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="Full name"
-                />
+                <input v-model="form.emergency_contact_name" type="text"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" placeholder="Full name" />
               </div>
 
               <div>
@@ -418,20 +325,21 @@
                   <span class="text-slate-400 font-normal">(Optional)</span>
                 </label>
 
-                <input
-                  v-model="form.emergency_contact_number"
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="11"
-                  @input="
-                    form.emergency_contact_number =
-                      form.emergency_contact_number
-                        .replace(/\D/g, '')
-                        .slice(0, 11)
-                  "
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="09XXXXXXXXX"
-                />
+                <input v-model="form.emergency_contact_number" type="tel" inputmode="numeric" maxlength="11" @input="
+                  form.emergency_contact_number =
+                  form.emergency_contact_number
+                    .replace(/\D/g, '')
+                    .slice(0, 11)
+                  " class="w-full min-w-0 field-input rounded-lg px-3 py-2" placeholder="09XXXXXXXXX" />
+              </div>
+              <div>
+                <label class="block mb-2 text-sm text-[var(--text)] font-medium">
+                  Relationship
+                  <span class="text-slate-400 font-normal">(Optional)</span>
+                </label>
+
+                <input v-model="form.emergency_contact_relationship" type="text"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" placeholder="e.g. Spouse, Parent, Sibling" />
               </div>
             </div>
           </div>
@@ -447,10 +355,7 @@
                   Personnel Type
                 </label>
 
-                <select
-                  v-model="form.personnel_type"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.personnel_type" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Teaching">Teaching</option>
                   <option value="Non-Teaching">Non-Teaching</option>
@@ -463,10 +368,7 @@
                   Employment Category
                 </label>
 
-                <select
-                  v-model="form.employment_category"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.employment_category" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Permanent">Permanent</option>
                   <option value="Probationary">Probationary</option>
@@ -485,11 +387,7 @@
                   Date Hired
                 </label>
 
-                <input
-                  v-model="form.date_hired"
-                  type="date"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="form.date_hired" type="date" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -497,10 +395,7 @@
                   Employment Status
                 </label>
 
-                <select
-                  v-model="form.employment_status"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.employment_status" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
@@ -511,10 +406,7 @@
                   Level
                 </label>
 
-                <select
-                  v-model="form.level"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.level" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="JHS">JHS</option>
                   <option value="SHS">SHS</option>
@@ -527,19 +419,13 @@
                   {{ assignmentAreaLabel(form.level) }}
                 </label>
 
-                <select
-                  v-model="form.department_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.department_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">
                     {{ assignmentAreaPlaceholder(form.level) }}
                   </option>
 
-                  <option
-                    v-for="dept in filteredDepartmentsForCreate"
-                    :key="dept.department_id"
-                    :value="dept.department_id"
-                  >
+                  <option v-for="dept in filteredDepartmentsForCreate" :key="dept.department_id"
+                    :value="dept.department_id">
                     {{ dept.department_name }}
                   </option>
                 </select>
@@ -550,17 +436,10 @@
                   Position
                 </label>
 
-                <select
-                  v-model="form.position_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.position_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">Select</option>
 
-                  <option
-                    v-for="pos in positions"
-                    :key="pos.id"
-                    :value="pos.id"
-                  >
+                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
@@ -571,17 +450,10 @@
                   Supervisor
                 </label>
 
-                <select
-                  v-model="form.supervisor_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.supervisor_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">None</option>
 
-                  <option
-                    v-for="employee in employees"
-                    :key="employee.employee_id"
-                    :value="employee.employee_id"
-                  >
+                  <option v-for="employee in employees" :key="employee.employee_id" :value="employee.employee_id">
                     {{ employee.first_name }}
                     {{ employee.middle_name ? employee.middle_name + " " : "" }}
                     {{ employee.last_name }}
@@ -594,12 +466,8 @@
                   Salary Grade
                 </label>
 
-                <input
-                  :value="selectedCreateSalaryGrade || '-'"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2"
-                />
+                <input :value="selectedCreateSalaryGrade || '-'" type="text" readonly
+                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -607,10 +475,7 @@
                   Salary Step
                 </label>
 
-                <select
-                  v-model="form.salary_step"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="form.salary_step" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">Select Step</option>
 
                   <option v-for="step in 8" :key="step" :value="step">
@@ -624,44 +489,30 @@
                   Current Salary
                 </label>
 
-                <input
-                  :value="formattedCreateSalary"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2 font-semibold"
-                />
+                <input :value="formattedCreateSalary" type="text" readonly
+                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2 font-semibold" />
               </div>
             </div>
           </div>
         </div>
 
-        <div
-          class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3"
-        >
-          <button
-            @click="showCreateModal = false"
-            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg text-white"
-          >
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
+          <button @click="showCreateModal = false"
+            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg text-white">
             Cancel
           </button>
 
-          <button
-            @click="saveEmployee"
-            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
+          <button @click="saveEmployee"
+            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
             Create Employee
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="showCredentialsModal"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden"
-      >
+    <div v-if="showCredentialsModal"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
+      <div class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden">
         <div class="bg-green-600 text-white p-5">
           <h3 class="text-xl font-bold">Employee Created Successfully</h3>
         </div>
@@ -677,8 +528,7 @@
             </label>
 
             <div
-              class="bg-[#f3f7fc] border border-[#cbd8e8] rounded-lg px-3 py-2 text-[var(--text)] font-bold mt-1 break-all"
-            >
+              class="bg-[#f3f7fc] border border-[#cbd8e8] rounded-lg px-3 py-2 text-[var(--text)] font-bold mt-1 break-all">
               {{ generatedCredentials.email }}
             </div>
           </div>
@@ -689,8 +539,7 @@
             </label>
 
             <div
-              class="bg-[#f3f7fc] border border-[#cbd8e8] rounded-lg px-3 py-2 text-[var(--text)] font-bold mt-1 font-mono break-all"
-            >
+              class="bg-[#f3f7fc] border border-[#cbd8e8] rounded-lg px-3 py-2 text-[var(--text)] font-bold mt-1 font-mono break-all">
               {{ generatedCredentials.password }}
             </div>
           </div>
@@ -702,29 +551,19 @@
           </div>
         </div>
 
-        <div
-          class="bg-[#f3f7fc] border-t border-[#cbd8e8] p-4 flex justify-end"
-        >
-          <button
-            @click="showCredentialsModal = false"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg"
-          >
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] p-4 flex justify-end">
+          <button @click="showCredentialsModal = false"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
             Close
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="showViewModal && selectedEmployee"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden"
-      >
-        <div
-          class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center"
-        >
+    <div v-if="showViewModal && selectedEmployee"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
+      <div class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden">
+        <div class="bg-blue-600 text-white px-6 py-5 flex justify-between items-center">
           <div class="min-w-0">
             <h2 class="text-2xl font-bold">Employee Profile</h2>
 
@@ -733,17 +572,12 @@
             </p>
           </div>
 
-          <button
-            @click="showViewModal = false"
-            class="text-white text-3xl ml-4 flex-shrink-0"
-          >
+          <button @click="showViewModal = false" class="text-white text-3xl ml-4 flex-shrink-0">
             &times;
           </button>
         </div>
 
-        <div
-          class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[75vh] overflow-y-auto"
-        >
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-h-[75vh] overflow-y-auto">
           <div class="space-y-6 min-w-0">
             <div>
               <h3 class="font-semibold text-blue-600 border-b border-[#cbd8e8] pb-2">
@@ -773,16 +607,12 @@
                   <span class="font-medium"> Employment Status: </span>
                   <br />
 
-                  <span
-                    :class="
-                      normalizeEmploymentStatus(
-                        selectedEmployee.employment_status,
-                      ) === 'active'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-100 text-slate-700'
-                    "
-                    class="px-3 py-1 rounded-full text-sm"
-                  >
+                  <span :class="normalizeEmploymentStatus(
+                    selectedEmployee.employment_status,
+                  ) === 'active'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-slate-100 text-slate-700'
+                    " class="px-3 py-1 rounded-full text-sm">
                     {{ selectedEmployee.employment_status || "-" }}
                   </span>
                 </div>
@@ -865,9 +695,7 @@
               Contact Information
             </h3>
 
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 text-[var(--text)]"
-            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 text-[var(--text)]">
               <div class="min-w-0">
                 <span class="font-medium"> Contact Number </span>
 
@@ -915,6 +743,14 @@
                   {{ selectedEmployee.emergency_contact_number || "-" }}
                 </p>
               </div>
+
+              <div>
+                <span class="font-medium"> Relationship </span>
+
+                <p class="mt-1 break-words">
+                  {{ selectedEmployee.emergency_contact_relationship || "-" }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -923,9 +759,7 @@
               Employment Information
             </h3>
 
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5 text-[var(--text)]"
-            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5 text-[var(--text)]">
               <div class="min-w-0">
                 <span class="font-medium"> Personnel Type </span>
 
@@ -978,11 +812,10 @@
                 <p class="mt-1 break-words">
                   {{
                     selectedEmployee.supervisor
-                      ? `${selectedEmployee.supervisor.first_name} ${
-                          selectedEmployee.supervisor.middle_name
-                            ? selectedEmployee.supervisor.middle_name + " "
-                            : ""
-                        }${selectedEmployee.supervisor.last_name}`
+                      ? `${selectedEmployee.supervisor.first_name} ${selectedEmployee.supervisor.middle_name
+                        ? selectedEmployee.supervisor.middle_name + " "
+                        : ""
+                      }${selectedEmployee.supervisor.last_name}`
                       : "-"
                   }}
                 </p>
@@ -1027,26 +860,16 @@
           </div>
         </div>
 
-        <div
-          class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end"
-        >
-          <button
-            @click="showViewModal = false"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-          >
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end">
+          <button @click="showViewModal = false" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
             Close
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden"
-      >
+    <div v-if="showEditModal" class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
+      <div class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-4xl mx-auto overflow-hidden">
         <div class="bg-amber-500 text-white px-6 py-4">
           <h3 class="text-xl font-semibold">Edit Employee</h3>
 
@@ -1065,11 +888,8 @@
                   Email
                 </label>
 
-                <input
-                  v-model="editForm.email"
-                  type="email"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500"
-                />
+                <input v-model="editForm.email" type="email"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
               </div>
             </div>
           </div>
@@ -1085,10 +905,7 @@
                   First Name
                 </label>
 
-                <input
-                  v-model="editForm.first_name"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.first_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1096,10 +913,7 @@
                   Middle Name
                 </label>
 
-                <input
-                  v-model="editForm.middle_name"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.middle_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1107,10 +921,7 @@
                   Last Name
                 </label>
 
-                <input
-                  v-model="editForm.last_name"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.last_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1118,10 +929,7 @@
                   Extension Name
                 </label>
 
-                <select
-                  v-model="editForm.extension_name"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.extension_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">None</option>
                   <option value="Jr.">Jr.</option>
                   <option value="Sr.">Sr.</option>
@@ -1137,11 +945,8 @@
                   Date of Birth
                 </label>
 
-                <input
-                  v-model="editForm.date_of_birth"
-                  type="date"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.date_of_birth" type="date"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1149,10 +954,7 @@
                   Sex
                 </label>
 
-                <select
-                  v-model="editForm.sex"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.sex" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -1164,10 +966,7 @@
                   Civil Status
                 </label>
 
-                <select
-                  v-model="editForm.civil_status"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.civil_status" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Single">Single</option>
                   <option value="Married">Married</option>
@@ -1182,11 +981,8 @@
                   Nationality
                 </label>
 
-                <input
-                  v-model="editForm.nationality"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.nationality" type="text"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1194,18 +990,11 @@
                   Contact Number
                 </label>
 
-                <input
-                  v-model="editForm.contact_number"
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="11"
-                  @input="
-                    editForm.contact_number = editForm.contact_number
-                      .replace(/\D/g, '')
-                      .slice(0, 11)
-                  "
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.contact_number" type="tel" inputmode="numeric" maxlength="11" @input="
+                  editForm.contact_number = editForm.contact_number
+                    .replace(/\D/g, '')
+                    .slice(0, 11)
+                  " class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1213,11 +1002,8 @@
                   Personal Email
                 </label>
 
-                <input
-                  v-model="editForm.personal_email"
-                  type="email"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.personal_email" type="email"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div class="md:col-span-2">
@@ -1225,11 +1011,8 @@
                   Address
                 </label>
 
-                <textarea
-                  v-model="editForm.address"
-                  rows="3"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 resize-none"
-                ></textarea>
+                <textarea v-model="editForm.address" rows="3"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 resize-none"></textarea>
               </div>
             </div>
           </div>
@@ -1245,11 +1028,8 @@
                   Emergency Contact Name
                 </label>
 
-                <input
-                  v-model="editForm.emergency_contact_name"
-                  type="text"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.emergency_contact_name" type="text"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1257,19 +1037,20 @@
                   Emergency Contact Number
                 </label>
 
-                <input
-                  v-model="editForm.emergency_contact_number"
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="11"
-                  @input="
-                    editForm.emergency_contact_number =
-                      editForm.emergency_contact_number
-                        .replace(/\D/g, '')
-                        .slice(0, 11)
-                  "
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.emergency_contact_number" type="tel" inputmode="numeric" maxlength="11" @input="
+                  editForm.emergency_contact_number =
+                  editForm.emergency_contact_number
+                    .replace(/\D/g, '')
+                    .slice(0, 11)
+                  " class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="block mb-2 text-sm text-[var(--text)] font-medium">
+                  Relationship
+                </label>
+
+                <input v-model="editForm.emergency_contact_relationship" type="text"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
             </div>
           </div>
@@ -1285,10 +1066,7 @@
                   Personnel Type
                 </label>
 
-                <select
-                  v-model="editForm.personnel_type"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.personnel_type" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Teaching">Teaching</option>
                   <option value="Non-Teaching">Non-Teaching</option>
@@ -1301,10 +1079,7 @@
                   Employment Category
                 </label>
 
-                <select
-                  v-model="editForm.employment_category"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.employment_category" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="Permanent">Permanent</option>
                   <option value="Probationary">Probationary</option>
@@ -1323,11 +1098,8 @@
                   Date Hired
                 </label>
 
-                <input
-                  v-model="editForm.date_hired"
-                  type="date"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                />
+                <input v-model="editForm.date_hired" type="date"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1335,10 +1107,7 @@
                   Level
                 </label>
 
-                <select
-                  v-model="editForm.level"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.level" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="">Select</option>
                   <option value="JHS">JHS</option>
                   <option value="SHS">SHS</option>
@@ -1351,19 +1120,13 @@
                   {{ assignmentAreaLabel(editForm.level) }}
                 </label>
 
-                <select
-                  v-model="editForm.department_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.department_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">
                     {{ assignmentAreaPlaceholder(editForm.level) }}
                   </option>
 
-                  <option
-                    v-for="dept in filteredDepartmentsForEdit"
-                    :key="dept.department_id"
-                    :value="dept.department_id"
-                  >
+                  <option v-for="dept in filteredDepartmentsForEdit" :key="dept.department_id"
+                    :value="dept.department_id">
                     {{ dept.department_name }}
                   </option>
                 </select>
@@ -1374,17 +1137,10 @@
                   Position
                 </label>
 
-                <select
-                  v-model="editForm.position_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.position_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">Select</option>
 
-                  <option
-                    v-for="pos in positions"
-                    :key="pos.id"
-                    :value="pos.id"
-                  >
+                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
@@ -1395,17 +1151,10 @@
                   Supervisor
                 </label>
 
-                <select
-                  v-model="editForm.supervisor_id"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.supervisor_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">None</option>
 
-                  <option
-                    v-for="employee in employees"
-                    :key="employee.employee_id"
-                    :value="employee.employee_id"
-                  >
+                  <option v-for="employee in employees" :key="employee.employee_id" :value="employee.employee_id">
                     {{ employee.first_name }}
                     {{ employee.middle_name ? employee.middle_name + " " : "" }}
                     {{ employee.last_name }}
@@ -1418,12 +1167,8 @@
                   Salary Grade
                 </label>
 
-                <input
-                  :value="selectedSalaryGrade || '-'"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2"
-                />
+                <input :value="selectedSalaryGrade || '-'" type="text" readonly
+                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2" />
               </div>
 
               <div>
@@ -1431,10 +1176,7 @@
                   Salary Step
                 </label>
 
-                <select
-                  v-model="editForm.salary_step"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.salary_step" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option :value="null">Select Step</option>
 
                   <option v-for="step in 8" :key="step" :value="step">
@@ -1448,12 +1190,8 @@
                   Current Salary
                 </label>
 
-                <input
-                  :value="formattedSalary"
-                  type="text"
-                  readonly
-                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2 font-semibold"
-                />
+                <input :value="formattedSalary" type="text" readonly
+                  class="w-full min-w-0 field-input field-readonly rounded-lg px-3 py-2 font-semibold" />
               </div>
 
               <div>
@@ -1461,10 +1199,7 @@
                   Employment Status
                 </label>
 
-                <select
-                  v-model="editForm.employment_status"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                >
+                <select v-model="editForm.employment_status" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
@@ -1473,36 +1208,24 @@
           </div>
         </div>
 
-        <div
-          class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3"
-        >
-          <button
-            @click="showEditModal = false"
-            class="w-full sm:w-auto px-5 py-2 rounded-lg border border-[#cbd8e8] text-[var(--text-muted)] bg-[var(--surface)] hover:bg-[#eef4fb]"
-          >
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
+          <button @click="showEditModal = false"
+            class="w-full sm:w-auto px-5 py-2 rounded-lg border border-[#cbd8e8] text-[var(--text-muted)] bg-[var(--surface)] hover:bg-[#eef4fb]">
             Cancel
           </button>
 
-          <button
-            @click="updateEmployee"
-            class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg"
-          >
+          <button @click="updateEmployee"
+            class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg">
             Save Changes
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="showDeletedModal"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-6xl mx-auto overflow-hidden"
-      >
-        <div
-          class="bg-slate-600 text-white px-6 py-5 flex justify-between items-center"
-        >
+    <div v-if="showDeletedModal"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
+      <div class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-6xl mx-auto overflow-hidden">
+        <div class="bg-slate-600 text-white px-6 py-5 flex justify-between items-center">
           <div class="min-w-0">
             <h2 class="text-2xl font-bold">Deleted Employees</h2>
 
@@ -1511,19 +1234,13 @@
             </p>
           </div>
 
-          <button
-            @click="showDeletedModal = false"
-            class="text-white text-3xl hover:text-slate-200 ml-4 flex-shrink-0"
-          >
+          <button @click="showDeletedModal = false" class="text-white text-3xl hover:text-slate-200 ml-4 flex-shrink-0">
             &times;
           </button>
         </div>
 
         <div class="p-6 max-h-[70vh] overflow-y-auto">
-          <div
-            v-if="deletedEmployees.length === 0"
-            class="text-center py-12 text-[var(--text-muted)]"
-          >
+          <div v-if="deletedEmployees.length === 0" class="text-center py-12 text-[var(--text-muted)]">
             <p class="text-lg font-semibold">No deleted employees found.</p>
 
             <p class="text-sm mt-1">
@@ -1546,14 +1263,9 @@
               </thead>
 
               <tbody>
-                <tr
-                  v-for="employee in deletedEmployees"
-                  :key="employee.employee_id"
-                  class="border-t border-[#cbd8e8] hover:bg-[#eef4fb]"
-                >
-                  <td
-                    class="px-2 sm:px-4 py-4 text-[var(--text)] font-semibold break-words"
-                  >
+                <tr v-for="employee in deletedEmployees" :key="employee.employee_id"
+                  class="border-t border-[#cbd8e8] hover:bg-[#eef4fb]">
+                  <td class="px-2 sm:px-4 py-4 text-[var(--text)] font-semibold break-words">
                     {{ employee.employee_code }}
                   </td>
 
@@ -1568,9 +1280,7 @@
                     {{ employee.user?.email || "-" }}
                   </td>
 
-                  <td
-                    class="px-2 sm:px-3 py-4 text-[var(--text)] break-words"
-                  >
+                  <td class="px-2 sm:px-3 py-4 text-[var(--text)] break-words">
                     {{
                       employee.department?.department_name ||
                       employee.department_name ||
@@ -1587,20 +1297,14 @@
                   </td>
 
                   <td class="px-2 sm:px-4 py-4 text-center">
-                    <div
-                      class="flex items-center justify-center gap-1 flex-nowrap"
-                    >
-                      <button
-                        @click="restoreEmployeeRecord(employee.employee_id)"
-                        class="bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs"
-                      >
+                    <div class="flex items-center justify-center gap-1 flex-nowrap">
+                      <button @click="restoreEmployeeRecord(employee.employee_id)"
+                        class="bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs">
                         Restore
                       </button>
 
-                      <button
-                        @click="permanentlyDeleteEmployeeRecord(employee)"
-                        class="bg-red-600 hover:bg-red-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs"
-                      >
+                      <button @click="permanentlyDeleteEmployeeRecord(employee)"
+                        class="bg-red-600 hover:bg-red-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs">
                         Delete Permanently
                       </button>
                     </div>
@@ -1611,13 +1315,9 @@
           </div>
         </div>
 
-        <div
-          class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end"
-        >
-          <button
-            @click="showDeletedModal = false"
-            class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded-lg"
-          >
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end">
+          <button @click="showDeletedModal = false"
+            class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded-lg">
             Close
           </button>
         </div>
@@ -1660,6 +1360,7 @@ interface Employee {
 
   emergency_contact_name?: string | null;
   emergency_contact_number?: string | null;
+  emergency_contact_relationship?: string | null;
 
   personnel_type: string;
   employment_status: string;
@@ -1838,6 +1539,7 @@ const form = ref({
 
   emergency_contact_name: "",
   emergency_contact_number: "",
+  emergency_contact_relationship: "",
 
   personnel_type: "",
   employment_status: "active",
@@ -1964,6 +1666,7 @@ const editForm = ref({
 
   emergency_contact_name: "",
   emergency_contact_number: "",
+  emergency_contact_relationship: "",
 
   personnel_type: "",
   employment_status: "active",
@@ -2137,15 +1840,13 @@ const filteredEmployees = computed(() => {
 
   // Sort alphabetically A → Z by last name, then first name, then middle name.
   return [...result].sort((a, b) => {
-    const aName = `${a.last_name || ""} ${a.first_name || ""} ${
-      a.middle_name || ""
-    }`
+    const aName = `${a.last_name || ""} ${a.first_name || ""} ${a.middle_name || ""
+      }`
       .trim()
       .toLowerCase();
 
-    const bName = `${b.last_name || ""} ${b.first_name || ""} ${
-      b.middle_name || ""
-    }`
+    const bName = `${b.last_name || ""} ${b.first_name || ""} ${b.middle_name || ""
+      }`
       .trim()
       .toLowerCase();
 
@@ -2186,6 +1887,8 @@ const editEmployee = (employee: Employee) => {
     emergency_contact_name: employee.emergency_contact_name || "",
 
     emergency_contact_number: employee.emergency_contact_number || "",
+
+    emergency_contact_relationship: employee.emergency_contact_relationship || "",
 
     personnel_type: employee.personnel_type || "",
 
@@ -2343,6 +2046,7 @@ const resetCreateForm = () => {
 
     emergency_contact_name: "",
     emergency_contact_number: "",
+    emergency_contact_relationship: "",
 
     personnel_type: "",
     employment_status: "active",
@@ -2569,6 +2273,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 1024px) {
+
   .employee-table th,
   .employee-table td {
     padding-left: 0.5rem;
@@ -2672,7 +2377,7 @@ onMounted(async () => {
     min-width: 180px;
   }
 
-  .employee-table td:last-child > div {
+  .employee-table td:last-child>div {
     flex-wrap: nowrap;
   }
 
