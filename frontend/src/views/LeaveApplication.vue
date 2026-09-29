@@ -757,7 +757,7 @@ const loadProfile = async (): Promise<boolean> => {
   if (!profile) throw new Error("Admin profile not found.");
 
   employee.value = {
-    employee_code: "",
+    employee_code: admin.employee_code || "",
     first_name: profile.first_name || "",
     middle_name: profile.middle_name || "",
     last_name: profile.last_name || "",
