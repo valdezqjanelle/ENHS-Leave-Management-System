@@ -161,7 +161,7 @@
 
                   <div class="min-w-0 break-words">
                     <span class="font-medium"> Position: </span>
-                    {{ application.employee?.position ?? "Not available" }}
+                    {{ getEmployeePosition(application.employee) }}
                   </div>
 
                   <div class="min-w-0 break-words">
@@ -394,7 +394,7 @@
 
               <div class="break-words">
                 <strong>Position:</strong>
-                {{ selectedApplication.employee.position }}
+                {{ getEmployeePosition(selectedApplication.employee) }}
               </div>
 
               <div class="break-words">
@@ -894,6 +894,7 @@ import {
   rejectLeaveApplication,
 } from "@/services/leave";
 import { getLeaveBalanceByEmployeeId } from "@/services/leaveBalance";
+import { getPositions } from "@/services/employee";
 
 import axios from "axios";
 
@@ -1253,6 +1254,26 @@ const getStatusClass = (status: string) => {
 
 const getLeaveType = (leaveType: any) => {
   return leaveType?.leave_type_name ?? "Not specified";
+};
+
+const positions = ref<Array<{ id: number; name: string }>>([]);
+
+const loadPositions = async () => {
+  try {
+    const result = await getPositions();
+    positions.value = Array.isArray(result) ? result : [];
+  } catch (error) {
+    console.error("Failed to load positions", error);
+  }
+};
+
+const getEmployeePosition = (employee: any): string => {
+  const position = employee?.position;
+  const name = typeof position === "string" ? position : position?.name;
+  if (typeof name === "string" && name.trim()) return name;
+
+  const positionId = Number(employee?.position_id);
+  return positions.value.find((item) => Number(item.id) === positionId)?.name || "Not available";
 };
 
 const getEmployeeName = (employee: any) => {
@@ -1976,6 +1997,7 @@ const restoreLeaveApplicationById =
 
 onMounted(() => {
   loadApplications();
+  loadPositions();
 });
 </script>
 

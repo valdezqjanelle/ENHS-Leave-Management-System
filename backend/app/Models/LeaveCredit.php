@@ -17,13 +17,22 @@ class LeaveCredit extends Model
         'activity_name',
         'hours_rendered',
         'equivalent_leave_days',
-           'credit_type',
-    'status',
+        'credit_type',
+        'status',
         'date_recorded',
-        'recorded_by'
+        'recorded_by',
+        'posted_bucket',
+        'posted_days',
+        'revoked_reason',
+        'revoked_by',
+        'revoked_at',
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $casts = [
+        'date_recorded' => 'date',
+        'posted_days' => 'decimal:2',
+        'revoked_at' => 'datetime',
+    ];
 
     public function employee()
     {

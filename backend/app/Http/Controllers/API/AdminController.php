@@ -48,6 +48,7 @@ class AdminController extends Controller
             'user_id' => $user->user_id,
             'email' => $user->email,
             'role' => $user->role,
+            'employee_code' => $employee?->employee_code,
             'profile' => $profile
         ]);
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\LeaveApplication;
 use App\Models\LeaveAttachment;
@@ -303,7 +304,7 @@ class LeaveController extends Controller
     public function index()
     {
         return LeaveApplication::with([
-            'employee',
+            'employee.position',
             'leaveType',
             'attachments'
         ])
@@ -317,7 +318,7 @@ class LeaveController extends Controller
         $user = $request->user();
 
         $leave = LeaveApplication::with([
-            'employee',
+            'employee.position',
             'leaveType',
             'attachments'
         ])->findOrFail($id);
@@ -1027,7 +1028,10 @@ $text(
             'sick_deduct_days' => 'nullable|numeric|min:0',
         ]);
 
-        $leave = LeaveApplication::findOrFail($id);
+        return DB::transaction(function () use ($request, $id) {
+        $candidate = LeaveApplication::findOrFail($id);
+        EmployeeRecord::whereKey($candidate->employee_id)->lockForUpdate()->firstOrFail();
+        $leave = LeaveApplication::whereKey($id)->lockForUpdate()->firstOrFail();
 
         $adminEmployee = EmployeeRecord::where(
             'user_id',
@@ -1157,6 +1161,7 @@ $text(
             'message' => 'Leave updated successfully',
             'data' => $leave
         ]);
+        });
     }
 
 
@@ -1170,7 +1175,7 @@ $text(
         $balance = LeaveBalance::where(
             'employee_id',
             $leave->employee_id
-        )->first();
+        )->lockForUpdate()->first();
 
         if (!$balance) {
             throw new \Exception(
@@ -1272,7 +1277,7 @@ $text(
             $deletedLeaves = LeaveApplication::onlyTrashed()
                 ->with([
                     'employee' => function ($query) {
-                        $query->withTrashed();
+                        $query->withTrashed()->with('position');
                     },
                     'leaveType',
                     'attachments'

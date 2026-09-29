@@ -628,6 +628,7 @@ import {
 } from "lucide-vue-next";
 
 import { getMyProfile } from "../services/employee";
+import { getAdminProfile, getAdminPositions, getAdminDepartments } from "@/services/admin";
 import LocationAutocomplete from "../components/LocationAutocomplete.vue";
 import CountryAutocomplete from "../components/CountryAutocomplete.vue";
 
@@ -735,15 +736,52 @@ const loadLeaveBalance = async () => {
 };
 
 
+const loadProfile = async (): Promise<boolean> => {
+  const token = localStorage.getItem("token");
+  const { data: user } = await axios.get(
+    "https://enhs-leave-management-system.onrender.com/api/me",
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+
+  if (user.role !== "admin") {
+    employee.value = await getMyProfile();
+    return true;
+  }
+
+  const [admin, positions, departments] = await Promise.all([
+    getAdminProfile(),
+    getAdminPositions(),
+    getAdminDepartments(),
+  ]);
+  const profile = admin.profile;
+  if (!profile) throw new Error("Admin profile not found.");
+
+  employee.value = {
+    employee_code: "",
+    first_name: profile.first_name || "",
+    middle_name: profile.middle_name || "",
+    last_name: profile.last_name || "",
+    department_name: departments.find((item: any) =>
+      Number(item.department_id) === Number(profile.department_id)
+    )?.department_name || "",
+    level: profile.level || "",
+    position: positions.find((item: any) =>
+      Number(item.id) === Number(profile.position_id)
+    )?.name || "",
+    contact_number: profile.contact_number || "",
+  };
+  return false;
+};
+
 onMounted(async () => {
 
   try {
 
     leaveTypes.value = await getLeaveTypes();
 
-    employee.value = await getMyProfile();
+    const hasEmployeeRecord = await loadProfile();
 
-    await loadLeaveBalance();
+    if (hasEmployeeRecord) await loadLeaveBalance();
 
     await initializeSignaturePad();
 
