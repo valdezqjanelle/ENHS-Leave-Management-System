@@ -33,12 +33,12 @@
             Credit Type
           </label>
 
-          <select v-model="form.credit_type" class="form-control">
-            <option value="">Select Credit Type</option>
-            <option value="Service">Service Credits</option>
-            <option value="Vacation">Vacation Leave</option>
-            <option value="Sick">Sick Leave</option>
-          </select>
+          <input
+            value="Local Credits"
+            type="text"
+            readonly
+            class="form-control readonly-control"
+          />
         </div>
 
         <div class="min-w-0">
@@ -56,17 +56,16 @@
 
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
-            Time Rendered
+            Hours Rendered
           </label>
 
-          <div class="flex gap-2">
-            <input v-model="renderedTime" type="number" min="0"
-              :step="timeUnit === 'minutes' ? '1' : '0.25'"
-              class="form-control" />
-            <select v-model="timeUnit" class="form-control" aria-label="Time unit">
-              <option value="hours">Hours</option>
-            </select>
-          </div>
+          <input
+            v-model="renderedTime"
+            type="number"
+            min="0"
+            step="0.25"
+            class="form-control"
+          />
           <p v-if="conversionError" class="validation-message mt-1">{{ conversionError }}</p>
         </div>
 
@@ -169,7 +168,7 @@
                       : credit.credit_type === "Sick"
                         ? "Sick Leave"
                         : credit.credit_type === "Service"
-                          ? "Service Credits"
+                          ? "Local Credits"
                           : credit.credit_type
                   }}
                 </span>
@@ -257,7 +256,7 @@ const form = ref({
   activity_name: "",
   hours_rendered: "",
   equivalent_leave_days: "",
-  credit_type: "",
+  credit_type: "Service",
 });
 
 /* ============================================================
@@ -339,7 +338,6 @@ const syncBalanceWithCredit = async (
 
 // Conversion only: existing balance/apply/revoke functions are unchanged.
 const renderedTime = ref<string | number>("");
-const timeUnit = ref("hours");
 const conversionError = ref("");
 const conversionRows = ref<{ unit: string; quantity: number; equivalent_days: string | number }[]>([]);
 
@@ -382,13 +380,14 @@ const loadConversionReference = async () => {
   }
 };
 
-watch([renderedTime, timeUnit, conversionRows], () => {
+watch([renderedTime, conversionRows], () => {
   form.value.hours_rendered = "";
   form.value.equivalent_leave_days = "";
   if (renderedTime.value === "") return;
   const input = Number(renderedTime.value);
   if (!Number.isFinite(input) || input <= 0) return;
-  const totalMinutes = Math.round(timeUnit.value === "minutes" ? input : input * 60);
+  // Fixed to hours - convert to minutes for calculation
+  const totalMinutes = Math.round(input * 60);
   if (totalMinutes < 1) return;
   const wholeHours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;

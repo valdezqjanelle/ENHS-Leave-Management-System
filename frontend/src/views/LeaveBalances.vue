@@ -39,7 +39,7 @@
             <thead>
               <tr class="text-left text-white">
                 <th class="employee-column px-6 py-4">Employee</th>
-                <th class="balance-column px-6 py-4">Service Credits</th>
+                <th class="balance-column px-6 py-4">Local Credits</th>
                 <th class="balance-column px-6 py-4">Vacation Balance</th>
                 <th class="balance-column px-6 py-4">Sick Balance</th>
                 <th class="total-column px-6 py-4">Total Available</th>
@@ -373,7 +373,7 @@ const updateBalance = async () => {
 const deleteBalance = async (employee_id: number) => {
   const confirmed = confirm(
     "Are you sure you want to clear this leave balance?\n\n" +
-    "Vacation, Sick, and Service Credit balances will be reset to zero."
+    "Vacation, Sick, and Local Credit balances will be reset to zero."
   );
 
   if (!confirmed) return;

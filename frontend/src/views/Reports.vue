@@ -613,7 +613,7 @@
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Service Credits
+                      Local Credits
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
@@ -1722,7 +1722,7 @@ const exportReport = () => {
             Department:
               employee.department_name ?? employee.department ?? '',
 
-            'Service Credits':
+            'Local Credits':
               employee.service_credits ?? 0,
 
             'Vacation Balance':
