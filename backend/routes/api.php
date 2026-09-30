@@ -220,6 +220,11 @@ Route::middleware('auth:sanctum')->group(function () {
         );
 
         Route::get(
+            '/leave-credits/conversion-reference',
+            [LeaveCreditController::class, 'conversionReference']
+        );
+
+        Route::get(
             '/leave-credits/{employee_id}',
             [LeaveCreditController::class, 'show']
         );

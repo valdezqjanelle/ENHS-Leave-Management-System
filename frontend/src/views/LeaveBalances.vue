@@ -140,15 +140,7 @@
             <input v-model.number="selectedBalance.service_credits" type="number" step="0.25" min="0" class="balance-input w-full" />
           </div>
 
-          <div class="mb-4">
-            <label class="block text-sm font-semibold text-white mb-2">Vacation Earned</label>
-            <input v-model.number="selectedBalance.vacation_earned" type="number" step="0.25" min="0" class="balance-input w-full" />
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-semibold text-white mb-2">Sick Earned</label>
-            <input v-model.number="selectedBalance.sick_earned" type="number" step="0.25" min="0" class="balance-input w-full" />
-          </div>
+          
 
           <div class="mb-4">
             <label class="block text-sm font-semibold text-white mb-2">Vacation Balance</label>

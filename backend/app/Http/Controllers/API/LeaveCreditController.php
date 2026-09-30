@@ -3,177 +3,238 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\EmployeeRecord;
-use App\Models\LeaveApplication;
-use App\Models\LeaveBalance;
-use App\Models\LeaveCredit;
-use App\Support\AuditLogger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\LeaveCredit;
+use App\Models\LeaveBalance;
+use App\Models\EmployeeRecord;
+use Carbon\Carbon;
+use App\Support\AuditLogger;
 
 class LeaveCreditController extends Controller
 {
+    // ADD CREDIT
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $request->validate([
             'employee_id' => 'required|exists:employee_records,employee_id',
-            'credit_type' => 'required|in:Service,Vacation,Sick',
-            'activity_name' => 'required|string|max:255',
-            'hours_rendered' => 'required|numeric|min:0',
-            'equivalent_leave_days' => 'required|numeric|gt:0',
+            'activity_name' => 'required|string',
+            'hours_rendered' => 'required|numeric',
+            'equivalent_leave_days' => 'required|numeric',
+            'credit_type' => 'required|in:Vacation,Sick,Service',
+          
         ]);
 
-        $credit = DB::transaction(function () use ($data, $request) {
-            EmployeeRecord::whereKey($data['employee_id'])->lockForUpdate()->firstOrFail();
-            $balance = LeaveBalance::firstOrCreate(
-                ['employee_id' => $data['employee_id']],
-                [
-                    'vacation_earned' => 0,
-                    'sick_earned' => 0,
-                    'vacation_balance' => 0,
-                    'sick_balance' => 0,
-                    'service_credits' => 0,
-                    'used_leave' => 0
-                ]
-            );
-            $balance = LeaveBalance::whereKey($balance->getKey())->lockForUpdate()->firstOrFail();
-            $days = (float) $data['equivalent_leave_days'];
-            $bucket = match ($data['credit_type']) {
-                'Service' => 'service_credits',
-                'Vacation' => 'vacation_balance',
-                'Sick' => 'sick_balance',
-            };
-            $balance->{$bucket} = round((float) $balance->{$bucket} + $days, 2);
-            if ($data['credit_type'] !== 'Service') {
-                $earned = strtolower($data['credit_type']) . '_earned';
-                $balance->{$earned} = round((float) $balance->{$earned} + $days, 2);
-            }
-            $balance->last_updated = now();
-            $balance->save();
+        $credit = LeaveCredit::create([
+            'employee_id' => $request->employee_id,
+            'activity_name' => $request->activity_name,
+            'hours_rendered' => $request->hours_rendered,
+            'equivalent_leave_days' => $request->equivalent_leave_days,
+            'credit_type' => $request->credit_type,
+            'status' =>'Pending',
+            'date_recorded' => Carbon::now(),
+            'recorded_by' => auth()->user()->user_id,
+        ]);
 
-            $credit = LeaveCredit::create([
-                ...$data,
-                'status' => 'Applied', // Existing database enum: this record is already in the balance.
-                'posted_bucket' => $bucket,
-                'posted_days' => $days,
-                'date_recorded' => today(),
-                'recorded_by' => $request->user()->user_id,
-            ]);
-            AuditLogger::log(
-                'Leave credit posted',
-                "Posted {$days} {$data['credit_type']} day(s) for employee #{$data['employee_id']} (credit #{$credit->credits_id})"
-            );
-            return $credit;
-        });
+
+
+        AuditLogger::log(
+            'Leave credit added',
+            "Added {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) for employee #{$credit->employee_id} ({$credit->activity_name})"
+        );
 
         return response()->json([
-            'message' => 'Credit recorded and balance updated.',
-            'data' => $credit->load('employee'),
-        ], 201);
+            'message' => 'Leave credit added successfully',
+            'data' => $credit
+        ]);
     }
 
-    public function index(Request $request)
-    {
-        $query = $request->query('view') === 'revoked'
-            ? LeaveCredit::onlyTrashed()
-            : LeaveCredit::query();
-        return response()->json($query->with('employee')->orderBy('credits_id', 'desc')->get());
-    }
+public function index()
+{
+    $credits = LeaveCredit::with('employee')
+        ->orderBy('credits_id', 'desc')
+        ->get();
 
+    return response()->json($credits);
+}
+    // VIEW ALL CREDITS PER EMPLOYEE
     public function show($employee_id)
     {
+        $credits = LeaveCredit::where('employee_id', $employee_id)->get();
+
         return response()->json([
-            'data' => LeaveCredit::where('employee_id', $employee_id)->get(),
+            'data' => $credits
         ]);
     }
 
+    // UPDATE CREDIT
     public function update(Request $request, $id)
     {
+        $credit = LeaveCredit::findOrFail($id);
+
+        $credit->update([
+            'activity_name' => $request->activity_name,
+            'hours_rendered' => $request->hours_rendered,
+            'equivalent_leave_days' => $request->equivalent_leave_days,
+        ]);
+
+  
+        AuditLogger::log(
+            'Leave credit updated',
+            "Updated leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
+        );
+
         return response()->json([
-            'message' => 'Credit entries cannot be edited after posting. Revoke, then create a corrected entry.',
-        ], 409);
+            'message' => 'Leave credit updated',
+            'data' => $credit
+        ]);
     }
+public function destroy($id)
+{
+    $credit = LeaveCredit::findOrFail($id);
 
-    public function destroy(Request $request, $id)
-    {
-        $data = $request->validate(['reason' => 'required|string|min:3|max:500']);
-        return DB::transaction(function () use ($data, $request, $id) {
-            $record = LeaveCredit::findOrFail($id);
-            EmployeeRecord::whereKey($record->employee_id)->lockForUpdate()->firstOrFail();
-            $credit = LeaveCredit::whereKey($id)->lockForUpdate()->firstOrFail();
+    $credit->delete();
 
-            // Older rows may have been posted by a second browser request or split
-            // between buckets. There is no reliable reversal amount for those rows.
-            if ($credit->status !== 'Applied' || !$credit->posted_bucket || !$credit->posted_days) {
-                return response()->json([
-                    'message' => 'This older credit has no verified posting details. Reconcile it manually before revocation.',
-                ], 409);
-            }
+    AuditLogger::log(
+        'Leave credit deleted',
+        "Soft deleted leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
+    );
 
-            // Without a per-credit consumption ledger, avoid reversing a credit
-            // after leave approval may have drawn from its balance bucket.
-            $laterApproval = LeaveApplication::where('employee_id', $credit->employee_id)
-                ->where('final_status', 'approved')
-                ->where('updated_at', '>=', $credit->created_at)
-                ->exists();
-            if ($laterApproval) {
-                return response()->json([
-                    'message' => 'An approved leave was updated after this credit was posted. Review its deduction before revoking.',
-                ], 409);
-            }
+    return response()->json([
+        'message' => 'Leave credit deleted successfully.'
+    ]);
+}
 
-            $balance = LeaveBalance::where('employee_id', $credit->employee_id)
-                ->lockForUpdate()->first();
-            $bucket = $credit->posted_bucket;
-            $days = (float) $credit->posted_days;
-            if (
-                !in_array($bucket, ['service_credits', 'vacation_balance', 'sick_balance'], true) ||
-                !$balance || (float) $balance->{$bucket} + 0.00001 < $days
-            ) {
-                return response()->json([
-                    'message' => 'Available balance is insufficient for this reversal. Review the balance and leave history.',
-                ], 409);
-            }
-            $earned = match ($bucket) {
-                'vacation_balance' => 'vacation_earned',
-                'sick_balance' => 'sick_earned',
-                default => null,
-            };
-            if ($earned && (float) $balance->{$earned} + 0.00001 < $days) {
-                return response()->json([
-                    'message' => 'The earned balance has changed. Reconcile this record before revoking.',
-                ], 409);
-            }
-            $balance->{$bucket} = round((float) $balance->{$bucket} - $days, 2);
-            if ($earned) {
-                $balance->{$earned} = round((float) $balance->{$earned} - $days, 2);
-            }
-            $balance->last_updated = now();
-            $balance->save();
+public function deleted()
+{
+    $deletedCredits = LeaveCredit::onlyTrashed()->get();
 
-            $credit->revoked_reason = $data['reason'];
-            $credit->revoked_by = $request->user()->user_id;
-            $credit->revoked_at = now();
-            $credit->save();
-            $credit->delete(); // Preserves it for Revoked History.
-            AuditLogger::log(
-                'Leave credit revoked',
-                "Reversed credit #{$credit->credits_id} for employee #{$credit->employee_id}: {$data['reason']}"
-            );
+    return response()->json([
+        'data' => $deletedCredits
+    ]);
+}
 
-            return response()->json(['message' => 'Credit revoked and balance reversed.']);
-        });
-    }
+public function apply(Request $request, $id)
+{
+    $credit = LeaveCredit::findOrFail($id);
 
-    public function deleted()
-    {
-        return response()->json(['data' => LeaveCredit::onlyTrashed()->with('employee')->get()]);
-    }
-
-    public function apply(Request $request, $id)
-    {
+    // Prevent duplicate application
+    if ($credit->status === 'Applied') {
         return response()->json([
-            'message' => 'Credits are now posted when they are recorded. Apply Credit is no longer available.',
-        ], 409);
+            'message' => 'Leave credit has already been applied.'
+        ], 400);
     }
+
+    $request->validate([
+        'leave_type' => 'nullable|in:Vacation,Sick,Service',
+        'days' => 'nullable|numeric|min:0',
+        'split' => 'nullable|boolean',
+        'vacation_days' => 'nullable|numeric|min:0',
+        'sick_days' => 'nullable|numeric|min:0',
+    ]);
+
+    $balance = LeaveBalance::firstOrCreate(
+        ['employee_id' => $credit->employee_id],
+        [
+            'vacation_earned' => 0,
+            'sick_earned' => 0,
+            'vacation_balance' => 0,
+            'sick_balance' => 0,
+            'service_credits' => 0,
+            'used_leave' => 0,
+            'last_updated' => now(),
+        ]
+    );
+
+    $creditType = strtolower(trim($credit->credit_type));
+    $availableDays = (float) $credit->equivalent_leave_days;
+    $isServiceCredit = $creditType === 'service credits' || $creditType === 'service';
+    $split = $request->boolean('split');
+    $days = (float) ($request->input('days') ?? $availableDays);
+    $targetType = $request->input('leave_type');
+    $vacationDays = $split
+        ? (float) ($request->input('vacation_days') ?? 0)
+        : ($targetType === 'Vacation' ? $days : 0);
+    $sickDays = $split
+        ? (float) ($request->input('sick_days') ?? 0)
+        : ($targetType === 'Sick' ? $days : 0);
+    $appliedDays = $split ? $vacationDays + $sickDays : $days;
+    $serviceDays = $isServiceCredit
+        ? ($split || $targetType !== 'Service'
+            ? max(0, $availableDays - $vacationDays - $sickDays)
+            : min($days, $availableDays))
+        : 0;
+
+    if ($isServiceCredit && ($appliedDays <= 0 || $appliedDays > $availableDays)) {
+        return response()->json([
+            'message' => 'Applied allocation cannot exceed the available service credit.'
+        ], 422);
+    }
+
+    if ($creditType === 'vacation') {
+
+        $balance->vacation_earned +=
+            $credit->equivalent_leave_days;
+
+        $balance->vacation_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+
+    elseif ($creditType === 'sick') {
+
+        $balance->sick_earned +=
+            $credit->equivalent_leave_days;
+
+        $balance->sick_balance +=
+            $credit->equivalent_leave_days;
+    }
+
+
+
+    elseif ($isServiceCredit) {
+
+        $balance->service_credits =
+            (float) ($balance->service_credits ?? 0)
+            + $serviceDays;
+
+        if ($vacationDays > 0) {
+            $balance->vacation_earned += $vacationDays;
+            $balance->vacation_balance += $vacationDays;
+        }
+
+        if ($sickDays > 0) {
+            $balance->sick_earned += $sickDays;
+            $balance->sick_balance += $sickDays;
+        }
+    }
+
+
+
+    else {
+        return response()->json([
+            'message' => 'Invalid credit type.'
+        ], 422);
+    }
+
+    $balance->last_updated = now();
+    $balance->save();
+
+
+
+    $credit->status = 'Applied';
+    $credit->save();
+
+    AuditLogger::log(
+        'Leave credit applied',
+        "Applied {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) to balance for employee #{$credit->employee_id}"
+    );
+
+    return response()->json([
+        'message' => 'Leave credit applied successfully.',
+        'data' => $credit
+    ]);
+}
+
+
+ 
 }

@@ -59,13 +59,16 @@
             Hours Rendered
           </label>
 
-          <input
-            v-model="form.hours_rendered"
-            type="number"
-            min="0"
-            step="0.25"
-            class="form-control"
-          />
+          <div class="flex gap-2">
+            <input v-model="renderedTime" type="number" min="0"
+              :step="timeUnit === 'minutes' ? '1' : '0.25'"
+              class="form-control" />
+            <select v-model="timeUnit" class="form-control" aria-label="Time unit">
+              <option value="hours">Hours</option>
+              <option value="minutes">Minutes</option>
+            </select>
+          </div>
+          <p v-if="conversionError" class="validation-message mt-1">{{ conversionError }}</p>
         </div>
 
         <div class="min-w-0">
@@ -74,10 +77,9 @@
           </label>
 
           <input
-            v-model="form.equivalent_leave_days"
-            type="number"
-            min="0"
-            step="0.25"
+            :value="form.equivalent_leave_days"
+            type="text"
+            readonly
             class="form-control"
           />
         </div>
@@ -179,11 +181,11 @@
               </td>
 
               <td>
-                {{ Number(credit.hours_rendered || 0).toFixed(2) }}
+                {{ Number(credit.hours_rendered || 0).toFixed(4) }}
               </td>
 
               <td>
-                {{ Number(credit.equivalent_leave_days || 0).toFixed(2) }}
+                {{ Number(credit.equivalent_leave_days || 0).toFixed(3) }}
               </td>
 
               <td>
@@ -216,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import axios from "axios";
 
 import {
@@ -336,6 +338,42 @@ const syncBalanceWithCredit = async (
   );
 };
 
+// Conversion only: existing balance/apply/revoke functions are unchanged.
+const renderedTime = ref<string | number>("");
+const timeUnit = ref("hours");
+const conversionError = ref("");
+const conversionRows = ref<{ unit: string; quantity: number; equivalent_days: string | number }[]>([]);
+
+const loadConversionReference = async () => {
+  try {
+    const { data } = await axios.get(`${API_BASE}/leave-credits/conversion-reference`,
+      { headers: authHeaders() });
+    if (!Array.isArray(data) || data.length === 0) throw new Error("Missing conversion reference");
+    conversionRows.value = data;
+    conversionError.value = "";
+  } catch {
+    conversionError.value = "Unable to load conversion reference. Check the route and seeder.";
+  }
+};
+
+watch([renderedTime, timeUnit, conversionRows], () => {
+  form.value.hours_rendered = "";
+  form.value.equivalent_leave_days = "";
+  if (renderedTime.value === "") return;
+  const input = Number(renderedTime.value);
+  if (!Number.isFinite(input) || input <= 0) return;
+  const totalMinutes = Math.round(timeUnit.value === "minutes" ? input : input * 60);
+  if (totalMinutes < 1) return;
+  const wholeHours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const hourRow = conversionRows.value.find(row => row.unit === "hour" && Number(row.quantity) === 1);
+  const minuteRow = conversionRows.value.find(row => row.unit === "minute" && Number(row.quantity) === minutes);
+  if (!hourRow || (minutes !== 0 && !minuteRow)) return;
+  form.value.hours_rendered = (totalMinutes / 60).toFixed(4);
+  form.value.equivalent_leave_days = (wholeHours * Number(hourRow.equivalent_days)
+    + (minutes ? Number(minuteRow!.equivalent_days) : 0)).toFixed(3);
+});
+
 const filteredCredits = computed(() => {
   const search = searchQuery.value.trim().toLowerCase();
 
@@ -377,6 +415,10 @@ const loadCredits = async () => {
 };
 
 const applyCredit = async () => {
+  if (!form.value.equivalent_leave_days) {
+    alert(conversionError.value || "Enter valid rendered hours or minutes.");
+    return;
+  }
   try {
     console.log("Applying credit data:", form.value);
 
@@ -402,6 +444,7 @@ const applyCredit = async () => {
     }
 
     alert("Leave credit applied successfully!");
+    renderedTime.value = "";
 
     form.value = {
       employee_id: "",
@@ -473,6 +516,7 @@ const formatDate = (date: string) => {
 };
 
 onMounted(() => {
+  loadConversionReference();
   loadEmployees();
   loadCredits();
 });

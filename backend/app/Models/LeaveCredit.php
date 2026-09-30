@@ -29,8 +29,10 @@ class LeaveCredit extends Model
     ];
 
     protected $casts = [
+        'hours_rendered' => 'decimal:4',
+        'equivalent_leave_days' => 'decimal:3',
         'date_recorded' => 'date',
-        'posted_days' => 'decimal:2',
+        'posted_days' => 'decimal:3',
         'revoked_at' => 'datetime',
     ];
 

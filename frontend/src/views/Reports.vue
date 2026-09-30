@@ -243,24 +243,24 @@
               <!-- Filters + Totals -->
               <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-                <label class="flex items-center gap-2 text-sm text-gray-300">
+                <!-- <label class="flex items-center gap-2 text-sm text-gray-300">
                   <input
                     type="checkbox"
                     v-model="includeInactive"
                     class="h-4 w-4 rounded border-gray-500"
                   />
                   Include inactive/resigned employees
-                </label>
+                </label> -->
 
                 <div class="flex gap-5 text-sm text-gray-400">
                   <span>
                     Total Requests:
                     <span class="font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</span>
                   </span>
-                  <span>
+                  <!-- <span>
                     Total Leave Days:
                     <span class="font-semibold text-white">{{ leaveTotals.total_days ?? 0 }}</span>
-                  </span>
+                  </span> -->
                 </div>
 
               </div>
