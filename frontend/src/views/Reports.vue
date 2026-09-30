@@ -868,12 +868,13 @@ const displayedCreditsData = computed(() => {
 const leaveByDepartment = computed(() => {
 
   return leaveSummaryData.value.map((item: any) => ({
-    department: item.department ?? 'Unknown',
+    department: item.department ?? 'Unassigned',
     count: Number(
       item.total ??
       item.count ??
       0
-    )
+    ),
+    days: Number(item.total_days ?? 0)
   }))
 
 })
