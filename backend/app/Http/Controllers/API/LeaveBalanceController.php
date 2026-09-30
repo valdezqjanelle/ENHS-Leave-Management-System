@@ -10,43 +10,44 @@ use App\Support\AuditLogger;
 
 class LeaveBalanceController extends Controller
 {
- 
-public function index()
-{
-    $employees = EmployeeRecord::with('leaveBalance')->get();
+    public function index()
+    {
+        $employees = EmployeeRecord::with('leaveBalance')->get();
 
-    $balances = $employees->map(function ($employee) {
-
-        return [
-            'employee_id' => $employee->employee_id,
-
-            'employee' => [
+        $balances = $employees->map(function ($employee) {
+            return [
                 'employee_id' => $employee->employee_id,
-                'first_name' => $employee->first_name,
-                'last_name' => $employee->last_name,
-            ],
 
-            'balance_id' =>
-                $employee->leaveBalance?->balance_id,
+                'employee' => [
+                    'employee_id' => $employee->employee_id,
+                    'first_name' => $employee->first_name,
+                    'last_name' => $employee->last_name,
+                ],
 
-       
+                'balance_id' => $employee->leaveBalance?->balance_id,
 
-            'vacation_balance' =>
-                $employee->leaveBalance?->vacation_balance ?? 0,
-            
+                'vacation_earned' =>
+                    $employee->leaveBalance?->vacation_earned ?? 0,
 
+                'sick_earned' =>
+                    $employee->leaveBalance?->sick_earned ?? 0,
 
-            'sick_balance' =>
-                $employee->leaveBalance?->sick_balance ?? 0,
+                'vacation_balance' =>
+                    $employee->leaveBalance?->vacation_balance ?? 0,
 
-            'used_leave' =>
-                $employee->leaveBalance?->used_leave ?? 0,
-        ];
+                'sick_balance' =>
+                    $employee->leaveBalance?->sick_balance ?? 0,
 
-    });
+                'service_credits' =>
+                    $employee->leaveBalance?->service_credits ?? 0,
 
-    return response()->json($balances);
-}
+                'used_leave' =>
+                    $employee->leaveBalance?->used_leave ?? 0,
+            ];
+        });
+
+        return response()->json($balances);
+    }
 
     public function show($employee_id)
     {
@@ -54,7 +55,7 @@ public function index()
 
         if (!$employee) {
             return response()->json([
-                'message' => 'Employee record not found.'
+                'message' => 'Employee record not found.',
             ], 404);
         }
 
@@ -66,11 +67,14 @@ public function index()
             return response()->json([
                 'balance_id' => null,
                 'employee_id' => $employee->employee_id,
-              
+                'vacation_earned' => 0,
+                'sick_earned' => 0,
                 'vacation_balance' => 0,
                 'sick_balance' => 0,
+                'service_credits' => 0,
                 'used_leave' => 0,
                 'last_updated' => null,
+
                 'employee' => [
                     'employee_id' => $employee->employee_id,
                     'first_name' => $employee->first_name,
@@ -82,128 +86,156 @@ public function index()
         return response()->json($balance);
     }
 
-    
-public function update(Request $request, $employee_id)
-{
-    $validated = $request->validate([
+    public function update(Request $request, $employee_id)
+    {
+        $validated = $request->validate([
+            'vacation_balance' => 'required|numeric|min:0',
+            'sick_balance' => 'required|numeric|min:0',
 
-        'vacation_balance' => 'sometimes|required|numeric|min:0',
-        'sick_balance' => 'sometimes|required|numeric|min:0',
-    ]);
+            // Optional: supplied by Leave Credits synchronization.
+            'vacation_earned' => 'sometimes|numeric|min:0',
+            'sick_earned' => 'sometimes|numeric|min:0',
+            'service_credits' => 'sometimes|numeric|min:0',
+        ]);
 
-    $employee = EmployeeRecord::find($employee_id);
+        $employee = EmployeeRecord::find($employee_id);
 
-    if (!$employee) {
-        return response()->json([
-            'message' => 'Employee record not found.'
-        ], 404);
-    }
+        if (!$employee) {
+            return response()->json([
+                'message' => 'Employee record not found.',
+            ], 404);
+        }
 
-    $balance = LeaveBalance::where('employee_id', $employee_id)->first();
-    $wasCreated = false;
+        $balance = LeaveBalance::where('employee_id', $employee_id)
+            ->first();
 
-    if (!$balance) {
-        $balance = new LeaveBalance();
-        $balance->employee_id = $employee->employee_id;
-        $balance->used_leave = 0;
-        $wasCreated = true;
-    }
+        $wasCreated = false;
 
- 
-    if (array_key_exists('vacation_balance', $validated)) {
+        if (!$balance) {
+            $balance = new LeaveBalance();
+            $balance->employee_id = $employee->employee_id;
+            $balance->vacation_earned = 0;
+            $balance->sick_earned = 0;
+            $balance->vacation_balance = 0;
+            $balance->sick_balance = 0;
+            $balance->service_credits = 0;
+            $balance->used_leave = 0;
+
+            $wasCreated = true;
+        }
+
         $balance->vacation_balance = $validated['vacation_balance'];
-    }
-    if (array_key_exists('sick_balance', $validated)) {
         $balance->sick_balance = $validated['sick_balance'];
+
+        // Preserve existing values when these fields are omitted.
+        foreach (
+            ['vacation_earned', 'sick_earned', 'service_credits']
+            as $field
+        ) {
+            if (array_key_exists($field, $validated)) {
+                $balance->{$field} = $validated[$field];
+            }
+        }
+
+        $balance->last_updated = now();
+        $balance->save();
+
+        AuditLogger::log(
+            $wasCreated
+                ? 'Leave balance created'
+                : 'Leave balance updated',
+            "Set leave balance for employee #{$employee_id} " .
+            "(vacation: {$balance->vacation_balance}, " .
+            "sick: {$balance->sick_balance}, " .
+            "service: {$balance->service_credits})"
+        );
+
+        return response()->json([
+            'message' => $wasCreated
+                ? 'Leave balance created successfully.'
+                : 'Leave balance updated successfully.',
+            'data' => $balance->fresh('employee'),
+        ], $wasCreated ? 201 : 200);
     }
 
-    $balance->last_updated = now();
-    $balance->save();
-
-    AuditLogger::log(
-        $wasCreated ? 'Leave balance created' : 'Leave balance updated',
-        "Set leave balance for employee #{$employee_id} " .
-        "(vacation: {$balance->vacation_balance}, sick: {$balance->sick_balance})"
-    );
-
-    return response()->json([
-        'message' => $wasCreated
-            ? 'Leave balance created successfully.'
-            : 'Leave balance updated successfully.',
-        'data' => $balance->fresh('employee')
-    ], $wasCreated ? 201 : 200);
-}
-
-  
     public function myBalance(Request $request)
-{
-    $employee = EmployeeRecord::where(
-        'user_id',
-        $request->user()->user_id
-    )->first();
+    {
+        $employee = EmployeeRecord::where(
+            'user_id',
+            $request->user()->user_id
+        )->first();
 
-    if (!$employee) {
+        if (!$employee) {
+            return response()->json([
+                'message' => 'Employee record not found',
+            ], 404);
+        }
+
+        $balance = LeaveBalance::where(
+            'employee_id',
+            $employee->employee_id
+        )->first();
+
+        if (!$balance) {
+            return response()->json([
+                'vacation_earned' => 0,
+                'sick_earned' => 0,
+                'vacation_balance' => 0,
+                'sick_balance' => 0,
+                'service_credits' => 0,
+                'used_leave' => 0,
+                'last_updated' => null,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Employee record not found'
-        ], 404);
-    }
-
-    $balance = LeaveBalance::where(
-        'employee_id',
-        $employee->employee_id
-    )->first();
-
-    if (!$balance) {
-        return response()->json([
-            'vacation_balance' => 0,
-            'sick_balance' => 0,
-            'used_leave' => 0,
-          
-            'last_updated' => null,
+            'vacation_earned' => $balance->vacation_earned,
+            'sick_earned' => $balance->sick_earned,
+            'vacation_balance' => $balance->vacation_balance,
+            'sick_balance' => $balance->sick_balance,
+            'service_credits' => $balance->service_credits,
+            'used_leave' => $balance->used_leave,
+            'last_updated' => $balance->last_updated,
         ]);
     }
 
-    return response()->json([
-        'vacation_balance' => $balance->vacation_balance,
-        'sick_balance' => $balance->sick_balance,
-        'used_leave' => $balance->used_leave,
+    public function destroy($employee_id)
+    {
+        $employee = EmployeeRecord::find($employee_id);
 
-        'last_updated' => $balance->last_updated,
-    ]);
-}
+        if (!$employee) {
+            return response()->json([
+                'message' => 'Employee record not found.',
+            ], 404);
+        }
 
-public function destroy($employee_id)
-{
-    $employee = EmployeeRecord::find($employee_id);
+        $balance = LeaveBalance::where('employee_id', $employee_id)
+            ->first();
 
-    if (!$employee) {
+        if (!$balance) {
+            $balance = new LeaveBalance();
+            $balance->employee_id = $employee->employee_id;
+            $balance->vacation_earned = 0;
+            $balance->sick_earned = 0;
+            $balance->service_credits = 0;
+            $balance->used_leave = 0;
+        }
+
+        // Preserve your current clear behavior:
+        // clear Vacation/Sick balances only.
+        $balance->vacation_balance = 0;
+        $balance->sick_balance = 0;
+        $balance->last_updated = now();
+        $balance->save();
+
+        AuditLogger::log(
+            'Leave balance cleared',
+            "Cleared vacation and sick balances for employee #{$employee_id}"
+        );
+
         return response()->json([
-            'message' => 'Employee record not found.'
-        ], 404);
+            'message' => 'Leave balance cleared successfully.',
+            'data' => $balance,
+        ], 200);
     }
-
-    $balance = LeaveBalance::where('employee_id', $employee_id)->first();
-
-    if (!$balance) {
-        $balance = new LeaveBalance();
-        $balance->employee_id = $employee->employee_id;
-        $balance->used_leave = 0;
-    }
-
- 
-    $balance->vacation_balance = 0;
-    $balance->sick_balance = 0;
-    $balance->last_updated = now();
-    $balance->save();
-
-    AuditLogger::log(
-        'Leave balance cleared',
-        "Cleared leave balance for employee #{$employee_id}"
-    );
-
-    return response()->json([
-        'message' => 'Leave balance cleared successfully.',
-        'data' => $balance
-    ], 200);
-}
 }
