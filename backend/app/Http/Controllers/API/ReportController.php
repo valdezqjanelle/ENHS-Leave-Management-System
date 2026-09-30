@@ -34,8 +34,17 @@ class ReportController extends Controller
     public function leaveSummary(Request $request)
     {
         $dates = $this->reportDates($request);
+
+        // Default: only currently-active employees count toward the summary.
+        // ?include_inactive=1 brings resigned/inactive employees back in.
+        $includeInactive = $request->boolean('include_inactive');
+
         $leaves = LeaveApplication::with([
-            'employee.department',
+            // withTrashed() here is the key fix: without it, a leave application
+            // whose employee was later soft-deleted loses its department entirely
+            // and used to fall into "Unknown". This recovers the real department
+            // for historical records instead of silently losing the join.
+            'employee' => fn ($q) => $q->withTrashed()->with('department'),
             'leaveType'
         ])
             ->whereNotNull('leave_type_id')
@@ -46,19 +55,33 @@ class ReportController extends Controller
                     });
             }))
             ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('start_date', '<=', $date))
-            ->get();
+            ->get()
+            ->filter(function ($leave) use ($includeInactive) {
+                // A leave whose employee record can't be found at all (even with
+                // withTrashed) is a genuine data-integrity gap, not an "inactive"
+                // employee — always surface it rather than hiding it behind the toggle.
+                if (!$leave->employee) {
+                    return true;
+                }
+
+                return $includeInactive || $leave->employee->employment_status === 'active';
+            })
+            ->values();
 
         $summary = [];
 
         foreach ($leaves as $leave) {
 
-            $department = $leave->employee?->department?->department_name ?? 'Unknown';
+            // "Unassigned" (a genuinely missing employee link) is now distinct
+            // from a normal department name, instead of both saying "Unknown".
+            $department = $leave->employee?->department?->department_name ?? 'Unassigned';
 
             if (!isset($summary[$department])) {
 
                 $summary[$department] = [
                     'department' => $department,
                     'total' => 0,
+                    'total_days' => 0,
                     'approved' => 0,
                     'pending' => 0,
                     'disapproved' => 0,
@@ -67,6 +90,7 @@ class ReportController extends Controller
             }
 
             $summary[$department]['total']++;
+            $summary[$department]['total_days'] += (int) $leave->number_of_days;
 
             switch ($leave->final_status) {
 
@@ -83,7 +107,7 @@ class ReportController extends Controller
                     break;
             }
 
-            $type = $leave->leaveType->leave_type_name ?? 'Unknown';
+            $type = $leave->leaveType->leave_type_name ?? 'Unspecified';
 
             if (!isset($summary[$department]['leave_types'][$type])) {
                 $summary[$department]['leave_types'][$type] = 0;
@@ -95,6 +119,7 @@ class ReportController extends Controller
         $totals = [
             'departments' => count($summary),
             'applications' => $leaves->count(),
+            'total_days' => (int) $leaves->sum('number_of_days'),
             'approved' => $leaves->where('final_status', 'approved')->count(),
             'pending' => $leaves->where('final_status', 'pending')->count(),
             'disapproved' => $leaves->where('final_status', 'disapproved')->count(),
@@ -103,6 +128,9 @@ class ReportController extends Controller
         return response()->json([
             'summary' => array_values($summary),
             'totals' => $totals,
+            'filters' => [
+                'include_inactive' => $includeInactive,
+            ],
         ]);
     }
 

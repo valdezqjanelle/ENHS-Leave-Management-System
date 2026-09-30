@@ -3,6 +3,7 @@ import api from './api'
 export const getLeaveSummary = (params?: {
   start_date?: string
   end_date?: string
+  include_inactive?: boolean
 }) => {
   return api.get('/reports/leave-summary', {
     params

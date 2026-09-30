@@ -30,6 +30,7 @@ class EmployeeRecord extends Model
         'personal_email',
         'emergency_contact_name',
         'emergency_contact_number',
+        'emergency_contact_relationship',
         'personnel_type',
         'employment_status',
         'employment_category',

@@ -32,6 +32,7 @@ class EmployeeController extends Controller
             'personal_email' => 'nullable|email|max:255',
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_number' => 'nullable|string|max:50',
+            'emergency_contact_relationship' => 'nullable|string|max:50',
             'personnel_type' => 'required|in:Teaching,Non-Teaching,School Head',
             'employment_status' => 'required|in:active,inactive',
             'employment_category' => 'nullable|in:Permanent,Probationary,Contractual,Casual,Temporary,Contract of Service,Job Order',
@@ -93,6 +94,7 @@ class EmployeeController extends Controller
             'personal_email' => $request->personal_email,
             'emergency_contact_name' => $request->emergency_contact_name,
             'emergency_contact_number' => $request->emergency_contact_number,
+            'emergency_contact_relationship' => $request->emergency_contact_relationship,
             'personnel_type' => $request->personnel_type,
             'employment_status' => $request->employment_status,
             'employment_category' => $request->employment_category,
@@ -206,6 +208,7 @@ $request->validate([
     'personal_email' => 'nullable|email|max:255',
     'emergency_contact_name' => 'nullable|string|max:255',
     'emergency_contact_number' => 'nullable|string|max:50',
+    'emergency_contact_relationship' => 'nullable|string|max:50',
     'personnel_type' => 'required|in:Teaching,Non-Teaching,School Head',
     'employment_status' => 'required|in:active,inactive',
     'employment_category' => 'nullable|in:Permanent,Probationary,Contractual,Casual,Temporary,Contract of Service,Job Order',
@@ -256,6 +259,7 @@ $employee->update([
     'personal_email' => $request->personal_email,
     'emergency_contact_name' => $request->emergency_contact_name,
     'emergency_contact_number' => $request->emergency_contact_number,
+    'emergency_contact_relationship' => $request->emergency_contact_relationship,
     'personnel_type' => $request->personnel_type,
     'employment_status' => $request->employment_status,
     'employment_category' => $request->employment_category,
@@ -330,6 +334,7 @@ return response()->json([
             'personal_email' => $employee->personal_email,
             'emergency_contact_name' => $employee->emergency_contact_name,
             'emergency_contact_number' => $employee->emergency_contact_number,
+            'emergency_contact_relationship' => $employee->emergency_contact_relationship,
             'personnel_type' => $employee->personnel_type,
             'employment_status' => $employee->employment_status,
             'employment_category' => $employee->employment_category,
@@ -373,6 +378,7 @@ return response()->json([
             'personal_email' => 'nullable|email|max:255',
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_number' => 'nullable|string|max:50',
+            'emergency_contact_relationship' => 'nullable|string|max:255',
         ]);
 
         $employee->update([
@@ -389,6 +395,7 @@ return response()->json([
             'personal_email' => $request->personal_email,
             'emergency_contact_name' => $request->emergency_contact_name,
             'emergency_contact_number' => $request->emergency_contact_number,
+            'emergency_contact_relationship' => $request->emergency_contact_relationship
         ]);
 
         AuditLogger::log(

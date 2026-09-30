@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-shell min-h-screen p-4 sm:p-6 lg:p-8">
     <div class="w-full space-y-6">
-
+<!-- hi -->
       <!-- ========================================================= -->
       <!-- HEADER -->
       <!-- ========================================================= -->
@@ -240,6 +240,31 @@
 
             <div class="mb-6">
 
+              <!-- Filters + Totals -->
+              <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                <label class="flex items-center gap-2 text-sm text-gray-300">
+                  <input
+                    type="checkbox"
+                    v-model="includeInactive"
+                    class="h-4 w-4 rounded border-gray-500"
+                  />
+                  Include inactive/resigned employees
+                </label>
+
+                <div class="flex gap-5 text-sm text-gray-400">
+                  <span>
+                    Total Requests:
+                    <span class="font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</span>
+                  </span>
+                  <span>
+                    Total Leave Days:
+                    <span class="font-semibold text-white">{{ leaveTotals.total_days ?? 0 }}</span>
+                  </span>
+                </div>
+
+              </div>
+
               <!-- Department Summary -->
               <div class="department-section">
 
@@ -271,7 +296,7 @@
                       </p>
 
                       <p class="mt-1 text-xs text-gray-500">
-                        Leave Requests
+                        Leave Requests &middot; {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }}
                       </p>
                     </div>
 
@@ -303,7 +328,7 @@
             <!-- STATUS + LEAVE TYPE -->
             <!-- ===================================================== -->
 
-            <div class="grid grid-cols-1 gap-5 xl:grid-cols-20">
+            <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
 
               <!-- =================================================== -->
               <!-- STATUS -->
@@ -421,7 +446,7 @@
               <!-- =================================================== -->
               <!-- LEAVE BY TYPE -->
               <!-- =================================================== -->
-               <!--            
+
               <div class="summary-panel rounded-xl p-5 sm:p-6">
 
                 <div class="mb-5">
@@ -473,10 +498,8 @@
                     No leave type data available.
                   </p>
                 </div>
-                
 
               </div>
-              -->
 
             </div>
 
