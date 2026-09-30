@@ -296,7 +296,8 @@
                       </p>
 
                       <p class="mt-1 text-xs text-gray-500">
-                        Leave Requests &middot; {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }}
+                        Leave Requests &middot; 
+                        <!-- {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }} -->
                       </p>
                     </div>
 
