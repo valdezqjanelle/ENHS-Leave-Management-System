@@ -66,7 +66,9 @@
             step="0.25"
             class="form-control"
           />
-          <p v-if="conversionError" class="validation-message mt-1">{{ conversionError }}</p>
+          <p v-if="conversionError" class="validation-message mt-1">
+            {{ conversionError }}
+          </p>
         </div>
 
         <div class="min-w-0">
@@ -93,9 +95,7 @@
     <div class="neo-card p-6">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h3 class="text-lg font-semibold text-white">
-            Leave Credit Records
-          </h3>
+          <h3 class="text-lg font-semibold text-white">Leave Credit Records</h3>
 
           <p class="text-gray-400 text-sm mt-1">
             View and apply recorded leave credits.
@@ -117,7 +117,11 @@
             @click="toggleSort"
             type="button"
             class="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
-            :title="arranged ? 'Unsort records' : 'Sort records alphabetically (A to Z)'"
+            :title="
+              arranged
+                ? 'Unsort records'
+                : 'Sort records alphabetically (A to Z)'
+            "
           >
             Sort
           </button>
@@ -131,85 +135,198 @@
         </div>
       </div>
 
+      <p class="text-gray-400 text-sm mb-4">
+        Accumulated earned credits from recorded activities. Remaining credits
+        after leave deductions are shown in Leave Balances.
+      </p>
       <div class="table-wrapper">
         <table class="credit-table">
           <thead>
             <tr>
               <th>Employee</th>
-              <th>Credit Type</th>
-              <th>Activity</th>
-              <th>Time Rendered</th>
-              <th>Equivalent Days</th>
-              <th>Date Recorded</th>
+              <th>Records</th>
+              <th>Total Hours Rendered</th>
+              <th>Accumulated Credits</th>
+              <th>Latest Record</th>
               <th class="action-column">Action</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr v-for="credit in filteredCredits" :key="credit.credits_id">
+            <tr v-for="group in filteredCreditGroups" :key="group.employee_id">
               <td class="employee-cell">
-                <span class="employee-name">
-                  {{ credit.employee?.last_name }}, {{ credit.employee?.first_name }}
-                </span>
+                <span class="employee-name">{{ group.employee_name }}</span>
               </td>
-
+              <td>{{ group.records.length }}</td>
+              <td>{{ (group.hourUnits / 10000).toFixed(4) }}</td>
               <td>
-                <span
-                  :class="{
-                    'credit-service': credit.credit_type === 'Service',
-                    'credit-vacation': credit.credit_type === 'Vacation',
-                    'credit-sick': credit.credit_type === 'Sick',
-                    'credit-other': !['Service', 'Vacation', 'Sick'].includes(credit.credit_type),
-                  }"
+                <div
+                  v-for="bucket in group.buckets"
+                  :key="bucket.type"
+                  class="credit-total-line"
                 >
-                  {{
-                    credit.credit_type === "Vacation"
-                      ? "Vacation Leave"
-                      : credit.credit_type === "Sick"
-                        ? "Sick Leave"
-                        : credit.credit_type === "Service"
-                          ? "Local Credits"
-                          : credit.credit_type
-                  }}
-                </span>
-              </td>
-
-              <td class="table-primary">
-                {{ credit.activity_name || "—" }}
-              </td>
-
-              <td>
-                {{ Number(credit.hours_rendered || 0).toFixed(4) }}
-              </td>
-
-              <td>
-                {{ Number(credit.equivalent_leave_days || 0).toFixed(3) }}
-              </td>
-
-              <td>
-                {{ formatDate(credit.date_recorded) }}
-              </td>
-
-              <td class="action-cell">
-                <div class="action-buttons">
-                  <button
-                    @click="revokeCredit(credit)"
-                    type="button"
-                    class="remove-button"
+                  <span
+                    :class="
+                      bucket.type === 'Service'
+                        ? 'credit-service'
+                        : bucket.type === 'Vacation'
+                          ? 'credit-vacation'
+                          : bucket.type === 'Sick'
+                            ? 'credit-sick'
+                            : 'credit-other'
+                    "
+                    >{{ (bucket.dayUnits / 1000).toFixed(3) }} days</span
                   >
-                    Revoke Credits
-                  </button>
+                  <span class="text-gray-400 text-sm">
+                    {{
+                      bucket.type === "Service"
+                        ? " Local Credits"
+                        : bucket.type === "Vacation"
+                          ? " Vacation Leave"
+                          : bucket.type === "Sick"
+                            ? "Sick Leave"
+                            : bucket.type
+                    }}</span
+                  >
                 </div>
               </td>
+              <td>{{ formatDate(group.latestDate) }}</td>
+              <td class="action-cell">
+                <button
+                  @click="selectedEmployeeId = group.employee_id"
+                  type="button"
+                  class="apply-button"
+                >
+                  View Details
+                </button>
+              </td>
             </tr>
-
-            <tr v-if="filteredCredits.length === 0">
-              <td colspan="7" class="empty-state">
+            <tr v-if="filteredCreditGroups.length === 0">
+              <td colspan="6" class="empty-state">
                 No leave credit records found.
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+    <div
+      v-if="selectedEmployeeId !== null"
+      class="modal-overlay"
+      @click.self="selectedEmployeeId = null"
+      @keydown.esc="selectedEmployeeId = null"
+    >
+      <div
+        class="neo-card modal-card credit-history-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="credit-history-title"
+        tabindex="-1"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <h3
+              id="credit-history-title"
+              class="text-lg font-semibold text-white"
+            >
+              Credit Activity History
+            </h3>
+            <p class="text-gray-400">{{ selectedEmployeeName }}</p>
+          </div>
+          <button
+            type="button"
+            class="cancel-button"
+            @click="selectedEmployeeId = null"
+          >
+            Close
+          </button>
+        </div>
+        <p class="text-gray-400 text-sm mb-4">
+          Each activity remains a separate record. Revoking an activity updates
+          the accumulated summary.
+        </p>
+        <div class="table-wrapper">
+          <table class="credit-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Credit Type</th>
+                <th>Activity</th>
+                <th>Time Rendered</th>
+                <th>Equivalent Days</th>
+                <th>Date Recorded</th>
+                <th class="action-column">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="credit in detailCredits" :key="credit.credits_id">
+                <td class="employee-cell">
+                  <span class="employee-name">
+                    {{ credit.employee?.last_name }},
+                    {{ credit.employee?.first_name }}
+                  </span>
+                </td>
+
+                <td>
+                  <span
+                    :class="{
+                      'credit-service': credit.credit_type === 'Service',
+                      'credit-vacation': credit.credit_type === 'Vacation',
+                      'credit-sick': credit.credit_type === 'Sick',
+                      'credit-other': !['Service', 'Vacation', 'Sick'].includes(
+                        credit.credit_type,
+                      ),
+                    }"
+                  >
+                    {{
+                      credit.credit_type === "Vacation"
+                        ? "Vacation Leave"
+                        : credit.credit_type === "Sick"
+                          ? "Sick Leave"
+                          : credit.credit_type === "Service"
+                            ? "Local Credits"
+                            : credit.credit_type
+                    }}
+                  </span>
+                </td>
+
+                <td class="table-primary">
+                  {{ credit.activity_name || "—" }}
+                </td>
+
+                <td>
+                  {{ Number(credit.hours_rendered || 0).toFixed(4) }}
+                </td>
+
+                <td>
+                  {{ Number(credit.equivalent_leave_days || 0).toFixed(3) }}
+                </td>
+
+                <td>
+                  {{ formatDate(credit.date_recorded) }}
+                </td>
+
+                <td class="action-cell">
+                  <div class="action-buttons">
+                    <button
+                      @click="revokeCredit(credit)"
+                      type="button"
+                      class="remove-button"
+                    >
+                      Revoke Credits
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr v-if="detailCredits.length === 0">
+                <td colspan="7" class="empty-state">
+                  No leave credit records found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -282,21 +399,19 @@ const syncBalanceWithCredit = async (
   employee_id: number,
   credit_type: string,
   equivalent_leave_days: number,
-  direction: 1 | -1
+  direction: 1 | -1,
 ) => {
   const days = Number(equivalent_leave_days || 0);
   if (!employee_id || !days) return;
 
   // 1. Fetch the current balance for this employee.
-  const { data } = await axios.get(
-    `${API_BASE}/leave-balances`,
-    { headers: authHeaders() }
-  );
+  const { data } = await axios.get(`${API_BASE}/leave-balances`, {
+    headers: authHeaders(),
+  });
 
   const list = Array.isArray(data) ? data : [];
-  const current = list.find(
-    (b: any) => Number(b.employee_id) === Number(employee_id)
-  ) || {};
+  const current =
+    list.find((b: any) => Number(b.employee_id) === Number(employee_id)) || {};
 
   // 2. Start from current values (default to 0).
   const payload = {
@@ -329,17 +444,17 @@ const syncBalanceWithCredit = async (
   });
 
   // 5. Persist the updated balance.
-  await axios.put(
-    `${API_BASE}/leave-balances/${employee_id}`,
-    payload,
-    { headers: authHeaders() }
-  );
+  await axios.put(`${API_BASE}/leave-balances/${employee_id}`, payload, {
+    headers: authHeaders(),
+  });
 };
 
 // Conversion only: existing balance/apply/revoke functions are unchanged.
 const renderedTime = ref<string | number>("");
 const conversionError = ref("");
-const conversionRows = ref<{ unit: string; quantity: number; equivalent_days: string | number }[]>([]);
+const conversionRows = ref<
+  { unit: string; quantity: number; equivalent_days: string | number }[]
+>([]);
 
 const loadConversionReference = async () => {
   conversionRows.value = [];
@@ -347,19 +462,34 @@ const loadConversionReference = async () => {
   try {
     const { data } = await axios.get(
       `${API_BASE}/leave-credits/conversion-reference`,
-      { headers: authHeaders() }
+      { headers: authHeaders() },
     );
     if (!Array.isArray(data) || data.length === 0) {
-      conversionError.value = "Conversion reference is empty. Run WorkTimeConversionSeeder on the deployed backend.";
+      conversionError.value =
+        "Conversion reference is empty. Run WorkTimeConversionSeeder on the deployed backend.";
       return;
     }
-    const hourRow = data.find(row => row.unit === "hour" && Number(row.quantity) === 1);
-    const hasMinutes = Array.from({ length: 60 }, (_, index) => index + 1)
-      .every(minute => data.some(row => row.unit === "minute"
-        && Number(row.quantity) === minute
-        && Number.isFinite(Number(row.equivalent_days))));
-    if (!hourRow || !Number.isFinite(Number(hourRow.equivalent_days)) || !hasMinutes) {
-      conversionError.value = "Conversion reference is incomplete. Run WorkTimeConversionSeeder on the deployed backend.";
+    const hourRow = data.find(
+      (row) => row.unit === "hour" && Number(row.quantity) === 1,
+    );
+    const hasMinutes = Array.from(
+      { length: 60 },
+      (_, index) => index + 1,
+    ).every((minute) =>
+      data.some(
+        (row) =>
+          row.unit === "minute" &&
+          Number(row.quantity) === minute &&
+          Number.isFinite(Number(row.equivalent_days)),
+      ),
+    );
+    if (
+      !hourRow ||
+      !Number.isFinite(Number(hourRow.equivalent_days)) ||
+      !hasMinutes
+    ) {
+      conversionError.value =
+        "Conversion reference is incomplete. Run WorkTimeConversionSeeder on the deployed backend.";
       return;
     }
     conversionRows.value = data;
@@ -370,9 +500,10 @@ const loadConversionReference = async () => {
         response: error.response?.data,
       });
       const message = error.response?.data?.message;
-      conversionError.value = typeof message === "string"
-        ? message
-        : `Unable to load conversion reference (HTTP ${error.response?.status ?? "network error"}). Check backend logs.`;
+      conversionError.value =
+        typeof message === "string"
+          ? message
+          : `Unable to load conversion reference (HTTP ${error.response?.status ?? "network error"}). Check backend logs.`;
     } else {
       console.error("Conversion reference failed:", error);
       conversionError.value = "Unable to read conversion reference.";
@@ -391,33 +522,94 @@ watch([renderedTime, conversionRows], () => {
   if (totalMinutes < 1) return;
   const wholeHours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  const hourRow = conversionRows.value.find(row => row.unit === "hour" && Number(row.quantity) === 1);
-  const minuteRow = conversionRows.value.find(row => row.unit === "minute" && Number(row.quantity) === minutes);
+  const hourRow = conversionRows.value.find(
+    (row) => row.unit === "hour" && Number(row.quantity) === 1,
+  );
+  const minuteRow = conversionRows.value.find(
+    (row) => row.unit === "minute" && Number(row.quantity) === minutes,
+  );
   if (!hourRow || (minutes !== 0 && !minuteRow)) return;
   form.value.hours_rendered = (totalMinutes / 60).toFixed(4);
-  form.value.equivalent_leave_days = (wholeHours * Number(hourRow.equivalent_days)
-    + (minutes ? Number(minuteRow!.equivalent_days) : 0)).toFixed(3);
+  form.value.equivalent_leave_days = (
+    wholeHours * Number(hourRow.equivalent_days) +
+    (minutes ? Number(minuteRow!.equivalent_days) : 0)
+  ).toFixed(3);
 });
 
-const filteredCredits = computed(() => {
-  const search = searchQuery.value.trim().toLowerCase();
+interface CreditGroup {
+  employee_id: number;
+  employee_name: string;
+  records: LeaveCredit[];
+  hourUnits: number;
+  buckets: { type: string; dayUnits: number }[];
+  latestDate: string;
+}
 
-  let result = credits.value.filter((credit) => {
-    const employeeName = `${credit.employee?.last_name || ""} ${credit.employee?.first_name || ""}`.toLowerCase();
-    const activityName = credit.activity_name?.toLowerCase() || "";
-    return employeeName.includes(search) || activityName.includes(search);
-  });
-
-  if (arranged.value) {
-    return [...result].sort((a, b) => {
-      const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`.trim().toLowerCase();
-      const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`.trim().toLowerCase();
-      return aName.localeCompare(bName);
-    });
+const selectedEmployeeId = ref<number | null>(null);
+const creditGroups = computed<CreditGroup[]>(() => {
+  const groups = new Map<number, CreditGroup>();
+  for (const credit of credits.value) {
+    const employeeId = Number(credit.employee_id);
+    let group = groups.get(employeeId);
+    if (!group) {
+      const employee =
+        credit.employee ||
+        employees.value.find((e) => Number(e.employee_id) === employeeId);
+      const name = employee
+        ? `${employee.last_name}, ${employee.first_name}`
+        : `Employee #${employeeId}`;
+      group = {
+        employee_id: employeeId,
+        employee_name: name,
+        records: [],
+        hourUnits: 0,
+        buckets: [],
+        latestDate: "",
+      };
+      groups.set(employeeId, group);
+    }
+    group.records.push(credit);
+    const hours = Number(credit.hours_rendered || 0);
+    const days = Number(credit.equivalent_leave_days || 0);
+    if (Number.isFinite(hours)) group.hourUnits += Math.round(hours * 10000);
+    // Sum recorded three-decimal equivalents rather than recomputing from total hours.
+    let bucket = group.buckets.find((b) => b.type === credit.credit_type);
+    if (!bucket) {
+      bucket = { type: credit.credit_type, dayUnits: 0 };
+      group.buckets.push(bucket);
+    }
+    if (Number.isFinite(days)) bucket.dayUnits += Math.round(days * 1000);
+    if (credit.date_recorded && credit.date_recorded > group.latestDate)
+      group.latestDate = credit.date_recorded;
   }
-
-  return result;
+  return [...groups.values()];
 });
+
+const filteredCreditGroups = computed(() => {
+  const search = searchQuery.value.trim().toLowerCase();
+  const groups = creditGroups.value.filter(
+    (group) =>
+      group.employee_name.toLowerCase().includes(search) ||
+      group.records.some((record) =>
+        (record.activity_name || "").toLowerCase().includes(search),
+      ),
+  );
+  // Search finds employees; totals always include their complete recorded history.
+  return arranged.value
+    ? [...groups].sort((a, b) => a.employee_name.localeCompare(b.employee_name))
+    : groups;
+});
+const detailCredits = computed(() =>
+  credits.value.filter(
+    (credit) => Number(credit.employee_id) === selectedEmployeeId.value,
+  ),
+);
+const selectedEmployeeName = computed(
+  () =>
+    creditGroups.value.find(
+      (group) => group.employee_id === selectedEmployeeId.value,
+    )?.employee_name || `Employee #${selectedEmployeeId.value}`,
+);
 
 const toggleSort = () => {
   arranged.value = !arranged.value;
@@ -456,15 +648,15 @@ const applyCredit = async () => {
         Number(form.value.employee_id),
         form.value.credit_type,
         Number(form.value.equivalent_leave_days || 0),
-        1
+        1,
       );
     } catch (balanceError: any) {
       console.error(
         "Credit saved but balance sync failed:",
-        balanceError.response?.data || balanceError
+        balanceError.response?.data || balanceError,
       );
       alert(
-        "Credit was saved, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page."
+        "Credit was saved, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
       );
     }
 
@@ -487,9 +679,8 @@ const applyCredit = async () => {
     alert(
       error.response?.data?.message ??
         JSON.stringify(
-          error.response?.data?.errors ??
-            "Unable to apply leave credit."
-        )
+          error.response?.data?.errors ?? "Unable to apply leave credit.",
+        ),
     );
   }
 };
@@ -509,15 +700,15 @@ const revokeCredit = async (credit: LeaveCredit) => {
         Number(credit.employee_id),
         credit.credit_type,
         Number(credit.equivalent_leave_days || 0),
-        -1
+        -1,
       );
     } catch (balanceError: any) {
       console.error(
         "Credit revoked but balance sync failed:",
-        balanceError.response?.data || balanceError
+        balanceError.response?.data || balanceError,
       );
       alert(
-        "Credit was revoked, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page."
+        "Credit was revoked, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
       );
     }
 
@@ -548,6 +739,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.modal-card.credit-history-modal {
+  max-width: 72rem;
+}
+.credit-total-line + .credit-total-line {
+  margin-top: 0.3rem;
+}
 /* ============================================================
    DASHBOARD BACKGROUND
    Matches the main Dashboard.vue theme
@@ -573,8 +770,7 @@ onMounted(() => {
 
   border-radius: 1rem;
 
-  box-shadow:
-    0 6px 18px rgba(23, 32, 51, 0.06);
+  box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
 
   transition:
     box-shadow 0.2s ease,
@@ -584,8 +780,7 @@ onMounted(() => {
 }
 
 .neo-card:hover {
-  box-shadow:
-    0 10px 24px rgba(23, 32, 51, 0.09);
+  box-shadow: 0 10px 24px rgba(23, 32, 51, 0.09);
 }
 
 /* ============================================================
@@ -645,8 +840,7 @@ onMounted(() => {
 
   background: #ffffff;
 
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .form-control option {
@@ -1046,8 +1240,7 @@ onMounted(() => {
 
   border-radius: 1rem;
 
-  box-shadow:
-    0 20px 40px rgba(23, 32, 51, 0.18);
+  box-shadow: 0 20px 40px rgba(23, 32, 51, 0.18);
 }
 
 .modal-card .text-white {
@@ -1089,8 +1282,7 @@ onMounted(() => {
 
   background: #ffffff;
 
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .modal-form-control option {
