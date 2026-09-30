@@ -1,5 +1,6 @@
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
+    <ActiveSchoolYear />
 
     <!-- ========================================================= -->
     <!-- LOADING STATE -->
@@ -1138,6 +1139,7 @@
 </template>
 
 <script setup lang="ts">
+import ActiveSchoolYear from "@/components/ActiveSchoolYear.vue";
 
 import {
   ref,

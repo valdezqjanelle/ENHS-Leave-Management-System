@@ -24,7 +24,16 @@ class LeaveBalance extends Model
         'last_updated'
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $casts = [
+        'vacation_earned' => 'decimal:3',
+        'sick_earned' => 'decimal:3',
+        'vacation_balance' => 'decimal:3',
+        'sick_balance' => 'decimal:3',
+        'service_credits' => 'decimal:3',
+        'used_leave' => 'decimal:3',
+        'last_updated' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
     public function employee()
     {

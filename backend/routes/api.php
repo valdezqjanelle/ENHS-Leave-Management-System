@@ -9,6 +9,7 @@ use App\Http\Controllers\API\LeaveController;
 use App\Http\Controllers\API\LeaveTypeController;
 use App\Http\Controllers\API\LeaveCreditController;
 use App\Http\Controllers\API\LeaveBalanceController;
+use App\Http\Controllers\API\LeaveSchoolYearController;
 use App\Http\Controllers\API\AttendanceController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\DashboardController;
@@ -30,6 +31,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/leave-school-year/current', [LeaveSchoolYearController::class, 'current']);
 
 // AUTHENTICATION
 
@@ -125,6 +127,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADMIN ONLY
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/leave-school-years', [LeaveSchoolYearController::class, 'index']);
+        Route::post('/leave-school-years/preview', [LeaveSchoolYearController::class, 'preview']);
+        Route::post('/leave-school-years/activate', [LeaveSchoolYearController::class, 'activate']);
+        Route::get('/leave-school-years/{id}/history', [LeaveSchoolYearController::class, 'history']);
 
         // Dashboard
 

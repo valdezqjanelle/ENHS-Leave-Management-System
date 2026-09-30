@@ -1029,6 +1029,7 @@ $text(
         ]);
 
         return DB::transaction(function () use ($request, $id) {
+        DB::table('leave_year_control')->where('id', 1)->lockForUpdate()->first();
         $candidate = LeaveApplication::findOrFail($id);
         EmployeeRecord::whereKey($candidate->employee_id)->lockForUpdate()->firstOrFail();
         $leave = LeaveApplication::whereKey($id)->lockForUpdate()->firstOrFail();
@@ -1045,6 +1046,14 @@ $text(
         }
 
         $previousStatus = strtolower($leave->final_status);
+        $activeYear = DB::table('leave_school_years')->orderByDesc('start_date')->first();
+        if ($activeYear && $request->boolean('deduct_balance')
+            && strtolower((string) $request->input('final_status')) === 'approved'
+            && substr((string) $leave->start_date, 0, 10) < $activeYear->start_date) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'deduct_balance' => 'This application belongs to a previous school year. Review its archived balance; it cannot deduct from the new school-year balance.',
+            ]);
+        }
 
   
 

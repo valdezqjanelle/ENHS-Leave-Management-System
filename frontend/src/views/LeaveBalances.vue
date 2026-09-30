@@ -32,6 +32,8 @@
         </div>
       </div>
 
+      <SchoolYearManager @processed="loadBalances" />
+
       <!-- TABLE -->
       <div class="neo-card table-card w-full overflow-hidden">
         <div class="table-wrapper w-full overflow-x-auto">
@@ -184,6 +186,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
+import SchoolYearManager from "@/components/SchoolYearManager.vue";
 import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
 
 interface Employee {
