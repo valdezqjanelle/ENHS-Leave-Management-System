@@ -626,7 +626,7 @@
             </span>
 
             <span class="font-medium text-gray-800 text-right">
-              {{ (vacationDeductDays + sickDeductDays + serviceCreditsDeductDays).toFixed(1) }}
+              {{ (vacationDeductDays + sickDeductDays + serviceCreditsDeductDays).toFixed(3) }}
               day(s)
             </span>
           </div>
@@ -1419,8 +1419,8 @@ const formatBalance = (
   const numberValue = Number(value);
 
   return Number.isFinite(numberValue)
-    ? numberValue.toFixed(2)
-    : "0.00";
+    ? numberValue.toFixed(3)
+    : "0.000";
 };
 
 /* =========================================================
