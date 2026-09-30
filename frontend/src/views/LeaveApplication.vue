@@ -371,7 +371,7 @@
 
             <div class="credit-item">
               <span class="text-slate-400">
-                Service Credits:
+                Local Credits:
               </span>
 
               <span class="font-semibold text-blue-300">

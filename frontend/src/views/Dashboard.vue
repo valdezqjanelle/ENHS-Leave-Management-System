@@ -771,7 +771,7 @@
           class="neo-card stats-card border-blue-500 p-3 md:p-5 aspect-square md:aspect-auto flex flex-col items-center justify-center text-center md:items-start md:text-left"
         >
           <h4 class="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
-            Service Credits
+            Local Credits
           </h4>
 
           <p class="text-xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1 md:mt-2">
