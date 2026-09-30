@@ -836,8 +836,8 @@
 
       </div>
 
-      <!-- My Applications / Upcoming -->
-      <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Recent Leave Applications -->
+      <div class="grid grid-cols-1 gap-6">
 
         <!-- Recent Leave Applications -->
         <div class="neo-card">
@@ -910,59 +910,6 @@
             </table>
 
           </div>
-
-        </div>
-
-        <!-- Upcoming Leaves -->
-        <div class="neo-card p-6">
-
-          <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-            Upcoming Leaves
-          </h3>
-
-          <div
-            v-if="upcomingLeaves.length"
-            class="space-y-3"
-          >
-
-            <div
-              v-for="leave in upcomingLeaves"
-              :key="leave.id"
-              class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500"
-            >
-
-              <p class="font-medium text-gray-800">
-                {{ getLeaveType(leave) }}
-              </p>
-
-              <p class="text-sm text-gray-600 mt-1">
-
-                {{ formatDateShort(leave.start_date) }}
-
-                <span
-                  v-if="leave.start_date && leave.end_date"
-                >
-                  -
-                </span>
-
-                {{ formatDateShort(leave.end_date) }}
-
-              </p>
-
-              <p class="text-xs text-gray-500 mt-1">
-                {{ getDays(leave) ?? 0 }} days
-              </p>
-
-            </div>
-
-          </div>
-
-          <p
-            v-else
-            class="text-gray-500 dark:text-gray-400"
-          >
-            No upcoming approved leaves.
-          </p>
 
         </div>
 
@@ -1284,7 +1231,6 @@ const leaveBalance = ref({
 });
 
 const myApplications = ref<any[]>([]);
-const upcomingLeaves = ref<any[]>([]);
 
 const employeeStatusChart = ref({
   approved: 0,
@@ -2448,53 +2394,6 @@ const loadEmployeeDashboard =
       disapproved:
         totalDisapprovedLeaves.value,
     };
-
-    // ========================================================
-    // UPCOMING LEAVES
-    // ========================================================
-
-    const today =
-      new Date();
-
-    today.setHours(
-      0,
-      0,
-      0,
-      0
-    );
-
-    upcomingLeaves.value =
-      applications
-        .filter((app) => {
-
-          const status =
-            normalizeStatus(
-              getAppStatus(app)
-            );
-
-          const start =
-            app.start_date
-              ? new Date(
-                  app.start_date
-                )
-              : null;
-
-          return (
-            status === "approved" &&
-            start &&
-            start.getTime() >=
-              today.getTime()
-          );
-        })
-        .sort(
-          (a, b) =>
-            new Date(
-              a.start_date
-            ).getTime() -
-            new Date(
-              b.start_date
-            ).getTime()
-        );
 
     // ========================================================
     // LEAVE APPLICATIONS BY TYPE
