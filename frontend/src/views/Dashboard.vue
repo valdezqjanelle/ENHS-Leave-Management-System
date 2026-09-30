@@ -779,7 +779,7 @@
           </p>
 
           <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
-            Remaining
+            Remaining days
           </span>
         </div>
 
@@ -796,7 +796,7 @@
           </p>
 
           <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
-            Remaining
+            Remaining days
           </span>
         </div>
 
@@ -813,7 +813,7 @@
           </p>
 
           <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
-            Remaining
+            Remaining days
           </span>
         </div>
 
@@ -830,7 +830,7 @@
           </p>
 
           <span class="text-[10px] md:text-xs text-gray-500 dark:text-gray-500 mt-1">
-            Total Used
+            Total days used
           </span>
         </div>
 
@@ -1316,30 +1316,9 @@ const isEmployee = computed(
 // BALANCE FORMATTER
 // ============================================================
 
-const formatBalance = (
-  value: unknown
-): string => {
-
+const formatBalance = (value: unknown): string => {
   const numberValue = Number(value);
-
-  if (
-    !Number.isFinite(numberValue)
-  ) {
-    return "0";
-  }
-
-  // Keep whole numbers clean.
-  if (
-    Number.isInteger(numberValue)
-  ) {
-    return String(numberValue);
-  }
-
-  // Leave balances can contain decimal values.
-  return numberValue
-    .toFixed(2)
-    .replace(/\.00$/, "")
-    .replace(/(\.\d)0$/, "$1");
+  return Number.isFinite(numberValue) ? numberValue.toFixed(3) : "0.000";
 };
 
 // ============================================================
