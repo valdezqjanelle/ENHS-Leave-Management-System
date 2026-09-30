@@ -137,24 +137,53 @@
 
           <div class="mb-4">
             <label class="block text-sm font-semibold text-white mb-2">Service Credits</label>
-            <input v-model.number="selectedBalance.service_credits" type="number" step="0.25" min="0" class="balance-input w-full" />
+            <input
+              v-model.number="selectedBalance.service_credits"
+              type="number"
+              step="0.25"
+              min="0"
+              class="balance-input w-full"
+            />
           </div>
-
-          
 
           <div class="mb-4">
             <label class="block text-sm font-semibold text-white mb-2">Vacation Balance</label>
-            <input v-model.number="selectedBalance.vacation_balance" type="number" step="0.25" min="0" class="balance-input w-full" />
+            <input
+              v-model.number="selectedBalance.vacation_balance"
+              type="number"
+              step="0.25"
+              min="0"
+              class="balance-input w-full"
+            />
           </div>
 
           <div class="mb-4">
             <label class="block text-sm font-semibold text-white mb-2">Sick Balance</label>
-            <input v-model.number="selectedBalance.sick_balance" type="number" step="0.25" min="0" class="balance-input w-full" />
+            <input
+              v-model.number="selectedBalance.sick_balance"
+              type="number"
+              step="0.25"
+              min="0"
+              class="balance-input w-full"
+            />
           </div>
 
           <div class="flex justify-end gap-3 mt-6">
-            <button @click="closeModal" type="button" class="btn-action-lg cancel-button">Cancel</button>
-            <button @click="updateBalance" type="button" class="btn-action-lg save-button">Save</button>
+            <button
+              @click="closeModal"
+              type="button"
+              class="btn-action-lg cancel-button"
+            >
+              Cancel
+            </button>
+
+            <button
+              @click="updateBalance"
+              type="button"
+              class="btn-action-lg save-button"
+            >
+              Save
+            </button>
           </div>
         </div>
       </div>
@@ -188,18 +217,29 @@ interface LeaveBalance {
 
 const balances = ref<LeaveBalance[]>([]);
 const arranged = ref(false);
-const toggleSort = () => { arranged.value = !arranged.value; };
+
+const toggleSort = () => {
+  arranged.value = !arranged.value;
+};
 
 const displayedBalances = computed(() => {
   if (!arranged.value) return balances.value;
+
   return [...balances.value].sort((a, b) => {
-    const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`.trim().toLowerCase();
-    const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`.trim().toLowerCase();
+    const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`
+      .trim()
+      .toLowerCase();
+
+    const bName = `${b.employee?.last_name || ""} ${b.employee?.first_name || ""}`
+      .trim()
+      .toLowerCase();
+
     return aName.localeCompare(bName);
   });
 });
 
 const showModal = ref(false);
+
 const selectedBalance = ref<LeaveBalance>({
   balance_id: null,
   employee_id: 0,
@@ -209,7 +249,11 @@ const selectedBalance = ref<LeaveBalance>({
   sick_balance: 0,
   service_credits: 0,
   used_leave: 0,
-  employee: { employee_id: 0, first_name: "", last_name: "" },
+  employee: {
+    employee_id: 0,
+    first_name: "",
+    last_name: ""
+  },
 });
 
 const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
@@ -217,8 +261,11 @@ const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
 const loadBalances = async () => {
   try {
     const token = localStorage.getItem("token");
+
     const response = await axios.get(`${API_BASE}/leave-balances`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
     });
 
     const data = Array.isArray(response.data) ? response.data : [];
@@ -232,14 +279,20 @@ const loadBalances = async () => {
       sick_balance: Number(balance.sick_balance ?? 0),
       service_credits: Number(balance.service_credits ?? 0),
       used_leave: Number(balance.used_leave ?? 0),
+
       employee: {
-        employee_id: Number(balance.employee?.employee_id ?? balance.employee_id),
+        employee_id: Number(
+          balance.employee?.employee_id ?? balance.employee_id
+        ),
         first_name: balance.employee?.first_name ?? "",
         last_name: balance.employee?.last_name ?? "",
       },
     }));
   } catch (error: any) {
-    console.error("Failed loading balances:", error.response?.data || error);
+    console.error(
+      "Failed loading balances:",
+      error.response?.data || error
+    );
   }
 };
 
@@ -253,51 +306,91 @@ const openModal = (balance: LeaveBalance) => {
     sick_balance: Number(balance.sick_balance ?? 0),
     service_credits: Number(balance.service_credits ?? 0),
     used_leave: Number(balance.used_leave ?? 0),
+
     employee: {
-      employee_id: balance.employee?.employee_id ?? balance.employee_id,
+      employee_id:
+        balance.employee?.employee_id ?? balance.employee_id,
       first_name: balance.employee?.first_name ?? "",
       last_name: balance.employee?.last_name ?? "",
     },
   };
+
   showModal.value = true;
 };
 
-const closeModal = () => { showModal.value = false; };
+const closeModal = () => {
+  showModal.value = false;
+};
 
 const updateBalance = async () => {
   try {
     const token = localStorage.getItem("token");
+
     const payload = {
-      vacation_earned: Number(selectedBalance.value.vacation_earned ?? 0),
-      sick_earned: Number(selectedBalance.value.sick_earned ?? 0),
-      vacation_balance: Number(selectedBalance.value.vacation_balance ?? 0),
-      sick_balance: Number(selectedBalance.value.sick_balance ?? 0),
-      service_credits: Number(selectedBalance.value.service_credits ?? 0),
+      vacation_earned: Number(
+        selectedBalance.value.vacation_earned ?? 0
+      ),
+      sick_earned: Number(
+        selectedBalance.value.sick_earned ?? 0
+      ),
+      vacation_balance: Number(
+        selectedBalance.value.vacation_balance ?? 0
+      ),
+      sick_balance: Number(
+        selectedBalance.value.sick_balance ?? 0
+      ),
+      service_credits: Number(
+        selectedBalance.value.service_credits ?? 0
+      ),
     };
 
     const values = Object.values(payload);
-    if (values.some((value) => !Number.isFinite(value) || value < 0)) {
-      alert("All leave balance values must be valid numbers greater than or equal to zero.");
+
+    if (
+      values.some(
+        (value) => !Number.isFinite(value) || value < 0
+      )
+    ) {
+      alert(
+        "All leave balance values must be valid numbers greater than or equal to zero."
+      );
       return;
     }
 
     await axios.put(
       `${API_BASE}/leave-balances/${selectedBalance.value.employee_id}`,
       payload,
-      { headers: { Authorization: `Bearer ${token}`, Accept: "application/json", "Content-Type": "application/json" } }
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
+      }
     );
 
     alert("Leave balance updated successfully.");
+
     closeModal();
+
     await loadBalances();
   } catch (error: any) {
-    console.error("Failed updating balance:", error.response?.data || error);
+    console.error(
+      "Failed updating balance:",
+      error.response?.data || error
+    );
+
     const errors = error.response?.data?.errors;
+
     if (errors) {
       alert(Object.values(errors).flat().join("\n"));
       return;
     }
-    alert(error.response?.data?.message || "Failed updating balance.");
+
+    alert(
+      error.response?.data?.message ||
+      "Failed updating balance."
+    );
   }
 };
 
@@ -306,15 +399,25 @@ const deleteBalance = async (employee_id: number) => {
     "Are you sure you want to clear this leave balance?\n\n" +
     "Vacation, Sick, and Service Credit balances will be reset to zero."
   );
+
   if (!confirmed) return;
 
   try {
     await deleteLeaveBalance(employee_id);
+
     alert("Leave balance cleared successfully.");
+
     await loadBalances();
   } catch (error: any) {
-    console.error("Failed clearing balance:", error.response?.data || error);
-    alert(error.response?.data?.message || "Failed clearing balance.");
+    console.error(
+      "Failed clearing balance:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+      "Failed clearing balance."
+    );
   }
 };
 
@@ -325,29 +428,49 @@ const totalBalance = (balance: LeaveBalance) =>
     Number(balance.service_credits ?? 0)
   ).toFixed(2);
 
-const formatNumber = (value: number | string | null | undefined) =>
+const formatNumber = (
+  value: number | string | null | undefined
+) =>
   Number(value ?? 0).toFixed(2);
 
-const balanceColor = (value: number | string | null | undefined) => {
+/*
+ * TABLE BALANCE COLORS
+ *
+ * 0       = Red
+ * 1 - 10  = Dark Yellow
+ * 11+     = Green
+ */
+const balanceColor = (
+  value: number | string | null | undefined
+) => {
   const amount = Number(value ?? 0);
+
   if (amount <= 0) return "balance-zero";
-  if (amount <= 5) return "balance-low";
+  if (amount <= 10) return "balance-low";
   return "balance-good";
 };
 
 /* Auto-reload balances whenever the tab regains focus so newly
    applied credits from LeaveCredits.vue show up immediately. */
 const handleVisibility = () => {
-  if (document.visibilityState === "visible") loadBalances();
+  if (document.visibilityState === "visible") {
+    loadBalances();
+  }
 };
 
 onMounted(() => {
   loadBalances();
-  document.addEventListener("visibilitychange", handleVisibility);
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
 });
 
 onUnmounted(() => {
-  document.removeEventListener("visibilitychange", handleVisibility);
+  document.removeEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
 });
 </script>
 
@@ -586,21 +709,22 @@ onUnmounted(() => {
    TOTAL / USED VALUES
    ============================================================ */
 
+/* TOTAL AVAILABLE = BLUE */
 .total-value {
   color: #2563eb !important;
 }
 
-
+/* USED LEAVE = BLACK */
 .used-value {
-  color: var(--text) !important;
+  color: #000000 !important;
 }
 
 
 /* ============================================================
    BALANCE COLORS
-   Matches Dashboard status palette
    ============================================================ */
 
+/* 0 = RED */
 .balance-zero {
   color: #dc2626;
 
@@ -608,13 +732,15 @@ onUnmounted(() => {
 }
 
 
+/* 1 - 10 = DARK YELLOW */
 .balance-low {
-  color: #a16207;
+  color: #e3890b;
 
   font-weight: 700;
 }
 
 
+/* 11+ = GREEN */
 .balance-good {
   color: #16a34a;
 

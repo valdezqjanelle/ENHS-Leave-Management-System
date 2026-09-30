@@ -296,7 +296,8 @@
                       </p>
 
                       <p class="mt-1 text-xs text-gray-500">
-                        Leave Requests &middot; {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }}
+                        Leave Requests &middot; 
+                        <!-- {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }} -->
                       </p>
                     </div>
 
@@ -868,12 +869,13 @@ const displayedCreditsData = computed(() => {
 const leaveByDepartment = computed(() => {
 
   return leaveSummaryData.value.map((item: any) => ({
-    department: item.department ?? 'Unknown',
+    department: item.department ?? 'Unassigned',
     count: Number(
       item.total ??
       item.count ??
       0
-    )
+    ),
+    days: Number(item.total_days ?? 0)
   }))
 
 })
