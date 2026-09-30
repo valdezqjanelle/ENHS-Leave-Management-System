@@ -29,17 +29,12 @@ public function index()
             'balance_id' =>
                 $employee->leaveBalance?->balance_id,
 
-            'vacation_earned' =>
-                $employee->leaveBalance?->vacation_earned ?? 0,
-
-            'sick_earned' =>
-                $employee->leaveBalance?->sick_earned ?? 0,
+       
 
             'vacation_balance' =>
                 $employee->leaveBalance?->vacation_balance ?? 0,
             
-            'service_credits' =>
-                $employee->leaveBalance?->service_credits ?? 0,
+
 
             'sick_balance' =>
                 $employee->leaveBalance?->sick_balance ?? 0,
@@ -71,11 +66,9 @@ public function index()
             return response()->json([
                 'balance_id' => null,
                 'employee_id' => $employee->employee_id,
-                'vacation_earned' => 0,
-                'sick_earned' => 0,
+              
                 'vacation_balance' => 0,
                 'sick_balance' => 0,
-                'service_credits' => 0,
                 'used_leave' => 0,
                 'last_updated' => null,
                 'employee' => [
@@ -93,11 +86,9 @@ public function index()
 public function update(Request $request, $employee_id)
 {
     $validated = $request->validate([
-        'vacation_earned' => 'required|numeric|min:0',
-        'sick_earned' => 'required|numeric|min:0',
-        'vacation_balance' => 'required|numeric|min:0',
-        'sick_balance' => 'required|numeric|min:0',
-        'service_credits' => 'required|numeric|min:0',
+
+        'vacation_balance' => 'sometimes|required|numeric|min:0',
+        'sick_balance' => 'sometimes|required|numeric|min:0',
     ]);
 
     $employee = EmployeeRecord::find($employee_id);
@@ -118,11 +109,14 @@ public function update(Request $request, $employee_id)
         $wasCreated = true;
     }
 
-    $balance->vacation_earned = $validated['vacation_earned'];
-    $balance->sick_earned = $validated['sick_earned'];
-    $balance->vacation_balance = $validated['vacation_balance'];
-    $balance->sick_balance = $validated['sick_balance'];
-    $balance->service_credits = $validated['service_credits'];
+ 
+    if (array_key_exists('vacation_balance', $validated)) {
+        $balance->vacation_balance = $validated['vacation_balance'];
+    }
+    if (array_key_exists('sick_balance', $validated)) {
+        $balance->sick_balance = $validated['sick_balance'];
+    }
+
     $balance->last_updated = now();
     $balance->save();
 
@@ -163,10 +157,8 @@ public function update(Request $request, $employee_id)
         return response()->json([
             'vacation_balance' => 0,
             'sick_balance' => 0,
-            'service_credits' => 0,
             'used_leave' => 0,
-            'vacation_earned' => 0,
-            'sick_earned' => 0,
+          
             'last_updated' => null,
         ]);
     }
@@ -174,10 +166,8 @@ public function update(Request $request, $employee_id)
     return response()->json([
         'vacation_balance' => $balance->vacation_balance,
         'sick_balance' => $balance->sick_balance,
-        'service_credits' => $balance->service_credits,
         'used_leave' => $balance->used_leave,
-        'vacation_earned' => $balance->vacation_earned,
-        'sick_earned' => $balance->sick_earned,
+
         'last_updated' => $balance->last_updated,
     ]);
 }
@@ -200,11 +190,9 @@ public function destroy($employee_id)
         $balance->used_leave = 0;
     }
 
-    $balance->vacation_earned = 0;
-    $balance->sick_earned = 0;
+ 
     $balance->vacation_balance = 0;
     $balance->sick_balance = 0;
-    $balance->service_credits = 0;
     $balance->last_updated = now();
     $balance->save();
 

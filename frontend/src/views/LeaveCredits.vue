@@ -326,7 +326,7 @@ const syncBalanceWithCredit = async (
   // 4. Clamp to zero so balances can never go negative.
   (Object.keys(payload) as (keyof typeof payload)[]).forEach((k) => {
     if (payload[k] < 0) payload[k] = 0;
-    payload[k] = Number(payload[k].toFixed(2));
+    payload[k] = Number(payload[k].toFixed(3));
   });
 
   // 5. Persist the updated balance.

@@ -135,23 +135,12 @@
             />
           </div>
 
-          <div class="mb-4">
-            <label class="block text-sm font-semibold text-white mb-2">Service Credits</label>
-            <input
-              v-model.number="selectedBalance.service_credits"
-              type="number"
-              step="0.25"
-              min="0"
-              class="balance-input w-full"
-            />
-          </div>
-
-          <div class="mb-4">
+<div class="mb-4">
             <label class="block text-sm font-semibold text-white mb-2">Vacation Balance</label>
             <input
               v-model.number="selectedBalance.vacation_balance"
               type="number"
-              step="0.25"
+              step="0.001"
               min="0"
               class="balance-input w-full"
             />
@@ -162,7 +151,7 @@
             <input
               v-model.number="selectedBalance.sick_balance"
               type="number"
-              step="0.25"
+              step="0.001"
               min="0"
               class="balance-input w-full"
             />
@@ -327,21 +316,8 @@ const updateBalance = async () => {
     const token = localStorage.getItem("token");
 
     const payload = {
-      vacation_earned: Number(
-        selectedBalance.value.vacation_earned ?? 0
-      ),
-      sick_earned: Number(
-        selectedBalance.value.sick_earned ?? 0
-      ),
-      vacation_balance: Number(
-        selectedBalance.value.vacation_balance ?? 0
-      ),
-      sick_balance: Number(
-        selectedBalance.value.sick_balance ?? 0
-      ),
-      service_credits: Number(
-        selectedBalance.value.service_credits ?? 0
-      ),
+      vacation_balance: Number(selectedBalance.value.vacation_balance ?? 0),
+      sick_balance: Number(selectedBalance.value.sick_balance ?? 0),
     };
 
     const values = Object.values(payload);
@@ -426,12 +402,12 @@ const totalBalance = (balance: LeaveBalance) =>
     Number(balance.vacation_balance ?? 0) +
     Number(balance.sick_balance ?? 0) +
     Number(balance.service_credits ?? 0)
-  ).toFixed(2);
+  ).toFixed(3);
 
 const formatNumber = (
   value: number | string | null | undefined
 ) =>
-  Number(value ?? 0).toFixed(2);
+  Number(value ?? 0).toFixed(3);
 
 /*
  * TABLE BALANCE COLORS
