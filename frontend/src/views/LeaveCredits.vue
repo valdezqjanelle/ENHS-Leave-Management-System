@@ -56,7 +56,7 @@
 
         <div class="min-w-0">
           <label class="block text-sm font-medium text-white mb-2">
-            Hours Rendered
+            Time Rendered
           </label>
 
           <div class="flex gap-2">
@@ -65,7 +65,6 @@
               class="form-control" />
             <select v-model="timeUnit" class="form-control" aria-label="Time unit">
               <option value="hours">Hours</option>
-              <option value="minutes">Minutes</option>
             </select>
           </div>
           <p v-if="conversionError" class="validation-message mt-1">{{ conversionError }}</p>
@@ -140,7 +139,7 @@
               <th>Employee</th>
               <th>Credit Type</th>
               <th>Activity</th>
-              <th>Hours Rendered</th>
+              <th>Time Rendered</th>
               <th>Equivalent Days</th>
               <th>Date Recorded</th>
               <th class="action-column">Action</th>
