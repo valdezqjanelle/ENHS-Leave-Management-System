@@ -345,14 +345,41 @@ const conversionError = ref("");
 const conversionRows = ref<{ unit: string; quantity: number; equivalent_days: string | number }[]>([]);
 
 const loadConversionReference = async () => {
+  conversionRows.value = [];
+  conversionError.value = "";
   try {
-    const { data } = await axios.get(`${API_BASE}/leave-credits/conversion-reference`,
-      { headers: authHeaders() });
-    if (!Array.isArray(data) || data.length === 0) throw new Error("Missing conversion reference");
+    const { data } = await axios.get(
+      `${API_BASE}/leave-credits/conversion-reference`,
+      { headers: authHeaders() }
+    );
+    if (!Array.isArray(data) || data.length === 0) {
+      conversionError.value = "Conversion reference is empty. Run WorkTimeConversionSeeder on the deployed backend.";
+      return;
+    }
+    const hourRow = data.find(row => row.unit === "hour" && Number(row.quantity) === 1);
+    const hasMinutes = Array.from({ length: 60 }, (_, index) => index + 1)
+      .every(minute => data.some(row => row.unit === "minute"
+        && Number(row.quantity) === minute
+        && Number.isFinite(Number(row.equivalent_days))));
+    if (!hourRow || !Number.isFinite(Number(hourRow.equivalent_days)) || !hasMinutes) {
+      conversionError.value = "Conversion reference is incomplete. Run WorkTimeConversionSeeder on the deployed backend.";
+      return;
+    }
     conversionRows.value = data;
-    conversionError.value = "";
-  } catch {
-    conversionError.value = "Unable to load conversion reference. Check the route and seeder.";
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error("Conversion reference request failed:", {
+        status: error.response?.status,
+        response: error.response?.data,
+      });
+      const message = error.response?.data?.message;
+      conversionError.value = typeof message === "string"
+        ? message
+        : `Unable to load conversion reference (HTTP ${error.response?.status ?? "network error"}). Check backend logs.`;
+    } else {
+      console.error("Conversion reference failed:", error);
+      conversionError.value = "Unable to read conversion reference.";
+    }
   }
 };
 

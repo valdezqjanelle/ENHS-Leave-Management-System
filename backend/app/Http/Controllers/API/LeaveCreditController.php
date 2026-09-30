@@ -9,9 +9,75 @@ use App\Models\LeaveBalance;
 use App\Models\EmployeeRecord;
 use Carbon\Carbon;
 use App\Support\AuditLogger;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 
 class LeaveCreditController extends Controller
 {
+    // GET SEEDED CONVERSION REFERENCE
+    public function conversionReference()
+    {
+        try {
+            $rows = DB::table('work_time_conversions')
+                ->select('unit', 'quantity', 'equivalent_days')
+                ->get();
+
+            $hour = $rows->first(function ($row) {
+                return $row->unit === 'hour' && (int) $row->quantity === 1;
+            });
+            $minutes = $rows->where('unit', 'minute')->keyBy('quantity');
+            if (!$hour || !is_numeric($hour->equivalent_days)) {
+                return response()->json([
+                    'code' => 'CONVERSION_DATA_INCOMPLETE',
+                    'message' => 'Conversion reference is incomplete in the backend database. Run WorkTimeConversionSeeder there.',
+                ], 503);
+            }
+            for ($minute = 1; $minute <= 60; $minute++) {
+                if (!$minutes->has($minute)
+                    || !is_numeric($minutes->get($minute)->equivalent_days)) {
+                    return response()->json([
+                        'code' => 'CONVERSION_DATA_INCOMPLETE',
+                        'message' => 'Conversion reference is incomplete in the backend database. Run WorkTimeConversionSeeder there.',
+                    ], 503);
+                }
+            }
+            return response()->json($rows);
+        } catch (QueryException $exception) {
+            Log::error('Conversion reference database error', ['exception' => $exception]);
+            $state = (string) ($exception->errorInfo[0] ?? $exception->getCode());
+            $driverCode = (int) ($exception->errorInfo[1] ?? 0);
+            if ($state === '42P01' || $driverCode === 1146) {
+                return response()->json([
+                    'code' => 'CONVERSION_TABLE_MISSING',
+                    'message' => 'The deployed backend cannot find work_time_conversions. Check its database connection and run the migration on that database.',
+                ], 503);
+            }
+            if ($state === '42703' || $driverCode === 1054) {
+                return response()->json([
+                    'code' => 'CONVERSION_COLUMNS_MISMATCH',
+                    'message' => 'The backend table must have unit, quantity and equivalent_days columns. Check the deployed database schema.',
+                ], 503);
+            }
+            if ($state === '42501' || in_array($driverCode, [1044, 1045, 1142], true)) {
+                return response()->json([
+                    'code' => 'CONVERSION_ACCESS_DENIED',
+                    'message' => 'The backend database account cannot read the conversion table. Check database access permissions.',
+                ], 503);
+            }
+            return response()->json([
+                'code' => 'CONVERSION_DATABASE_ERROR',
+                'message' => 'The backend could not query the conversion table. Check the Conversion reference database error entry in Laravel logs.',
+            ], 500);
+        } catch (\Throwable $exception) {
+            Log::error('Conversion reference runtime error', ['exception' => $exception]);
+            return response()->json([
+                'code' => 'CONVERSION_RUNTIME_ERROR',
+                'message' => 'Conversion endpoint failed. Check the Conversion reference runtime error entry in Laravel logs.',
+            ], 500);
+        }
+    }
+
     // ADD CREDIT
     public function store(Request $request)
     {
@@ -21,7 +87,6 @@ class LeaveCreditController extends Controller
             'hours_rendered' => 'required|numeric',
             'equivalent_leave_days' => 'required|numeric',
             'credit_type' => 'required|in:Vacation,Sick,Service',
-          
         ]);
 
         $credit = LeaveCredit::create([
@@ -30,12 +95,10 @@ class LeaveCreditController extends Controller
             'hours_rendered' => $request->hours_rendered,
             'equivalent_leave_days' => $request->equivalent_leave_days,
             'credit_type' => $request->credit_type,
-            'status' =>'Pending',
+            'status' => 'Pending',
             'date_recorded' => Carbon::now(),
             'recorded_by' => auth()->user()->user_id,
         ]);
-
-
 
         AuditLogger::log(
             'Leave credit added',
@@ -48,14 +111,16 @@ class LeaveCreditController extends Controller
         ]);
     }
 
-public function index()
-{
-    $credits = LeaveCredit::with('employee')
-        ->orderBy('credits_id', 'desc')
-        ->get();
+    // VIEW ALL CREDITS
+    public function index()
+    {
+        $credits = LeaveCredit::with('employee')
+            ->orderBy('credits_id', 'desc')
+            ->get();
 
-    return response()->json($credits);
-}
+        return response()->json($credits);
+    }
+
     // VIEW ALL CREDITS PER EMPLOYEE
     public function show($employee_id)
     {
@@ -77,7 +142,6 @@ public function index()
             'equivalent_leave_days' => $request->equivalent_leave_days,
         ]);
 
-  
         AuditLogger::log(
             'Leave credit updated',
             "Updated leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
@@ -88,153 +152,143 @@ public function index()
             'data' => $credit
         ]);
     }
-public function destroy($id)
-{
-    $credit = LeaveCredit::findOrFail($id);
 
-    $credit->delete();
+    // DELETE CREDIT
+    public function destroy($id)
+    {
+        $credit = LeaveCredit::findOrFail($id);
 
-    AuditLogger::log(
-        'Leave credit deleted',
-        "Soft deleted leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
-    );
+        $credit->delete();
 
-    return response()->json([
-        'message' => 'Leave credit deleted successfully.'
-    ]);
-}
+        AuditLogger::log(
+            'Leave credit deleted',
+            "Soft deleted leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
+        );
 
-public function deleted()
-{
-    $deletedCredits = LeaveCredit::onlyTrashed()->get();
-
-    return response()->json([
-        'data' => $deletedCredits
-    ]);
-}
-
-public function apply(Request $request, $id)
-{
-    $credit = LeaveCredit::findOrFail($id);
-
-    // Prevent duplicate application
-    if ($credit->status === 'Applied') {
         return response()->json([
-            'message' => 'Leave credit has already been applied.'
-        ], 400);
+            'message' => 'Leave credit deleted successfully.'
+        ]);
     }
 
-    $request->validate([
-        'leave_type' => 'nullable|in:Vacation,Sick,Service',
-        'days' => 'nullable|numeric|min:0',
-        'split' => 'nullable|boolean',
-        'vacation_days' => 'nullable|numeric|min:0',
-        'sick_days' => 'nullable|numeric|min:0',
-    ]);
+    // VIEW DELETED CREDITS
+    public function deleted()
+    {
+        $deletedCredits = LeaveCredit::onlyTrashed()->get();
 
-    $balance = LeaveBalance::firstOrCreate(
-        ['employee_id' => $credit->employee_id],
-        [
-            'vacation_earned' => 0,
-            'sick_earned' => 0,
-            'vacation_balance' => 0,
-            'sick_balance' => 0,
-            'service_credits' => 0,
-            'used_leave' => 0,
-            'last_updated' => now(),
-        ]
-    );
-
-    $creditType = strtolower(trim($credit->credit_type));
-    $availableDays = (float) $credit->equivalent_leave_days;
-    $isServiceCredit = $creditType === 'service credits' || $creditType === 'service';
-    $split = $request->boolean('split');
-    $days = (float) ($request->input('days') ?? $availableDays);
-    $targetType = $request->input('leave_type');
-    $vacationDays = $split
-        ? (float) ($request->input('vacation_days') ?? 0)
-        : ($targetType === 'Vacation' ? $days : 0);
-    $sickDays = $split
-        ? (float) ($request->input('sick_days') ?? 0)
-        : ($targetType === 'Sick' ? $days : 0);
-    $appliedDays = $split ? $vacationDays + $sickDays : $days;
-    $serviceDays = $isServiceCredit
-        ? ($split || $targetType !== 'Service'
-            ? max(0, $availableDays - $vacationDays - $sickDays)
-            : min($days, $availableDays))
-        : 0;
-
-    if ($isServiceCredit && ($appliedDays <= 0 || $appliedDays > $availableDays)) {
         return response()->json([
-            'message' => 'Applied allocation cannot exceed the available service credit.'
-        ], 422);
+            'data' => $deletedCredits
+        ]);
     }
 
-    if ($creditType === 'vacation') {
+    // APPLY CREDIT
+    public function apply(Request $request, $id)
+    {
+        $credit = LeaveCredit::findOrFail($id);
 
-        $balance->vacation_earned +=
-            $credit->equivalent_leave_days;
-
-        $balance->vacation_balance +=
-            $credit->equivalent_leave_days;
-    }
-
-
-    elseif ($creditType === 'sick') {
-
-        $balance->sick_earned +=
-            $credit->equivalent_leave_days;
-
-        $balance->sick_balance +=
-            $credit->equivalent_leave_days;
-    }
-
-
-
-    elseif ($isServiceCredit) {
-
-        $balance->service_credits =
-            (float) ($balance->service_credits ?? 0)
-            + $serviceDays;
-
-        if ($vacationDays > 0) {
-            $balance->vacation_earned += $vacationDays;
-            $balance->vacation_balance += $vacationDays;
+        // Prevent duplicate application
+        if ($credit->status === 'Applied') {
+            return response()->json([
+                'message' => 'Leave credit has already been applied.'
+            ], 400);
         }
 
-        if ($sickDays > 0) {
-            $balance->sick_earned += $sickDays;
-            $balance->sick_balance += $sickDays;
+        $request->validate([
+            'leave_type' => 'nullable|in:Vacation,Sick,Service',
+            'days' => 'nullable|numeric|min:0',
+            'split' => 'nullable|boolean',
+            'vacation_days' => 'nullable|numeric|min:0',
+            'sick_days' => 'nullable|numeric|min:0',
+        ]);
+
+        $balance = LeaveBalance::firstOrCreate(
+            ['employee_id' => $credit->employee_id],
+            [
+                'vacation_earned' => 0,
+                'sick_earned' => 0,
+                'vacation_balance' => 0,
+                'sick_balance' => 0,
+                'service_credits' => 0,
+                'used_leave' => 0,
+                'last_updated' => now(),
+            ]
+        );
+
+        $creditType = strtolower(trim($credit->credit_type));
+        $availableDays = (float) $credit->equivalent_leave_days;
+
+        $isServiceCredit = $creditType === 'service credits'
+            || $creditType === 'service';
+
+        $split = $request->boolean('split');
+        $days = (float) ($request->input('days') ?? $availableDays);
+        $targetType = $request->input('leave_type');
+
+        $vacationDays = $split
+            ? (float) ($request->input('vacation_days') ?? 0)
+            : ($targetType === 'Vacation' ? $days : 0);
+
+        $sickDays = $split
+            ? (float) ($request->input('sick_days') ?? 0)
+            : ($targetType === 'Sick' ? $days : 0);
+
+        $appliedDays = $split
+            ? $vacationDays + $sickDays
+            : $days;
+
+        $serviceDays = $isServiceCredit
+            ? ($split || $targetType !== 'Service'
+                ? max(0, $availableDays - $vacationDays - $sickDays)
+                : min($days, $availableDays))
+            : 0;
+
+        if (
+            $isServiceCredit
+            && ($appliedDays <= 0 || $appliedDays > $availableDays)
+        ) {
+            return response()->json([
+                'message' => 'Applied allocation cannot exceed the available service credit.'
+            ], 422);
         }
-    }
 
+        if ($creditType === 'vacation') {
+            $balance->vacation_earned += $credit->equivalent_leave_days;
+            $balance->vacation_balance += $credit->equivalent_leave_days;
+        } elseif ($creditType === 'sick') {
+            $balance->sick_earned += $credit->equivalent_leave_days;
+            $balance->sick_balance += $credit->equivalent_leave_days;
+        } elseif ($isServiceCredit) {
+            $balance->service_credits =
+                (float) ($balance->service_credits ?? 0) + $serviceDays;
 
+            if ($vacationDays > 0) {
+                $balance->vacation_earned += $vacationDays;
+                $balance->vacation_balance += $vacationDays;
+            }
 
-    else {
+            if ($sickDays > 0) {
+                $balance->sick_earned += $sickDays;
+                $balance->sick_balance += $sickDays;
+            }
+        } else {
+            return response()->json([
+                'message' => 'Invalid credit type.'
+            ], 422);
+        }
+
+        $balance->last_updated = now();
+        $balance->save();
+
+        $credit->status = 'Applied';
+        $credit->save();
+
+        AuditLogger::log(
+            'Leave credit applied',
+            "Applied {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) to balance for employee #{$credit->employee_id}"
+        );
+
         return response()->json([
-            'message' => 'Invalid credit type.'
-        ], 422);
+            'message' => 'Leave credit applied successfully.',
+            'data' => $credit
+        ]);
     }
-
-    $balance->last_updated = now();
-    $balance->save();
-
-
-
-    $credit->status = 'Applied';
-    $credit->save();
-
-    AuditLogger::log(
-        'Leave credit applied',
-        "Applied {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) to balance for employee #{$credit->employee_id}"
-    );
-
-    return response()->json([
-        'message' => 'Leave credit applied successfully.',
-        'data' => $credit
-    ]);
-}
-
-
- 
 }
