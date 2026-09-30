@@ -233,19 +233,32 @@ class DashboardController extends Controller
 
         $employee = EmployeeRecord::where(
             'user_id',
-            auth()->id()
+            $request->user()->user_id
         )->firstOrFail();
 
 
+        $balance = \App\Models\LeaveBalance::where(
+            'employee_id', $employee->employee_id
+        )->first();
+
+        // Stored balances already represent the remaining amounts.
+        // Do not subtract used_leave again.
+        $remainingBalance = [
+            'service_credits' => number_format((float) ($balance?->service_credits ?? 0), 3, '.', ''),
+            'vacation_balance' => number_format((float) ($balance?->vacation_balance ?? 0), 3, '.', ''),
+            'sick_balance' => number_format((float) ($balance?->sick_balance ?? 0), 3, '.', ''),
+            'used_leave' => number_format((float) ($balance?->used_leave ?? 0), 3, '.', ''),
+        ];
+
         $totalApplications = LeaveApplication::where(
             'employee_id',
-            $employee->id
+            $employee->employee_id
         )->count();
 
 
         $pendingLeaves = LeaveApplication::where(
                 'employee_id',
-                $employee->id
+                $employee->employee_id
             )
             ->where('final_status', 'pending')
             ->count();
@@ -253,7 +266,7 @@ class DashboardController extends Controller
 
         $approvedLeaves = LeaveApplication::where(
                 'employee_id',
-                $employee->id
+                $employee->employee_id
             )
             ->where('final_status', 'approved')
             ->count();
@@ -261,7 +274,7 @@ class DashboardController extends Controller
 
         $disapprovedLeaves = LeaveApplication::where(
                 'employee_id',
-                $employee->id
+                $employee->employee_id
             )
             ->where('final_status', 'disapproved')
             ->count();
@@ -278,7 +291,7 @@ class DashboardController extends Controller
 
 
         $myApplications = LeaveApplication::with('leaveType')
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->employee_id)
             ->latest()
             ->take(10)
             ->get()
@@ -313,7 +326,7 @@ class DashboardController extends Controller
    
 
         $upcomingLeaves = LeaveApplication::with('leaveType')
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->employee_id)
             ->where('final_status', 'approved')
             ->where('start_date', '>=', Carbon::now())
             ->orderBy('start_date')
@@ -345,7 +358,7 @@ class DashboardController extends Controller
 
   
         $leaveByType = LeaveApplication::with('leaveType')
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->employee_id)
             ->select(
                 'leave_type_id',
                 DB::raw('count(*) as total')
@@ -368,7 +381,7 @@ class DashboardController extends Controller
 
     
 
-        $recentActivities = LeaveApplication::where('employee_id', $employee->id)
+        $recentActivities = LeaveApplication::where('employee_id', $employee->employee_id)
             ->latest()
             ->take(5)
             ->get()
@@ -392,6 +405,7 @@ class DashboardController extends Controller
 
 
         return response()->json([
+            'leaveBalance' => $remainingBalance,
 
 
             "summary" => [
