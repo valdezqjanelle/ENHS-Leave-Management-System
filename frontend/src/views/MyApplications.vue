@@ -182,11 +182,6 @@
                   View Form
                 </button>
 
-                <button v-if="application.final_status === 'approved'" @click="downloadForm(application)"
-                  class="text-green-400 hover:text-green-300 font-medium transition">
-                  Download
-                </button>
-
               </div>
 
             </td>
@@ -1002,30 +997,10 @@ const viewDetails = (
 
 };
 
-
-const downloadForm = (
-  application: Application
-) => {
-
-  console.log(
-    "Downloading form for application:",
-    application.leave_id
-  );
-
-};
-
 </script>
 
 
 <style scoped>
-/*
-  Theme-aware styles.
-  These all pull from the CSS custom properties defined once in base.css
-  (:root for light, .dark for dark). Because the values live in variables,
-  this component automatically renders correctly in both themes with no
-  need for duplicated ".dark ..." override blocks - the browser resolves
-  the variable per current theme.
-*/
 
 /* =========================================
    DASHBOARD BACKGROUND
