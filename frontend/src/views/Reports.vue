@@ -467,6 +467,8 @@
 
           <div class="p-5 sm:p-6">
 
+            <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot.</p>
+
             <!-- Summary Cards -->
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -482,7 +484,7 @@
                 </p>
 
                 <p class="mt-1 text-xs">
-                  Employees with leave balances
+                  Employees included in this report
                 </p>
 
               </div>
@@ -492,15 +494,15 @@
               <div class="credit-summary-card credit-green rounded-xl p-4">
 
                 <h4 class="mb-2 text-sm font-semibold">
-                  Total Vacation Earned
+                  Remaining Vacation Days
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ leaveTotals.vacation_earned ?? 0 }}
+                  {{ formatNumber(leaveTotals.vacation_balance) }}
                 </p>
 
                 <p class="mt-1 text-xs">
-                  Vacation leave credits earned
+                  Vacation days currently available
                 </p>
 
               </div>
@@ -510,15 +512,15 @@
               <div class="credit-summary-card credit-yellow rounded-xl p-4">
 
                 <h4 class="mb-2 text-sm font-semibold">
-                  Total Sick Earned
+                  Remaining Sick Days
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ leaveTotals.sick_earned ?? 0 }}
+                  {{ formatNumber(leaveTotals.sick_balance) }}
                 </p>
 
                 <p class="mt-1 text-xs">
-                  Sick leave credits earned
+                  Sick days currently available
                 </p>
 
               </div>
@@ -528,15 +530,15 @@
               <div class="credit-summary-card credit-purple rounded-xl p-4">
 
                 <h4 class="mb-2 text-sm font-semibold">
-                  Total Used Leave
+                  Remaining Local Credits
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ leaveTotals.used_leave ?? 0 }}
+                  {{ formatNumber(leaveTotals.service_credits) }}
                 </p>
 
                 <p class="mt-1 text-xs">
-                  Total leave days used
+                  Local credit days currently available
                 </p>
 
               </div>
@@ -562,7 +564,7 @@
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Local Credits
+                      Remaining Local Credits
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
@@ -574,11 +576,11 @@
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Total Available
+                      Total Remaining Days
                     </th>
 
                     <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Used Leave
+                      Used Leave (Overall)
                     </th>
 
                   </tr>
@@ -615,7 +617,7 @@
                     </td>
 
                     <td class="px-6 py-4 text-sm font-semibold">
-                      {{ employee.total_available }}
+                      {{ formatNumber(employee.total_available) }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
@@ -638,6 +640,16 @@
 
                 </tbody>
 
+                <tfoot>
+                  <tr class="font-semibold">
+                    <th class="px-6 py-4 text-left" colspan="2">Grand Total</th>
+                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.service_credits) }}</td>
+                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.vacation_balance) }}</td>
+                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.sick_balance) }}</td>
+                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.total_available) }}</td>
+                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.used_leave) }}</td>
+                  </tr>
+                </tfoot>
               </table>
 
             </div>
@@ -805,6 +817,7 @@ const reportTypes = [
 const leaveSummaryData = ref<any[]>([])
 
 const creditsData = ref<any[]>([])
+const creditsLoadedAt = ref('')
 
 const leaveTotals = ref<any>({})
 
@@ -948,8 +961,42 @@ let attendanceTrendInstance: ChartJS | null = null
 |--------------------------------------------------------------------------
 */
 
-const formatNumber = (value: number | string | null | undefined) =>
-  Number(value ?? 0).toFixed(2)
+const dayUnits = (value: unknown): number => {
+  const number = Number(value ?? 0)
+  if (!Number.isFinite(number)) throw new Error('Invalid leave balance value received from the API.')
+  const units = Math.round(number * 1000)
+  if (!Number.isSafeInteger(units)) throw new Error('Leave balance is outside the supported range.')
+  return units
+}
+const formatNumber = (value: unknown) => (dayUnits(value) / 1000).toFixed(3)
+
+const buildCreditRows = (employees: any[], balances: any[]) => {
+  const balanceMap = new Map(balances.map((balance: any) => [Number(balance.employee_id), balance]))
+  return employees.map((employee: any) => {
+    const balance = balanceMap.get(Number(employee.employee_id)) as any
+    const local = dayUnits(balance?.service_credits)
+    const vacation = dayUnits(balance?.vacation_balance)
+    const sick = dayUnits(balance?.sick_balance)
+    const department = employee.department
+    return {
+      employee_id: employee.employee_id,
+      employee_name: [employee.last_name, employee.first_name].filter(Boolean).join(', ') || 'Unknown employee',
+      department_name: employee.department_name || (typeof department === 'string' ? department : department?.department_name) || balance?.employee?.department_name || 'Unassigned',
+      service_credits: local / 1000,
+      vacation_balance: vacation / 1000,
+      sick_balance: sick / 1000,
+      used_leave: dayUnits(balance?.used_leave) / 1000,
+      total_available: (local + vacation + sick) / 1000
+    }
+  })
+}
+const summarizeCreditRows = (rows: any[]) => {
+  const totals: Record<string, number> = { employees: rows.length }
+  for (const field of ['service_credits', 'vacation_balance', 'sick_balance', 'used_leave', 'total_available']) {
+    totals[field] = rows.reduce((sum: number, row: any) => sum + dayUnits(row[field]), 0) / 1000
+  }
+  return totals
+}
 
 
 /*
@@ -1383,107 +1430,16 @@ function createLeaveCharts() {
 |--------------------------------------------------------------------------
 */
 
-async function loadLeaveCredits() {
-
-  try {
-
-    const response =
-      await api.get('/leave-balances')
-
-    const balances =
-      Array.isArray(response.data)
-        ? response.data
-        : []
-
-    const balanceMap = new Map<number, any>()
-
-    balances.forEach((balance: any) => {
-      balanceMap.set(
-        Number(balance.employee_id),
-        balance
-      )
-    })
-
-    const allEmployees =
-      await getEmployees()
-
-    creditsData.value =
-      allEmployees.map((emp: any) => {
-
-        const balance =
-          balanceMap.get(Number(emp.employee_id))
-
-        const service_credits =
-          Number(balance?.service_credits ?? 0)
-
-        const vacation_balance =
-          Number(balance?.vacation_balance ?? 0)
-
-        const sick_balance =
-          Number(balance?.sick_balance ?? 0)
-
-        const used_leave =
-          Number(balance?.used_leave ?? 0)
-
-        return {
-          employee_id: emp.employee_id,
-          employee_name: `${emp.last_name}, ${emp.first_name}`,
-          department_name:
-            emp.department?.department_name ||
-            emp.department ||
-            'Unknown',
-          service_credits,
-          vacation_balance,
-          sick_balance,
-          used_leave,
-          total_available:
-            (
-              vacation_balance +
-              sick_balance +
-              service_credits
-            ).toFixed(2)
-        }
-
-      })
-
-    leaveTotals.value = {
-
-      employees:
-        creditsData.value.length,
-
-      vacation_earned:
-        balances.reduce(
-          (sum: number, b: any) =>
-            sum + Number(b.vacation_earned ?? 0),
-          0
-        ),
-
-      sick_earned:
-        balances.reduce(
-          (sum: number, b: any) =>
-            sum + Number(b.sick_earned ?? 0),
-          0
-        ),
-
-      used_leave:
-        creditsData.value.reduce(
-          (sum: number, e: any) =>
-            sum + Number(e.used_leave ?? 0),
-          0
-        )
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      'Failed to load leave credits:',
-      error
-    )
-    throw error
-
+async function loadLeaveCredits(version: number) {
+  const [response, employees] = await Promise.all([api.get('/leave-balances'), getEmployees()])
+  if (!Array.isArray(response.data) || !Array.isArray(employees)) {
+    throw new Error('Unexpected employee or leave balance response.')
   }
-
+  const rows = buildCreditRows(employees, response.data)
+  if (version !== reportRefreshVersion || selectedReportType.value !== 'leave-credits') return
+  creditsData.value = rows
+  leaveTotals.value = summarizeCreditRows(rows)
+  creditsLoadedAt.value = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
 }
 
 
@@ -1658,17 +1614,7 @@ const exportReport = () => {
   ) {
 
     case 'leave-summary': {
-      const context = {
-        'Report Period': summaryPeriod.value,
-        'Employee Scope': summaryFilters.value.include_inactive ? 'All employees including inactive/archived' : 'Currently active non-archived employees',
-        'Generated At': summaryGeneratedAt.value,
-        'Date Basis': 'Leave dates overlap period',
-        'Days Basis': 'Full requested days; not period-only days or deducted credits',
-        'Department Basis': 'Current employee department',
-        'Record Scope': 'Non-deleted applications; missing links shown as Unassigned'
-      }
       data = leaveSummaryData.value.map((item: any) => ({
-        ...context,
         Department: item.department ?? 'Unassigned',
         'Total Applications': item.total ?? 0,
         Approved: item.approved ?? 0,
@@ -1676,55 +1622,40 @@ const exportReport = () => {
         Disapproved: item.disapproved ?? 0,
         Other: item.other ?? 0,
         'Requested Days': formatSummaryDays(item.total_days),
-        'Requested Days of Approved Applications': formatApprovedDays(item.approved_days)
+        'Approved Application Days': formatApprovedDays(item.approved_days)
       }))
-      data.push({ ...context, Department: 'Grand Total',
+      data.push({ Department: 'Grand Total',
         'Total Applications': leaveTotals.value.applications ?? 0,
         Approved: leaveTotals.value.approved ?? 0,
         Pending: leaveTotals.value.pending ?? 0,
         Disapproved: leaveTotals.value.disapproved ?? 0,
         Other: leaveTotals.value.other ?? 0,
         'Requested Days': formatSummaryDays(leaveTotals.value.total_days),
-        'Requested Days of Approved Applications': formatApprovedDays(leaveTotals.value.approved_days)
+        'Approved Application Days': formatApprovedDays(leaveTotals.value.approved_days)
       })
       filename = 'leave-summary-report.csv'
       break
     }
 
-    case 'leave-credits':
-
-      data =
-        displayedCreditsData.value.map(
-          (employee: any) => ({
-
-            Employee:
-              employee.employee_name ?? '',
-
-            Department:
-              employee.department_name ?? employee.department ?? '',
-
-            'Local Credits':
-              employee.service_credits ?? 0,
-
-            'Vacation Balance':
-              employee.vacation_balance ?? 0,
-
-            'Sick Balance':
-              employee.sick_balance ?? 0,
-
-            'Total Available':
-              employee.total_available ?? 0,
-
-            'Used Leave':
-              employee.used_leave ?? 0
-
-          })
-        )
-
-      filename =
-        'leave-credits-report.csv'
-
+    case 'leave-credits': {
+      const exportRow = (employee: any) => ({
+        Employee: employee.employee_name,
+        Department: employee.department_name,
+        'Remaining Local Credits': formatNumber(employee.service_credits),
+        'Vacation Balance': formatNumber(employee.vacation_balance),
+        'Sick Balance': formatNumber(employee.sick_balance),
+        'Total Remaining Days': formatNumber(employee.total_available),
+        'Used Leave (Overall)': formatNumber(employee.used_leave)
+      })
+      if (displayedCreditsData.value.length === 0) {
+        alert('No employee balances available to export.')
+        return
+      }
+      data = displayedCreditsData.value.map(exportRow)
+      data.push(exportRow({ ...leaveTotals.value, employee_name: 'Grand Total', department_name: '' }))
+      filename = 'leave-credits-balances-report.csv'
       break
+    }
 
   }
 
@@ -1764,7 +1695,7 @@ const exportReport = () => {
 
   const csvRows = [
 
-    headers.join(','),
+    headers.map((header) => `"${header.replace(/"/g, '""')}"`).join(','),
 
     ...data.map((row) =>
 
@@ -1789,7 +1720,7 @@ const exportReport = () => {
 
   const csvContent =
     '\uFEFF' +
-    csvRows.join('\n')
+    csvRows.join('\r\n')
 
 
   /*
@@ -1879,7 +1810,7 @@ watch(
           await loadLeaveSummary()
           break
         case 'leave-credits':
-          await loadLeaveCredits()
+          await loadLeaveCredits(version)
           break
       }
     } catch (error) {
