@@ -36,6 +36,21 @@
 
       <!-- TABLE -->
       <div class="neo-card table-card w-full overflow-hidden">
+        <div class="p-4 sm:p-6 flex flex-col sm:flex-row gap-3">
+          <input
+            v-model="searchQuery"
+            type="search"
+            aria-label="Search employees by name"
+            placeholder="Search employee name..."
+            class="balance-search flex-1 min-w-0 rounded-lg px-4 py-2"
+          />
+          <button
+            @click="searchQuery = ''"
+            type="button"
+            class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium"
+          >Clear</button>
+        </div>
+
         <div class="table-wrapper w-full overflow-x-auto">
           <table class="leave-balance-table w-full">
             <thead>
@@ -111,7 +126,7 @@
 
               <tr v-if="displayedBalances.length === 0">
                 <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-                  No leave balance records found.
+                  {{ searchQuery.trim() ? "No employees match your search." : "No leave balance records found." }}
                 </td>
               </tr>
             </tbody>
@@ -209,15 +224,21 @@ interface LeaveBalance {
 
 const balances = ref<LeaveBalance[]>([]);
 const arranged = ref(false);
+const searchQuery = ref("");
 
 const toggleSort = () => {
   arranged.value = !arranged.value;
 };
 
 const displayedBalances = computed(() => {
-  if (!arranged.value) return balances.value;
+  const terms = searchQuery.value.trim().toLowerCase().split(/[\s,]+/).filter(Boolean);
+  const filtered = balances.value.filter((balance) => {
+    const name = `${balance.employee?.first_name || ""} ${balance.employee?.last_name || ""}`.toLowerCase();
+    return terms.every((term) => name.includes(term));
+  });
+  if (!arranged.value) return filtered;
 
-  return [...balances.value].sort((a, b) => {
+  return [...filtered].sort((a, b) => {
     const aName = `${a.employee?.last_name || ""} ${a.employee?.first_name || ""}`
       .trim()
       .toLowerCase();
@@ -454,6 +475,16 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.balance-search {
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border, #c8d8eb);
+}
+.balance-search:focus {
+  outline: 2px solid var(--primary, #2563eb);
+  outline-offset: 1px;
+}
+
 
 /* ============================================================
    PAGE

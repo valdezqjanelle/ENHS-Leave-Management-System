@@ -233,99 +233,48 @@
         <template v-if="selectedReportType === 'leave-summary'">
 
           <div class="leave-summary p-5 sm:p-6">
+            <p v-if="summaryBackendWarning" role="alert" class="approved-days-warning mb-4 rounded-lg p-4">{{ summaryBackendWarning }}</p>
+
 
             <!-- ===================================================== -->
             <!-- LEAVE SUMMARY OVERVIEW -->
             <!-- ===================================================== -->
 
             <div class="mb-6">
-
-              <!-- Filters + Totals -->
-              <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-
-                <!-- <label class="flex items-center gap-2 text-sm text-gray-300">
-                  <input
-                    type="checkbox"
-                    v-model="includeInactive"
-                    class="h-4 w-4 rounded border-gray-500"
-                  />
-                  Include inactive/resigned employees
-                </label> -->
-
-                <div class="flex gap-5 text-sm text-gray-400">
-                  <span>
-                    Total Requests:
-                    <span class="font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</span>
-                  </span>
-                  <!-- <span>
-                    Total Leave Days:
-                    <span class="font-semibold text-white">{{ leaveTotals.total_days ?? 0 }}</span>
-                  </span> -->
-                </div>
-
+              <label class="summary-filter flex items-center gap-2 text-sm text-gray-300 mb-4">
+                <input v-model="includeInactive" type="checkbox" class="h-4 w-4" />
+                Include inactive/resigned and archived employees
+              </label>
+              <div class="summary-context mb-4 text-sm text-gray-400 space-y-1">
+                <p><strong>Report period:</strong> {{ summaryPeriod }}</p>
+                <p><strong>Employee scope:</strong> {{ summaryFilters.include_inactive ? 'All linked employees, including inactive and archived' : 'Currently active, non-archived employees' }}</p>
+                <p v-if="summaryGeneratedAt"><strong>Generated:</strong> {{ new Date(summaryGeneratedAt).toLocaleString('en-PH') }}</p>
+                <p>Applications whose leave dates overlap the selected period. Day totals include full requested days of matching applications; they are not credits deducted or days restricted to that period.</p>
+                <p>Departments reflect current employee assignments. Non-deleted applications only; missing links are shown as Unassigned.</p>
               </div>
-
-              <!-- Department Summary -->
-              <div class="department-section">
-
-                <div class="mb-3 flex items-center justify-between">
-                  <h5 class="text-sm font-semibold uppercase tracking-wide text-gray-300">
-                    Leave By Department
-                  </h5>
-
-                  <span class="text-xs text-gray-500">
-                    Total Requests
-                  </span>
-                </div>
-
-
-                <div
-                  v-if="leaveByDepartment.length"
-                  class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
-                >
-
-                  <div
-                    v-for="dept in leaveByDepartment"
-                    :key="dept.department"
-                    class="department-item flex min-h-[82px] items-center justify-between rounded-xl px-4 py-3.5 transition"
-                  >
-
-                    <div class="min-w-0 pr-4">
-                      <p class="truncate text-sm font-semibold text-white">
-                        {{ dept.department }}
-                      </p>
-
-                      <p class="mt-1 text-xs text-gray-500">
-                        Leave Requests &middot; 
-                        <!-- {{ dept.days }} day{{ dept.days === 1 ? '' : 's' }} -->
-                      </p>
-                    </div>
-
-                    <div class="shrink-0">
-                      <span class="text-2xl font-bold text-white">
-                        {{ dept.count }}
-                      </span>
-                    </div>
-
-                  </div>
-
-                </div>
-
-                <div
-                  v-else
-                  class="empty-report-state rounded-xl px-4 py-8 text-center"
-                >
-                  <p class="text-sm text-gray-400">
-                    No department data available.
-                  </p>
-                </div>
-
+              <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-4">
+                <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Total Applications</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</p></div>
+                <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Approved</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.approved ?? 0 }}</p></div>
+                <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Pending</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.pending ?? 0 }}</p></div>
+                <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Disapproved</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.disapproved ?? 0 }}</p></div>
               </div>
-
+              <p class="text-sm text-gray-400 mb-4">Total Requested Days: <strong>{{ formatSummaryDays(leaveTotals.total_days) }}</strong> · Requested Days of Approved Applications: <strong>{{ formatApprovedDays(leaveTotals.approved_days) }}</strong></p>
+              <p v-if="Number(leaveTotals.other || 0) > 0" class="text-sm text-gray-400 mb-4">Other/unrecognized status: {{ leaveTotals.other }} application(s). Review these records; they are included in the total.</p>
+              <h5 class="text-sm font-semibold uppercase tracking-wide text-gray-300 mb-3">Leave Summary by Department</h5>
+              <div class="summary-table-wrapper">
+                <table class="department-summary-table">
+                  <thead><tr><th>Department</th><th>Total Applications</th><th>Approved</th><th>Pending</th><th>Disapproved</th><th v-if="Number(leaveTotals.other || 0) > 0">Other</th><th>Requested Days</th><th>Requested Days of Approved Applications</th></tr></thead>
+                  <tbody>
+                    <tr v-for="dept in leaveSummaryData" :key="dept.department_id ?? dept.department">
+                      <td>{{ dept.department }}</td><td>{{ dept.total }}</td><td>{{ dept.approved }}</td><td>{{ dept.pending }}</td><td>{{ dept.disapproved }}</td><td v-if="Number(leaveTotals.other || 0) > 0">{{ dept.other ?? 0 }}</td><td>{{ formatSummaryDays(dept.total_days) }}</td><td>{{ formatApprovedDays(dept.approved_days) }}</td>
+                    </tr>
+                    <tr v-if="!leaveSummaryData.length"><td :colspan="Number(leaveTotals.other || 0) > 0 ? 8 : 7">No applications match the selected period and employee scope.</td></tr>
+                  </tbody>
+                  <tfoot><tr><th>Grand Total</th><td>{{ leaveTotals.applications ?? 0 }}</td><td>{{ leaveTotals.approved ?? 0 }}</td><td>{{ leaveTotals.pending ?? 0 }}</td><td>{{ leaveTotals.disapproved ?? 0 }}</td><td v-if="Number(leaveTotals.other || 0) > 0">{{ leaveTotals.other }}</td><td>{{ formatSummaryDays(leaveTotals.total_days) }}</td><td>{{ formatApprovedDays(leaveTotals.approved_days) }}</td></tr></tfoot>
+                </table>
+              </div>
             </div>
 
-
-            <!-- ===================================================== -->
             <!-- STATUS + LEAVE TYPE -->
             <!-- ===================================================== -->
 
@@ -785,6 +734,32 @@ const localDate = (date: Date) => [
 ].join('-')
 
 const dateRange = ref({ start: '', end: '' })
+const includeInactive = ref(true)
+const summaryFilters = ref<{ start_date: string | null; end_date: string | null; include_inactive: boolean }>({ start_date: null, end_date: null, include_inactive: true })
+const summaryGeneratedAt = ref('')
+const summaryPeriod = computed(() => {
+  const { start_date, end_date } = summaryFilters.value
+  if (!start_date && !end_date) return 'All dates'
+  return `${start_date || 'Any start date'} to ${end_date || 'Any end date'}`
+})
+const formatSummaryDays = (value: unknown) => {
+  const number = Number(value ?? 0)
+  return Number.isFinite(number) ? number.toFixed(3) : '0.000'
+}
+const formatApprovedDays = (value: unknown) => {
+  if (value === undefined || value === null || String(value).trim() === '') return 'Unavailable'
+  const number = Number(value)
+  return Number.isFinite(number) && number >= 0 ? number.toFixed(3) : 'Unavailable'
+}
+const summaryBackendWarning = computed(() => {
+  if (!summaryLoaded.value) return ''
+  const missing = formatApprovedDays(leaveTotals.value.approved_days) === 'Unavailable'
+    || leaveSummaryData.value.some((row: any) => formatApprovedDays(row.approved_days) === 'Unavailable')
+  return missing ? 'The backend response is missing approved-day totals. Update ReportController.php on the backend used by this page. Approved days are unavailable; they are not zero.' : ''
+})
+const summaryLoaded = ref(false)
+let summaryRequestVersion = 0
+let reportRefreshVersion = 0
 
 const reportParams = () => ({
   ...(dateRange.value.start && { start_date: dateRange.value.start }),
@@ -985,10 +960,7 @@ const formatNumber = (value: number | string | null | undefined) =>
 
 function calculatePercentage(value: number) {
 
-  const total =
-    statusChartData.value.approved +
-    statusChartData.value.pending +
-    statusChartData.value.disapproved
+  const total = Number(leaveTotals.value.applications ?? 0)
 
   if (!total) {
     return 0
@@ -1008,17 +980,21 @@ function calculatePercentage(value: number) {
 */
 
 async function loadLeaveSummary() {
-
+  const version = ++summaryRequestVersion
   try {
 
     const response =
-      await api.get('/reports/leave-summary', { params: reportParams() })
+      await api.get('/reports/leave-summary', { params: { ...reportParams(), include_inactive: includeInactive.value ? 1 : 0 } })
 
+    if (version !== summaryRequestVersion || selectedReportType.value !== 'leave-summary') return
+    summaryFilters.value = response.data.filters || { start_date: null, end_date: null, include_inactive: true }
+    summaryGeneratedAt.value = response.data.generated_at || ''
     leaveSummaryData.value =
       response.data.summary || []
 
     leaveTotals.value =
       response.data.totals || {}
+    summaryLoaded.value = true
 
     await nextTick()
 
@@ -1669,6 +1645,7 @@ const generateCustomReport = () => {
 
 
 const exportReport = () => {
+  if (loading.value || reportError.value) return
 
   let data: any[] = []
 
@@ -1680,35 +1657,39 @@ const exportReport = () => {
     selectedReportType.value
   ) {
 
-    case 'leave-summary':
-
-      data =
-        leaveSummaryData.value.map(
-          (item: any) => ({
-
-            Department:
-              item.department ?? '',
-
-            'Total Leaves':
-              item.total ?? 0,
-
-            Approved:
-              item.approved ?? 0,
-
-            Pending:
-              item.pending ?? 0,
-
-            Disapproved:
-              item.disapproved ?? 0
-
-          })
-        )
-
-      filename =
-        'leave-summary-report.csv'
-
+    case 'leave-summary': {
+      const context = {
+        'Report Period': summaryPeriod.value,
+        'Employee Scope': summaryFilters.value.include_inactive ? 'All employees including inactive/archived' : 'Currently active non-archived employees',
+        'Generated At': summaryGeneratedAt.value,
+        'Date Basis': 'Leave dates overlap period',
+        'Days Basis': 'Full requested days; not period-only days or deducted credits',
+        'Department Basis': 'Current employee department',
+        'Record Scope': 'Non-deleted applications; missing links shown as Unassigned'
+      }
+      data = leaveSummaryData.value.map((item: any) => ({
+        ...context,
+        Department: item.department ?? 'Unassigned',
+        'Total Applications': item.total ?? 0,
+        Approved: item.approved ?? 0,
+        Pending: item.pending ?? 0,
+        Disapproved: item.disapproved ?? 0,
+        Other: item.other ?? 0,
+        'Requested Days': formatSummaryDays(item.total_days),
+        'Requested Days of Approved Applications': formatApprovedDays(item.approved_days)
+      }))
+      data.push({ ...context, Department: 'Grand Total',
+        'Total Applications': leaveTotals.value.applications ?? 0,
+        Approved: leaveTotals.value.approved ?? 0,
+        Pending: leaveTotals.value.pending ?? 0,
+        Disapproved: leaveTotals.value.disapproved ?? 0,
+        Other: leaveTotals.value.other ?? 0,
+        'Requested Days': formatSummaryDays(leaveTotals.value.total_days),
+        'Requested Days of Approved Applications': formatApprovedDays(leaveTotals.value.approved_days)
+      })
+      filename = 'leave-summary-report.csv'
       break
-
+    }
 
     case 'leave-credits':
 
@@ -1867,6 +1848,7 @@ const exportReport = () => {
 */
 
 const printReport = () => {
+  if (loading.value || reportError.value) return
 
   window.print()
 
@@ -1880,11 +1862,14 @@ const printReport = () => {
 */
 
 watch(
-  [selectedReportType, () => dateRange.value.start, () => dateRange.value.end],
+  [selectedReportType, () => dateRange.value.start, () => dateRange.value.end, includeInactive],
   async () => {
+    const version = ++reportRefreshVersion
+    ++summaryRequestVersion
     reportError.value = ''
     if (selectedReportType.value === 'leave-summary' && dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
       reportError.value = 'Start date must be on or before end date.'
+      if (version === reportRefreshVersion) loading.value = false
       return
     }
     loading.value = true
@@ -1899,9 +1884,9 @@ watch(
       }
     } catch (error) {
       console.error('Failed to load report:', error)
-      reportError.value = 'Could not load the report. Please try again.'
+      if (version === reportRefreshVersion) reportError.value = 'Could not load the report. Please try again.'
     } finally {
-      loading.value = false
+      if (version === reportRefreshVersion) loading.value = false
     }
   },
   { immediate: true }
@@ -1911,6 +1896,21 @@ watch(
 
 
 <style scoped>
+.approved-days-warning { color: #92400e; background: #fffbeb; border: 1px solid #fcd34d; }
+
+.summary-table-wrapper { width:100%; overflow-x:auto; }
+.department-summary-table { width:100%; border-collapse:collapse; color:var(--text); font-size:.875rem; }
+.department-summary-table th, .department-summary-table td { padding:.8rem; border-bottom:1px solid var(--border, #cbd5e1); text-align:right; }
+.department-summary-table th:first-child, .department-summary-table td:first-child { text-align:left; }
+.department-summary-table thead, .department-summary-table tfoot { background:var(--surface-muted); font-weight:600; }
+@media print {
+  .summary-filter { display:none !important; }
+  .summary-table-wrapper { overflow:visible; }
+  .department-summary-table { font-size:9pt; }
+  .department-summary-table th, .department-summary-table td { padding:5pt; }
+  .department-summary-table tr { break-inside:avoid; }
+}
+
 
 /* =========================================================
    PAGE

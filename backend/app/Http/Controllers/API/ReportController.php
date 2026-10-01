@@ -34,20 +34,13 @@ class ReportController extends Controller
     public function leaveSummary(Request $request)
     {
         $dates = $this->reportDates($request);
-
-        // Default: only currently-active employees count toward the summary.
-        // ?include_inactive=1 brings resigned/inactive employees back in.
-        $includeInactive = $request->boolean('include_inactive');
-
+        $request->validate(['include_inactive' => 'sometimes|boolean']);
+        // Historical applications are included by default, even after departure.
+        $includeInactive = $request->boolean('include_inactive', true);
         $leaves = LeaveApplication::with([
-            // withTrashed() here is the key fix: without it, a leave application
-            // whose employee was later soft-deleted loses its department entirely
-            // and used to fall into "Unknown". This recovers the real department
-            // for historical records instead of silently losing the join.
             'employee' => fn ($q) => $q->withTrashed()->with('department'),
-            'leaveType'
+            'leaveType',
         ])
-            ->whereNotNull('leave_type_id')
             ->when($dates['start_date'] ?? null, fn ($q, $date) => $q->where(function ($query) use ($date) {
                 $query->whereDate('end_date', '>=', $date)
                     ->orWhere(function ($missingEnd) use ($date) {
@@ -57,81 +50,70 @@ class ReportController extends Controller
             ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('start_date', '<=', $date))
             ->get()
             ->filter(function ($leave) use ($includeInactive) {
-                // A leave whose employee record can't be found at all (even with
-                // withTrashed) is a genuine data-integrity gap, not an "inactive"
-                // employee — always surface it rather than hiding it behind the toggle.
-                if (!$leave->employee) {
-                    return true;
-                }
-
-                return $includeInactive || $leave->employee->employment_status === 'active';
-            })
-            ->values();
+                if (!$leave->employee) return true;
+                return $includeInactive || (!$leave->employee->trashed()
+                    && strtolower(trim((string) $leave->employee->employment_status)) === 'active');
+            })->values();
 
         $summary = [];
-
+        $totals = ['departments' => 0, 'applications' => 0, 'total_days' => 0,
+            'approved_days' => 0, 'approved' => 0, 'pending' => 0,
+            'disapproved' => 0, 'other' => 0];
         foreach ($leaves as $leave) {
-
-            // "Unassigned" (a genuinely missing employee link) is now distinct
-            // from a normal department name, instead of both saying "Unknown".
-            $department = $leave->employee?->department?->department_name ?? 'Unassigned';
-
-            if (!isset($summary[$department])) {
-
-                $summary[$department] = [
-                    'department' => $department,
-                    'total' => 0,
-                    'total_days' => 0,
-                    'approved' => 0,
-                    'pending' => 0,
-                    'disapproved' => 0,
-                    'leave_types' => []
+            $departmentId = $leave->employee?->department?->department_id;
+            $key = $departmentId === null ? 'unassigned' : 'department:' . $departmentId;
+            if (!isset($summary[$key])) {
+                $summary[$key] = [
+                    'department_id' => $departmentId,
+                    'department' => $leave->employee?->department?->department_name ?? 'Unassigned',
+                    'total' => 0, 'total_days' => 0, 'approved_days' => 0,
+                    'approved' => 0, 'pending' => 0, 'disapproved' => 0,
+                    'other' => 0, 'leave_types' => [],
                 ];
             }
-
-            $summary[$department]['total']++;
-            $summary[$department]['total_days'] += (int) $leave->number_of_days;
-
-            switch ($leave->final_status) {
-
-                case 'approved':
-                    $summary[$department]['approved']++;
-                    break;
-
-                case 'pending':
-                    $summary[$department]['pending']++;
-                    break;
-
-                case 'disapproved':
-                    $summary[$department]['disapproved']++;
-                    break;
+            $status = strtolower(trim((string) $leave->final_status));
+            if (!in_array($status, ['approved', 'pending', 'disapproved'], true)) $status = 'other';
+            // Integer thousandths preserve half days and three-decimal equivalents.
+            $dayUnits = (int) round((float) ($leave->number_of_days ?? 0) * 1000);
+            $summary[$key]['total']++;
+            $summary[$key]['total_days'] += $dayUnits;
+            $summary[$key][$status]++;
+            $totals['applications']++;
+            $totals['total_days'] += $dayUnits;
+            $totals[$status]++;
+            if ($status === 'approved') {
+                $summary[$key]['approved_days'] += $dayUnits;
+                $totals['approved_days'] += $dayUnits;
             }
-
-            $type = $leave->leaveType->leave_type_name ?? 'Unspecified';
-
-            if (!isset($summary[$department]['leave_types'][$type])) {
-                $summary[$department]['leave_types'][$type] = 0;
-            }
-
-            $summary[$department]['leave_types'][$type]++;
+            $type = $leave->leaveType?->leave_type_name ?? 'Unspecified';
+            $summary[$key]['leave_types'][$type] = ($summary[$key]['leave_types'][$type] ?? 0) + 1;
         }
-
-        $totals = [
-            'departments' => count($summary),
-            'applications' => $leaves->count(),
-            'total_days' => (int) $leaves->sum('number_of_days'),
-            'approved' => $leaves->where('final_status', 'approved')->count(),
-            'pending' => $leaves->where('final_status', 'pending')->count(),
-            'disapproved' => $leaves->where('final_status', 'disapproved')->count(),
-        ];
+        $formatDays = fn ($units) => number_format($units / 1000, 3, '.', '');
+        foreach ($summary as &$row) {
+            $row['total_days'] = $formatDays($row['total_days']);
+            $row['approved_days'] = $formatDays($row['approved_days']);
+        }
+        unset($row);
+        $totals['departments'] = count($summary);
+        $totals['total_days'] = $formatDays($totals['total_days']);
+        $totals['approved_days'] = $formatDays($totals['approved_days']);
+        $rows = array_values($summary);
+        usort($rows, fn ($a, $b) => strcasecmp($a['department'], $b['department']));
 
         return response()->json([
-            'summary' => array_values($summary),
-            'totals' => $totals,
+            'report_version' => 'leave-summary-v2',
+            'summary' => $rows, 'totals' => $totals,
+            'generated_at' => Carbon::now('Asia/Manila')->toIso8601String(),
             'filters' => [
+                'start_date' => $dates['start_date'] ?? null,
+                'end_date' => $dates['end_date'] ?? null,
                 'include_inactive' => $includeInactive,
+                'date_basis' => 'Applications with leave dates overlapping the selected period.',
+                'days_basis' => 'Full requested days per matching application, not days restricted to the period or credits deducted.',
+                'department_basis' => 'Current department of the linked employee; historical department snapshots are not available.',
+                'record_scope' => 'Non-deleted leave applications. Missing employee/department links are shown as Unassigned.',
             ],
-        ]);
+        ])->header('Cache-Control', 'no-store, private');
     }
 
     public function leaveCredits()

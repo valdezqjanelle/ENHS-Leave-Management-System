@@ -546,9 +546,13 @@ interface CreditGroup {
 }
 
 const selectedEmployeeId = ref<number | null>(null);
+const isLocalCredit = (credit: LeaveCredit) =>
+  ["service", "local credits"].includes(String(credit.credit_type || "").trim().toLowerCase());
+
 const creditGroups = computed<CreditGroup[]>(() => {
   const groups = new Map<number, CreditGroup>();
   for (const credit of credits.value) {
+    if (!isLocalCredit(credit)) continue;
     const employeeId = Number(credit.employee_id);
     let group = groups.get(employeeId);
     if (!group) {
@@ -573,9 +577,9 @@ const creditGroups = computed<CreditGroup[]>(() => {
     const days = Number(credit.equivalent_leave_days || 0);
     if (Number.isFinite(hours)) group.hourUnits += Math.round(hours * 10000);
     // Sum recorded three-decimal equivalents rather than recomputing from total hours.
-    let bucket = group.buckets.find((b) => b.type === credit.credit_type);
+    let bucket = group.buckets.find((b) => b.type === "Service");
     if (!bucket) {
-      bucket = { type: credit.credit_type, dayUnits: 0 };
+      bucket = { type: "Service", dayUnits: 0 };
       group.buckets.push(bucket);
     }
     if (Number.isFinite(days)) bucket.dayUnits += Math.round(days * 1000);
@@ -601,7 +605,7 @@ const filteredCreditGroups = computed(() => {
 });
 const detailCredits = computed(() =>
   credits.value.filter(
-    (credit) => Number(credit.employee_id) === selectedEmployeeId.value,
+    (credit) => isLocalCredit(credit) && Number(credit.employee_id) === selectedEmployeeId.value,
   ),
 );
 const selectedEmployeeName = computed(
