@@ -1978,7 +1978,7 @@ const loadDeletedEmployees = async () => {
     console.log("Deleted Employees:", deletedEmployees.value);
   } catch (error) {
     console.error("Failed to load deleted employees:", error);
-    -alert("Unable to load deleted employees.");
+    alert("Unable to load deleted employees.");
   }
 };
 
@@ -2008,7 +2008,7 @@ const restoreEmployeeRecord = async (id: number) => {
 
 const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
   const confirmed = confirm(
-    `Are you sure you want to PERMANENTLY delete ${employee.first_name} ${employee.last_name}? This action cannot be undone and will remove all related records.`,
+    `Are you sure you want to PERMANENTLY delete ${employee.first_name} ${employee.last_name}? This cannot be undone. It will remove this employee and their leave applications, credits, balances, attendance and personnel records. Historical audit and school-year records will remain; login access will be removed.`,
   );
 
   if (!confirmed) {
@@ -2016,15 +2016,15 @@ const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
   }
 
   try {
-    await permanentlyDeleteEmployee(employee.employee_id);
+    const result = await permanentlyDeleteEmployee(employee.employee_id);
 
-    alert("Employee permanently deleted.");
+    alert(result?.message || "Employee permanently deleted.");
 
-    await loadDeletedEmployees();
-  } catch (error) {
+    await Promise.all([loadEmployees(), loadDeletedEmployees()]);
+  } catch (error: any) {
     console.error("Failed to permanently delete employee:", error);
 
-    alert("Unable to permanently delete employee.");
+    alert(error.response?.data?.message || "Unable to permanently delete employee. Please try again.");
   }
 };
 
