@@ -1461,41 +1461,27 @@ const resetForm = () => {
   otherPurposeSelected.value = false;
 
 };
-
 </script>
 
 
 <style scoped>
 
-
 .dashboard-shell {
   background: var(--app-bg);
-
-  
   width: 100%;
 }
 
-
-
-
 .neo-card {
   background: var(--surface);
-
   border: 1px solid var(--border);
-
   border-radius: 1rem;
-
-  
   width: 100%;
-
   box-shadow:
     0 8px 24px rgba(23, 32, 51, 0.07);
-
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
-
 
 .neo-card:hover {
   box-shadow:
@@ -1519,9 +1505,6 @@ const resetForm = () => {
   color: #ffffff !important;
 }
 
-
-
-
 .form-section {
   padding: 1.25rem;
   background: var(--surface-muted);
@@ -1529,192 +1512,114 @@ const resetForm = () => {
   border-radius: 0.9rem;
 }
 
-
-
-
 .form-label {
   display: block;
-
   color: #334155;
-
   font-size: 0.9375rem;
-
   font-weight: 500;
-
   margin-bottom: 0.5rem;
 }
 
-
-
-
 .section-title {
   color: var(--text);
-
   font-size: 1rem;
-
   font-weight: 600;
-
   margin-bottom: 1.25rem;
 }
 
-
-
-
 .input-field {
   width: 100%;
-
   max-width: 100%;
-
   min-width: 0;
-
   border: 1px solid #c7d2e0;
-
   border-radius: 0.65rem;
-
   padding: 0.6rem 0.75rem;
-
   background: #ffffff;
-
   color: var(--text);
-
   font-size: 0.9375rem;
-
   outline: none;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     background 0.2s ease;
 }
 
-
 .input-field:focus {
   border-color: var(--primary);
-
   box-shadow:
     0 0 0 3px var(--focus-ring);
 }
-
 
 .input-field::placeholder {
   color: #7a8799;
 }
 
-
 .input-field:read-only {
   color: #526176;
-
   background: #eef2f7;
 }
-
 
 select.input-field {
   color: var(--text);
 }
 
-
 select.input-field option {
   color: var(--text);
-
   background: #ffffff;
 }
-
-
-
-
 .detail-box {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
   gap: 1rem;
-
   padding: 1rem;
-
   background: #eef4fb;
-
   border: 1px solid #c8d6e6;
-
   border-radius: 0.8rem;
-
   min-width: 0;
 }
-
-
-
-
 .option-box {
   padding: 1rem;
-
   background: #eef4fb;
-
   border: 1px solid #c8d6e6;
-
   border-radius: 0.8rem;
-
   min-width: 0;
 }
-
 
 .checkbox-label {
   display: flex;
-
   align-items: center;
-
   gap: 0.6rem;
-
   color: #334155;
-
   font-size: 0.875rem;
-
   margin-bottom: 0.75rem;
-
   cursor: pointer;
 }
-
 
 .checkbox-label:last-child {
   margin-bottom: 0;
 }
 
-
 .checkbox-input {
   width: 1rem;
-
   height: 1rem;
-
   accent-color: #2563eb;
-
   cursor: pointer;
-
   flex-shrink: 0;
 }
 
-
-
-
 .credit-box {
   background: #eaf2ff;
-
   border: 1px solid #b8cdf0;
-
   border-radius: 1rem;
-
   padding: 1.25rem;
-
   width: 100%;
 }
 
-
 .credit-item {
   display: flex;
-
   align-items: center;
-
   gap: 0.35rem;
-
   font-size: 0.875rem;
-
   min-width: 0;
 }
 
@@ -1722,36 +1627,22 @@ select.input-field option {
   color: #1e40af !important;
 }
 
-
-
-
 .upload-box {
   border: 2px dashed #9fb0c5;
-
   border-radius: 1rem;
-
   padding: 2.5rem 1.5rem;
-
   text-align: center;
-
   background: #f8fafc;
-
   transition:
     border-color 0.2s ease,
     background 0.2s ease;
-
   width: 100%;
 }
 
-
 .upload-box:hover {
   border-color: var(--primary);
-
   background: #eef4ff;
 }
-
-
-
 
 .neo-card h3,
 .neo-card p,
@@ -1760,19 +1651,14 @@ select.input-field option {
   letter-spacing: -0.01em;
 }
 
-
-
-
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-
-  opacity: 0.7;
-
   cursor: pointer;
+  opacity: 0.7;
 }
 
-
-
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
 
 .signature-box {
   width: 100%;
@@ -1782,7 +1668,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: #ffffff;
   overflow: hidden;
 }
-
 
 .signature-canvas {
   width: 100%;
@@ -1796,9 +1681,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   touch-action: none;
 }
 
-
-
-
 @media (max-width: 768px) {
 
   .detail-box {
@@ -1806,9 +1688,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 
 }
-
-
-
 
 @media (max-width: 640px) {
 
@@ -1828,6 +1707,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .detail-box {
     padding: 0.75rem;
   }
-
 }
 </style> 
