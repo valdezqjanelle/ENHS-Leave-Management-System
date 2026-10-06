@@ -73,6 +73,14 @@ class LeaveApplication extends Model
         'final_status',
         'disapproval_reason',
         'admin_remarks',
+        'signatory_name_snapshot',
+        'signatory_designation_snapshot',
+        'signatory_signature_path_snapshot',
+        'signatory_snapshot_locked',
+    ];
+
+    protected $hidden = [
+        'signatory_signature_path_snapshot',
     ];
 
     protected $casts = [
@@ -85,6 +93,7 @@ class LeaveApplication extends Model
         'board_exam_review' => 'boolean',
         'monetization' => 'boolean',
         'terminal_leave' => 'boolean',
+        'signatory_snapshot_locked' => 'boolean',
 
         'vacation_total_earned' => 'decimal:2',
         'vacation_less_application' => 'decimal:2',

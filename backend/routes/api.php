@@ -19,6 +19,7 @@ use App\Http\Controllers\API\LeaveSettingController;
 use App\Http\Controllers\ApprovalSettingController;
 use App\Http\Controllers\API\SystemSettingController;
 use App\Http\Controllers\API\BackupController;
+use App\Http\Controllers\API\AuthorizedSignatoryController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\TeachingPersonnelRecordController;
@@ -127,6 +128,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADMIN ONLY
 
     Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'show']);
+        Route::get('/admin/authorized-signatory/signature', [AuthorizedSignatoryController::class, 'signature']);
+        Route::post('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'update']);
+
         Route::get('/leave-school-years', [LeaveSchoolYearController::class, 'index']);
         Route::post('/leave-school-years/preview', [LeaveSchoolYearController::class, 'preview']);
         Route::post('/leave-school-years/activate', [LeaveSchoolYearController::class, 'activate']);

@@ -987,6 +987,145 @@
       </div>
     </div>
 
+    <div v-if="activeTab === 'signatory'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-[var(--text)]">
+        Authorized Signatory
+      </h2>
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
+        Manage the name, designation, and signature printed in the approving
+        authority block of newly generated CS Form No. 6 documents.
+      </p>
+
+      <form class="inner-card p-5 space-y-5" @submit.prevent="saveSignatory">
+        <div
+          v-if="signatoryFeedback"
+          role="status"
+          class="rounded-lg border px-4 py-3 text-sm"
+          :class="
+            signatoryFeedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-800'
+              : 'border-red-200 bg-red-50 text-red-800'
+          "
+        >
+          {{ signatoryFeedback.message }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label for="signatory-name" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              Name
+            </label>
+            <input
+              id="signatory-name"
+              v-model="signatoryForm.name"
+              type="text"
+              maxlength="255"
+              required
+              autocomplete="name"
+              class="w-full border rounded-lg px-3 py-2 field-editable"
+              :aria-invalid="Boolean(signatoryErrors.name)"
+              :aria-describedby="signatoryErrors.name ? 'signatory-name-error' : undefined"
+            />
+            <p v-if="signatoryErrors.name" id="signatory-name-error" class="mt-1 text-sm text-red-600">
+              {{ signatoryErrors.name }}
+            </p>
+          </div>
+
+          <div>
+            <label for="signatory-designation" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              Designation
+            </label>
+            <input
+              id="signatory-designation"
+              v-model="signatoryForm.designation"
+              type="text"
+              maxlength="255"
+              required
+              class="w-full border rounded-lg px-3 py-2 field-editable"
+              :aria-invalid="Boolean(signatoryErrors.designation)"
+              :aria-describedby="signatoryErrors.designation ? 'signatory-designation-error' : undefined"
+            />
+            <p v-if="signatoryErrors.designation" id="signatory-designation-error" class="mt-1 text-sm text-red-600">
+              {{ signatoryErrors.designation }}
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_16rem] gap-5 items-start">
+          <div>
+            <label for="signatory-signature" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              Signature image
+            </label>
+            <input
+              id="signatory-signature"
+              ref="signatoryFileInput"
+              type="file"
+              accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+              class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:rounded-md file:border-0 file:bg-[#eef4fb] file:px-3 file:py-2 file:font-medium file:text-[var(--text)] hover:file:bg-[#e0eaf7]"
+              :aria-invalid="Boolean(signatoryErrors.signature)"
+              :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
+              @change="selectSignatorySignature"
+            />
+            <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text-muted)]">
+              PNG or JPEG, up to 2 MB. The image is stored privately and only
+              served to administrators and in authorized CS Form No. 6 PDFs.
+            </p>
+            <p v-if="signatoryErrors.signature" id="signatory-signature-error" class="mt-1 text-sm text-red-600">
+              {{ signatoryErrors.signature }}
+            </p>
+
+            <label
+              v-if="hasSavedSignatorySignature"
+              class="mt-4 flex items-start gap-2 text-sm text-[var(--text-muted)]"
+            >
+              <input
+                v-model="removeSignatorySignature"
+                type="checkbox"
+                class="mt-1"
+                @change="handleRemoveSignatorySignature"
+              />
+              Remove the current signature when saving
+            </label>
+          </div>
+
+          <div class="rounded-lg border border-[#cbd8e8] bg-white p-4">
+            <p class="text-sm font-medium text-[var(--text)] mb-3">
+              {{ selectedSignatorySignature ? "New signature preview" : "Current signature" }}
+            </p>
+            <div class="flex min-h-24 items-center justify-center rounded-md bg-[#f8fafc] p-3">
+              <img
+                v-if="displayedSignatorySignature"
+                :src="displayedSignatorySignature"
+                alt="Authorized signatory signature preview"
+                class="max-h-20 max-w-full object-contain"
+              />
+              <span v-else class="text-sm text-[var(--text-muted)]">
+                No signature uploaded
+              </span>
+            </div>
+            <button
+              v-if="selectedSignatorySignature"
+              type="button"
+              class="mt-3 text-sm font-medium text-[var(--text-muted)] underline underline-offset-2 hover:text-[var(--text)]"
+              @click="clearSelectedSignatorySignature"
+            >
+              Discard selected image
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="rounded-lg bg-[#2563eb] px-5 py-2 font-medium text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="signatorySaving"
+          >
+            {{ signatorySaving ? "Saving..." : "Save Signatory" }}
+          </button>
+        </div>
+      </form>
+    </div>
+
     <div v-if="activeTab === 'audit'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Audit Logs</h2>
 
@@ -1477,7 +1616,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, computed, watch } from "vue";
 import {
   getAdminProfile,
   getAdminPositions,
@@ -1508,6 +1647,11 @@ import {
   getSystemSettings,
   updateSystemSettings,
 } from "@/services/systemSettings";
+import {
+  getAuthorizedSignatory,
+  getAuthorizedSignatorySignature,
+  saveAuthorizedSignatory,
+} from "@/services/authorizedSignatory";
 
 import {
   createDatabaseBackup,
@@ -1517,6 +1661,159 @@ import {
 } from "@/services/backup";
 
 const activeTab = ref("account");
+const signatoryForm = ref({ name: "", designation: "" });
+const signatoryErrors = ref({
+  name: "",
+  designation: "",
+  signature: "",
+});
+const signatoryFeedback = ref<{
+  type: "success" | "error";
+  message: string;
+} | null>(null);
+const signatorySaving = ref(false);
+const hasSavedSignatorySignature = ref(false);
+const removeSignatorySignature = ref(false);
+const selectedSignatorySignature = ref<File | null>(null);
+const savedSignatorySignatureUrl = ref("");
+const selectedSignatorySignatureUrl = ref("");
+const signatoryFileInput = ref<HTMLInputElement | null>(null);
+const displayedSignatorySignature = computed(
+  () => selectedSignatorySignatureUrl.value || savedSignatorySignatureUrl.value,
+);
+
+const releaseSignatoryPreviewUrls = () => {
+  if (savedSignatorySignatureUrl.value) {
+    URL.revokeObjectURL(savedSignatorySignatureUrl.value);
+    savedSignatorySignatureUrl.value = "";
+  }
+  if (selectedSignatorySignatureUrl.value) {
+    URL.revokeObjectURL(selectedSignatorySignatureUrl.value);
+    selectedSignatorySignatureUrl.value = "";
+  }
+};
+
+const loadAuthorizedSignatory = async () => {
+  try {
+    const data = await getAuthorizedSignatory();
+    signatoryForm.value = {
+      name: data.name || "",
+      designation: data.designation || "",
+    };
+    hasSavedSignatorySignature.value = Boolean(data.has_signature);
+
+    if (savedSignatorySignatureUrl.value) {
+      URL.revokeObjectURL(savedSignatorySignatureUrl.value);
+      savedSignatorySignatureUrl.value = "";
+    }
+
+    if (hasSavedSignatorySignature.value) {
+      const blob = await getAuthorizedSignatorySignature();
+      savedSignatorySignatureUrl.value = URL.createObjectURL(blob);
+    }
+  } catch (error: any) {
+    console.error(
+      "Failed to load authorized signatory settings:",
+      error.response?.data || error,
+    );
+    signatoryFeedback.value = {
+      type: "error",
+      message:
+        error.response?.data?.message ||
+        "Unable to load authorized signatory settings.",
+    };
+  }
+};
+
+const selectSignatorySignature = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0] || null;
+
+  if (selectedSignatorySignatureUrl.value) {
+    URL.revokeObjectURL(selectedSignatorySignatureUrl.value);
+    selectedSignatorySignatureUrl.value = "";
+  }
+
+  selectedSignatorySignature.value = file;
+  removeSignatorySignature.value = false;
+  signatoryErrors.value.signature = "";
+  signatoryFeedback.value = null;
+
+  if (file) {
+    selectedSignatorySignatureUrl.value = URL.createObjectURL(file);
+  }
+};
+
+const clearSelectedSignatorySignature = () => {
+  selectedSignatorySignature.value = null;
+  if (selectedSignatorySignatureUrl.value) {
+    URL.revokeObjectURL(selectedSignatorySignatureUrl.value);
+    selectedSignatorySignatureUrl.value = "";
+  }
+  if (signatoryFileInput.value) {
+    signatoryFileInput.value.value = "";
+  }
+};
+
+const handleRemoveSignatorySignature = () => {
+  if (removeSignatorySignature.value) {
+    clearSelectedSignatorySignature();
+  }
+};
+
+const saveSignatory = async () => {
+  signatoryErrors.value = { name: "", designation: "", signature: "" };
+  signatoryFeedback.value = null;
+
+  if (!signatoryForm.value.name.trim()) {
+    signatoryErrors.value.name = "Name is required.";
+  }
+  if (!signatoryForm.value.designation.trim()) {
+    signatoryErrors.value.designation = "Designation is required.";
+  }
+  if (signatoryErrors.value.name || signatoryErrors.value.designation) {
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", signatoryForm.value.name.trim());
+  formData.append("designation", signatoryForm.value.designation.trim());
+  formData.append("remove_signature", removeSignatorySignature.value ? "1" : "0");
+  if (selectedSignatorySignature.value) {
+    formData.append("signature", selectedSignatorySignature.value);
+  }
+
+  signatorySaving.value = true;
+  try {
+    await saveAuthorizedSignatory(formData);
+    clearSelectedSignatorySignature();
+    removeSignatorySignature.value = false;
+    await loadAuthorizedSignatory();
+    signatoryFeedback.value = {
+      type: "success",
+      message: "Authorized signatory settings saved successfully.",
+    };
+  } catch (error: any) {
+    console.error(
+      "Failed to save authorized signatory settings:",
+      error.response?.data || error,
+    );
+    const errors = error.response?.data?.errors || {};
+    signatoryErrors.value = {
+      name: errors.name?.[0] || "",
+      designation: errors.designation?.[0] || "",
+      signature: errors.signature?.[0] || "",
+    };
+    signatoryFeedback.value = {
+      type: "error",
+      message:
+        error.response?.data?.message ||
+        "Failed to save authorized signatory settings.",
+    };
+  } finally {
+    signatorySaving.value = false;
+  }
+};
 
 const auditLogs = ref<any[]>([]);
 const auditActions = ref<string[]>([]);
@@ -1608,6 +1905,10 @@ const tabs = [
   {
     id: "system",
     name: "System Settings",
+  },
+  {
+    id: "signatory",
+    name: "Authorized Signatory",
   },
   {
     id: "audit",
@@ -2331,10 +2632,13 @@ onMounted(() => {
   loadLeaveRules();
   loadApprovalSettings();
   loadSystemSettings();
+  loadAuthorizedSignatory();
   loadAuditLogs();
   loadAuditActions();
   loadBackups();
 });
+
+onBeforeUnmount(releaseSignatoryPreviewUrls);
 </script>
 
 <style scoped>

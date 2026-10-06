@@ -12,6 +12,7 @@ use App\Models\LeaveAttachment;
 use App\Models\EmployeeRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveType;
+use App\Models\AuthorizedSignatory;
 use App\Support\AuditLogger;
 
 // use Barryvdh\DomPDF\Facade\Pdf;
@@ -807,6 +808,79 @@ public function downloadPdf($id, Request $request)
         }
     }
 
+    $signatory = $leave->signatory_snapshot_locked
+        ? (object) [
+            'name' => $leave->signatory_name_snapshot,
+            'designation' => $leave->signatory_designation_snapshot,
+            'signature_path' => $leave->signatory_signature_path_snapshot,
+        ]
+        : AuthorizedSignatory::query()->find(1);
+
+    if (
+        $signatory &&
+        ($signatory->name || $signatory->designation || $signatory->signature_path)
+    ) {
+        $mask = $coords['authorized_signatory_mask'];
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->Rect(
+            $mask['x'],
+            $mask['y'],
+            $mask['width'],
+            $mask['height'],
+            'F'
+        );
+
+        if ($signatory->signature_path) {
+            $signatureDisk = Storage::disk('supabase');
+
+            if ($signatureDisk->exists($signatory->signature_path)) {
+                $mimeType = $signatureDisk->mimeType($signatory->signature_path);
+                $extension = $mimeType === 'image/jpeg' ? 'jpg' : 'png';
+                $temporaryBase = tempnam(sys_get_temp_dir(), 'authorized-signature-');
+
+                if ($temporaryBase === false) {
+                    throw new \RuntimeException('Unable to prepare the authorized signatory signature for the PDF.');
+                }
+
+                $temporaryPath = $temporaryBase . '.' . $extension;
+
+                try {
+                    if (!rename($temporaryBase, $temporaryPath)) {
+                        throw new \RuntimeException('Unable to prepare the authorized signatory signature for the PDF.');
+                    }
+
+                    $signatureContents = $signatureDisk->get($signatory->signature_path);
+                    if (
+                        !is_string($signatureContents) ||
+                        file_put_contents($temporaryPath, $signatureContents) === false
+                    ) {
+                        throw new \RuntimeException('Unable to read the authorized signatory signature for the PDF.');
+                    }
+
+                    $signatureCoordinates = $coords['authorized_signatory_signature'];
+                    $pdf->Image(
+                        $temporaryPath,
+                        $signatureCoordinates['x'],
+                        $signatureCoordinates['y'],
+                        $signatureCoordinates['width'],
+                        $signatureCoordinates['height']
+                    );
+                } finally {
+                    if (is_file($temporaryBase)) {
+                        unlink($temporaryBase);
+                    }
+
+                    if (is_file($temporaryPath)) {
+                        unlink($temporaryPath);
+                    }
+                }
+            }
+        }
+
+        $text('authorized_signatory_name', $signatory->name);
+        $text('authorized_signatory_designation', $signatory->designation);
+    }
+
     $middleInitial = '';
 
 if (!empty($employee->middle_name)) {
@@ -1046,6 +1120,9 @@ $text(
         }
 
         $previousStatus = strtolower($leave->final_status);
+        $requestedStatus = $request->has('final_status')
+            ? strtolower((string) $request->input('final_status'))
+            : $previousStatus;
         $activeYear = DB::table('leave_school_years')->orderByDesc('start_date')->first();
         if ($activeYear && $request->boolean('deduct_balance')
             && strtolower((string) $request->input('final_status')) === 'approved'
@@ -1122,6 +1199,21 @@ $text(
         if ($request->has('final_status')) {
             $updateData['final_status'] =
                 strtolower($request->final_status);
+        }
+
+        if (
+            $previousStatus === 'pending' &&
+            $requestedStatus !== 'pending' &&
+            !$leave->signatory_snapshot_locked
+        ) {
+            $signatory = AuthorizedSignatory::query()
+                ->lockForUpdate()
+                ->find(1);
+
+            $updateData['signatory_snapshot_locked'] = true;
+            $updateData['signatory_name_snapshot'] = $signatory?->name;
+            $updateData['signatory_designation_snapshot'] = $signatory?->designation;
+            $updateData['signatory_signature_path_snapshot'] = $signatory?->signature_path;
         }
 
         if ($request->has('disapproval_reason')) {

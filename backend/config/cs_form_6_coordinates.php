@@ -110,4 +110,10 @@ return [
     'disapproved_reason_l2' => ['x' => 337, 'y' => 691],
     'disapproved_reason_l3' => ['x' => 337, 'y' => 702],
 
+    // ── Section 7: Approving authority signature block ──────────
+    'authorized_signatory_signature' => ['x' => 235, 'y' => 657, 'width' => 130, 'height' => 28],
+    'authorized_signatory_mask' => ['x' => 210, 'y' => 687, 'width' => 175, 'height' => 34],
+    'authorized_signatory_name' => ['x' => 220, 'y' => 694],
+    'authorized_signatory_designation' => ['x' => 220, 'y' => 712],
+
 ];
