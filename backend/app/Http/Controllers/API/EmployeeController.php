@@ -185,6 +185,79 @@ class EmployeeController extends Controller
         return response()->json($employees);
     }
 
+    public function resetPassword($id)
+    {
+        $employee = EmployeeRecord::with('user')->findOrFail($id);
+        abort_unless($employee->user && $employee->user->role === 'employee', 403, 'Only employee accounts can be reset here.');
+
+        $plainPassword = Str::random(12);
+        DB::transaction(function () use ($employee, $plainPassword) {
+            $employee->user->update([
+                'password' => Hash::make($plainPassword),
+            ]);
+            $employee->user->tokens()->delete();
+        });
+
+        AuditLogger::log(
+            'Employee password reset',
+            "Reset password for employee {$employee->first_name} {$employee->last_name} ({$employee->user->email})"
+        );
+
+        return response()->json([
+            'email' => $employee->user->email,
+            'password' => $plainPassword,
+        ]);
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|integer|distinct|exists:employee_records,employee_id',
+            'action' => 'required|in:activate,deactivate,delete',
+        ]);
+
+        $affected = DB::transaction(function () use ($validated) {
+            $employees = EmployeeRecord::with('user')
+                ->whereIn('employee_id', $validated['ids'])
+                ->lockForUpdate()
+                ->get();
+
+            abort_if($employees->count() !== count($validated['ids']), 422, 'One or more selected employees are no longer available.');
+
+            foreach ($employees as $employee) {
+                abort_if(
+                    $employee->user && $employee->user->role !== 'employee',
+                    409,
+                    'Administrator accounts cannot be changed with bulk actions.'
+                );
+            }
+
+            if ($validated['action'] === 'delete') {
+                foreach ($employees as $employee) {
+                    $employee->delete();
+                }
+            } else {
+                $status = $validated['action'] === 'activate' ? 'active' : 'inactive';
+                foreach ($employees as $employee) {
+                    $employee->update(['employment_status' => $status]);
+                }
+            }
+
+            return $employees->count();
+        });
+
+        AuditLogger::log(
+            'Employees bulk action',
+            "Applied {$validated['action']} to {$affected} employee record(s)"
+        );
+
+        return response()->json([
+            'message' => 'Bulk action completed successfully.',
+            'affected' => $affected,
+        ]);
+    }
+
     public function listPositions()
     {
         return response()->json(

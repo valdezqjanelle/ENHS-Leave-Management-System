@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full min-h-screen">
+  <div class="employee-management-page w-full min-h-screen">
     <div class="dashboard-shell w-full max-w-none mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-6">
       <div class="neo-card w-full p-6">
         <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
@@ -15,12 +15,12 @@
 
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button @click="openDeletedEmployees"
-              class="bg-red-600 hover:bg-slate-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
+              class="employee-btn employee-btn-secondary whitespace-nowrap">
               Deleted Employees
             </button>
 
-            <button @click="showCreateModal = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap">
+            <button @click="openCreateModal"
+              class="employee-btn employee-btn-primary whitespace-nowrap">
               + Create Employee
             </button>
           </div>
@@ -28,44 +28,93 @@
       </div>
 
       <div class="neo-card w-full p-6">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <input v-model="search" type="text" placeholder="Search employee..."
-            class="flex-1 min-w-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+        <div class="space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <input v-model="searchInput" type="text" placeholder="Search employee..."
+              class="flex-1 min-w-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
 
-          <select v-model="statusFilter"
-            class="w-full sm:w-48 flex-shrink-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:flex-shrink-0">
+              <label for="sortBy" class="text-sm font-medium text-[var(--text-muted)] whitespace-nowrap">Sort by</label>
+              <select id="sortBy" v-model="sortOption" class="w-full sm:w-60 field-input rounded-lg px-4 py-2">
+                <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+              </select>
+            </div>
+          </div>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
-            <label for="sortBy" class="text-sm font-medium text-[var(--text-muted)] whitespace-nowrap">
-              Sort by
-            </label>
-
-            <select id="sortBy" v-model="sortOption"
-              class="w-full sm:w-60 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option v-for="option in sortOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <select v-model="statusFilter" aria-label="Filter by employment status"
+              class="w-full min-w-0 field-input rounded-lg px-4 py-2">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
+
+            <select v-model="personnelTypeFilter" aria-label="Filter by personnel type"
+              class="w-full min-w-0 field-input rounded-lg px-4 py-2">
+              <option value="all">All Personnel Types</option>
+              <option v-for="value in personnelTypeOptions" :key="value" :value="value">{{ value }}</option>
+            </select>
+
+            <select v-model="positionFilter" aria-label="Filter by position"
+              class="w-full min-w-0 field-input rounded-lg px-4 py-2">
+              <option value="all">All Positions</option>
+              <option v-for="value in positionOptions" :key="value" :value="value">{{ value }}</option>
+            </select>
+
+            <button type="button" @click="clearFilters"
+              class="employee-btn employee-btn-secondary whitespace-nowrap">
+              Clear filters
+            </button>
           </div>
         </div>
       </div>
 
       <div class="neo-card w-full p-6">
-        <div class="table-wrapper">
+        <div class="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-muted)]" aria-live="polite">
+            <strong class="text-[var(--text)]">Total: {{ employees.length }}</strong>
+            <span>Active: {{ activeEmployeeCount }}</span>
+            <span>Inactive: {{ inactiveEmployeeCount }}</span>
+            <span>Showing: {{ filteredEmployees.length }}</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span v-if="selectedEmployeeIds.length" class="text-sm text-[var(--text-muted)]">
+              {{ selectedEmployeeIds.length }} selected
+            </span>
+            <button type="button" :disabled="!selectedEmployeeIds.length" @click="confirmBulkAction('activate')"
+              class="employee-btn employee-btn-status">
+              Activate
+            </button>
+            <button type="button" :disabled="!selectedEmployeeIds.length" @click="confirmBulkAction('deactivate')"
+              class="employee-btn employee-btn-secondary">
+              Deactivate
+            </button>
+            <button type="button" :disabled="!selectedEmployeeIds.length" @click="confirmBulkAction('delete')"
+              class="employee-btn employee-btn-danger">
+              Delete selected
+            </button>
+            <button type="button" @click="exportFilteredEmployees"
+              class="employee-btn employee-btn-secondary">
+              Export CSV / Excel
+            </button>
+          </div>
+        </div>
+        <div class="table-wrapper employee-list-table-wrapper">
           <table class="employee-table">
             <thead class="table-head">
               <tr class="text-left text-[var(--text)] font-semibold">
+                <th class="px-2 sm:px-3 py-3 text-center">
+                  <input type="checkbox" :checked="allPageEmployeesSelected" :indeterminate="somePageEmployeesSelected"
+                    aria-label="Select employees on this page" @change="togglePageSelection" class="employee-checkbox" />
+                </th>
+                <th class="px-2 sm:px-3 py-3 font-bold text-center">#</th>
                 <th v-for="column in sortableColumns" :key="column.key" class="px-2 sm:px-3 py-3 font-bold"
                   :aria-sort="ariaSort(column.key)">
                   <button type="button" @click="toggleColumnSort(column.key)"
-                    class="inline-flex items-center gap-1 font-bold text-left hover:text-blue-600 transition-colors"
+                    class="employee-sort-button inline-flex items-center gap-1 font-bold text-left hover:text-blue-600 transition-colors"
                     :title="`Sort by ${column.label}`">
                     {{ column.label }}
-                    <span class="text-xs" :class="sortKey === column.key ? 'text-blue-600' : 'text-slate-400'">
+                    <span class="employee-sort-indicator text-xs" :class="sortKey === column.key ? 'text-blue-600' : 'text-slate-400'">
                       {{ sortIndicator(column.key) }}
                     </span>
                   </button>
@@ -77,36 +126,37 @@
             </thead>
 
             <tbody>
-              <tr v-for="employee in paginatedEmployees" :key="employee.employee_id"
+              <tr v-for="(employee, rowIndex) in paginatedEmployees" :key="employee.employee_id"
                 class="border-t border-[#cbd8e8] hover:bg-[#eef4fb] transition-colors duration-200">
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)] font-semibold break-words">
+                <td data-label="Select" class="px-2 sm:px-3 py-4 text-center">
+                  <input v-model="selectedEmployeeIds" type="checkbox" :value="employee.employee_id"
+                    :aria-label="`Select ${employee.first_name} ${employee.last_name}`" class="employee-checkbox" />
+                </td>
+                <td data-label="#" class="employee-number-cell px-2 sm:px-3 py-4 text-[var(--text-muted)]">
+                  {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
+                </td>
+                <td data-label="Employee Code" class="employee-code-cell px-2 sm:px-3 py-4 text-[var(--text)] font-semibold">
                   {{ employee.employee_code }}
                 </td>
 
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)] font-medium break-words">
+                <td data-label="Employee" class="employee-name-cell px-2 sm:px-3 py-4 text-[var(--text)] font-medium">
                   {{ employee.last_name }},
                   {{ employee.first_name }}
                   {{ employee.middle_name || "" }}
                   {{ employee.extension_name || "" }}
                 </td>
 
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)] break-all">
-                  {{ employee.user?.email || "-" }}
+                <td data-label="Email" class="employee-email-cell px-2 sm:px-3 py-4 text-[var(--text)]">
+                  <span class="employee-email-value" :title="employee.user?.email || '-'">{{ employee.user?.email || "-" }}</span>
                 </td>
 
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)] break-words">
-                  {{
-                    employee.department?.department_name ||
-                    employee.department_name ||
-                    "—"
-                  }}
+                <td data-label="Position" class="employee-position-cell px-2 sm:px-3 py-4 text-[var(--text)]">
+                  <span class="employee-position-value" :title="employee.position?.name || '-'">
+                    {{ employee.position?.name || "-" }}
+                  </span>
                 </td>
 
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)] break-words">
-                  {{ employee.position?.name || "-" }}
-                </td>
-
-                <td class="px-2 sm:px-3 py-4 text-[var(--text)]">
+                <td data-label="Status" class="employee-status-cell px-2 sm:px-3 py-4 text-[var(--text)]">
                   <span :class="normalizeEmploymentStatus(employee.employment_status) ===
                     'active'
                     ? 'bg-green-100 text-green-700'
@@ -116,28 +166,39 @@
                   </span>
                 </td>
 
-                <td class="px-2 sm:px-3 py-4">
-                  <div class="flex flex-wrap items-center justify-center gap-1">
+                <td data-label="Actions" class="employee-actions-cell px-2 sm:px-3 py-4">
+                  <div class="employee-row-actions">
                     <button @click="viewEmployee(employee)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
+                      class="employee-btn employee-btn-secondary employee-view-button">
                       View
                     </button>
 
-                    <button @click="editEmployee(employee)"
-                      class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
-                      Edit
-                    </button>
-
-                    <button @click="deleteEmployee(employee)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs transition-colors duration-200">
-                      Delete
-                    </button>
+                    <details class="employee-actions-menu" @keydown.esc="closeEmployeeActionMenu">
+                      <summary class="employee-actions-trigger" aria-label="More employee actions" title="More actions">
+                        <svg aria-hidden="true" viewBox="0 0 20 20" class="h-5 w-5">
+                          <circle cx="4" cy="10" r="1.5" fill="currentColor" />
+                          <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+                          <circle cx="16" cy="10" r="1.5" fill="currentColor" />
+                        </svg>
+                      </summary>
+                      <div class="employee-actions-popover">
+                        <button type="button" class="employee-actions-item"
+                          :disabled="resettingEmployeeId === employee.employee_id"
+                          @click="closeEmployeeActionMenu($event); resetEmployeePassword(employee)">
+                          {{ resettingEmployeeId === employee.employee_id ? "Resetting..." : "Reset Password" }}
+                        </button>
+                        <button type="button" class="employee-actions-item employee-actions-item-danger"
+                          @click="closeEmployeeActionMenu($event); deleteEmployee(employee)">
+                          Delete
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 </td>
               </tr>
 
               <tr v-if="filteredEmployees.length === 0">
-                <td colspan="7" class="text-center py-10 text-[var(--text-muted)]">
+                <td colspan="8" class="empty-row text-center py-10 text-[var(--text-muted)]">
                   No employees found.
                 </td>
               </tr>
@@ -220,8 +281,10 @@
                   Email
                 </label>
 
-                <input v-model="form.email" type="email" class="w-full min-w-0 field-input rounded-lg px-3 py-2"
-                  placeholder="employee@email.com" />
+                <input v-model="form.email" type="email" :aria-invalid="Boolean(createFormErrors.email)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': createFormErrors.email }" placeholder="employee@email.com" />
+                <p v-if="createFormErrors.email" class="mt-1 text-sm text-red-600">{{ createFormErrors.email }}</p>
               </div>
             </div>
           </div>
@@ -241,7 +304,10 @@
                   First Name
                 </label>
 
-                <input v-model="form.first_name" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
+                <input v-model="form.first_name" type="text" :aria-invalid="Boolean(createFormErrors.first_name)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': createFormErrors.first_name }" />
+                <p v-if="createFormErrors.first_name" class="mt-1 text-sm text-red-600">{{ createFormErrors.first_name }}</p>
               </div>
 
               <div>
@@ -257,7 +323,10 @@
                   Last Name
                 </label>
 
-                <input v-model="form.last_name" type="text" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
+                <input v-model="form.last_name" type="text" :aria-invalid="Boolean(createFormErrors.last_name)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': createFormErrors.last_name }" />
+                <p v-if="createFormErrors.last_name" class="mt-1 text-sm text-red-600">{{ createFormErrors.last_name }}</p>
               </div>
 
               <div>
@@ -496,13 +565,16 @@
                   Position
                 </label>
 
-                <select v-model="form.position_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
+                <select v-model="form.position_id" :aria-invalid="Boolean(createFormErrors.position_id)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': createFormErrors.position_id }">
                   <option :value="null">Select</option>
 
                   <option v-for="pos in positions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
+                <p v-if="createFormErrors.position_id" class="mt-1 text-sm text-red-600">{{ createFormErrors.position_id }}</p>
               </div>
 
               <div>
@@ -558,12 +630,12 @@
 
         <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
           <button @click="showCreateModal = false"
-            class="bg-red-600 hover:bg-red-700 w-full sm:w-auto px-5 py-2 rounded-lg text-white">
+            class="employee-btn employee-btn-secondary w-full sm:w-auto">
             Cancel
           </button>
 
           <button @click="saveEmployee"
-            class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+            class="employee-btn employee-btn-primary w-full sm:w-auto">
             Create Employee
           </button>
         </div>
@@ -574,12 +646,12 @@
       class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4">
       <div class="bg-[var(--surface)] rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden">
         <div class="bg-green-600 text-white p-5">
-          <h3 class="text-xl font-bold">Employee Created Successfully</h3>
+          <h3 class="text-xl font-bold">{{ generatedCredentials.title }}</h3>
         </div>
 
         <div class="p-6 space-y-4">
           <p class="text-[var(--text)] text-sm">
-            Give these login credentials to the employee.
+            {{ generatedCredentials.message }}
           </p>
 
           <div>
@@ -613,7 +685,7 @@
 
         <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] p-4 flex justify-end">
           <button @click="showCredentialsModal = false"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg">
+            class="employee-btn employee-btn-primary">
             Close
           </button>
         </div>
@@ -920,9 +992,14 @@
           </div>
         </div>
 
-        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end">
-          <button @click="showViewModal = false" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col-reverse sm:flex-row justify-end gap-3">
+          <button @click="showViewModal = false"
+            class="employee-btn employee-btn-secondary w-full sm:w-auto">
             Close
+          </button>
+          <button @click="editEmployee(selectedEmployee); showViewModal = false"
+            class="employee-btn employee-btn-secondary w-full sm:w-auto">
+            Edit Employee
           </button>
         </div>
       </div>
@@ -948,8 +1025,10 @@
                   Email
                 </label>
 
-                <input v-model="editForm.email" type="email"
-                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500" />
+                <input v-model="editForm.email" type="email" :aria-invalid="Boolean(editFormErrors.email)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2 focus:ring-2 focus:ring-amber-500"
+                  :class="{ 'border-red-500': editFormErrors.email }" />
+                <p v-if="editFormErrors.email" class="mt-1 text-sm text-red-600">{{ editFormErrors.email }}</p>
               </div>
             </div>
           </div>
@@ -965,7 +1044,10 @@
                   First Name
                 </label>
 
-                <input v-model="editForm.first_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
+                <input v-model="editForm.first_name" :aria-invalid="Boolean(editFormErrors.first_name)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': editFormErrors.first_name }" />
+                <p v-if="editFormErrors.first_name" class="mt-1 text-sm text-red-600">{{ editFormErrors.first_name }}</p>
               </div>
 
               <div>
@@ -981,7 +1063,10 @@
                   Last Name
                 </label>
 
-                <input v-model="editForm.last_name" class="w-full min-w-0 field-input rounded-lg px-3 py-2" />
+                <input v-model="editForm.last_name" :aria-invalid="Boolean(editFormErrors.last_name)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': editFormErrors.last_name }" />
+                <p v-if="editFormErrors.last_name" class="mt-1 text-sm text-red-600">{{ editFormErrors.last_name }}</p>
               </div>
 
               <div>
@@ -1197,13 +1282,16 @@
                   Position
                 </label>
 
-                <select v-model="editForm.position_id" class="w-full min-w-0 field-input rounded-lg px-3 py-2">
+                <select v-model="editForm.position_id" :aria-invalid="Boolean(editFormErrors.position_id)"
+                  class="w-full min-w-0 field-input rounded-lg px-3 py-2"
+                  :class="{ 'border-red-500': editFormErrors.position_id }">
                   <option :value="null">Select</option>
 
                   <option v-for="pos in positions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
+                <p v-if="editFormErrors.position_id" class="mt-1 text-sm text-red-600">{{ editFormErrors.position_id }}</p>
               </div>
 
               <div>
@@ -1270,12 +1358,12 @@
 
         <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex flex-col sm:flex-row justify-end gap-3">
           <button @click="showEditModal = false"
-            class="w-full sm:w-auto px-5 py-2 rounded-lg border border-[#cbd8e8] text-[var(--text-muted)] bg-[var(--surface)] hover:bg-[#eef4fb]">
+            class="employee-btn employee-btn-secondary w-full sm:w-auto">
             Cancel
           </button>
 
           <button @click="updateEmployee"
-            class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg">
+            class="employee-btn employee-btn-primary w-full sm:w-auto">
             Save Changes
           </button>
         </div>
@@ -1315,7 +1403,6 @@
                   <th class="px-2 sm:px-4 py-3">Employee Code</th>
                   <th class="px-2 sm:px-4 py-3">Employee</th>
                   <th class="px-2 sm:px-4 py-3">Email</th>
-                  <th class="px-2 sm:px-4 py-3">Assignment Area</th>
                   <th class="px-2 sm:px-4 py-3">Position</th>
                   <th class="px-2 sm:px-4 py-3">Deleted At</th>
                   <th class="px-2 sm:px-4 py-3 text-center">Action</th>
@@ -1340,14 +1427,6 @@
                     {{ employee.user?.email || "-" }}
                   </td>
 
-                  <td class="px-2 sm:px-3 py-4 text-[var(--text)] break-words">
-                    {{
-                      employee.department?.department_name ||
-                      employee.department_name ||
-                      "—"
-                    }}
-                  </td>
-
                   <td class="px-2 sm:px-4 py-4 text-[var(--text)] break-words">
                     {{ employee.position?.name || "-" }}
                   </td>
@@ -1358,13 +1437,13 @@
 
                   <td class="px-2 sm:px-4 py-4 text-center">
                     <div class="flex items-center justify-center gap-1 flex-nowrap">
-                      <button @click="restoreEmployeeRecord(employee.employee_id)"
-                        class="bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs">
+                      <button @click="restoreEmployeeRecord(employee)"
+                        class="employee-btn employee-btn-status whitespace-nowrap">
                         Restore
                       </button>
 
                       <button @click="permanentlyDeleteEmployeeRecord(employee)"
-                        class="bg-red-600 hover:bg-red-700 text-white px-2 py-2 rounded-lg whitespace-nowrap text-xs">
+                        class="employee-btn employee-btn-danger whitespace-nowrap">
                         Delete Permanently
                       </button>
                     </div>
@@ -1377,17 +1456,45 @@
 
         <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end">
           <button @click="showDeletedModal = false"
-            class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded-lg">
+            class="employee-btn employee-btn-secondary">
             Close
           </button>
         </div>
       </div>
     </div>
+
+    <div v-if="confirmation"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-[60] p-4"
+      role="presentation">
+      <section class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
+        role="dialog" aria-modal="true" :aria-label="confirmation.title">
+        <div class="p-6 space-y-3">
+          <h2 class="text-xl font-bold text-[var(--text)]">{{ confirmation.title }}</h2>
+          <p class="text-[var(--text-muted)]">{{ confirmation.message }}</p>
+        </div>
+        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end gap-3">
+          <button type="button" :disabled="confirmationBusy" @click="confirmation = null"
+            class="employee-btn employee-btn-secondary" :class="{ 'cursor-not-allowed opacity-50': confirmationBusy }">
+            Cancel
+          </button>
+          <button type="button" :disabled="confirmationBusy" @click="executeConfirmation"
+            class="employee-btn employee-btn-danger">
+            {{ confirmationBusy ? "Working..." : confirmation.confirmLabel }}
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div v-if="toast" class="fixed bottom-5 right-5 z-[70] max-w-sm rounded-lg px-4 py-3 text-white shadow-lg"
+      :class="toast.type === 'error' ? 'bg-red-700' : 'bg-green-700'"
+      :role="toast.type === 'error' ? 'alert' : 'status'" aria-live="polite">
+      {{ toast.message }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import axios from "axios";
 
 import {
@@ -1399,6 +1506,8 @@ import {
   restoreEmployee,
   permanentlyDeleteEmployee,
   getPositions,
+  resetEmployeePassword as resetEmployeePasswordAPI,
+  applyBulkEmployeeAction,
 } from "../services/employee";
 
 interface Employee {
@@ -1476,8 +1585,27 @@ interface Employee {
   } | null;
 }
 
-const search = ref("");
-const statusFilter = ref("all");
+const listStateStorageKey = "employee-management-list-state";
+const savedListState = (() => {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(listStateStorageKey) || "{}");
+    return value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : {};
+  } catch (error) {
+    console.warn("Unable to restore employee list state:", error);
+    return {};
+  }
+})();
+const search = ref(typeof savedListState.search === "string" ? savedListState.search : "");
+const searchInput = ref(search.value);
+const statusFilter = ref(
+  savedListState.statusFilter === "active" || savedListState.statusFilter === "inactive"
+    ? savedListState.statusFilter
+    : "all",
+);
+const personnelTypeFilter = ref(typeof savedListState.personnelTypeFilter === "string" ? savedListState.personnelTypeFilter : "all");
+const positionFilter = ref(typeof savedListState.positionFilter === "string" ? savedListState.positionFilter : "all");
 
 // ---------- Sorting ----------
 type SortKey =
@@ -1492,15 +1620,21 @@ type SortKey =
 type SortDir = "asc" | "desc";
 
 // null = default order (as loaded from the server)
-const sortKey = ref<SortKey | null>(null);
-const sortDir = ref<SortDir>("asc");
+const allowedSortKeys: SortKey[] = [
+  "employee_code", "name", "email", "department", "position", "status", "date_hired",
+];
+const sortKey = ref<SortKey | null>(
+  typeof savedListState.sortKey === "string" && allowedSortKeys.includes(savedListState.sortKey as SortKey)
+    ? savedListState.sortKey as SortKey
+    : null,
+);
+const sortDir = ref<SortDir>(savedListState.sortDir === "desc" ? "desc" : "asc");
 
 // Columns that can be sorted by clicking their header
 const sortableColumns: { key: SortKey; label: string }[] = [
   { key: "employee_code", label: "Employee Code" },
   { key: "name", label: "Employee" },
   { key: "email", label: "Email" },
-  { key: "department", label: "Assignment Area" },
   { key: "position", label: "Position" },
   { key: "status", label: "Status" },
 ];
@@ -1614,6 +1748,52 @@ const getSortValue = (
 };
 
 const employees = ref<Employee[]>([]);
+const selectedEmployeeIds = ref<number[]>([]);
+const activeEmployeeCount = computed(() =>
+  employees.value.filter((employee) => normalizeEmploymentStatus(employee.employment_status) === "active").length,
+);
+const inactiveEmployeeCount = computed(() =>
+  employees.value.filter((employee) => normalizeEmploymentStatus(employee.employment_status) === "inactive").length,
+);
+const personnelTypeOptions = computed(() =>
+  [...new Set(employees.value.map((employee) => employee.personnel_type).filter(Boolean))].sort(),
+);
+const positionOptions = computed(() =>
+  [...new Set(employees.value.map((employee) => employee.position?.name).filter((value): value is string => Boolean(value)))].sort(),
+);
+const createFormErrors = ref<Record<string, string>>({});
+const editFormErrors = ref<Record<string, string>>({});
+const toast = ref<{ message: string; type: "success" | "error" } | null>(null);
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+const confirmation = ref<{
+  title: string;
+  message: string;
+  confirmLabel: string;
+  action: (() => Promise<void>) | null;
+} | null>(null);
+const confirmationBusy = ref(false);
+const resettingEmployeeId = ref<number | null>(null);
+
+const showToast = (message: string, type: "success" | "error" = "success") => {
+  toast.value = { message, type };
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.value = null;
+  }, 4000);
+};
+
+watch(searchInput, (value) => {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    search.value = value;
+  }, 300);
+});
+
+onBeforeUnmount(() => {
+  if (searchTimer) clearTimeout(searchTimer);
+  if (toastTimer) clearTimeout(toastTimer);
+});
 
 const deletedEmployees = ref<Employee[]>([]);
 
@@ -1829,6 +2009,8 @@ watch(
 );
 
 const generatedCredentials = ref({
+  title: "Employee Created Successfully",
+  message: "Give these login credentials to the employee.",
   email: "",
   password: "",
 });
@@ -1977,6 +2159,14 @@ const viewEmployee = (employee: Employee) => {
   showViewModal.value = true;
 };
 
+const closeEmployeeActionMenu = (event: Event) => {
+  const currentTarget = event.currentTarget;
+  const details = currentTarget instanceof HTMLDetailsElement
+    ? currentTarget
+    : (currentTarget as HTMLElement | null)?.closest("details");
+  details?.removeAttribute("open");
+};
+
 const filteredEmployees = computed(() => {
   const keyword = search.value.toLowerCase().trim();
 
@@ -1998,6 +2188,7 @@ const filteredEmployees = computed(() => {
     const level = employee.level?.toLowerCase() || "";
     const personnelType = employee.personnel_type?.toLowerCase() || "";
     const employmentStatus = employee.employment_status?.toLowerCase() || "";
+    const employmentCategory = employee.employment_category?.toLowerCase() || "";
 
     const matchesSearch =
       !keyword ||
@@ -2010,12 +2201,17 @@ const filteredEmployees = computed(() => {
       department.includes(keyword) ||
       position.includes(keyword) ||
       level.includes(keyword) ||
-      personnelType.includes(keyword);
+      personnelType.includes(keyword) ||
+      employmentCategory.includes(keyword);
 
     const matchesStatus =
       statusFilter.value === "all" || employmentStatus === statusFilter.value;
+    const matchesPersonnelType =
+      personnelTypeFilter.value === "all" || personnelType === personnelTypeFilter.value.toLowerCase();
+    const matchesPosition =
+      positionFilter.value === "all" || position === positionFilter.value.toLowerCase();
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesPersonnelType && matchesPosition;
   });
 
   // No sort chosen: keep the original (load/creation) order.
@@ -2051,9 +2247,20 @@ const filteredEmployees = computed(() => {
 });
 
 // ---------- Pagination ----------
-const currentPage = ref(1);
-const pageSize = ref(10);
 const pageSizeOptions = [10, 25, 50, 100];
+const savedPageSize = Number(savedListState.pageSize);
+const pageSize = ref(pageSizeOptions.includes(savedPageSize) ? savedPageSize : 10);
+const savedPage = Number(savedListState.currentPage);
+const currentPage = ref(Number.isInteger(savedPage) && savedPage > 0 ? savedPage : 1);
+const pageEmployees = computed(() => paginatedEmployees.value);
+const allPageEmployeesSelected = computed(() =>
+  pageEmployees.value.length > 0 &&
+  pageEmployees.value.every((employee) => selectedEmployeeIds.value.includes(employee.employee_id)),
+);
+const somePageEmployeesSelected = computed(() =>
+  pageEmployees.value.some((employee) => selectedEmployeeIds.value.includes(employee.employee_id)) &&
+  !allPageEmployeesSelected.value,
+);
 
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredEmployees.value.length / pageSize.value)),
@@ -2091,9 +2298,20 @@ const goToPage = (page: number | string) => {
   currentPage.value = Math.min(Math.max(1, page), totalPages.value);
 };
 
-// Go back to page 1 whenever the list changes shape
-watch([search, statusFilter, sortKey, sortDir, pageSize], () => {
+const filterSources = [
+  search,
+  statusFilter,
+  personnelTypeFilter,
+  positionFilter,
+  sortKey,
+  sortDir,
+  pageSize,
+];
+
+// Go back to page 1 and clear selection whenever the visible list changes.
+watch(filterSources, () => {
   currentPage.value = 1;
+  selectedEmployeeIds.value = [];
 });
 
 // If the last row on the last page is removed, don't stay on an empty page
@@ -2101,7 +2319,131 @@ watch(totalPages, (total) => {
   if (currentPage.value > total) currentPage.value = total;
 });
 
+watch(
+  [...filterSources, currentPage],
+  () => {
+    try {
+      localStorage.setItem(listStateStorageKey, JSON.stringify({
+        search: search.value,
+        statusFilter: statusFilter.value,
+        personnelTypeFilter: personnelTypeFilter.value,
+        positionFilter: positionFilter.value,
+        sortKey: sortKey.value,
+        sortDir: sortDir.value,
+        pageSize: pageSize.value,
+        currentPage: currentPage.value,
+      }));
+    } catch (error) {
+      console.warn("Unable to save employee list state:", error);
+    }
+  },
+);
+
+const togglePageSelection = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked;
+  const pageIds = pageEmployees.value.map((employee) => employee.employee_id);
+  if (checked) {
+    selectedEmployeeIds.value = [...new Set([...selectedEmployeeIds.value, ...pageIds])];
+  } else {
+    selectedEmployeeIds.value = selectedEmployeeIds.value.filter((id) => !pageIds.includes(id));
+  }
+};
+
+const clearFilters = () => {
+  searchInput.value = "";
+  search.value = "";
+  statusFilter.value = "all";
+  personnelTypeFilter.value = "all";
+  positionFilter.value = "all";
+};
+
+const csvCell = (value: unknown) => {
+  let text = String(value ?? "");
+  if (/^\s*[=+\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
+const exportFilteredEmployees = () => {
+  const headings = [
+    "#", "Employee Code", "Employee Name", "Email", "Level", "Personnel Type",
+    "Employment Category", "Assignment Area", "Position", "Status", "Date Hired",
+  ];
+  const rows = filteredEmployees.value.map((employee, index) => [
+    index + 1,
+    employee.employee_code,
+    [employee.last_name, employee.first_name, employee.middle_name, employee.extension_name].filter(Boolean).join(", "),
+    employee.user?.email,
+    employee.level,
+    employee.personnel_type,
+    employee.employment_category,
+    employee.department?.department_name || employee.department_name,
+    employee.position?.name,
+    employee.employment_status,
+    employee.date_hired,
+  ]);
+  const csv = "\uFEFF" + [headings, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "employees-filtered.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`Exported ${rows.length} employee(s) to CSV.`);
+};
+
+const validateEmployeeForm = (
+  data: { email: string; first_name: string; last_name: string; position_id: number | null },
+  errors: Record<string, string>,
+  excludingEmployeeId?: number,
+) => {
+  const nextErrors: Record<string, string> = {};
+  const email = data.email.trim();
+  if (!email) {
+    nextErrors.email = "Email is required.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    nextErrors.email = "Enter a valid email address.";
+  } else if (employees.value.some((employee) =>
+    employee.employee_id !== excludingEmployeeId &&
+    employee.user?.email?.trim().toLowerCase() === email.toLowerCase()
+  )) {
+    nextErrors.email = "This email is already assigned to another employee.";
+  }
+  if (!data.first_name.trim()) nextErrors.first_name = "First name is required.";
+  if (!data.last_name.trim()) nextErrors.last_name = "Last name is required.";
+  if (!data.position_id) nextErrors.position_id = "Position is required.";
+  Object.assign(errors, nextErrors);
+  for (const field of ["email", "first_name", "last_name", "position_id"]) {
+    if (!(field in nextErrors)) delete errors[field];
+  }
+  return Object.keys(nextErrors).length === 0;
+};
+
+const setServerFieldErrors = (error: unknown, target: Record<string, string>) => {
+  if (!axios.isAxiosError(error)) return false;
+  const responseData = error.response?.data as {
+    errors?: Record<string, unknown>;
+  } | undefined;
+  const serverErrors = responseData?.errors;
+  if (!serverErrors) return false;
+  for (const field of ["email", "first_name", "last_name", "position_id"]) {
+    const messages = serverErrors[field];
+    if (Array.isArray(messages) && typeof messages[0] === "string") {
+      target[field] = messages[0];
+    }
+  }
+  return Object.keys(target).length > 0;
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError(error)) return fallback;
+  const responseData = error.response?.data as { message?: unknown } | undefined;
+  return typeof responseData?.message === "string" ? responseData.message : fallback;
+};
+
 const editEmployee = (employee: Employee) => {
+  editFormErrors.value = {};
   editForm.value = {
     employee_id: Number(employee.employee_id),
 
@@ -2163,44 +2505,105 @@ const editEmployee = (employee: Employee) => {
 
 const updateEmployee = async () => {
   if (!editForm.value.employee_id) {
-    alert("Invalid employee.");
+    showToast("Invalid employee.", "error");
+    return;
+  }
+  if (!validateEmployeeForm(editForm.value, editFormErrors.value, editForm.value.employee_id)) {
     return;
   }
 
   try {
     await updateEmployeeAPI(editForm.value.employee_id, editForm.value);
 
-    alert("Employee updated successfully!");
+    showToast("Employee updated successfully.");
 
     showEditModal.value = false;
 
     await loadEmployees();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to update employee:", error);
-
-    alert(error?.response?.data?.message || "Unable to update employee.");
+    if (!setServerFieldErrors(error, editFormErrors.value)) {
+      showToast(getErrorMessage(error, "Unable to update employee."), "error");
+    }
   }
 };
 
-const deleteEmployee = async (employee: Employee) => {
-  const confirmed = confirm(
-    `Are you sure you want to delete ${employee.first_name} ${employee.last_name}?`,
-  );
+const deleteEmployee = (employee: Employee) => {
+  const employeeName = `${employee.first_name} ${employee.last_name}`.trim();
+  confirmation.value = {
+    title: "Delete employee?",
+    message: `${employeeName} will be moved to Deleted Employees and can be restored later.`,
+    confirmLabel: "Delete employee",
+    action: async () => {
+      try {
+        await deleteEmployeeAPI(employee.employee_id);
+        selectedEmployeeIds.value = [];
+        showToast(`${employeeName} was moved to Deleted Employees.`);
+        await loadEmployees();
+      } catch (error: unknown) {
+        console.error("Failed to delete employee:", error);
+        showToast(getErrorMessage(error, "Unable to delete employee."), "error");
+      }
+    },
+  };
+};
 
-  if (!confirmed) {
-    return;
-  }
+const confirmBulkAction = (action: "activate" | "deactivate" | "delete") => {
+  const ids = [...selectedEmployeeIds.value];
+  if (!ids.length) return;
+  const actionLabel = action === "delete" ? "Delete" : action === "activate" ? "Activate" : "Deactivate";
+  const message = action === "delete"
+    ? `${ids.length} selected employee(s) will be moved to Deleted Employees and can be restored later.`
+    : `${ids.length} selected employee(s) will be ${action === "activate" ? "marked active" : "marked inactive"}.`;
+  confirmation.value = {
+    title: `${actionLabel} selected employees?`,
+    message,
+    confirmLabel: actionLabel,
+    action: async () => {
+      try {
+        const result = await applyBulkEmployeeAction(ids, action);
+        selectedEmployeeIds.value = [];
+        showToast(result?.message || `${actionLabel} action completed.`);
+        await loadEmployees();
+      } catch (error: unknown) {
+        console.error("Failed to apply bulk employee action:", error);
+        showToast(getErrorMessage(error, "Unable to apply bulk action."), "error");
+      }
+    },
+  };
+};
 
+const executeConfirmation = async () => {
+  if (!confirmation.value?.action || confirmationBusy.value) return;
+  confirmationBusy.value = true;
   try {
-    await deleteEmployeeAPI(employee.employee_id);
-
-    alert("Employee deleted successfully.");
-
-    await loadEmployees();
+    await confirmation.value.action();
+    confirmation.value = null;
   } catch (error) {
-    console.error("Failed to delete employee:", error);
+    console.error("Failed to complete employee confirmation action:", error);
+    showToast("Unable to complete this action.", "error");
+  } finally {
+    confirmationBusy.value = false;
+  }
+};
 
-    alert("Unable to delete employee.");
+const resetEmployeePassword = async (employee: Employee) => {
+  if (resettingEmployeeId.value !== null) return;
+  resettingEmployeeId.value = employee.employee_id;
+  try {
+    const result = await resetEmployeePasswordAPI(employee.employee_id);
+    generatedCredentials.value = {
+      title: "Password Reset Successfully",
+      message: "Give the new temporary password to the employee. Their existing sessions have been signed out.",
+      email: result.email,
+      password: result.password,
+    };
+    showCredentialsModal.value = true;
+  } catch (error: unknown) {
+    console.error("Failed to reset employee password:", error);
+    showToast(getErrorMessage(error, "Unable to reset employee password."), "error");
+  } finally {
+    resettingEmployeeId.value = null;
   }
 };
 
@@ -2209,10 +2612,11 @@ const loadEmployees = async () => {
     const result = await getEmployees();
 
     employees.value = Array.isArray(result) ? result : [];
-
-    console.log("Employees:", employees.value);
+    const existingIds = new Set(employees.value.map((employee) => employee.employee_id));
+    selectedEmployeeIds.value = selectedEmployeeIds.value.filter((id) => existingIds.has(id));
   } catch (error) {
     console.error("Failed to load employees:", error);
+    showToast(getErrorMessage(error, "Unable to load employees."), "error");
   }
 };
 
@@ -2225,7 +2629,7 @@ const loadDeletedEmployees = async () => {
     console.log("Deleted Employees:", deletedEmployees.value);
   } catch (error) {
     console.error("Failed to load deleted employees:", error);
-    alert("Unable to load deleted employees.");
+    showToast(getErrorMessage(error, "Unable to load deleted employees."), "error");
   }
 };
 
@@ -2235,44 +2639,41 @@ const openDeletedEmployees = async () => {
   await loadDeletedEmployees();
 };
 
-const restoreEmployeeRecord = async (id: number) => {
-  if (!confirm("Are you sure you want to restore this employee?")) {
-    return;
-  }
-
-  try {
-    await restoreEmployee(id);
-
-    alert("Employee restored successfully.");
-
-    await Promise.all([loadEmployees(), loadDeletedEmployees()]);
-  } catch (error) {
-    console.error("Failed to restore employee:", error);
-
-    alert("Unable to restore employee.");
-  }
+const restoreEmployeeRecord = (employee: Employee) => {
+  const employeeName = `${employee.first_name} ${employee.last_name}`.trim();
+  confirmation.value = {
+    title: "Restore employee?",
+    message: `Restore ${employeeName} to the active employee list?`,
+    confirmLabel: "Restore employee",
+    action: async () => {
+      try {
+        await restoreEmployee(employee.employee_id);
+        showToast(`${employeeName} was restored.`);
+        await Promise.all([loadEmployees(), loadDeletedEmployees()]);
+      } catch (error: unknown) {
+        console.error("Failed to restore employee:", error);
+        showToast(getErrorMessage(error, "Unable to restore employee."), "error");
+      }
+    },
+  };
 };
 
 const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
-  const confirmed = confirm(
-    `Are you sure you want to PERMANENTLY delete ${employee.first_name} ${employee.last_name}? This cannot be undone. It will remove this employee and their leave applications, credits, balances, attendance and personnel records. Historical audit and school-year records will remain; login access will be removed.`,
-  );
-
-  if (!confirmed) {
-    return;
-  }
-
-  try {
-    const result = await permanentlyDeleteEmployee(employee.employee_id);
-
-    alert(result?.message || "Employee permanently deleted.");
-
-    await Promise.all([loadEmployees(), loadDeletedEmployees()]);
-  } catch (error: any) {
-    console.error("Failed to permanently delete employee:", error);
-
-    alert(error.response?.data?.message || "Unable to permanently delete employee. Please try again.");
-  }
+  confirmation.value = {
+    title: "Permanently delete employee?",
+    message: `Permanently delete ${employee.first_name} ${employee.last_name}? This cannot be undone. Their leave applications, credits, balances, attendance, and personnel records will be removed, and login access will be revoked. Historical audit and school-year records remain.`,
+    confirmLabel: "Permanently delete",
+    action: async () => {
+      try {
+        const result = await permanentlyDeleteEmployee(employee.employee_id);
+        showToast(result?.message || "Employee permanently deleted.");
+        await Promise.all([loadEmployees(), loadDeletedEmployees()]);
+      } catch (error: unknown) {
+        console.error("Failed to permanently delete employee:", error);
+        showToast(getErrorMessage(error, "Unable to permanently delete employee. Please try again."), "error");
+      }
+    },
+  };
 };
 
 const resetCreateForm = () => {
@@ -2310,13 +2711,20 @@ const resetCreateForm = () => {
   };
 };
 
+const openCreateModal = () => {
+  createFormErrors.value = {};
+  showCreateModal.value = true;
+};
+
 const saveEmployee = async () => {
+  if (!validateEmployeeForm(form.value, createFormErrors.value)) return;
   try {
     const response = await createEmployeeAPI(form.value);
 
     generatedCredentials.value = {
+      title: "Employee Created Successfully",
+      message: "Give these login credentials to the employee.",
       email: response?.email || form.value.email,
-
       password: response?.password || "",
     };
 
@@ -2325,15 +2733,14 @@ const saveEmployee = async () => {
     showCredentialsModal.value = true;
 
     resetCreateForm();
+    createFormErrors.value = {};
 
     await loadEmployees();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to create employee:", error);
-
-    const message =
-      error?.response?.data?.message || "Unable to create employee.";
-
-    alert(message);
+    if (!setServerFieldErrors(error, createFormErrors.value)) {
+      showToast(getErrorMessage(error, "Unable to create employee."), "error");
+    }
   }
 };
 
@@ -2354,20 +2761,13 @@ onMounted(async () => {
 .neo-card {
   background: var(--surface);
   border: 1px solid #cbd8e8;
-  border-radius: 1.4rem;
-  box-shadow: 0 10px 22px rgba(23, 32, 51, 0.06);
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgba(23, 32, 51, 0.045);
 
   width: 100%;
   max-width: none;
   min-width: 0;
   box-sizing: border-box;
-}
-
-.neo-card:hover {
-  box-shadow: 0 14px 26px rgba(23, 32, 51, 0.09);
 }
 
 .stats-card {
@@ -2411,67 +2811,315 @@ onMounted(async () => {
   background: var(--surface-muted);
 }
 
-/* Sortable header buttons: keep them looking like plain header text
-   (the generic ".employee-table button" rules below are for row buttons) */
-.employee-table th button {
-  padding: 0;
-  font-size: inherit;
-  background: transparent;
-  cursor: pointer;
+.employee-management-page {
+  --employee-control-height: 2.5rem;
+  --employee-control-radius: 0.5rem;
+}
+
+.employee-management-page .employee-btn {
+  display: inline-flex;
+  min-height: var(--employee-control-height);
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+  border-radius: var(--employee-control-radius);
+  padding: 0.5rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.employee-management-page .neo-card {
+  padding: 1.25rem;
+}
+
+.employee-management-page .employee-btn:focus-visible,
+.employee-management-page .employee-actions-trigger:focus-visible,
+.employee-management-page .employee-sort-button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 2px;
+}
+
+.employee-management-page .employee-btn-primary {
+  color: #fff;
+  background: #2563eb;
+}
+
+.employee-management-page .employee-btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.employee-management-page .employee-btn-secondary {
+  color: var(--text);
+  border-color: #cbd8e8;
+  background: var(--surface);
+}
+
+.employee-management-page .employee-btn-secondary:hover {
+  background: #eef4fb;
+}
+
+.employee-management-page .employee-btn-status {
+  color: #166534;
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.employee-management-page .employee-btn-status:hover:not(:disabled) {
+  background: #dcfce7;
+}
+
+.employee-management-page .employee-btn-danger {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fff;
+}
+
+.employee-management-page .employee-btn-danger:hover:not(:disabled) {
+  color: #fff;
+  background: #b91c1c;
+}
+
+.employee-management-page .employee-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: grayscale(0.35);
 }
 
 .table-wrapper {
+  display: block;
   width: 100%;
   max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
-.employee-table {
+.dashboard-shell .employee-table {
   width: 100%;
-  max-width: 100%;
-  table-layout: auto;
+  min-width: 1040px;
+  max-width: none;
+  table-layout: fixed;
   border-collapse: collapse;
+}
+
+.employee-table th {
+  height: 3.25rem;
+  border-bottom: 1px solid #cbd8e8;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-align: left;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.employee-table th:first-child,
+.employee-table td:first-child,
+.employee-table th:nth-child(2),
+.employee-table td:nth-child(2),
+.employee-table th:nth-child(7),
+.employee-table td:nth-child(7),
+.employee-table th:last-child {
+  text-align: center;
 }
 
 .employee-table th,
 .employee-table td {
   white-space: normal;
-  word-break: normal;
-  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+}
+
+.employee-management-page .employee-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.employee-sort-indicator {
+  display: inline-block;
+  min-width: 0.75rem;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.employee-checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #2563eb;
+  vertical-align: middle;
+  cursor: pointer;
 }
 
 .employee-table th:nth-child(1),
 .employee-table td:nth-child(1) {
-  width: 11%;
+  width: 4.5%;
 }
 
 .employee-table th:nth-child(2),
 .employee-table td:nth-child(2) {
-  width: 17%;
+  width: 4.5%;
 }
 
 .employee-table th:nth-child(3),
 .employee-table td:nth-child(3) {
-  width: 19%;
+  width: 11%;
 }
 
 .employee-table th:nth-child(4),
 .employee-table td:nth-child(4) {
-  width: 14%;
+  width: 19%;
 }
 
 .employee-table th:nth-child(5),
 .employee-table td:nth-child(5) {
-  width: 14%;
+  width: 23%;
 }
 
 .employee-table th:nth-child(6),
 .employee-table td:nth-child(6) {
-  width: 10%;
+  width: 15%;
 }
 
 .employee-table th:nth-child(7),
 .employee-table td:nth-child(7) {
-  width: 15%;
+  width: 9%;
+}
+
+.employee-table th:nth-child(8),
+.employee-table td:nth-child(8) {
+  width: 14%;
+}
+
+.employee-number-cell {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.employee-code-cell {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.employee-name-cell {
+  font-weight: 600;
+}
+
+.employee-email-cell {
+  overflow: hidden;
+  white-space: nowrap !important;
+}
+
+.employee-email-value,
+.employee-position-value {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.employee-status-cell {
+  white-space: nowrap !important;
+}
+
+.employee-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.employee-management-page .employee-view-button {
+  min-width: 4rem;
+}
+
+.employee-actions-menu {
+  display: grid;
+  justify-items: center;
+}
+
+.employee-actions-trigger {
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd8e8;
+  border-radius: var(--employee-control-radius);
+  color: var(--text);
+  background: var(--surface);
+  list-style: none;
+  cursor: pointer;
+}
+
+.employee-actions-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.employee-actions-trigger:hover {
+  background: #eef4fb;
+}
+
+.employee-actions-popover {
+  display: grid;
+  width: 100%;
+  max-width: 11rem;
+  margin-top: 0.35rem;
+  padding: 0.3rem;
+  border: 1px solid #cbd8e8;
+  border-radius: 0.65rem;
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(23, 32, 51, 0.08);
+}
+
+.employee-actions-item {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.55rem;
+  border: 0;
+  border-radius: 0.4rem;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.employee-actions-item:hover:not(:disabled) {
+  background: #eef4fb;
+}
+
+.employee-actions-item:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.employee-actions-item-danger {
+  color: #b91c1c;
+}
+
+.employee-actions-item-danger:hover {
+  background: #fef2f2;
 }
 
 .deleted-table {
@@ -2490,37 +3138,32 @@ onMounted(async () => {
 
 .deleted-table th:nth-child(1),
 .deleted-table td:nth-child(1) {
-  width: 12%;
+  width: 14%;
 }
 
 .deleted-table th:nth-child(2),
 .deleted-table td:nth-child(2) {
-  width: 17%;
+  width: 20%;
 }
 
 .deleted-table th:nth-child(3),
 .deleted-table td:nth-child(3) {
-  width: 19%;
+  width: 23%;
 }
 
 .deleted-table th:nth-child(4),
 .deleted-table td:nth-child(4) {
-  width: 13%;
+  width: 15%;
 }
 
 .deleted-table th:nth-child(5),
 .deleted-table td:nth-child(5) {
-  width: 13%;
+  width: 14%;
 }
 
 .deleted-table th:nth-child(6),
 .deleted-table td:nth-child(6) {
-  width: 13%;
-}
-
-.deleted-table th:nth-child(7),
-.deleted-table td:nth-child(7) {
-  width: 18%;
+  width: 14%;
 }
 
 .dashboard-shell *,
@@ -2536,14 +3179,8 @@ onMounted(async () => {
     padding-right: 0.5rem;
   }
 
-  .employee-table {
+  .dashboard-shell .employee-table {
     font-size: 0.875rem;
-  }
-
-  .employee-table button {
-    font-size: 0.7rem;
-    padding-left: 0.45rem;
-    padding-right: 0.45rem;
   }
 }
 
@@ -2555,25 +3192,130 @@ onMounted(async () => {
 
   .neo-card {
     border-radius: 1rem;
+    padding: 1rem;
   }
 
-  .table-wrapper {
+  .employee-list-table-wrapper {
+    overflow: visible;
+  }
+
+  .dashboard-shell .employee-table {
     display: block;
     width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    overscroll-behavior-x: contain;
+    min-width: 0;
+    font-size: 0.875rem;
   }
 
-  .employee-table {
-    width: 900px;
-    min-width: 900px;
-    max-width: none;
-    table-layout: auto;
-    font-size: 0.875rem;
+  .employee-table thead {
+    display: none;
+  }
+
+  .employee-table tbody {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .employee-table tbody tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    border: 1px solid #cbd8e8;
+    border-radius: 0.75rem;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .employee-table tbody tr:hover {
+    background: var(--surface);
+  }
+
+  .employee-table tbody td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: auto !important;
+    min-width: 0;
+    padding: 0.65rem 0.75rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .employee-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .employee-table tbody td:nth-child(1),
+  .employee-table tbody td:nth-child(2) {
+    align-items: center;
+    border-top: 0;
+  }
+
+  .employee-table tbody td:nth-child(1) {
+    justify-content: flex-start;
+  }
+
+  .employee-table tbody td:nth-child(2) {
+    justify-content: flex-end;
+  }
+
+  .employee-table tbody td:nth-child(n + 3) {
+    grid-column: 1 / -1;
+  }
+
+  .employee-table tbody td.employee-actions-cell {
+    display: block;
+    text-align: left;
+  }
+
+  .employee-table tbody td.employee-actions-cell::before {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .employee-row-actions {
+    justify-content: flex-start;
+    gap: 0.4rem;
+  }
+
+  .employee-row-actions > .employee-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .employee-actions-menu {
+    justify-items: start;
+  }
+
+  .employee-actions-popover {
+    width: min(12rem, calc(100vw - 4rem));
+  }
+
+  .employee-email-value,
+  .employee-position-value {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .employee-table tbody tr.empty-row {
+    display: block;
+  }
+
+  .employee-table tbody tr.empty-row td {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .employee-table tbody tr.empty-row td::before {
+    content: none;
   }
 
   .deleted-table {
@@ -2584,8 +3326,6 @@ onMounted(async () => {
     font-size: 0.875rem;
   }
 
-  .employee-table th,
-  .employee-table td,
   .deleted-table th,
   .deleted-table td {
     white-space: nowrap;
@@ -2595,49 +3335,17 @@ onMounted(async () => {
     padding-right: 0.75rem;
   }
 
-  .employee-table td:nth-child(2),
   .deleted-table td:nth-child(2) {
     white-space: normal;
     min-width: 170px;
   }
 
-  .employee-table td:nth-child(3),
   .deleted-table td:nth-child(3) {
     white-space: normal;
     overflow-wrap: anywhere;
     min-width: 210px;
   }
 
-  .employee-table th:nth-child(1),
-  .employee-table td:nth-child(1) {
-    min-width: 120px;
-  }
-
-  .employee-table th:nth-child(4),
-  .employee-table td:nth-child(4) {
-    min-width: 140px;
-  }
-
-  .employee-table th:nth-child(5),
-  .employee-table td:nth-child(5) {
-    min-width: 140px;
-  }
-
-  .employee-table th:nth-child(6),
-  .employee-table td:nth-child(6) {
-    min-width: 100px;
-  }
-
-  .employee-table th:nth-child(7),
-  .employee-table td:nth-child(7) {
-    min-width: 180px;
-  }
-
-  .employee-table td:last-child>div {
-    flex-wrap: nowrap;
-  }
-
-  .employee-table button,
   .deleted-table button {
     font-size: 0.75rem;
     padding: 0.4rem 0.65rem;
@@ -2653,11 +3361,7 @@ onMounted(async () => {
 
   .neo-card {
     border-radius: 0.9rem;
-  }
-
-  .employee-table {
-    width: 880px;
-    min-width: 880px;
+    padding: 0.85rem;
   }
 
   .deleted-table {

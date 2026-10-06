@@ -151,6 +151,16 @@ Route::middleware('auth:sanctum')->group(function () {
             [EmployeeController::class, 'index']
         );
 
+        Route::post(
+            '/employees/bulk',
+            [EmployeeController::class, 'bulkAction']
+        );
+
+        Route::post(
+            '/employees/{id}/reset-password',
+            [EmployeeController::class, 'resetPassword']
+        )->whereNumber('id');
+
         Route::put(
             '/employees/{id}',
             [EmployeeController::class, 'update']

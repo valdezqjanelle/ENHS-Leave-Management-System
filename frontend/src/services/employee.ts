@@ -123,6 +123,29 @@ export const deleteEmployee = async (id: number) => {
   return response.data;
 };
 
+export const resetEmployeePassword = async (id: number) => {
+  const response = await axios.post(
+    `${API}/employees/${id}/reset-password`,
+    {},
+    authHeader()
+  );
+
+  return response.data;
+};
+
+export const applyBulkEmployeeAction = async (
+  ids: number[],
+  action: "activate" | "deactivate" | "delete"
+) => {
+  const response = await axios.post(
+    `${API}/employees/bulk`,
+    { ids, action },
+    authHeader()
+  );
+
+  return response.data;
+};
+
 export const restoreEmployee = async (id: number) => {
   const response = await axios.post(
     `${API}/employees/${id}/restore`,
@@ -162,4 +185,3 @@ export const getDepartments = async (level?: string) => {
 
   return response.data;
 };
-
