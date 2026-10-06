@@ -39,11 +39,18 @@
             <option value="inactive">Inactive</option>
           </select>
 
-          <button @click="toggleSort" type="button"
-            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
-            :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'">
-            Sort
-          </button>
+          <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+            <label for="sortBy" class="text-sm font-medium text-[var(--text-muted)] whitespace-nowrap">
+              Sort by
+            </label>
+
+            <select id="sortBy" v-model="sortOption"
+              class="w-full sm:w-60 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -52,14 +59,17 @@
           <table class="employee-table">
             <thead class="table-head">
               <tr class="text-left text-[var(--text)] font-semibold">
-                <th class="px-2 sm:px-3 py-3 font-bold">Employee Code</th>
-                <th class="px-2 sm:px-3 py-3 font-bold">Employee</th>
-                <th class="px-2 sm:px-3 py-3 font-bold">Email</th>
-                <th class="px-2 sm:px-3 py-3 py-3 font-bold">
-                  Assignment Area
+                <th v-for="column in sortableColumns" :key="column.key" class="px-2 sm:px-3 py-3 font-bold"
+                  :aria-sort="ariaSort(column.key)">
+                  <button type="button" @click="toggleColumnSort(column.key)"
+                    class="inline-flex items-center gap-1 font-bold text-left hover:text-blue-600 transition-colors"
+                    :title="`Sort by ${column.label}`">
+                    {{ column.label }}
+                    <span class="text-xs" :class="sortKey === column.key ? 'text-blue-600' : 'text-slate-400'">
+                      {{ sortIndicator(column.key) }}
+                    </span>
+                  </button>
                 </th>
-                <th class="px-2 sm:px-3 py-3 font-bold">Position</th>
-                <th class="px-2 sm:px-3 py-3 font-bold">Status</th>
                 <th class="px-2 sm:px-3 py-3 font-bold text-center">
                   Action
                 </th>
@@ -67,7 +77,7 @@
             </thead>
 
             <tbody>
-              <tr v-for="employee in filteredEmployees" :key="employee.employee_id"
+              <tr v-for="employee in paginatedEmployees" :key="employee.employee_id"
                 class="border-t border-[#cbd8e8] hover:bg-[#eef4fb] transition-colors duration-200">
                 <td class="px-2 sm:px-3 py-4 text-[var(--text)] font-semibold break-words">
                   {{ employee.employee_code }}
@@ -133,6 +143,56 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination controls -->
+        <div v-if="filteredEmployees.length > 0"
+          class="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm text-[var(--text-muted)]">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span>
+              Showing {{ showingFrom }}–{{ showingTo }} of
+              {{ filteredEmployees.length }}
+            </span>
+
+            <label class="flex items-center gap-2">
+              Rows per page
+              <select v-model.number="pageSize" class="field-input rounded-lg px-2 py-1">
+                <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                  {{ size }}
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <div class="flex items-center gap-1 flex-wrap">
+            <button @click="goToPage(1)" :disabled="currentPage === 1"
+              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              «
+            </button>
+
+            <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              Prev
+            </button>
+
+            <button v-for="(page, i) in visiblePages" :key="i" @click="goToPage(page)" :disabled="page === '...'"
+              :class="page === currentPage
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-[var(--surface)] border-[#cbd8e8] hover:bg-[#eef4fb]'
+                " class="min-w-[2rem] px-2 py-1 rounded-lg border">
+              {{ page }}
+            </button>
+
+            <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
+              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              Next
+            </button>
+
+            <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages"
+              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              »
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1419,12 +1479,138 @@ interface Employee {
 const search = ref("");
 const statusFilter = ref("all");
 
-// When true, the employee list is arranged alphabetically (A → Z)
-// by last name, then first name, then middle name.
-const arranged = ref(false);
+// ---------- Sorting ----------
+type SortKey =
+  | "employee_code"
+  | "name"
+  | "email"
+  | "department"
+  | "position"
+  | "status"
+  | "date_hired";
 
-const toggleSort = () => {
-  arranged.value = !arranged.value;
+type SortDir = "asc" | "desc";
+
+// null = default order (as loaded from the server)
+const sortKey = ref<SortKey | null>(null);
+const sortDir = ref<SortDir>("asc");
+
+// Columns that can be sorted by clicking their header
+const sortableColumns: { key: SortKey; label: string }[] = [
+  { key: "employee_code", label: "Employee Code" },
+  { key: "name", label: "Employee" },
+  { key: "email", label: "Email" },
+  { key: "department", label: "Assignment Area" },
+  { key: "position", label: "Position" },
+  { key: "status", label: "Status" },
+];
+
+// Choices shown in the "Sort by" dropdown
+const sortOptions = [
+  { value: "default", label: "Default order" },
+  { value: "name:asc", label: "Name (A–Z)" },
+  { value: "name:desc", label: "Name (Z–A)" },
+  { value: "email:asc", label: "Email (A–Z)" },
+  { value: "email:desc", label: "Email (Z–A)" },
+  { value: "department:asc", label: "Assignment Area (A–Z)" },
+  { value: "department:desc", label: "Assignment Area (Z–A)" },
+  { value: "position:asc", label: "Position (A–Z)" },
+  { value: "position:desc", label: "Position (Z–A)" },
+  { value: "date_hired:desc", label: "Date Hired (Newest first)" },
+  { value: "date_hired:asc", label: "Date Hired (Oldest first)" },
+];
+
+// The dropdown and the column headers share the same sortKey/sortDir,
+// so changing one automatically updates the other.
+const sortOption = computed({
+  get: () => (sortKey.value ? `${sortKey.value}:${sortDir.value}` : "default"),
+  set: (value: string) => {
+    if (value === "default") {
+      sortKey.value = null;
+      sortDir.value = "asc";
+      return;
+    }
+
+    const [key, dir] = value.split(":");
+    sortKey.value = key as SortKey;
+    sortDir.value = dir as SortDir;
+  },
+});
+
+const toggleColumnSort = (key: SortKey) => {
+  if (sortKey.value !== key) {
+    sortKey.value = key;
+    sortDir.value = "asc";
+    return;
+  }
+
+  if (sortDir.value === "asc") {
+    sortDir.value = "desc";
+    return;
+  }
+
+  sortKey.value = null;
+  sortDir.value = "asc";
+};
+
+const sortIndicator = (key: SortKey) => {
+  if (sortKey.value !== key) return "↕";
+  return sortDir.value === "asc" ? "▲" : "▼";
+};
+
+const ariaSort = (key: SortKey) => {
+  if (sortKey.value !== key) return "none";
+  return sortDir.value === "asc" ? "ascending" : "descending";
+};
+
+// The value each sort key compares. null = empty (always listed last).
+const getSortValue = (
+  employee: Employee,
+  key: SortKey,
+): string | number | null => {
+  switch (key) {
+    case "employee_code":
+      return employee.employee_code || null;
+
+    case "name": {
+      const fullName = [
+        employee.last_name,
+        employee.first_name,
+        employee.middle_name,
+        employee.extension_name,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+      return fullName || null;
+    }
+
+    case "email":
+      return employee.user?.email || null;
+
+    case "department":
+      return (
+        employee.department?.department_name || employee.department_name || null
+      );
+
+    case "position":
+      return employee.position?.name || null;
+
+    case "status":
+      return employee.employment_status || null;
+
+    case "date_hired": {
+      if (!employee.date_hired) return null;
+
+      const time = new Date(employee.date_hired).getTime();
+
+      return Number.isNaN(time) ? null : time;
+    }
+
+    default:
+      return null;
+  }
 };
 
 const employees = ref<Employee[]>([]);
@@ -1832,26 +2018,87 @@ const filteredEmployees = computed(() => {
     return matchesSearch && matchesStatus;
   });
 
-  // Only sort once the Arrange button has been clicked; otherwise
-  // keep the original (e.g. load/creation) order.
-  if (!arranged.value) {
+  // No sort chosen: keep the original (load/creation) order.
+  const key = sortKey.value;
+
+  if (!key) {
     return result;
   }
 
-  // Sort alphabetically A → Z by last name, then first name, then middle name.
+  const direction = sortDir.value === "asc" ? 1 : -1;
+
   return [...result].sort((a, b) => {
-    const aName = `${a.last_name || ""} ${a.first_name || ""} ${a.middle_name || ""
-      }`
-      .trim()
-      .toLowerCase();
+    const aValue = getSortValue(a, key);
+    const bValue = getSortValue(b, key);
 
-    const bName = `${b.last_name || ""} ${b.first_name || ""} ${b.middle_name || ""
-      }`
-      .trim()
-      .toLowerCase();
+    // Empty values always go to the bottom, whichever direction is used
+    if (aValue === null && bValue === null) return 0;
+    if (aValue === null) return 1;
+    if (bValue === null) return -1;
 
-    return aName.localeCompare(bName);
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return (aValue - bValue) * direction;
+    }
+
+    // Case-insensitive, and numbers sort naturally (EMP-2 before EMP-10)
+    return (
+      String(aValue).localeCompare(String(bValue), undefined, {
+        sensitivity: "base",
+        numeric: true,
+      }) * direction
+    );
   });
+});
+
+// ---------- Pagination ----------
+const currentPage = ref(1);
+const pageSize = ref(10);
+const pageSizeOptions = [10, 25, 50, 100];
+
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredEmployees.value.length / pageSize.value)),
+);
+
+// Only the rows for the current page (what the table actually loops over)
+const paginatedEmployees = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  return filteredEmployees.value.slice(start, start + pageSize.value);
+});
+
+const showingFrom = computed(() =>
+  filteredEmployees.value.length === 0
+    ? 0
+    : (currentPage.value - 1) * pageSize.value + 1,
+);
+
+const showingTo = computed(() =>
+  Math.min(currentPage.value * pageSize.value, filteredEmployees.value.length),
+);
+
+const visiblePages = computed<(number | string)[]>(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 4) return [1, 2, 3, 4, 5, "...", total];
+  if (current >= total - 3)
+    return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+  return [1, "...", current - 1, current, current + 1, "...", total];
+});
+
+const goToPage = (page: number | string) => {
+  if (typeof page !== "number") return;
+  currentPage.value = Math.min(Math.max(1, page), totalPages.value);
+};
+
+// Go back to page 1 whenever the list changes shape
+watch([search, statusFilter, sortKey, sortDir, pageSize], () => {
+  currentPage.value = 1;
+});
+
+// If the last row on the last page is removed, don't stay on an empty page
+watch(totalPages, (total) => {
+  if (currentPage.value > total) currentPage.value = total;
 });
 
 const editEmployee = (employee: Employee) => {
@@ -2162,6 +2409,15 @@ onMounted(async () => {
 
 .table-head {
   background: var(--surface-muted);
+}
+
+/* Sortable header buttons: keep them looking like plain header text
+   (the generic ".employee-table button" rules below are for row buttons) */
+.employee-table th button {
+  padding: 0;
+  font-size: inherit;
+  background: transparent;
+  cursor: pointer;
 }
 
 .table-wrapper {
