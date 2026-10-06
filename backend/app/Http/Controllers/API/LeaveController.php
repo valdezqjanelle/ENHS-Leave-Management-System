@@ -820,15 +820,6 @@ public function downloadPdf($id, Request $request)
         $signatory &&
         ($signatory->name || $signatory->designation || $signatory->signature_path)
     ) {
-        $mask = $coords['authorized_signatory_mask'];
-        $pdf->SetFillColor(255, 255, 255);
-        $pdf->Rect(
-            $mask['x'],
-            $mask['y'],
-            $mask['width'],
-            $mask['height'],
-            'F'
-        );
 
         if ($signatory->signature_path) {
             $signatureDisk = Storage::disk('supabase');

@@ -112,8 +112,7 @@ return [
 
     // ── Section 7: Approving authority signature block ──────────
     'authorized_signatory_signature' => ['x' => 380, 'y' => 613, 'width' => 130, 'height' => 28],
-    'authorized_signatory_mask' => ['x' => 380, 'y' => 613, 'width' => 175, 'height' => 34],
-    'authorized_signatory_name' => ['x' => 380, 'y' => 620],
-    'authorized_signatory_designation' => ['x' => 380, 'y' => 625],
+    'authorized_signatory_name' => ['x' => 380, 'y' => 640],
+    'authorized_signatory_designation' => ['x' => 380, 'y' => 655],
 
 ];
