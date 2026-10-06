@@ -79,7 +79,7 @@ return [
     'working_days_applied'    => ['x' => 90, 'y' => 468],
     'inclusive_dates'          => ['x' => 90, 'y' => 500],
         'chk_commutation_not_requested' => ['x' => 325,  'y' => 471],
-        'chk_commutation_requested'     => ['x' => 325, 'y' => 471],//485
+        'chk_commutation_requested'     => ['x' => 325, 'y' => 485],//485
             'applicant_signature_name' => ['x' => 380, 'y' => 505],
             'applicant_signature'      => ['x' => 375, 'y' => 480],
 
