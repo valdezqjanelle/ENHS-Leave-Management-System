@@ -99,9 +99,9 @@ return [
     'disapproval_reason_line'  => ['x' => 335, 'y' => 589],
     'disapproval_reason_l3'    => ['x' => 335, 'y' => 601],
     'disapproval_reason_l4'    => ['x' => 335, 'y' => 612],
-    'authorized_signatory_signature' => ['x' => 375, 'y' => 616, 'width' => 130, 'height' => 28],
-    'authorized_signatory_name' => ['x' => 381, 'y' => 630],
-    'authorized_signatory_designation' => ['x' => 387, 'y' => 645],
+    'authorized_signatory_signature' => ['x' => 350, 'y' => 616, 'width' => 130, 'height' => 28],
+    'authorized_signatory_name' => ['x' => 382, 'y' => 629],
+    'authorized_signatory_designation' => ['x' => 387, 'y' => 644],
 
     // ── Section 7.C: Approved For ────────────────────────────────
     'approved_days_with_pay'    => ['x' => 85,  'y' => 682],
