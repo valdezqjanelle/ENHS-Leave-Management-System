@@ -80,8 +80,8 @@ return [
     'inclusive_dates'          => ['x' => 90, 'y' => 500],
         'chk_commutation_not_requested' => ['x' => 325,  'y' => 471],
         'chk_commutation_requested'     => ['x' => 323, 'y' => 483],
-            'applicant_signature_name' => ['x' => 375, 'y' => 500,],
-            'applicant_signature'      => ['x' => 360, 'y' => 480, 'width' => 130, 'height' => 28],
+            'applicant_signature_name' => ['x' => 375, 'y' => 510,],
+            'applicant_signature'      => ['x' => 350, 'y' => 480, 'width' => 130, 'height' => 28],
 
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 566],
@@ -100,7 +100,7 @@ return [
     'disapproval_reason_l3'    => ['x' => 335, 'y' => 601],
     'disapproval_reason_l4'    => ['x' => 335, 'y' => 612],
     'authorized_signatory_signature' => ['x' => 350, 'y' => 616, 'width' => 130, 'height' => 28],
-    'authorized_signatory_name' => ['x' => 382, 'y' => 630],
+    'authorized_signatory_name' => ['x' => 382, 'y' => 632],
     'authorized_signatory_designation' => ['x' => 387, 'y' => 644],
 
     // ── Section 7.C: Approved For ────────────────────────────────
