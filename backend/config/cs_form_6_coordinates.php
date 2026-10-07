@@ -79,9 +79,9 @@ return [
     'working_days_applied'    => ['x' => 90, 'y' => 468],
     'inclusive_dates'          => ['x' => 90, 'y' => 500],
         'chk_commutation_not_requested' => ['x' => 325,  'y' => 471],
-        'chk_commutation_requested'     => ['x' => 323, 'y' => 484],
-            'applicant_signature_name' => ['x' => 375, 'y' => 510,],
-            'applicant_signature'      => ['x' => 375, 'y' => 480, 'width' => 130, 'height' => 28],
+        'chk_commutation_requested'     => ['x' => 323, 'y' => 483],
+            'applicant_signature_name' => ['x' => 375, 'y' => 500,],
+            'applicant_signature'      => ['x' => 370, 'y' => 480, 'width' => 130, 'height' => 28],
 
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 566],
@@ -96,11 +96,11 @@ return [
     // ── Section 7.B: Recommendation ─────────────────────────────
     'chk_for_approval'         => ['x' => 325, 'y' => 566],
     'chk_for_disapproval'      => ['x' => 325, 'y' => 581],
-    'disapproval_reason_line'  => ['x' => 335, 'y' => 591],
+    'disapproval_reason_line'  => ['x' => 335, 'y' => 589],
     'disapproval_reason_l3'    => ['x' => 335, 'y' => 601],
     'disapproval_reason_l4'    => ['x' => 335, 'y' => 612],
     'authorized_signatory_signature' => ['x' => 375, 'y' => 616, 'width' => 130, 'height' => 28],
-    'authorized_signatory_name' => ['x' => 381, 'y' => 643],
+    'authorized_signatory_name' => ['x' => 381, 'y' => 635],
     'authorized_signatory_designation' => ['x' => 387, 'y' => 645],
 
     // ── Section 7.C: Approved For ────────────────────────────────
