@@ -507,12 +507,25 @@
             </p>
           </div>
 
-          <button
-            @click="openAddLeaveModal"
-            class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
-          >
-            Add Leave Type
-          </button>
+          <div class="flex flex-wrap items-center gap-3">
+            <label class="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+              Sort by
+              <select
+                v-model="leaveTypeSort"
+                class="border border-[#cbd8e8] rounded-lg px-3 py-2 text-[var(--text)] bg-white"
+              >
+                <option value="alphabetical">Alphabetical</option>
+                <option value="oldest">Oldest to newest added</option>
+              </select>
+            </label>
+
+            <button
+              @click="openAddLeaveModal"
+              class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
+            >
+              Add Leave Type
+            </button>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -531,7 +544,7 @@
 
             <tbody>
               <tr
-                v-for="leave in leaveTypes"
+                v-for="leave in sortedLeaveTypes"
                 :key="leave.leave_type_id"
                 class="border-b border-[#cbd8e8]"
               >
@@ -565,6 +578,7 @@
                     </button>
 
                     <button
+                      v-if="!isCsFormLeaveType(leave)"
                       @click="removeLeaveType(leave.leave_type_id)"
                       class="px-3 py-1.5 text-red-600 border border-red-200 rounded hover:bg-red-50"
                     >
@@ -1589,8 +1603,23 @@
             <textarea
               v-model="leaveForm.requirements"
               rows="6"
-              placeholder="Enter filing rules and documentary requirements..."
-              class="w-full border rounded-lg px-3 py-2 field-editable resize-none"
+              placeholder="Enter required documents or supporting evidence..."
+              class="w-full border rounded-lg px-3 py-2 field-editable resize-y"
+            ></textarea>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm text-[var(--text-muted)] mb-1"
+            >
+              Instructions
+            </label>
+
+            <textarea
+              v-model="leaveForm.instructions"
+              rows="5"
+              placeholder="Enter filing rules or instructions for this leave type..."
+              class="w-full border rounded-lg px-3 py-2 field-editable resize-y"
             ></textarea>
           </div>
         </div>
@@ -2190,9 +2219,20 @@ interface LeaveType {
   leave_type_name: string;
   legal_basis: string | null;
   requirements: string | null;
+  instructions: string | null;
 }
 
 const leaveTypes = ref<LeaveType[]>([]);
+const leaveTypeSort = ref<"alphabetical" | "oldest">("alphabetical");
+const sortedLeaveTypes = computed(() =>
+  [...leaveTypes.value].sort((a, b) => {
+    if (leaveTypeSort.value === "alphabetical") {
+      return a.leave_type_name.localeCompare(b.leave_type_name);
+    }
+
+    return a.leave_type_id - b.leave_type_id;
+  }),
+);
 
 const isLeaveModalOpen = ref(false);
 const isEditMode = ref(false);
@@ -2203,6 +2243,7 @@ const leaveForm = ref({
   leave_type_name: "",
   legal_basis: "",
   requirements: "",
+  instructions: "",
 });
 
 const loadLeaveTypes = async () => {
@@ -2222,6 +2263,7 @@ const resetLeaveForm = () => {
     leave_type_name: "",
     legal_basis: "",
     requirements: "",
+    instructions: "",
   };
 };
 
@@ -2240,6 +2282,7 @@ const openEditLeaveModal = (leave: LeaveType) => {
     leave_type_name: leave.leave_type_name || "",
     legal_basis: leave.legal_basis || "",
     requirements: leave.requirements || "",
+    instructions: leave.instructions || "",
   };
 
   isLeaveModalOpen.value = true;
@@ -2251,11 +2294,14 @@ const closeLeaveModal = () => {
   resetLeaveForm();
 };
 
+const isCsFormLeaveType = (leave: LeaveType) => leave.leave_type_id <= 14;
+
 const saveLeaveType = async () => {
   const code = leaveForm.value.code.trim().toUpperCase();
   const leaveTypeName = leaveForm.value.leave_type_name.trim();
   const legalBasis = leaveForm.value.legal_basis.trim();
   const requirements = leaveForm.value.requirements.trim();
+  const instructions = leaveForm.value.instructions.trim();
 
   if (!code) {
     alert("Leave code is required.");
@@ -2272,6 +2318,7 @@ const saveLeaveType = async () => {
     leave_type_name: leaveTypeName,
     legal_basis: legalBasis,
     requirements,
+    instructions,
   };
 
   console.log("LEAVE TYPE PAYLOAD:", payload);

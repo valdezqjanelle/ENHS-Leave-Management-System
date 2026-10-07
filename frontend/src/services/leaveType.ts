@@ -14,6 +14,7 @@ export interface LeaveType {
   leave_type_name: string;
   legal_basis: string | null;
   requirements: string | null;
+  instructions: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -23,6 +24,7 @@ export interface LeaveTypePayload {
   leave_type_name: string;
   legal_basis: string;
   requirements: string;
+  instructions: string;
 }
 
 // GET ALL

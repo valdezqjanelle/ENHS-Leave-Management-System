@@ -99,6 +99,9 @@ return [
     'disapproval_reason_line'  => ['x' => 335, 'y' => 591],
     'disapproval_reason_l3'    => ['x' => 335, 'y' => 601],
     'disapproval_reason_l4'    => ['x' => 335, 'y' => 612],
+    'authorized_signatory_signature' => ['x' => 380, 'y' => 616, 'width' => 130, 'height' => 28],
+    'authorized_signatory_name' => ['x' => 381, 'y' => 639],
+    'authorized_signatory_designation' => ['x' => 385, 'y' => 645],
 
     // ── Section 7.C: Approved For ────────────────────────────────
     'approved_days_with_pay'    => ['x' => 85,  'y' => 682],
@@ -109,10 +112,5 @@ return [
     'disapproved_reason_l1' => ['x' => 337, 'y' => 681],
     'disapproved_reason_l2' => ['x' => 337, 'y' => 691],
     'disapproved_reason_l3' => ['x' => 337, 'y' => 702],
-
-    // ── Section 7: Approving authority signature block ──────────
-    'authorized_signatory_signature' => ['x' => 380, 'y' => 616, 'width' => 130, 'height' => 28],
-    'authorized_signatory_name' => ['x' => 380, 'y' => 639],
-    'authorized_signatory_designation' => ['x' => 380, 'y' => 630],
 
 ];

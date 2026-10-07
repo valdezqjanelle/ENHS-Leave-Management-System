@@ -578,81 +578,39 @@ public function downloadPdf($id, Request $request)
 
 
 
-    $leaveName = strtolower(
-        $leave->leaveType->leave_type_name ?? ''
-    );
+    $leaveTypeName = $leave->leaveType->leave_type_name ?? '';
+    $leaveName = strtolower($leaveTypeName);
+    $leaveCategoryMatches = [
+        'chk_vacation' => str_contains($leaveName, 'vacation'),
+        'chk_mandatory_forced' => str_contains($leaveName, 'mandatory') ||
+            str_contains($leaveName, 'forced'),
+        'chk_sick' => str_contains($leaveName, 'sick'),
+        'chk_maternity' => str_contains($leaveName, 'maternity'),
+        'chk_paternity' => str_contains($leaveName, 'paternity'),
+        'chk_special_privilege' => str_contains($leaveName, 'special privilege'),
+        'chk_solo_parent' => str_contains($leaveName, 'solo parent'),
+        'chk_study' => str_contains($leaveName, 'study'),
+        'chk_vawc' => str_contains($leaveName, 'vawc'),
+        'chk_rehabilitation' => str_contains($leaveName, 'rehabilitation'),
+        'chk_special_women' => str_contains($leaveName, 'women'),
+        'chk_special_emergency' => str_contains($leaveName, 'emergency') ||
+            str_contains($leaveName, 'calamity'),
+        'chk_adoption' => str_contains($leaveName, 'adoption'),
+    ];
 
-    $check(
-        'chk_vacation',
-        str_contains($leaveName, 'vacation')
-    );
+    foreach ($leaveCategoryMatches as $field => $matchesCategory) {
+        $check($field, $matchesCategory);
+    }
 
-    $check(
-        'chk_mandatory_forced',
-        str_contains($leaveName, 'mandatory') ||
-        str_contains($leaveName, 'forced')
-    );
+    $otherPurpose = $leave->other_purpose;
+    if (
+        !in_array(true, $leaveCategoryMatches, true) &&
+        blank($otherPurpose)
+    ) {
+        $otherPurpose = $leaveTypeName;
+    }
 
-    $check(
-        'chk_sick',
-        str_contains($leaveName, 'sick')
-    );
-
-    $check(
-        'chk_maternity',
-        str_contains($leaveName, 'maternity')
-    );
-
-    $check(
-        'chk_paternity',
-        str_contains($leaveName, 'paternity')
-    );
-
-    $check(
-        'chk_special_privilege',
-        str_contains($leaveName, 'special privilege')
-    );
-
-    $check(
-        'chk_solo_parent',
-        str_contains($leaveName, 'solo parent')
-    );
-
-    $check(
-        'chk_study',
-        str_contains($leaveName, 'study')
-    );
-
-    $check(
-        'chk_vawc',
-        str_contains($leaveName, 'vawc')
-    );
-
-    $check(
-        'chk_rehabilitation',
-        str_contains($leaveName, 'rehabilitation')
-    );
-
-    $check(
-        'chk_special_women',
-        str_contains($leaveName, 'women')
-    );
-
-    $check(
-        'chk_special_emergency',
-        str_contains($leaveName, 'emergency') ||
-        str_contains($leaveName, 'calamity')
-    );
-
-    $check(
-        'chk_adoption',
-        str_contains($leaveName, 'adoption')
-    );
-
-    $text(
-        'others_specify',
-        $leave->other_purpose ?? ''
-    );
+    $text('others_specify', $otherPurpose);
 
 
 
@@ -868,8 +826,13 @@ public function downloadPdf($id, Request $request)
             }
         }
 
+        $pdf->SetFont('times', 'B', 8);
         $text('authorized_signatory_name', $signatory->name);
+
+        $pdf->SetFont('times', '', 8);
         $text('authorized_signatory_designation', $signatory->designation);
+
+        $pdf->SetFont('helvetica', '', 8);
     }
 
     $middleInitial = '';

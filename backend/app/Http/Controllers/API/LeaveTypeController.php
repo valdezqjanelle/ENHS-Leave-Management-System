@@ -10,6 +10,8 @@ use App\Support\AuditLogger;
 
 class LeaveTypeController extends Controller
 {
+    private const CS_FORM_LEAVE_TYPE_MAX_ID = 14;
+
     public function index()
     {
         $leaveTypes = LeaveType::query()
@@ -39,6 +41,10 @@ class LeaveTypeController extends Controller
                 'string',
             ],
             'requirements' => [
+                'nullable',
+                'string',
+            ],
+            'instructions' => [
                 'nullable',
                 'string',
             ],
@@ -92,6 +98,10 @@ class LeaveTypeController extends Controller
                 'nullable',
                 'string',
             ],
+            'instructions' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
         $validated['code'] = strtoupper(
@@ -118,6 +128,12 @@ class LeaveTypeController extends Controller
     public function destroy($id)
     {
         $type = LeaveType::findOrFail($id);
+
+        if ($type->leave_type_id <= self::CS_FORM_LEAVE_TYPE_MAX_ID) {
+            return response()->json([
+                'message' => 'Standard CS Form No. 6 leave types cannot be deleted.',
+            ], 422);
+        }
 
         if ($type->leaveApplications()->exists()) {
             return response()->json([
