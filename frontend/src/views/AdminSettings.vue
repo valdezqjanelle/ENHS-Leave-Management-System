@@ -1645,6 +1645,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { onBeforeUnmount, onMounted, ref, computed, watch } from "vue";
 import {
   getAdminProfile,
@@ -2016,7 +2017,7 @@ const saveAdminProfile = async () => {
   try {
     await updateAdminProfile(adminProfile.value);
 
-    alert("Profile updated successfully");
+    notify("Profile updated successfully");
     isEditingProfile.value = false;
 
     await loadAdmin();
@@ -2028,7 +2029,7 @@ const saveAdminProfile = async () => {
 
     console.error("VALIDATION ERRORS:", error.response?.data?.errors);
 
-    alert(error.response?.data?.message || "Failed to update profile.");
+    notify(error.response?.data?.message || "Failed to update profile.");
   }
 };
 
@@ -2152,11 +2153,11 @@ const updateEmail = async () => {
   try {
     await updateAdminEmail(adminEmail.value);
 
-    alert("Email updated successfully");
+    notify("Email updated successfully");
   } catch (error) {
     console.log(error);
 
-    alert("Email update failed");
+    notify("Email update failed");
   }
 };
 
@@ -2164,11 +2165,11 @@ const updatePassword = async () => {
   try {
     await updateAdminPassword(password.value);
 
-    alert("Password updated successfully");
+    notify("Password updated successfully");
   } catch (error) {
     console.log(error);
 
-    alert("Password update failed");
+    notify("Password update failed");
   }
 };
 
@@ -2203,13 +2204,13 @@ const saveLeaveRules = async () => {
       general_policy: leaveRules.value.general_policy,
     });
 
-    alert("Leave rules saved successfully.");
+    notify("Leave rules saved successfully.");
 
     await loadLeaveRules();
   } catch (error: any) {
     console.error("Failed to save leave rules:", error.response?.data || error);
 
-    alert(error.response?.data?.message || "Failed to save leave rules.");
+    notify(error.response?.data?.message || "Failed to save leave rules.");
   }
 };
 
@@ -2304,12 +2305,12 @@ const saveLeaveType = async () => {
   const instructions = leaveForm.value.instructions.trim();
 
   if (!code) {
-    alert("Leave code is required.");
+    notify("Leave code is required.");
     return;
   }
 
   if (!leaveTypeName) {
-    alert("Leave type name is required.");
+    notify("Leave type name is required.");
     return;
   }
 
@@ -2332,11 +2333,11 @@ const saveLeaveType = async () => {
 
       console.log("UPDATED LEAVE TYPE RESPONSE:", updated);
 
-      alert("Leave type updated successfully.");
+      notify("Leave type updated successfully.");
     } else {
       await createLeaveType(payload);
 
-      alert("Leave type created successfully.");
+      notify("Leave type created successfully.");
     }
 
     closeLeaveModal();
@@ -2344,19 +2345,23 @@ const saveLeaveType = async () => {
   } catch (error: any) {
     console.error("Failed saving leave type:", error.response?.data || error);
 
-    alert(error.response?.data?.message || "Failed to save leave type.");
+    notify(error.response?.data?.message || "Failed to save leave type.");
   }
 };
 
 const removeLeaveType = async (id: number) => {
-  const confirmed = confirm("Are you sure you want to delete this leave type?");
+  const confirmed = await confirmAction({
+    title: "Delete leave type?",
+    message: "Are you sure you want to delete this leave type?",
+    confirmLabel: "Delete leave type",
+  });
 
   if (!confirmed) return;
 
   try {
     await deleteLeaveType(id);
 
-    alert("Leave type deleted successfully.");
+    notify("Leave type deleted successfully.");
 
     await loadLeaveTypes();
   } catch (error: any) {
@@ -2365,7 +2370,7 @@ const removeLeaveType = async (id: number) => {
       error.response?.data || error,
     );
 
-    alert(error.response?.data?.message || "Failed to delete leave type.");
+    notify(error.response?.data?.message || "Failed to delete leave type.");
   }
 };
 
@@ -2407,7 +2412,7 @@ const saveApprovalSettings = async () => {
       auto_update_balance: Boolean(approvalSettings.value.auto_update_balance),
     });
 
-    alert("Approval settings saved successfully.");
+    notify("Approval settings saved successfully.");
 
     await loadApprovalSettings();
   } catch (error: any) {
@@ -2416,7 +2421,7 @@ const saveApprovalSettings = async () => {
       error.response?.data || error,
     );
 
-    alert(error.response?.data?.message || "Failed to save approval settings.");
+    notify(error.response?.data?.message || "Failed to save approval settings.");
   }
 };
 
@@ -2458,7 +2463,7 @@ const saveSystemSettings = async () => {
   try {
     await updateSystemSettings(systemSettings.value);
 
-    alert("System settings saved successfully.");
+    notify("System settings saved successfully.");
 
     await loadSystemSettings();
   } catch (error: any) {
@@ -2467,7 +2472,7 @@ const saveSystemSettings = async () => {
       error.response?.data || error,
     );
 
-    alert(error.response?.data?.message || "Failed to save system settings.");
+    notify(error.response?.data?.message || "Failed to save system settings.");
   }
 };
 
@@ -2544,7 +2549,7 @@ const createBackup = async () => {
       };
     }
 
-    alert("Database backup created successfully.");
+    notify("Database backup created successfully.");
 
     await loadBackups();
   } catch (error: any) {
@@ -2553,7 +2558,7 @@ const createBackup = async () => {
       error.response?.data || error,
     );
 
-    alert(error.response?.data?.message || "Failed to create database backup.");
+    notify(error.response?.data?.message || "Failed to create database backup.");
   } finally {
     backupLoading.value = false;
   }
@@ -2573,7 +2578,7 @@ const formatBackupDate = (dateStr: string) => {
 
 const downloadLatestBackup = async () => {
   if (!lastBackup.value.id) {
-    alert("No backup available to download.");
+    notify("No backup available to download.");
     return;
   }
 
@@ -2602,7 +2607,7 @@ const downloadLatestBackup = async () => {
   } catch (error: any) {
     console.error("Failed to download backup:", error.response?.data || error);
 
-    alert(error.response?.data?.message || "Failed to download backup.");
+    notify(error.response?.data?.message || "Failed to download backup.");
   }
 };
 
@@ -2623,7 +2628,7 @@ const handleRestoreFile = async (event: Event) => {
     file.type !== "application/json" &&
     !file.name.toLowerCase().endsWith(".json")
   ) {
-    alert("Please select a valid JSON backup file.");
+    notify("Please select a valid JSON backup file.");
 
     input.value = "";
 
@@ -2632,10 +2637,13 @@ const handleRestoreFile = async (event: Event) => {
 
   selectedRestoreFile.value = file;
 
-  const confirmed = confirm(
-    `Are you sure you want to restore "${file.name}"?\n\n` +
+  const confirmed = await confirmAction({
+    title: "Restore database backup?",
+    message:
+      `Are you sure you want to restore "${file.name}"?\n\n` +
       "This will replace the current database records with the records from this backup.",
-  );
+    confirmLabel: "Restore database",
+  });
 
   if (!confirmed) {
     selectedRestoreFile.value = null;
@@ -2651,7 +2659,7 @@ const handleRestoreFile = async (event: Event) => {
 
     console.log("RESTORE RESPONSE:", response);
 
-    alert(response.data?.message || "Database restored successfully.");
+    notify(response.data?.message || "Database restored successfully.");
 
     selectedRestoreFile.value = null;
 
@@ -2663,7 +2671,16 @@ const handleRestoreFile = async (event: Event) => {
     console.error("STATUS:", error.response?.status);
     console.error("DATA:", error.response?.data);
 
-    alert("RESTORE FAILED\n\n" + JSON.stringify(error.response?.data, null, 2));
+    const responseData = error.response?.data;
+    const validationMessages = responseData?.errors
+      ? Object.values(responseData.errors).flat().join("\n")
+      : "";
+    notify(
+      validationMessages ||
+        responseData?.message ||
+        "Unable to restore the database backup. Please try again.",
+      "error",
+    );
 
     input.value = "";
   } finally {

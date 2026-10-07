@@ -1463,39 +1463,13 @@
       </div>
     </div>
 
-    <div v-if="confirmation"
-      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-[60] p-4"
-      role="presentation">
-      <section class="bg-[var(--surface)] rounded-xl shadow-2xl w-full max-w-lg overflow-hidden"
-        role="dialog" aria-modal="true" :aria-label="confirmation.title">
-        <div class="p-6 space-y-3">
-          <h2 class="text-xl font-bold text-[var(--text)]">{{ confirmation.title }}</h2>
-          <p class="text-[var(--text-muted)]">{{ confirmation.message }}</p>
-        </div>
-        <div class="bg-[#f3f7fc] border-t border-[#cbd8e8] px-6 py-4 flex justify-end gap-3">
-          <button type="button" :disabled="confirmationBusy" @click="confirmation = null"
-            class="employee-btn employee-btn-secondary" :class="{ 'cursor-not-allowed opacity-50': confirmationBusy }">
-            Cancel
-          </button>
-          <button type="button" :disabled="confirmationBusy" @click="executeConfirmation"
-            class="employee-btn employee-btn-danger">
-            {{ confirmationBusy ? "Working..." : confirmation.confirmLabel }}
-          </button>
-        </div>
-      </section>
-    </div>
-
-    <div v-if="toast" class="fixed bottom-5 right-5 z-[70] max-w-sm rounded-lg px-4 py-3 text-white shadow-lg"
-      :class="toast.type === 'error' ? 'bg-red-700' : 'bg-green-700'"
-      :role="toast.type === 'error' ? 'alert' : 'status'" aria-live="polite">
-      {{ toast.message }}
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import axios from "axios";
+import { confirmAction, notify } from "@/composables/useNotifications";
 
 import {
   getEmployees,
@@ -1763,25 +1737,8 @@ const positionOptions = computed(() =>
 );
 const createFormErrors = ref<Record<string, string>>({});
 const editFormErrors = ref<Record<string, string>>({});
-const toast = ref<{ message: string; type: "success" | "error" } | null>(null);
-let toastTimer: ReturnType<typeof setTimeout> | undefined;
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
-const confirmation = ref<{
-  title: string;
-  message: string;
-  confirmLabel: string;
-  action: (() => Promise<void>) | null;
-} | null>(null);
-const confirmationBusy = ref(false);
 const resettingEmployeeId = ref<number | null>(null);
-
-const showToast = (message: string, type: "success" | "error" = "success") => {
-  toast.value = { message, type };
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.value = null;
-  }, 4000);
-};
 
 watch(searchInput, (value) => {
   if (searchTimer) clearTimeout(searchTimer);
@@ -1792,7 +1749,6 @@ watch(searchInput, (value) => {
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
-  if (toastTimer) clearTimeout(toastTimer);
 });
 
 const deletedEmployees = ref<Employee[]>([]);
@@ -2390,7 +2346,7 @@ const exportFilteredEmployees = () => {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast(`Exported ${rows.length} employee(s) to CSV.`);
+  notify(`Exported ${rows.length} employee(s) to CSV.`);
 };
 
 const validateEmployeeForm = (
@@ -2505,7 +2461,7 @@ const editEmployee = (employee: Employee) => {
 
 const updateEmployee = async () => {
   if (!editForm.value.employee_id) {
-    showToast("Invalid employee.", "error");
+    notify("Invalid employee.", "error");
     return;
   }
   if (!validateEmployeeForm(editForm.value, editFormErrors.value, editForm.value.employee_id)) {
@@ -2515,7 +2471,7 @@ const updateEmployee = async () => {
   try {
     await updateEmployeeAPI(editForm.value.employee_id, editForm.value);
 
-    showToast("Employee updated successfully.");
+    notify("Employee updated successfully.");
 
     showEditModal.value = false;
 
@@ -2523,68 +2479,63 @@ const updateEmployee = async () => {
   } catch (error: unknown) {
     console.error("Failed to update employee:", error);
     if (!setServerFieldErrors(error, editFormErrors.value)) {
-      showToast(getErrorMessage(error, "Unable to update employee."), "error");
+      notify(getErrorMessage(error, "Unable to update employee."), "error");
     }
   }
 };
 
-const deleteEmployee = (employee: Employee) => {
+const deleteEmployee = async (employee: Employee) => {
   const employeeName = `${employee.first_name} ${employee.last_name}`.trim();
-  confirmation.value = {
+  await confirmAction({
     title: "Delete employee?",
     message: `${employeeName} will be moved to Deleted Employees and can be restored later.`,
     confirmLabel: "Delete employee",
-    action: async () => {
+    busyLabel: "Deleting...",
+    onConfirm: async () => {
       try {
         await deleteEmployeeAPI(employee.employee_id);
         selectedEmployeeIds.value = [];
-        showToast(`${employeeName} was moved to Deleted Employees.`);
+        notify(`${employeeName} was moved to Deleted Employees.`);
         await loadEmployees();
       } catch (error: unknown) {
         console.error("Failed to delete employee:", error);
-        showToast(getErrorMessage(error, "Unable to delete employee."), "error");
+        notify(getErrorMessage(error, "Unable to delete employee."), "error");
       }
     },
-  };
+  });
 };
 
-const confirmBulkAction = (action: "activate" | "deactivate" | "delete") => {
+const confirmBulkAction = async (action: "activate" | "deactivate" | "delete") => {
   const ids = [...selectedEmployeeIds.value];
   if (!ids.length) return;
   const actionLabel = action === "delete" ? "Delete" : action === "activate" ? "Activate" : "Deactivate";
+  const busyLabel =
+    action === "delete"
+      ? "Deleting..."
+      : action === "activate"
+        ? "Activating..."
+        : "Deactivating...";
   const message = action === "delete"
     ? `${ids.length} selected employee(s) will be moved to Deleted Employees and can be restored later.`
     : `${ids.length} selected employee(s) will be ${action === "activate" ? "marked active" : "marked inactive"}.`;
-  confirmation.value = {
+  await confirmAction({
     title: `${actionLabel} selected employees?`,
     message,
     confirmLabel: actionLabel,
-    action: async () => {
+    busyLabel,
+    variant: action === "delete" ? "danger" : "primary",
+    onConfirm: async () => {
       try {
         const result = await applyBulkEmployeeAction(ids, action);
         selectedEmployeeIds.value = [];
-        showToast(result?.message || `${actionLabel} action completed.`);
+        notify(result?.message || `${actionLabel} action completed.`);
         await loadEmployees();
       } catch (error: unknown) {
         console.error("Failed to apply bulk employee action:", error);
-        showToast(getErrorMessage(error, "Unable to apply bulk action."), "error");
+        notify(getErrorMessage(error, "Unable to apply bulk action."), "error");
       }
     },
-  };
-};
-
-const executeConfirmation = async () => {
-  if (!confirmation.value?.action || confirmationBusy.value) return;
-  confirmationBusy.value = true;
-  try {
-    await confirmation.value.action();
-    confirmation.value = null;
-  } catch (error) {
-    console.error("Failed to complete employee confirmation action:", error);
-    showToast("Unable to complete this action.", "error");
-  } finally {
-    confirmationBusy.value = false;
-  }
+  });
 };
 
 const resetEmployeePassword = async (employee: Employee) => {
@@ -2601,7 +2552,7 @@ const resetEmployeePassword = async (employee: Employee) => {
     showCredentialsModal.value = true;
   } catch (error: unknown) {
     console.error("Failed to reset employee password:", error);
-    showToast(getErrorMessage(error, "Unable to reset employee password."), "error");
+    notify(getErrorMessage(error, "Unable to reset employee password."), "error");
   } finally {
     resettingEmployeeId.value = null;
   }
@@ -2616,7 +2567,7 @@ const loadEmployees = async () => {
     selectedEmployeeIds.value = selectedEmployeeIds.value.filter((id) => existingIds.has(id));
   } catch (error) {
     console.error("Failed to load employees:", error);
-    showToast(getErrorMessage(error, "Unable to load employees."), "error");
+    notify(getErrorMessage(error, "Unable to load employees."), "error");
   }
 };
 
@@ -2629,7 +2580,7 @@ const loadDeletedEmployees = async () => {
     console.log("Deleted Employees:", deletedEmployees.value);
   } catch (error) {
     console.error("Failed to load deleted employees:", error);
-    showToast(getErrorMessage(error, "Unable to load deleted employees."), "error");
+    notify(getErrorMessage(error, "Unable to load deleted employees."), "error");
   }
 };
 
@@ -2639,41 +2590,44 @@ const openDeletedEmployees = async () => {
   await loadDeletedEmployees();
 };
 
-const restoreEmployeeRecord = (employee: Employee) => {
+const restoreEmployeeRecord = async (employee: Employee) => {
   const employeeName = `${employee.first_name} ${employee.last_name}`.trim();
-  confirmation.value = {
+  await confirmAction({
     title: "Restore employee?",
     message: `Restore ${employeeName} to the active employee list?`,
     confirmLabel: "Restore employee",
-    action: async () => {
+    variant: "primary",
+    busyLabel: "Restoring...",
+    onConfirm: async () => {
       try {
         await restoreEmployee(employee.employee_id);
-        showToast(`${employeeName} was restored.`);
+        notify(`${employeeName} was restored.`);
         await Promise.all([loadEmployees(), loadDeletedEmployees()]);
       } catch (error: unknown) {
         console.error("Failed to restore employee:", error);
-        showToast(getErrorMessage(error, "Unable to restore employee."), "error");
+        notify(getErrorMessage(error, "Unable to restore employee."), "error");
       }
     },
-  };
+  });
 };
 
 const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
-  confirmation.value = {
+  await confirmAction({
     title: "Permanently delete employee?",
     message: `Permanently delete ${employee.first_name} ${employee.last_name}? This cannot be undone. Their leave applications, credits, balances, attendance, and personnel records will be removed, and login access will be revoked. Historical audit and school-year records remain.`,
     confirmLabel: "Permanently delete",
-    action: async () => {
+    busyLabel: "Deleting permanently...",
+    onConfirm: async () => {
       try {
         const result = await permanentlyDeleteEmployee(employee.employee_id);
-        showToast(result?.message || "Employee permanently deleted.");
+        notify(result?.message || "Employee permanently deleted.");
         await Promise.all([loadEmployees(), loadDeletedEmployees()]);
       } catch (error: unknown) {
         console.error("Failed to permanently delete employee:", error);
-        showToast(getErrorMessage(error, "Unable to permanently delete employee. Please try again."), "error");
+        notify(getErrorMessage(error, "Unable to permanently delete employee. Please try again."), "error");
       }
     },
-  };
+  });
 };
 
 const resetCreateForm = () => {
@@ -2739,7 +2693,7 @@ const saveEmployee = async () => {
   } catch (error: unknown) {
     console.error("Failed to create employee:", error);
     if (!setServerFieldErrors(error, createFormErrors.value)) {
-      showToast(getErrorMessage(error, "Unable to create employee."), "error");
+      notify(getErrorMessage(error, "Unable to create employee."), "error");
     }
   }
 };

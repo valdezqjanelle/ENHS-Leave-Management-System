@@ -748,6 +748,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted, watch } from "vue";
 
 import { useRouter } from "vue-router";
@@ -1467,7 +1468,7 @@ const updateStatus = async (
   } catch (error: any) {
     console.error(error);
 
-    alert(
+    notify(
       error.response?.data?.message ??
         "Failed to update leave application.",
     );
@@ -1508,7 +1509,7 @@ const confirmReject = async () => {
     rejectionReason.value.trim();
 
   if (!reason) {
-    alert(
+    notify(
       "Please enter a reason for disapproval.",
     );
 
@@ -1523,7 +1524,7 @@ const confirmReject = async () => {
       reason,
     );
 
-    alert(
+    notify(
       "Leave application disapproved successfully.",
     );
 
@@ -1545,7 +1546,7 @@ const confirmReject = async () => {
       error.response?.data,
     );
 
-    alert(
+    notify(
       error.response?.data?.message ??
         "Failed to reject leave application.",
     );
@@ -1588,7 +1589,7 @@ const confirmApproval = async () => {
       serviceCreditsDays;
 
     if (totalDeduction <= 0) {
-      alert(
+      notify(
         "Please enter at least one day to deduct.",
       );
 
@@ -1599,7 +1600,7 @@ const confirmApproval = async () => {
       totalDeduction >
       application.number_of_days
     ) {
-      alert(
+      notify(
         "The total deduction cannot be greater than the number of days applied.",
       );
 
@@ -1675,9 +1676,11 @@ const deleteLeaveApplicationById =
     leaveId: number,
   ) => {
     if (
-      !confirm(
-        "Are you sure you want to delete this leave application?",
-      )
+      !(await confirmAction({
+        title: "Delete leave application?",
+        message: "Are you sure you want to delete this leave application?",
+        confirmLabel: "Delete application",
+      }))
     ) {
       return;
     }
@@ -1687,7 +1690,7 @@ const deleteLeaveApplicationById =
         leaveId,
       );
 
-      alert(
+      notify(
         "Leave application deleted successfully.",
       );
 
@@ -1698,7 +1701,7 @@ const deleteLeaveApplicationById =
         error,
       );
 
-      alert(
+      notify(
         error.response?.data?.message ??
           "Failed to delete leave application.",
       );
@@ -1738,7 +1741,7 @@ const getDeletedApplications =
         error,
       );
 
-      alert(
+      notify(
         error.response?.data?.message ??
           "Failed to load removed leave applications.",
       );
@@ -1754,9 +1757,12 @@ const restoreLeaveApplicationById =
     leaveId: number,
   ) => {
     if (
-      !confirm(
-        "Are you sure you want to restore this leave application?",
-      )
+      !(await confirmAction({
+        title: "Restore leave application?",
+        message: "Are you sure you want to restore this leave application?",
+        confirmLabel: "Restore application",
+        variant: "primary",
+      }))
     ) {
       return;
     }
@@ -1766,7 +1772,7 @@ const restoreLeaveApplicationById =
         leaveId,
       );
 
-      alert(
+      notify(
         "Leave application restored successfully.",
       );
 
@@ -1778,7 +1784,7 @@ const restoreLeaveApplicationById =
         error,
       );
 
-      alert(
+      notify(
         error.response?.data?.message ??
           "Failed to restore leave application.",
       );

@@ -417,6 +417,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted } from "vue";
 
 import {
@@ -619,7 +620,7 @@ const loadRecords = async () => {
       error
     );
 
-    alert(
+    notify(
       "Unable to load non-teaching personnel records."
     );
   }
@@ -714,13 +715,13 @@ const closeFormModal = () => {
 const saveRecord = async () => {
   try {
     if (!form.value.employee_id) {
-      alert("Please select an employee.");
+      notify("Please select an employee.");
 
       return;
     }
 
     if (!form.value.office_assignment.trim()) {
-      alert("Please enter the office assignment.");
+      notify("Please enter the office assignment.");
 
       return;
     }
@@ -744,7 +745,7 @@ const saveRecord = async () => {
         payload
       );
 
-      alert(
+      notify(
         "Non-teaching personnel record updated successfully."
       );
     } else {
@@ -752,7 +753,7 @@ const saveRecord = async () => {
         payload
       );
 
-      alert(
+      notify(
         "Non-teaching personnel record created successfully."
       );
     }
@@ -770,7 +771,7 @@ const saveRecord = async () => {
       error?.response?.data?.message ||
       "Unable to save non-teaching personnel record.";
 
-    alert(message);
+    notify(message);
   }
 };
 
@@ -795,9 +796,11 @@ const deleteRecord = async (
 ) => {
   const name = employeeName(record);
 
-  const confirmed = confirm(
-    `Are you sure you want to delete the non-teaching personnel record for ${name}?`
-  );
+  const confirmed = await confirmAction({
+    title: "Delete non-teaching personnel record?",
+    message: `Are you sure you want to delete the non-teaching personnel record for ${name}?`,
+    confirmLabel: "Delete record",
+  });
 
   if (!confirmed) {
     return;
@@ -808,7 +811,7 @@ const deleteRecord = async (
       record.non_teaching_record_id
     );
 
-    alert(
+    notify(
       "Non-teaching personnel record deleted successfully."
     );
 
@@ -819,7 +822,7 @@ const deleteRecord = async (
       error
     );
 
-    alert(
+    notify(
       "Unable to delete non-teaching personnel record."
     );
   }

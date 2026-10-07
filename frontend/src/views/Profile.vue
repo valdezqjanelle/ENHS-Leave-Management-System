@@ -649,6 +649,7 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted } from "vue";
 
 import {
@@ -1018,7 +1019,7 @@ const updateProfile = async () => {
         employee.value.emergency_contact_relationship,
     });
 
-    alert(
+    notify(
       "Profile updated successfully."
     );
 
@@ -1036,7 +1037,7 @@ const updateProfile = async () => {
     if (
       error.response?.data?.message
     ) {
-      alert(
+      notify(
         error.response.data.message
       );
     } else if (
@@ -1050,9 +1051,9 @@ const updateProfile = async () => {
           .flat()
           .join("\n");
 
-      alert(messages);
+      notify(messages);
     } else {
-      alert(
+      notify(
         "Failed to update profile."
       );
     }

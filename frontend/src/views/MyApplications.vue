@@ -548,6 +548,7 @@
 
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted } from "vue";
 import {
   addMyLeaveAttachments,
@@ -715,7 +716,7 @@ const uploadAdditionalAttachments = async () => {
     }
 
     resetAttachmentForm();
-    alert(response.message || "Supporting documents uploaded successfully.");
+    notify(response.message || "Supporting documents uploaded successfully.");
   } catch (error: any) {
     const validationErrors = error.response?.data?.errors as
       | Record<string, string[]>

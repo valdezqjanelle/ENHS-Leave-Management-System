@@ -333,6 +333,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { computed, ref, onMounted, watch } from "vue";
 import axios from "axios";
 
@@ -637,7 +638,7 @@ const loadCredits = async () => {
 
 const applyCredit = async () => {
   if (!form.value.equivalent_leave_days) {
-    alert(conversionError.value || "Enter valid rendered hours or minutes.");
+    notify(conversionError.value || "Enter valid rendered hours or minutes.");
     return;
   }
   try {
@@ -659,12 +660,12 @@ const applyCredit = async () => {
         "Credit saved but balance sync failed:",
         balanceError.response?.data || balanceError,
       );
-      alert(
+      notify(
         "Credit was saved, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
       );
     }
 
-    alert("Leave credit applied successfully!");
+    notify("Leave credit applied successfully!");
     renderedTime.value = "";
 
     form.value = {
@@ -680,7 +681,7 @@ const applyCredit = async () => {
     console.error("STATUS:", error.response?.status);
     console.error("SERVER RESPONSE:", error.response?.data);
 
-    alert(
+    notify(
       error.response?.data?.message ??
         JSON.stringify(
           error.response?.data?.errors ?? "Unable to apply leave credit.",
@@ -690,7 +691,13 @@ const applyCredit = async () => {
 };
 
 const revokeCredit = async (credit: LeaveCredit) => {
-  if (!confirm("Are you sure you want to revoke this credit?")) {
+  if (
+    !(await confirmAction({
+      title: "Revoke leave credit?",
+      message: "Are you sure you want to revoke this credit?",
+      confirmLabel: "Revoke credit",
+    }))
+  ) {
     return;
   }
 
@@ -711,16 +718,16 @@ const revokeCredit = async (credit: LeaveCredit) => {
         "Credit revoked but balance sync failed:",
         balanceError.response?.data || balanceError,
       );
-      alert(
+      notify(
         "Credit was revoked, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
       );
     }
 
-    alert("Leave credit revoked successfully!");
+    notify("Leave credit revoked successfully!");
     await loadCredits();
   } catch (error: any) {
     console.error("Failed to revoke credit:", error);
-    alert("Unable to revoke leave credit.");
+    notify("Unable to revoke leave credit.");
   }
 };
 

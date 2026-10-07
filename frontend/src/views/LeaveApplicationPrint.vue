@@ -198,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted, onUnmounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getLeave, getLeaveTypes, downloadLeavePdf, downloadLeaveAttachment } from "../services/leave";
@@ -456,7 +457,7 @@ const ensurePdfBlob = async (): Promise<Blob> => {
 const downloadPdf = async () => {
   if (!leave.value?.leave_id) {
 
-    alert(
+    notify(
       "Leave application not found."
     );
 
@@ -481,7 +482,7 @@ const downloadPdf = async () => {
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   } catch (error) {
     console.error("Failed to download PDF:", error);
-    alert("Failed to download PDF. Please try again.");
+    notify("Failed to download PDF. Please try again.");
   } finally {
     downloadingPdf.value = false;
   }
@@ -491,7 +492,7 @@ const downloadPdf = async () => {
 const printForm = async () => {
   if (!leave.value?.leave_id) {
 
-    alert(
+    notify(
       "Leave application not found."
     );
 
@@ -534,7 +535,7 @@ const printForm = async () => {
     }, 60000);
   } catch (error) {
     console.error("Failed to print PDF:", error);
-    alert("Failed to prepare the PDF for printing. Please try again.");
+    notify("Failed to prepare the PDF for printing. Please try again.");
   } finally {
     printingPdf.value = false;
   }

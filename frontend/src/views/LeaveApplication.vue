@@ -598,6 +598,7 @@
 
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 
 import {
   ref,
@@ -1100,7 +1101,7 @@ const submitApplication = async () => {
     !form.value.terminal_leave &&
     !otherPurposeSelected.value
   ) {
-    alert("Please select Monetization, Terminal Leave, or Other Purpose.");
+    notify("Please select Monetization, Terminal Leave, or Other Purpose.");
     return;
   }
 
@@ -1109,7 +1110,7 @@ const submitApplication = async () => {
     otherPurposeSelected.value &&
     !form.value.other_purpose.trim()
   ) {
-    alert("Please specify the other purpose.");
+    notify("Please specify the other purpose.");
     return;
   }
 
@@ -1118,7 +1119,7 @@ const submitApplication = async () => {
     signaturePad.value.isEmpty()
   ) {
 
-    alert(
+    notify(
       "Please provide your signature before submitting."
     );
 
@@ -1314,7 +1315,7 @@ const submitApplication = async () => {
     );
 
 
-    alert(
+    notify(
       "Failed to submit leave application. Please try again."
     );
 

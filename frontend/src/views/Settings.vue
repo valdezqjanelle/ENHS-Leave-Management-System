@@ -960,6 +960,7 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -1055,19 +1056,19 @@ const updateEmail = async () => {
     accountSettings.value.email.confirm.trim()
 
   if (!newEmail) {
-    alert('Please enter your new email.')
+    notify('Please enter your new email.')
     return
   }
 
   if (newEmail !== confirmEmail) {
-    alert('Email confirmation does not match.')
+    notify('Email confirmation does not match.')
     return
   }
 
   try {
     await updateEmailAPI(newEmail)
 
-    alert('Email updated successfully.')
+    notify('Email updated successfully.')
 
     accountSettings.value.email.new = ''
     accountSettings.value.email.confirm = ''
@@ -1078,9 +1079,9 @@ const updateEmail = async () => {
     console.error('Email update failed:', error)
 
     if (error.response?.data?.message) {
-      alert(error.response.data.message)
+      notify(error.response.data.message)
     } else {
-      alert('Email update failed.')
+      notify('Email update failed.')
     }
   }
 }
@@ -1101,22 +1102,22 @@ const updatePassword = async () => {
     accountSettings.value.password.confirm
 
   if (!currentPassword) {
-    alert('Please enter your current password.')
+    notify('Please enter your current password.')
     return
   }
 
   if (!newPassword) {
-    alert('Please enter your new password.')
+    notify('Please enter your new password.')
     return
   }
 
   if (newPassword !== confirmPassword) {
-    alert('Password confirmation does not match.')
+    notify('Password confirmation does not match.')
     return
   }
 
   if (newPassword.length < 8) {
-    alert('Password must be at least 8 characters long.')
+    notify('Password must be at least 8 characters long.')
     return
   }
 
@@ -1131,7 +1132,7 @@ const updatePassword = async () => {
         confirmPassword
     })
 
-    alert('Password updated successfully.')
+    notify('Password updated successfully.')
 
     accountSettings.value.password.current = ''
     accountSettings.value.password.new = ''
@@ -1142,7 +1143,7 @@ const updatePassword = async () => {
     console.error('Password update failed:', error)
 
     if (error.response?.data?.message) {
-      alert(error.response.data.message)
+      notify(error.response.data.message)
     } else if (error.response?.data?.errors) {
 
       const errors = error.response.data.errors
@@ -1151,10 +1152,10 @@ const updatePassword = async () => {
         .flat()
         .join('\n')
 
-      alert(messages)
+      notify(messages)
 
     } else {
-      alert('Password update failed.')
+      notify('Password update failed.')
     }
   }
 }
@@ -1165,7 +1166,7 @@ const updatePhone = async () => {
     accountSettings.value.phone.new.trim()
 
   if (!newPhone) {
-    alert('Please enter your new phone number.')
+    notify('Please enter your new phone number.')
     return
   }
 
@@ -1173,7 +1174,7 @@ const updatePhone = async () => {
 
     await updatePhoneAPI(newPhone)
 
-    alert('Phone number updated successfully.')
+    notify('Phone number updated successfully.')
 
     accountSettings.value.phone.new = ''
 
@@ -1184,16 +1185,16 @@ const updatePhone = async () => {
     console.error('Phone update failed:', error)
 
     if (error.response?.data?.message) {
-      alert(error.response.data.message)
+      notify(error.response.data.message)
     } else {
-      alert('Phone update failed.')
+      notify('Phone update failed.')
     }
   }
 }
 
 const updatePosition = () => {
 
-  alert(
+  notify(
     'Position changes must be requested through the administrator.'
   )
 }

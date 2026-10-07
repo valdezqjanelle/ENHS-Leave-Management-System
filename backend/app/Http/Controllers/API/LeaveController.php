@@ -756,8 +756,8 @@ public function downloadPdf($id, Request $request)
                     $tmp,
                     $coords['applicant_signature']['x'],
                     $coords['applicant_signature']['y'],
-                    90,
-                    28,
+                    $coords['applicant_signature']['width'],
+                    $coords['applicant_signature']['height'],
                     'PNG'
                 );
             }

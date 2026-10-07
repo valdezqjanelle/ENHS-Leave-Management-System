@@ -199,6 +199,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import SchoolYearManager from "@/components/SchoolYearManager.vue";
@@ -351,7 +352,7 @@ const updateBalance = async () => {
         (value) => !Number.isFinite(value) || value < 0
       )
     ) {
-      alert(
+      notify(
         "All leave balance values must be valid numbers greater than or equal to zero."
       );
       return;
@@ -369,7 +370,7 @@ const updateBalance = async () => {
       }
     );
 
-    alert("Leave balance updated successfully.");
+    notify("Leave balance updated successfully.");
 
     closeModal();
 
@@ -383,11 +384,11 @@ const updateBalance = async () => {
     const errors = error.response?.data?.errors;
 
     if (errors) {
-      alert(Object.values(errors).flat().join("\n"));
+      notify(Object.values(errors).flat().join("\n"));
       return;
     }
 
-    alert(
+    notify(
       error.response?.data?.message ||
       "Failed updating balance."
     );
@@ -395,17 +396,20 @@ const updateBalance = async () => {
 };
 
 const deleteBalance = async (employee_id: number) => {
-  const confirmed = confirm(
-    "Are you sure you want to clear this leave balance?\n\n" +
-    "Vacation, Sick, and Local Credit balances will be reset to zero."
-  );
+  const confirmed = await confirmAction({
+    title: "Clear leave balance?",
+    message:
+      "Are you sure you want to clear this leave balance?\n\n" +
+      "Vacation, Sick, and Local Credit balances will be reset to zero.",
+    confirmLabel: "Clear balance",
+  });
 
   if (!confirmed) return;
 
   try {
     await deleteLeaveBalance(employee_id);
 
-    alert("Leave balance cleared successfully.");
+    notify("Leave balance cleared successfully.");
 
     await loadBalances();
   } catch (error: any) {
@@ -414,7 +418,7 @@ const deleteBalance = async (employee_id: number) => {
       error.response?.data || error
     );
 
-    alert(
+    notify(
       error.response?.data?.message ||
       "Failed clearing balance."
     );

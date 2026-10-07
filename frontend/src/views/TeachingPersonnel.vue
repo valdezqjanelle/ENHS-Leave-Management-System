@@ -441,6 +441,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { ref, computed, onMounted } from "vue";
 
 import {
@@ -719,7 +720,7 @@ const loadRecords = async () => {
       error
     );
 
-    alert("Unable to load teaching personnel records.");
+    notify("Unable to load teaching personnel records.");
   }
 };
 
@@ -829,13 +830,13 @@ const closeFormModal = () => {
 const saveRecord = async () => {
   try {
     if (!form.value.employee_id) {
-      alert("Please select an employee.");
+      notify("Please select an employee.");
 
       return;
     }
 
     if (!form.value.assignments.length || form.value.assignments.some((a:any)=>!a.grade_level_id || !a.subject_id || (assignmentLevel(a)==='SHS' && !a.track_id) || !/^\d{4}-\d{4}$/.test(a.school_year))) {
-      alert("Complete the grade level, track/strand (for SHS), subject, and school year for every assignment."); return;
+      notify("Complete the grade level, track/strand (for SHS), subject, and school year for every assignment."); return;
     }
 
     const first = form.value.assignments[0];
@@ -869,13 +870,13 @@ const saveRecord = async () => {
         payload
       );
 
-      alert(
+      notify(
         "Teaching personnel record updated successfully."
       );
     } else {
       await createTeachingPersonnelRecord(payload);
 
-      alert(
+      notify(
         "Teaching personnel record created successfully."
       );
     }
@@ -893,7 +894,7 @@ const saveRecord = async () => {
       error?.response?.data?.message ||
       "Unable to save teaching personnel record.";
 
-    alert(message);
+    notify(message);
   }
 };
 
@@ -914,9 +915,11 @@ const viewRecord = (record: TeachingRecord) => {
 const deleteRecord = async (record: TeachingRecord) => {
   const name = employeeName(record);
 
-  const confirmed = confirm(
-    `Are you sure you want to delete the teaching personnel record for ${name}?`
-  );
+  const confirmed = await confirmAction({
+    title: "Delete teaching personnel record?",
+    message: `Are you sure you want to delete the teaching personnel record for ${name}?`,
+    confirmLabel: "Delete record",
+  });
 
   if (!confirmed) {
     return;
@@ -927,7 +930,7 @@ const deleteRecord = async (record: TeachingRecord) => {
       record.teaching_record_id
     );
 
-    alert(
+    notify(
       "Teaching personnel record deleted successfully."
     );
 
@@ -938,7 +941,7 @@ const deleteRecord = async (record: TeachingRecord) => {
       error
     );
 
-    alert(
+    notify(
       "Unable to delete teaching personnel record."
     );
   }

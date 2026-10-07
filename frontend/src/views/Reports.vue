@@ -666,6 +666,7 @@
 
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 
 import {
   ref,
@@ -1648,7 +1649,7 @@ const exportReport = () => {
         'Used Leave (Overall)': formatNumber(employee.used_leave)
       })
       if (displayedCreditsData.value.length === 0) {
-        alert('No employee balances available to export.')
+        notify('No employee balances available to export.')
         return
       }
       data = displayedCreditsData.value.map(exportRow)
@@ -1668,7 +1669,7 @@ const exportReport = () => {
 
   if (data.length === 0) {
 
-    alert(
+    notify(
       'No data available to export.'
     )
 

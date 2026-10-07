@@ -198,6 +198,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction } from "@/composables/useNotifications";
 import { onMounted, ref, watch } from "vue";
 import axios from "axios";
 interface Balances {
@@ -300,9 +301,13 @@ const preview = async () => {
 const activate = async () => {
   if (busy.value || !result.value || !confirmed.value) return;
   if (
-    !window.confirm(
-      "Apply the displayed allocations and SL resets? Previous balances will be archived.",
-    )
+    !(await confirmAction({
+      title: "Apply school-year allocations?",
+      message:
+        "Apply the displayed allocations and SL resets? Previous balances will be archived.",
+      confirmLabel: "Apply allocations",
+      variant: "primary",
+    }))
   )
     return;
   busy.value = true;

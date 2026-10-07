@@ -42,7 +42,7 @@ return [
     'middle_name'        => ['x' => 460, 'y' => 140],
     'date_of_filing'      => ['x' => 137, 'y' => 161],
     'position'            => ['x' => 277, 'y' => 161],
-    'salary'              => ['x' => 456, 'y' => 161],
+    'salary'              => ['x' => 456, 'y' => 158],
 
     // ── Section 6.A: Type of Leave (checkboxes) ─────────────────
     'chk_vacation'            => ['x' => 71, 'y' => 218],
@@ -58,7 +58,7 @@ return [
     'chk_special_women'       => ['x' => 71, 'y' => 364],
     'chk_special_emergency'   => ['x' => 71, 'y' => 379],
     'chk_adoption'             => ['x' => 71, 'y' => 393],
-    'others_specify'           => ['x' => 71, 'y' => 437],   // free-text blank
+    'others_specify'           => ['x' => 71, 'y' => 435],   // free-text blank
 
     // ── Section 6.B: Details of Leave (checkboxes + specify blanks) ──
     'chk_within_philippines'  => ['x' => 325, 'y' => 233], //325, 'y' => 233
@@ -79,9 +79,9 @@ return [
     'working_days_applied'    => ['x' => 90, 'y' => 468],
     'inclusive_dates'          => ['x' => 90, 'y' => 500],
         'chk_commutation_not_requested' => ['x' => 325,  'y' => 471],
-        'chk_commutation_requested'     => ['x' => 325, 'y' => 485],//485
-            'applicant_signature_name' => ['x' => 380, 'y' => 505],
-            'applicant_signature'      => ['x' => 375, 'y' => 480],
+        'chk_commutation_requested'     => ['x' => 323, 'y' => 484],
+            'applicant_signature_name' => ['x' => 375, 'y' => 510,],
+            'applicant_signature'      => ['x' => 375, 'y' => 480, 'width' => 130, 'height' => 28],
 
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 566],
@@ -99,9 +99,9 @@ return [
     'disapproval_reason_line'  => ['x' => 335, 'y' => 591],
     'disapproval_reason_l3'    => ['x' => 335, 'y' => 601],
     'disapproval_reason_l4'    => ['x' => 335, 'y' => 612],
-    'authorized_signatory_signature' => ['x' => 380, 'y' => 616, 'width' => 130, 'height' => 28],
-    'authorized_signatory_name' => ['x' => 381, 'y' => 639],
-    'authorized_signatory_designation' => ['x' => 385, 'y' => 645],
+    'authorized_signatory_signature' => ['x' => 375, 'y' => 616, 'width' => 130, 'height' => 28],
+    'authorized_signatory_name' => ['x' => 381, 'y' => 643],
+    'authorized_signatory_designation' => ['x' => 387, 'y' => 645],
 
     // ── Section 7.C: Approved For ────────────────────────────────
     'approved_days_with_pay'    => ['x' => 85,  'y' => 682],

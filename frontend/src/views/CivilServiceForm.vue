@@ -72,6 +72,7 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from "@/composables/useNotifications";
 import { ref } from 'vue'
 
 interface Attachment {
@@ -99,7 +100,7 @@ const handleFileUpload = (event: Event) => {
     }
 
     if (file.size > maxFileSize) {
-      window.alert(`File "${file.name}" exceeds the 150MB limit and was not added.`)
+      notify(`File "${file.name}" exceeds the 150MB limit and was not added.`)
       continue
     }
 

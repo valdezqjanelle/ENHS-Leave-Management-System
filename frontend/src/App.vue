@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import NotificationHost from './components/NotificationHost.vue'
 
 const router = useRouter()
 
@@ -15,6 +16,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <NotificationHost />
   <router-view />
 </template>
 

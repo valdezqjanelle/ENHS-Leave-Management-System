@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { confirmAction, notify } from "@/composables/useNotifications";
 import { computed, onMounted, ref, watch } from 'vue';
 import { getDepartments } from '../services/employee';
 import { getTeachingSetup, createGradeLevel, updateGradeLevel, deleteGradeLevel, createSection, updateSection, deleteSection, createSubject, updateSubject, deleteSubject } from '../services/teachingSetup';
@@ -108,23 +109,23 @@ watch(() => subjectForm.value.level, (level) => {
 });
 
 const errorMessage=(error:any)=>error?.response?.data?.message||Object.values(error?.response?.data?.errors||{}).flat()[0]||'The operation could not be completed.';
-async function load(){loading.value=true;try{[setup.value,departments.value]=await Promise.all([getTeachingSetup(),getDepartments()]);}catch(error){alert(errorMessage(error));}finally{loading.value=false;}}
+async function load(){loading.value=true;try{[setup.value,departments.value]=await Promise.all([getTeachingSetup(),getDepartments()]);}catch(error){notify(errorMessage(error));}finally{loading.value=false;}}
 
 async function saveGrade(){
-  if (gradeForm.value.level === 'All') { alert('Please choose JHS or SHS for this grade level (not "All").'); return; }
-  try{const f=gradeForm.value; f.grade_level_id?await updateGradeLevel(f.grade_level_id,f):await createGradeLevel(f); gradeForm.value={grade_level_id:null,grade_name:'',level:f.level,sort_order:0,is_active:true};await load();}catch(error){alert(errorMessage(error));}
+  if (gradeForm.value.level === 'All') { notify('Please choose JHS or SHS for this grade level (not "All").'); return; }
+  try{const f=gradeForm.value; f.grade_level_id?await updateGradeLevel(f.grade_level_id,f):await createGradeLevel(f); gradeForm.value={grade_level_id:null,grade_name:'',level:f.level,sort_order:0,is_active:true};await load();}catch(error){notify(errorMessage(error));}
 }
 async function saveSection(){
-  if (sectionForm.value.grade_level_id === 'All') { alert('Please choose a specific grade for this section (not "All").'); return; }
-  try{const f=sectionForm.value; f.section_id?await updateSection(f.section_id,f):await createSection(f);sectionForm.value={section_id:null,grade_level_id:f.grade_level_id,section_name:'',is_active:true};await load();}catch(error){alert(errorMessage(error));}
+  if (sectionForm.value.grade_level_id === 'All') { notify('Please choose a specific grade for this section (not "All").'); return; }
+  try{const f=sectionForm.value; f.section_id?await updateSection(f.section_id,f):await createSection(f);sectionForm.value={section_id:null,grade_level_id:f.grade_level_id,section_name:'',is_active:true};await load();}catch(error){notify(errorMessage(error));}
 }
 async function saveSubject(){
-  if (subjectForm.value.level === 'All') { alert('Please choose JHS or SHS for this subject (not "All").'); return; }
-  try{const f=subjectForm.value; f.subject_id?await updateSubject(f.subject_id,f):await createSubject(f);subjectForm.value={subject_id:null,department_id:null,subject_name:'',level:f.level,is_active:true};await load();}catch(error){alert(errorMessage(error));}
+  if (subjectForm.value.level === 'All') { notify('Please choose JHS or SHS for this subject (not "All").'); return; }
+  try{const f=subjectForm.value; f.subject_id?await updateSubject(f.subject_id,f):await createSubject(f);subjectForm.value={subject_id:null,department_id:null,subject_name:'',level:f.level,is_active:true};await load();}catch(error){notify(errorMessage(error));}
 }
 
 function editItem(i:any){if(tab.value==='Grade Levels')gradeForm.value={...i};else if(tab.value==='Sections')sectionForm.value={section_id:i.section_id,grade_level_id:i.grade_level_id,section_name:i.section_name,is_active:i.is_active};else subjectForm.value={...i};}
-async function removeItem(i:any){if(!confirm(`Remove ${itemName(i)}?`))return;try{if(tab.value==='Grade Levels')await deleteGradeLevel(i.grade_level_id);else if(tab.value==='Sections')await deleteSection(i.section_id);else await deleteSubject(i.subject_id);await load();}catch(error){alert(errorMessage(error));}}
+async function removeItem(i:any){if(!(await confirmAction({title:`Remove ${itemName(i)}?`,message:`Are you sure you want to remove ${itemName(i)}?`,confirmLabel:'Remove'})))return;try{if(tab.value==='Grade Levels')await deleteGradeLevel(i.grade_level_id);else if(tab.value==='Sections')await deleteSection(i.section_id);else await deleteSubject(i.subject_id);await load();}catch(error){notify(errorMessage(error));}}
 const itemKey=(i:any)=>i.grade_level_id??i.section_id??i.subject_id;
 const itemName=(i:any)=>i.grade_name??i.section_name??i.subject_name;
 const itemParent=(i:any)=>i.grade_level?.grade_name??i.department?.department_name??i.level??'General subject';
