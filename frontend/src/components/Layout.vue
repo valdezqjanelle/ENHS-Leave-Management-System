@@ -47,7 +47,7 @@
       </div>
 
       <nav
-        class="mt-4 space-y-1 px-3 flex-1 overflow-y-auto"
+        class="sidebar-scroll mt-4 space-y-1 px-3 flex-1"
         @click="sidebarOpen = false"
       >
         <router-link to="/dashboard" class="nav-item">
@@ -95,26 +95,30 @@
           </div>
         </div>
 
-        <!-- Leave Management Dropdown -->
+        <!-- Leave Application Dropdown -->
         <div v-if="currentUser.role === 'admin'">
           <button
-            @click.stop="toggleLeaveMenu"
+            type="button"
+            @click.stop="toggleLeaveApplicationMenu"
             class="nav-item w-full justify-between"
-            :class="{ 'router-link-active': isLeaveRouteActive }"
+            :class="{ 'router-link-active': isLeaveApplicationRouteActive }"
+            :aria-expanded="leaveApplicationMenuOpen"
+            aria-controls="leave-application-menu"
           >
             <span class="flex items-center gap-3">
-              <FileCheck class="icon" />
-              Leave Management
+              <FilePlus class="icon" />
+              Leave Application
             </span>
 
             <ChevronDown
               class="icon transition-transform duration-200"
-              :class="{ 'rotate-180': leaveMenuOpen }"
+              :class="{ 'rotate-180': leaveApplicationMenuOpen }"
             />
           </button>
 
           <div
-            v-show="leaveMenuOpen || isLeaveRouteActive"
+            id="leave-application-menu"
+            v-show="leaveApplicationMenuOpen"
             class="pl-4 space-y-1 mt-1"
           >
             <router-link to="/leave-application" class="nav-subitem">
@@ -124,7 +128,35 @@
             <router-link to="/my-applications" class="nav-subitem">
               My Applications
             </router-link>
+          </div>
+        </div>
 
+        <!-- Leave Management Dropdown -->
+        <div v-if="currentUser.role === 'admin'">
+          <button
+            type="button"
+            @click.stop="toggleLeaveManagementMenu"
+            class="nav-item w-full justify-between"
+            :class="{ 'router-link-active': isLeaveManagementRouteActive }"
+            :aria-expanded="leaveManagementMenuOpen"
+            aria-controls="leave-management-menu"
+          >
+            <span class="flex items-center gap-3">
+              <FileCheck class="icon" />
+              Leave Management
+            </span>
+
+            <ChevronDown
+              class="icon transition-transform duration-200"
+              :class="{ 'rotate-180': leaveManagementMenuOpen }"
+            />
+          </button>
+
+          <div
+            id="leave-management-menu"
+            v-show="leaveManagementMenuOpen"
+            class="pl-4 space-y-1 mt-1"
+          >
             <router-link to="/admin-applications" class="nav-subitem">
               Leave Applications
             </router-link>
@@ -254,7 +286,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { logout as logoutService } from "@/services/auth";
 
@@ -284,7 +316,8 @@ const router = useRouter();
 
 const sidebarOpen = ref(false);
 const personnelMenuOpen = ref(false);
-const leaveMenuOpen = ref(false);
+const leaveApplicationMenuOpen = ref(false);
+const leaveManagementMenuOpen = ref(false);
 
 // Dark mode
 const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
@@ -306,8 +339,12 @@ const togglePersonnelMenu = () => {
   personnelMenuOpen.value = !personnelMenuOpen.value;
 };
 
-const toggleLeaveMenu = () => {
-  leaveMenuOpen.value = !leaveMenuOpen.value;
+const toggleLeaveApplicationMenu = () => {
+  leaveApplicationMenuOpen.value = !leaveApplicationMenuOpen.value;
+};
+
+const toggleLeaveManagementMenu = () => {
+  leaveManagementMenuOpen.value = !leaveManagementMenuOpen.value;
 };
 
 const isPersonnelRouteActive = computed(() => {
@@ -319,15 +356,33 @@ const isPersonnelRouteActive = computed(() => {
   ].includes(route.path);
 });
 
-const isLeaveRouteActive = computed(() => {
+const isLeaveApplicationRouteActive = computed(() => {
   return [
-    "/admin-applications",
     "/leave-application",
     "/my-applications",
+  ].includes(route.path);
+});
+
+const isLeaveManagementRouteActive = computed(() => {
+  return [
+    "/admin-applications",
     "/leave-credits",
     "/leave-balances",
   ].includes(route.path);
 });
+
+watch(
+  () => route.path,
+  () => {
+    if (isLeaveApplicationRouteActive.value) {
+      leaveApplicationMenuOpen.value = true;
+    }
+    if (isLeaveManagementRouteActive.value) {
+      leaveManagementMenuOpen.value = true;
+    }
+  },
+  { immediate: true },
+);
 // Logged-in user
 const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -389,6 +444,16 @@ const logout = async () => {
   background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-hover) 100%);
   box-shadow: 2px 0 18px rgba(15, 47, 82, 0.14);
   transition: background 0.3s ease;
+}
+
+.sidebar-scroll {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .main-shell {
