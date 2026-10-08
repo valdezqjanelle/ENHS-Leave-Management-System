@@ -578,6 +578,13 @@
                     </button>
 
                     <button
+                      @click="openDocumentManager(leave)"
+                      class="px-3 py-1.5 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-50"
+                    >
+                      Manage Documents
+                    </button>
+
+                    <button
                       v-if="!isCsFormLeaveType(leave)"
                       @click="removeLeaveType(leave.leave_type_id)"
                       class="px-3 py-1.5 text-red-600 border border-red-200 rounded hover:bg-red-50"
@@ -1641,6 +1648,126 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="isDocumentManagerOpen"
+      class="fixed inset-0 bg-[rgba(23,32,51,0.55)] flex items-center justify-center z-50 p-4"
+    >
+      <div class="neo-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6">
+        <div class="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h2 class="text-xl font-semibold text-[var(--text)]">
+              Document Requirements
+            </h2>
+            <p class="text-sm text-[var(--text-muted)] mt-1">
+              {{ documentLeaveType?.leave_type_name }} — changes apply to future applications.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="px-3 py-1.5 border rounded-lg"
+            @click="closeDocumentManager"
+          >
+            Close
+          </button>
+        </div>
+
+        <div class="space-y-3 mb-6">
+          <div
+            v-for="requirement in documentRequirements"
+            :key="requirement.id"
+            class="flex flex-wrap items-start justify-between gap-3 rounded-lg border p-4"
+          >
+            <div class="min-w-0">
+              <div class="font-semibold text-[var(--text)]">
+                {{ requirement.document_name }}
+                <span class="ml-2 text-xs font-normal text-[var(--text-muted)]">
+                  {{ requirement.is_active ? "Active" : "Inactive" }} ·
+                  {{ requirement.is_required ? "Required" : "Optional" }}
+                </span>
+              </div>
+              <p v-if="requirement.description" class="text-sm text-[var(--text-muted)] mt-1">
+                {{ requirement.description }}
+              </p>
+              <p v-if="requirement.requirement_type === 'conditional'" class="text-xs text-blue-700 mt-1">
+                Conditional ·
+                {{ requirement.condition_days
+                  ? `required at ${requirement.condition_days} or more leave days`
+                  : requirement.condition_filed_in_advance
+                    ? "required when filed before the leave start date; day threshold not configured"
+                    : "day threshold not configured; this requirement is not currently triggered" }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="px-3 py-1.5 text-blue-700 border border-blue-200 rounded"
+              @click="editDocumentRequirement(requirement)"
+            >
+              Edit
+            </button>
+          </div>
+          <p v-if="documentRequirements.length === 0" class="text-sm text-[var(--text-muted)]">
+            No document requirements are configured for this leave type.
+          </p>
+        </div>
+
+        <form class="border-t pt-5 space-y-4" @submit.prevent="saveDocumentRequirement">
+          <h3 class="font-semibold text-[var(--text)]">
+            {{ documentForm.id ? "Edit requirement" : "Add requirement" }}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="text-sm text-[var(--text-muted)]">
+              Document name
+              <input v-model="documentForm.document_name" required maxlength="255" class="mt-1 w-full border rounded-lg px-3 py-2 field-editable" />
+            </label>
+            <label class="text-sm text-[var(--text-muted)]">
+              Requirement behavior
+              <select v-model="documentForm.requirement_type" class="mt-1 w-full border rounded-lg px-3 py-2 field-editable">
+                <option value="always">Always</option>
+                <option value="conditional">Conditional by leave days</option>
+              </select>
+            </label>
+            <label v-if="documentForm.requirement_type === 'conditional'" class="text-sm text-[var(--text-muted)]">
+              Required when leave days reach
+              <input v-model.number="documentForm.condition_days" type="number" min="1" placeholder="Set a threshold" class="mt-1 w-full border rounded-lg px-3 py-2 field-editable" />
+            </label>
+            <label class="text-sm text-[var(--text-muted)]">
+              Display order
+              <input v-model.number="documentForm.sort_order" type="number" min="0" class="mt-1 w-full border rounded-lg px-3 py-2 field-editable" />
+            </label>
+          </div>
+          <label class="block text-sm text-[var(--text-muted)]">
+            Description / instructions
+            <textarea v-model="documentForm.description" maxlength="2000" rows="2" class="mt-1 w-full border rounded-lg px-3 py-2 field-editable"></textarea>
+          </label>
+          <div class="flex flex-wrap gap-5 text-sm text-[var(--text)]">
+            <label class="flex items-center gap-2">
+              <input v-model="documentForm.is_required" type="checkbox" />
+              Required (otherwise optional)
+            </label>
+            <label class="flex items-center gap-2">
+              <input v-model="documentForm.is_active" type="checkbox" />
+              Active
+            </label>
+            <label v-if="documentForm.requirement_type === 'conditional'" class="flex items-center gap-2">
+              <input v-model="documentForm.condition_filed_in_advance" type="checkbox" />
+              Also require when filed before the leave start date
+            </label>
+          </div>
+          <p v-if="documentForm.requirement_type === 'conditional' && !documentForm.condition_days" class="text-xs text-[var(--text-muted)]">
+            The day-count condition remains disabled until configured. The filing-in-advance condition, if enabled, still applies.
+          </p>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="px-4 py-2 border rounded-lg" @click="resetDocumentForm">
+              Clear
+            </button>
+            <button type="submit" class="px-4 py-2 bg-[#2563eb] text-white rounded-lg">
+              Save requirement
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1667,6 +1794,11 @@ import {
   getLeaveSettings,
   updateLeaveSettings,
 } from "@/services/leaveSettings";
+import {
+  getAdminDocumentRequirements,
+  saveAdminDocumentRequirement,
+  type LeaveDocumentRequirement,
+} from "@/services/leave";
 
 import {
   getApprovalSettings,
@@ -2224,6 +2356,103 @@ interface LeaveType {
 }
 
 const leaveTypes = ref<LeaveType[]>([]);
+const isDocumentManagerOpen = ref(false);
+const documentLeaveType = ref<LeaveType | null>(null);
+const documentRequirements = ref<LeaveDocumentRequirement[]>([]);
+const documentForm = ref({
+  id: null as number | null,
+  document_name: "",
+  description: "",
+  is_required: true,
+  requirement_type: "always" as "always" | "conditional",
+  condition_days: null as number | null,
+  condition_filed_in_advance: false,
+  is_active: true,
+  sort_order: 0,
+});
+
+const resetDocumentForm = () => {
+  documentForm.value = {
+    id: null,
+    document_name: "",
+    description: "",
+    is_required: true,
+    requirement_type: "always",
+    condition_days: null,
+    condition_filed_in_advance: false,
+    is_active: true,
+    sort_order: documentRequirements.value.length,
+  };
+};
+
+const openDocumentManager = async (leave: LeaveType) => {
+  documentLeaveType.value = leave;
+  isDocumentManagerOpen.value = true;
+  resetDocumentForm();
+  try {
+    documentRequirements.value = await getAdminDocumentRequirements(leave.leave_type_id);
+    resetDocumentForm();
+  } catch (error: any) {
+    console.error("Failed to load document requirements:", error.response?.data || error);
+    notify(error.response?.data?.message || "Failed to load document requirements.");
+  }
+};
+
+const editDocumentRequirement = (requirement: LeaveDocumentRequirement) => {
+  documentForm.value = {
+    id: requirement.id,
+    document_name: requirement.document_name,
+    description: requirement.description || "",
+    is_required: requirement.is_required,
+    requirement_type: requirement.requirement_type,
+    condition_days: requirement.condition_days,
+    condition_filed_in_advance: requirement.condition_filed_in_advance,
+    is_active: requirement.is_active,
+    sort_order: requirement.sort_order,
+  };
+};
+
+const saveDocumentRequirement = async () => {
+  const leaveType = documentLeaveType.value;
+  if (!leaveType) return;
+  if (!documentForm.value.document_name.trim()) {
+    notify("Document name is required.");
+    return;
+  }
+  try {
+    await saveAdminDocumentRequirement(
+      leaveType.leave_type_id,
+      {
+        document_name: documentForm.value.document_name.trim(),
+        description: documentForm.value.description.trim() || null,
+        is_required: documentForm.value.is_required,
+        requirement_type: documentForm.value.requirement_type,
+        condition_days: documentForm.value.requirement_type === "conditional"
+          ? documentForm.value.condition_days
+          : null,
+        condition_filed_in_advance: documentForm.value.requirement_type === "conditional"
+          ? documentForm.value.condition_filed_in_advance
+          : false,
+        is_active: documentForm.value.is_active,
+        sort_order: Number(documentForm.value.sort_order) || 0,
+      },
+      documentForm.value.id ?? undefined,
+    );
+    documentRequirements.value = await getAdminDocumentRequirements(leaveType.leave_type_id);
+    resetDocumentForm();
+    notify("Document requirement saved.");
+  } catch (error: any) {
+    console.error("Failed to save document requirement:", error.response?.data || error);
+    notify(error.response?.data?.message || "Failed to save document requirement.");
+  }
+};
+
+const closeDocumentManager = () => {
+  isDocumentManagerOpen.value = false;
+  documentLeaveType.value = null;
+  documentRequirements.value = [];
+  resetDocumentForm();
+};
 const leaveTypeSort = ref<"alphabetical" | "oldest">("alphabetical");
 const sortedLeaveTypes = computed(() =>
   [...leaveTypes.value].sort((a, b) => {

@@ -212,8 +212,56 @@
                         />
                       </svg>
 
-                      {{ attachment.name }}
+                      {{ attachment.file_name || attachment.name }}
+                      <button
+                        type="button"
+                        class="ml-2 text-blue-700 underline"
+                        @click.stop="openSupportingDocument(application, attachment)"
+                      >
+                        View
+                      </button>
                     </span>
+                  </div>
+                </div>
+
+                <div v-if="application.document_requirements_snapshot?.length" class="mt-4">
+                  <h4 class="text-sm font-semibold text-white">Supporting Documents</h4>
+                  <div class="overflow-x-auto mt-2">
+                    <table class="w-full text-sm text-white">
+                      <thead>
+                        <tr class="border-b border-slate-500 text-left">
+                          <th class="py-2 pr-4">Requirement</th>
+                          <th class="py-2 pr-4">Status</th>
+                          <th class="py-2">File</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="requirement in application.document_requirements_snapshot"
+                          :key="requirement.id"
+                          class="border-b border-slate-600"
+                        >
+                          <td class="py-2 pr-4">{{ requirement.document_name }}</td>
+                          <td class="py-2 pr-4">
+                            <span v-if="attachmentForRequirement(application, requirement.id)" class="text-emerald-300">Uploaded</span>
+                            <span v-else-if="requirement.required" class="text-red-300">Missing</span>
+                            <span v-else-if="requirement.status === 'optional'" class="text-slate-300">Optional</span>
+                            <span v-else class="text-slate-300">Not Required</span>
+                          </td>
+                          <td class="py-2">
+                            <button
+                              v-if="attachmentForRequirement(application, requirement.id)"
+                              type="button"
+                              class="text-blue-300 underline break-all"
+                              @click="openSupportingDocument(application, attachmentForRequirement(application, requirement.id))"
+                            >
+                              {{ attachmentForRequirement(application, requirement.id)?.file_name }}
+                            </button>
+                            <span v-else>—</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -757,6 +805,7 @@ import {
   restoreLeaveApplication,
   getDeletedLeaveApplications,
   rejectLeaveApplication,
+  downloadLeaveAttachment,
 } from "@/services/leave";
 import { getLeaveBalanceByEmployeeId } from "@/services/leaveBalance";
 import { getPositions } from "@/services/employee";
@@ -789,9 +838,47 @@ interface LeaveApplication {
   employee: any;
   leave_type: any;
   attachments: any[];
+  document_requirements_snapshot?: Array<{
+    id: number;
+    document_name: string;
+    required: boolean;
+    status: "required" | "optional" | "not_required";
+  }>;
 }
 
 const router = useRouter();
+
+const attachmentForRequirement = (
+  application: LeaveApplication,
+  requirementId: number,
+) => application.attachments?.find(
+  (attachment: any) => Number(attachment.leave_document_requirement_id) === requirementId,
+);
+
+const openSupportingDocument = async (
+  application: LeaveApplication,
+  attachment: any,
+) => {
+  const viewer = window.open("about:blank", "_blank");
+  try {
+    const blob = await downloadLeaveAttachment(application.leave_id, attachment.attachment_id);
+    const url = URL.createObjectURL(blob);
+    if (viewer) {
+      viewer.opener = null;
+      viewer.location.href = url;
+    } else {
+      const download = document.createElement("a");
+      download.href = url;
+      download.download = attachment.file_name || "supporting-document";
+      download.click();
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (error: any) {
+    viewer?.close();
+    console.error("Failed to open supporting document:", error);
+    notify(error.message || "Unable to open the supporting document.");
+  }
+};
 
 /* =========================================================
    APPLICATION DATA

@@ -12,6 +12,7 @@ use App\Models\LeaveAttachment;
 use App\Models\EmployeeRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveType;
+use App\Models\LeaveDocumentRequirement;
 use App\Models\AuthorizedSignatory;
 use App\Support\AuditLogger;
 
@@ -37,7 +38,7 @@ class LeaveController extends Controller
                 ]);
             }
         }
-        $request->validate([
+        $validated = $request->validate([
             'leave_type_id' => 'required|exists:leave_types,leave_type_id',
             'date_filed' => 'required|date',
             'start_date' => 'required|date',
@@ -68,7 +69,47 @@ class LeaveController extends Controller
             'certification_as_of' => 'nullable|date',
 
             'attachments.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
+            'document_attachments' => 'nullable|array',
+            'document_attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
         ]);
+
+        $documentRequirements = LeaveDocumentRequirement::query()
+            ->where('leave_type_id', $validated['leave_type_id'])
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+        $documentFiles = $request->file('document_attachments', []);
+        $requirementsById = $documentRequirements->keyBy('id');
+
+        foreach ($documentFiles as $requirementId => $file) {
+            if (!$requirementsById->has((int) $requirementId)) {
+                return response()->json([
+                    'message' => 'A document was uploaded for a requirement that is not active for this leave type.',
+                    'errors' => ['document_attachments' => ['Invalid document requirement.']],
+                ], 422);
+            }
+        }
+
+        $numberOfDays = \Carbon\Carbon::parse($validated['start_date'])
+            ->diffInDays(\Carbon\Carbon::parse($validated['end_date'])) + 1;
+        $filedInAdvance = \Carbon\Carbon::parse($validated['start_date'])
+            ->isAfter(today());
+        foreach ($documentRequirements as $requirement) {
+            if (
+                $requirement->isRequiredForDays($numberOfDays, $filedInAdvance)
+                && !array_key_exists($requirement->id, $documentFiles)
+            ) {
+                $message = "{$requirement->document_name} is required for this leave application.";
+
+                return response()->json([
+                    'message' => $message,
+                    'errors' => [
+                        "document_attachments.{$requirement->id}" => [$message],
+                    ],
+                ], 422);
+            }
+        }
 
         $employee = EmployeeRecord::where(
             'user_id',
@@ -95,73 +136,135 @@ class LeaveController extends Controller
 
 
 
-        $leave = LeaveApplication::create([
-            'employee_id' => $employee->employee_id,
-            'leave_type_id' => $request->leave_type_id,
+        $storedPaths = [];
+        $pendingAttachments = [];
 
-            'date_filed' => $request->date_filed,
-
-            // VACATION
-            'vacation_location_type' => $request->vacation_location_type,
-            'vacation_location' => $request->vacation_location,
-
-            // SICK
-            'sick_type' => $request->sick_type,
-            'illness' => $request->illness,
-
-            // STUDY
-            'masters_degree' => $request->masters_degree ?? false,
-            'board_exam_review' => $request->board_exam_review ?? false,
-
-            // OTHER
-            'monetization' => $request->monetization ?? false,
-            'terminal_leave' => $request->terminal_leave ?? false,
-            'other_purpose' => $request->other_purpose,
-
-            // DATES
-            'number_of_days' => $request->number_of_days,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-
-            'commutation' => $request->commutation,
-            'reason' => $request->reason,
-            'applicants_signature' => $request->applicants_signature,
-
-            // CERTIFICATION
-            'certification_as_of' => $request->certification_as_of,
-
-        
-            'vacation_total_earned' => null,
-            'vacation_less_application' => $isVacation
-                ? $request->number_of_days
-                : null,
-            'vacation_balance' => null,
-
-            'sick_total_earned' => null,
-            'sick_less_application' => $isSick
-                ? $request->number_of_days
-                : null,
-            'sick_balance' => null,
-
-            // DEFAULT STATUS
-            'recommendation_status' => 'pending',
-            'final_status' => 'pending',
-        ]);
-
-    
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store(
-                    'leave_attachments',
-                    'supabase'
-                );
-
-                LeaveAttachment::create([
-                    'leave_id' => $leave->leave_id,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                ]);
+        try {
+            foreach ($request->file('attachments', []) as $file) {
+                $path = $file->store('leave_attachments', 'supabase');
+                if (!$path) {
+                    throw new \RuntimeException('Unable to store a leave attachment.');
+                }
+                $storedPaths[] = $path;
+                $pendingAttachments[] = [
+                    'file' => $file,
+                    'path' => $path,
+                    'requirement_id' => null,
+                ];
             }
+
+            foreach ($documentFiles as $requirementId => $file) {
+                $path = $file->store('leave_attachments', 'supabase');
+                if (!$path) {
+                    throw new \RuntimeException('Unable to store a required leave document.');
+                }
+                $storedPaths[] = $path;
+                $pendingAttachments[] = [
+                    'file' => $file,
+                    'path' => $path,
+                    'requirement_id' => (int) $requirementId,
+                ];
+            }
+
+            $leave = DB::transaction(function () use (
+                $employee,
+                $request,
+                $documentRequirements,
+                $numberOfDays,
+                $filedInAdvance,
+                $isVacation,
+                $isSick,
+                $pendingAttachments
+            ) {
+                $createdLeave = LeaveApplication::create([
+                    'employee_id' => $employee->employee_id,
+                    'leave_type_id' => $request->leave_type_id,
+
+                    'date_filed' => $request->date_filed,
+
+                    // VACATION
+                    'vacation_location_type' => $request->vacation_location_type,
+                    'vacation_location' => $request->vacation_location,
+
+                    // SICK
+                    'sick_type' => $request->sick_type,
+                    'illness' => $request->illness,
+
+                    // STUDY
+                    'masters_degree' => $request->masters_degree ?? false,
+                    'board_exam_review' => $request->board_exam_review ?? false,
+
+                    // OTHER
+                    'monetization' => $request->monetization ?? false,
+                    'terminal_leave' => $request->terminal_leave ?? false,
+                    'other_purpose' => $request->other_purpose,
+
+                    // DATES
+                    'number_of_days' => $request->number_of_days,
+                    'document_requirements_snapshot' => $documentRequirements
+                        ->map(fn (LeaveDocumentRequirement $requirement) => [
+                            'id' => $requirement->id,
+                            'document_name' => $requirement->document_name,
+                            'description' => $requirement->description,
+                            'is_required' => $requirement->is_required,
+                            'requirement_type' => $requirement->requirement_type,
+                            'condition_days' => $requirement->condition_days,
+                            'required' => $requirement->isRequiredForDays($numberOfDays, $filedInAdvance),
+                            'status' => $requirement->isRequiredForDays($numberOfDays, $filedInAdvance)
+                                ? 'required'
+                                : ($requirement->is_required ? 'not_required' : 'optional'),
+                        ])
+                        ->values()
+                        ->all(),
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+
+                    'commutation' => $request->commutation,
+                    'reason' => $request->reason,
+                    'applicants_signature' => $request->applicants_signature,
+
+                    // CERTIFICATION
+                    'certification_as_of' => $request->certification_as_of,
+
+                    'vacation_total_earned' => null,
+                    'vacation_less_application' => $isVacation
+                        ? $request->number_of_days
+                        : null,
+                    'vacation_balance' => null,
+
+                    'sick_total_earned' => null,
+                    'sick_less_application' => $isSick
+                        ? $request->number_of_days
+                        : null,
+                    'sick_balance' => null,
+
+                    // DEFAULT STATUS
+                    'recommendation_status' => 'pending',
+                    'final_status' => 'pending',
+                ]);
+
+                foreach ($pendingAttachments as $pending) {
+                    $file = $pending['file'];
+                    LeaveAttachment::create([
+                        'leave_id' => $createdLeave->leave_id,
+                        'leave_document_requirement_id' => $pending['requirement_id'],
+                        'file_name' => $file->getClientOriginalName(),
+                        'file_path' => $pending['path'],
+                        'stored_filename' => basename($pending['path']),
+                        'file_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(),
+                        'uploaded_at' => now(),
+                    ]);
+                }
+
+                return $createdLeave;
+            });
+        } catch (\Throwable $exception) {
+            foreach ($storedPaths as $path) {
+                Storage::disk('supabase')->delete($path);
+            }
+
+            throw $exception;
         }
 
         return response()->json([
@@ -191,7 +294,7 @@ class LeaveController extends Controller
         return LeaveApplication::with([
             'employee',
             'leaveType',
-            'attachments'
+            'attachments.documentRequirement'
         ])
             ->where('employee_id', $employee->employee_id)
             ->oldest()
@@ -215,7 +318,7 @@ class LeaveController extends Controller
         return LeaveApplication::with([
             'employee',
             'leaveType',
-            'attachments'
+            'attachments.documentRequirement'
         ])
             ->where('employee_id', $employee->employee_id)
             ->where('leave_id', $id)
@@ -240,7 +343,7 @@ class LeaveController extends Controller
             ], 404);
         }
 
-        $leave = LeaveApplication::with('attachments')
+        $leave = LeaveApplication::with('attachments.documentRequirement')
             ->where('leave_id', $id)
             ->where('employee_id', $employee->employee_id)
             ->firstOrFail();
@@ -271,6 +374,10 @@ class LeaveController extends Controller
                     'leave_id' => $leave->leave_id,
                     'file_name' => $file->getClientOriginalName(),
                     'file_path' => $path,
+                    'stored_filename' => basename($path),
+                    'file_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'uploaded_at' => now(),
                 ]);
 
                 $createdAttachmentIds[] = $attachment->attachment_id;
@@ -307,7 +414,7 @@ class LeaveController extends Controller
         return LeaveApplication::with([
             'employee.position',
             'leaveType',
-            'attachments'
+            'attachments.documentRequirement'
         ])
             ->latest()
             ->get();
@@ -321,7 +428,7 @@ class LeaveController extends Controller
         $leave = LeaveApplication::with([
             'employee.position',
             'leaveType',
-            'attachments'
+            'attachments.documentRequirement'
         ])->findOrFail($id);
 
         // Admin can view any leave application

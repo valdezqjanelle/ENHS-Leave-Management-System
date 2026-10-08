@@ -30,4 +30,13 @@ class LeaveType extends Model
             'leave_type_id'
         );
     }
+
+    public function documentRequirements()
+    {
+        return $this->hasMany(
+            LeaveDocumentRequirement::class,
+            'leave_type_id',
+            'leave_type_id'
+        );
+    }
 }

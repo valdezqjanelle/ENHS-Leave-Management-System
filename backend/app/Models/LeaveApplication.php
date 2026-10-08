@@ -77,6 +77,7 @@ class LeaveApplication extends Model
         'signatory_designation_snapshot',
         'signatory_signature_path_snapshot',
         'signatory_snapshot_locked',
+        'document_requirements_snapshot',
     ];
 
     protected $hidden = [
@@ -94,6 +95,7 @@ class LeaveApplication extends Model
         'monetization' => 'boolean',
         'terminal_leave' => 'boolean',
         'signatory_snapshot_locked' => 'boolean',
+        'document_requirements_snapshot' => 'array',
 
         'vacation_total_earned' => 'decimal:2',
         'vacation_less_application' => 'decimal:2',
@@ -121,5 +123,17 @@ class LeaveApplication extends Model
     public function attachments()
     {
         return $this->hasMany(LeaveAttachment::class, 'leave_id', 'leave_id');
+    }
+
+    public function documentRequirements()
+    {
+        return $this->belongsToMany(
+            LeaveDocumentRequirement::class,
+            'leave_attachments',
+            'leave_id',
+            'leave_document_requirement_id',
+            'leave_id',
+            'id'
+        )->withPivot('attachment_id');
     }
 }

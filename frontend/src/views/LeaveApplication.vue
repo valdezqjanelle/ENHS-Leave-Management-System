@@ -410,6 +410,57 @@
             Supporting Documents
           </label>
 
+          <div v-if="documentRequirements.length > 0" class="mb-5 space-y-3">
+            <div
+              v-for="requirement in documentRequirements"
+              :key="requirement.id"
+              class="rounded-xl border border-slate-200 bg-white p-4"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="font-semibold text-slate-800">
+                    {{ requirement.document_name }}
+                  </p>
+                  <p v-if="requirement.description" class="mt-1 text-sm text-slate-600">
+                    {{ requirement.description }}
+                  </p>
+                </div>
+                <span
+                  class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold"
+                  :class="requirement.required
+                    ? 'bg-red-100 text-red-700'
+                    : requirement.is_required
+                      ? 'bg-slate-100 text-slate-600'
+                      : 'bg-emerald-100 text-emerald-700'"
+                >
+                  {{ requirement.required ? "Required" : requirement.is_required ? "Not Required" : "Optional" }}
+                </span>
+              </div>
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <input
+                  :key="requirementFileInputKey[requirement.id] || 0"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                  class="block max-w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white"
+                  @change="handleRequirementUpload($event, requirement.id)"
+                />
+                <span v-if="requirementFiles[requirement.id]" class="text-sm text-emerald-700">
+                  {{ requirementFiles[requirement.id]?.name }}
+                  <button
+                    type="button"
+                    class="ml-2 text-red-600 underline"
+                    @click="removeRequirementFile(requirement.id)"
+                  >
+                    Remove
+                  </button>
+                </span>
+                <span v-else-if="requirement.required" class="text-sm text-red-600">
+                  Missing document
+                </span>
+              </div>
+            </div>
+          </div>
+
           <div class="upload-box">
 
             <Upload class="mx-auto h-12 w-12 text-slate-500 mb-4" />
@@ -616,7 +667,9 @@ import SignaturePad from "signature_pad";
 import {
   getLeaveTypes,
   submitLeave,
-  getMyLeaves
+  getMyLeaves,
+  getDocumentRequirements,
+  type LeaveDocumentRequirement,
 } from "../services/leave";
 
 import { useRouter } from "vue-router";
@@ -707,6 +760,10 @@ const fullName = computed(() => {
 const isSubmitting = ref(false);
 
 const leaveTypes = ref<any[]>([]);
+const documentRequirements = ref<LeaveDocumentRequirement[]>([]);
+const requirementFiles = ref<Record<number, File | null>>({});
+const requirementFileInputKey = ref<Record<number, number>>({});
+let requirementRequest = 0;
 
 
 const leaveBalance = ref({
@@ -996,6 +1053,71 @@ const calculateDays = () => {
 
 };
 
+watch(
+  [
+    () => form.value.leave_type_id,
+    () => form.value.startDate,
+    () => form.value.endDate,
+  ],
+  async ([leaveTypeId], previous) => {
+    if (leaveTypeId !== previous?.[0]) {
+      requirementFiles.value = {};
+      documentRequirements.value.forEach((requirement) => {
+        requirementFileInputKey.value[requirement.id] =
+          (requirementFileInputKey.value[requirement.id] || 0) + 1;
+      });
+    }
+    const requestId = ++requirementRequest;
+    if (!leaveTypeId) {
+      documentRequirements.value = [];
+      return;
+    }
+
+    try {
+      const requirements = await getDocumentRequirements(
+        Number(leaveTypeId),
+        calculateDays(),
+        form.value.startDate || undefined,
+      );
+      if (requestId === requirementRequest) {
+        documentRequirements.value = requirements;
+      }
+    } catch (error) {
+      console.error("Failed to load leave document requirements:", error);
+      if (requestId === requirementRequest) {
+        documentRequirements.value = [];
+        notify("Unable to load the document checklist. Please try again.");
+      }
+    }
+  },
+);
+
+const handleRequirementUpload = (event: Event, requirementId: number) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  if (file.size > 10 * 1024 * 1024) {
+    notify("Each supporting document must be 10 MB or smaller.");
+    input.value = "";
+    return;
+  }
+
+  if (!/\.(jpe?g|png|pdf|docx?)$/i.test(file.name)) {
+    notify("Choose a JPG, PNG, PDF, DOC, or DOCX document.");
+    input.value = "";
+    return;
+  }
+
+  requirementFiles.value[requirementId] = file;
+};
+
+const removeRequirementFile = (requirementId: number) => {
+  requirementFiles.value[requirementId] = null;
+  requirementFileInputKey.value[requirementId] =
+    (requirementFileInputKey.value[requirementId] || 0) + 1;
+};
+
 
 const handleFileUpload = (event: Event) => {
 
@@ -1094,6 +1216,13 @@ const formatFileSize = (bytes: number) => {
 
 
 const submitApplication = async () => {
+  const missingRequirement = documentRequirements.value.find(
+    (requirement) => requirement.required && !requirementFiles.value[requirement.id],
+  );
+  if (missingRequirement) {
+    notify(`${missingRequirement.document_name} is required for this leave application.`);
+    return;
+  }
 
   if (
     isOtherLeave.value &&
@@ -1260,6 +1389,12 @@ const submitApplication = async () => {
           file.file
         );
 
+        Object.entries(requirementFiles.value).forEach(([requirementId, file]) => {
+          if (file) {
+            data.append(`document_attachments[${requirementId}]`, file);
+          }
+        });
+
       }
     );
 
@@ -1315,9 +1450,8 @@ const submitApplication = async () => {
     );
 
 
-    notify(
-      "Failed to submit leave application. Please try again."
-    );
+    const responseMessage = (error as any)?.response?.data?.message;
+    notify(responseMessage || "Failed to submit leave application. Please try again.");
 
 
   } finally {

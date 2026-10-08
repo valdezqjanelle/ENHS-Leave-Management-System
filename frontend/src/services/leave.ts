@@ -8,6 +8,53 @@ export const getLeaveTypes = async () => {
   return data;
 };
 
+export interface LeaveDocumentRequirement {
+  id: number;
+  leave_type_id: number;
+  document_name: string;
+  description: string | null;
+  is_required: boolean;
+  requirement_type: "always" | "conditional";
+  condition_days: number | null;
+  condition_filed_in_advance: boolean;
+  is_active: boolean;
+  sort_order: number;
+  required?: boolean;
+}
+
+export const getDocumentRequirements = async (
+  leaveTypeId: number,
+  numberOfDays: number,
+  startDate?: string,
+): Promise<LeaveDocumentRequirement[]> => {
+  const { data } = await api.get(
+    `/leave-types/${leaveTypeId}/document-requirements`,
+    { params: { number_of_days: numberOfDays, start_date: startDate } },
+  );
+  return data;
+};
+
+export const getAdminDocumentRequirements = async (
+  leaveTypeId: number,
+): Promise<LeaveDocumentRequirement[]> => {
+  const { data } = await api.get(
+    `/admin/leave-types/${leaveTypeId}/document-requirements`,
+  );
+  return data;
+};
+
+export const saveAdminDocumentRequirement = async (
+  leaveTypeId: number,
+  payload: Omit<LeaveDocumentRequirement, "id" | "leave_type_id">,
+  requirementId?: number,
+) => {
+  const path = `/admin/leave-types/${leaveTypeId}/document-requirements`;
+  const { data } = requirementId
+    ? await api.put(`${path}/${requirementId}`, payload)
+    : await api.post(path, payload);
+  return data.data as LeaveDocumentRequirement;
+};
+
 // =======================
 // SUBMIT LEAVE (Employee)
 // =======================

@@ -7,6 +7,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EmployeeController;
 use App\Http\Controllers\API\LeaveController;
 use App\Http\Controllers\API\LeaveTypeController;
+use App\Http\Controllers\API\LeaveDocumentRequirementController;
 use App\Http\Controllers\API\LeaveCreditController;
 use App\Http\Controllers\API\LeaveBalanceController;
 use App\Http\Controllers\API\LeaveSchoolYearController;
@@ -46,6 +47,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Leave Types
     Route::get('/leave-types', [LeaveTypeController::class, 'index']);
+    Route::get(
+        '/leave-types/{leaveTypeId}/document-requirements',
+        [LeaveDocumentRequirementController::class, 'forApplication']
+    )->whereNumber('leaveTypeId');
 
     // Leave Settings - viewing
     Route::get('/leave-settings', [LeaveSettingController::class, 'index']);
@@ -128,6 +133,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADMIN ONLY
 
     Route::middleware('role:admin')->group(function () {
+        Route::get(
+            '/admin/leave-types/{leaveTypeId}/document-requirements',
+            [LeaveDocumentRequirementController::class, 'index']
+        )->whereNumber('leaveTypeId');
+        Route::post(
+            '/admin/leave-types/{leaveTypeId}/document-requirements',
+            [LeaveDocumentRequirementController::class, 'store']
+        )->whereNumber('leaveTypeId');
+        Route::put(
+            '/admin/leave-types/{leaveTypeId}/document-requirements/{id}',
+            [LeaveDocumentRequirementController::class, 'update']
+        )->whereNumber('leaveTypeId')->whereNumber('id');
+
         Route::get('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'show']);
         Route::get('/admin/authorized-signatory/signature', [AuthorizedSignatoryController::class, 'signature']);
         Route::post('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'update']);
