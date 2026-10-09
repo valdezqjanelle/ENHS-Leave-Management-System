@@ -477,6 +477,15 @@ public function downloadPdf($id, Request $request)
 {
     $user = $request->user();
 
+    // Coordinate-debug mode is available to administrators only.
+    // Normal PDF downloads remain unchanged unless ?debug_coordinates=1 is supplied.
+    $debugCoordinates = $request->boolean('debug_coordinates');
+    if ($debugCoordinates && $user->role !== 'admin') {
+        return response()->json([
+            'message' => 'Only administrators can access coordinate debug mode.',
+        ], 403);
+    }
+
     $leave = LeaveApplication::with([
         'employee',
         'leaveType',
@@ -578,7 +587,80 @@ public function downloadPdf($id, Request $request)
         841.89
     );
 
+    // Diagnostic-only overlay: draw coordinate markers on the same rendered
+    // template used by the production PDF. This exits before printing any
+    // employee data or changing the normal PDF output.
+    if ($debugCoordinates) {
+        $pdf->SetDrawColor(220, 0, 0);
+        $pdf->SetTextColor(190, 0, 0);
+        $pdf->SetLineWidth(0.55);
+        $pdf->SetFont('helvetica', '', 5);
 
+
+foreach ($coords as $field => $point) {
+    if (!isset($point['x'], $point['y'])) {
+        continue;
+    }
+
+    $x = (float) $point['x'];
+    $y = (float) $point['y'];
+
+    // Keep configured rectangles visible for fields that define dimensions.
+    if (isset($point['width'], $point['height'])) {
+        $pdf->Rect(
+            $x,
+            $y,
+            (float) $point['width'],
+            (float) $point['height']
+        );
+    }
+
+    // Show a real checkmark for checkbox coordinates.
+    if (str_starts_with($field, 'chk_')) {
+        $pdf->SetFont('dejavusans', '', 9);
+        $pdf->SetTextColor(0, 140, 0);
+        $pdf->SetXY($x, $y - 4);
+        $pdf->Cell(12, 12, "\u{2713}", 0, 0, 'L');
+    } else {
+        // Use numeric samples for fields likely to contain numbers.
+        $numericFields = [
+            'salary',
+            'working_days_applied',
+            'vl_balance',
+            'sl_balance',
+        ];
+
+        $isNumeric = in_array($field, $numericFields, true)
+            || str_contains($field, 'balance');
+
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->SetTextColor(220, 0, 0);
+        $pdf->SetXY($x, $y - 3);
+
+        $sample = $isNumeric ? '12345' : 'Sample text';
+        $pdf->Cell(90, 10, $sample, 0, 0, 'L');
+    }
+
+    // Keep a small field label for coordinate identification.
+    $pdf->SetFont('helvetica', '', 5);
+    $pdf->SetTextColor(0, 70, 200);
+    $pdf->SetXY(min($x + 3, 530), max(2, min($y + 5, 833)));
+    $pdf->Cell(65, 6, (string) $field, 0, 0, 'L');
+}
+
+
+        $debugFilename = 'CS_Form_6_Coordinate_Debug.pdf';
+
+        return response(
+            $pdf->Output('', 'S'),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $debugFilename . '"',
+                'Cache-Control' => 'no-store, no-cache, must-revalidate',
+            ]
+        );
+    }
 
     $pdf->SetTextColor(0, 0, 0);
     $pdf->SetFont('helvetica', '', 8);

@@ -61,12 +61,12 @@ return [
     'others_specify'           => ['x' => 71, 'y' => 435],   // free-text blank
 
     // ── Section 6.B: Details of Leave (checkboxes + specify blanks) ──
-    'chk_within_philippines'  => ['x' => 325, 'y' => 233], //325, 'y' => 233
-        'within_philippines_text' => ['x' => 410, 'y' => 232],//410, 'y' => 232
+    'chk_within_philippines'  => ['x' => 325, 'y' => 233],
+        'within_philippines_text' => ['x' => 410, 'y' => 232],
     'chk_abroad'               => ['x' => 325, 'y' => 248],
         'abroad_text'              => ['x' => 400, 'y' => 246],
-    'chk_in_hospital'          => ['x' => 325, 'y' => 276], //326, 'y' => 276
-        'in_hospital_illness'      => ['x' => 427, 'y' => 276],//276
+    'chk_in_hospital'          => ['x' => 325, 'y' => 276],
+        'in_hospital_illness'      => ['x' => 427, 'y' => 276],
     'chk_out_patient'          => ['x' => 325, 'y' => 291],
         'out_patient_illness'      => ['x' => 380, 'y' => 335],
         'special_women_illness'    => ['x' => 380, 'y' => 335],
