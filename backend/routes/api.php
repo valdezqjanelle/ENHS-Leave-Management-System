@@ -26,6 +26,7 @@ use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\TeachingPersonnelRecordController;
 use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
 use App\Http\Controllers\API\TeachingSetupController;
+use App\Http\Controllers\API\HolidayController;
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
@@ -56,6 +57,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leave-settings', [LeaveSettingController::class, 'index']);
     Route::get('/approval-settings', [ApprovalSettingController::class, 'index']);
     Route::get('/system-settings', [SystemSettingController::class, 'index']);
+    Route::get('/holidays', [HolidayController::class, 'index']);
+    Route::post('/holidays/preview', [HolidayController::class, 'preview']);
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/holidays', [HolidayController::class, 'index']);
+        Route::post('/admin/holidays', [HolidayController::class, 'store']);
+        Route::put('/admin/holidays/{id}', [HolidayController::class, 'update'])->whereNumber('id');
+        Route::delete('/admin/holidays/{id}', [HolidayController::class, 'destroy'])->whereNumber('id');
+    });
 
     Route::get('/profile', [EmployeeController::class, 'myProfile']);
     Route::get('/my-profile', [EmployeeController::class, 'myProfile']);

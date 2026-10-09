@@ -488,6 +488,145 @@
       </div>
     </div>
 
+    <div v-if="activeTab === 'holidays'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-[var(--text)]">Holidays &amp; Non-Working Days</h2>
+
+      <p class="text-[var(--text-muted)] mt-1 mb-6">
+        Manage Philippine holidays and other configured non-working days that should be excluded from working-day calculations.
+      </p>
+
+      <div class="inner-card p-5">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+          <div>
+            <h3 class="text-lg font-semibold text-[var(--text)]">Holiday Calendar</h3>
+            <p class="text-sm text-[var(--text-muted)]">Search, filter, and maintain entries used in the working-day calculations.</p>
+          </div>
+
+          <button
+            @click="openHolidayForm()"
+            type="button"
+            class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
+          >
+            Add Holiday
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
+          <input
+            v-model="holidayFilters.search"
+            type="search"
+            placeholder="Search holiday name"
+            class="border rounded-lg px-3 py-2 field-editable"
+          />
+
+          <select v-model="holidayFilters.year" class="border rounded-lg px-3 py-2 field-editable">
+            <option :value="null">All years</option>
+            <option v-for="year in holidayYears" :key="year" :value="year">{{ year }}</option>
+          </select>
+
+          <select v-model="holidayFilters.type" class="border rounded-lg px-3 py-2 field-editable">
+            <option value="">All types</option>
+            <option value="Regular Holiday">Regular Holiday</option>
+            <option value="Special Non-Working Day">Special Non-Working Day</option>
+            <option value="School Non-Working Day">School Non-Working Day</option>
+            <option value="Other Non-Working Day">Other Non-Working Day</option>
+          </select>
+
+          <select v-model="holidayFilters.is_active" class="border rounded-lg px-3 py-2 field-editable">
+            <option :value="null">All statuses</option>
+            <option :value="true">Active only</option>
+            <option :value="false">Inactive only</option>
+          </select>
+        </div>
+
+        <div v-if="holidayFormOpen" class="mb-6 rounded-xl border border-[#cbd8e8] bg-[#f9fbff] p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-[var(--text)]">{{ holidayForm.id ? 'Edit Holiday' : 'Add Holiday' }}</h3>
+            <button @click="closeHolidayForm" type="button" class="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">Close</button>
+          </div>
+
+          <form @submit.prevent="saveHoliday" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Date</label>
+              <input v-model="holidayForm.date" type="date" required class="w-full border rounded-lg px-3 py-2 field-editable" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Type</label>
+              <select v-model="holidayForm.type" required class="w-full border rounded-lg px-3 py-2 field-editable">
+                <option value="Regular Holiday">Regular Holiday</option>
+                <option value="Special Non-Working Day">Special Non-Working Day</option>
+                <option value="School Non-Working Day">School Non-Working Day</option>
+                <option value="Other Non-Working Day">Other Non-Working Day</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Holiday Name</label>
+              <input v-model="holidayForm.name" type="text" maxlength="255" required class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="e.g., Rizal Day" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Description / Remarks</label>
+              <textarea v-model="holidayForm.description" rows="3" class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="Optional remarks or notes"></textarea>
+            </div>
+
+            <div class="md:col-span-2 flex items-center gap-3">
+              <label class="inline-flex items-center gap-2 text-sm text-[var(--text)]">
+                <input v-model="holidayForm.is_active" type="checkbox" class="h-4 w-4" />
+                Active holiday
+              </label>
+            </div>
+
+            <p v-if="holidayFormError" class="md:col-span-2 text-sm text-red-600">{{ holidayFormError }}</p>
+
+            <div class="md:col-span-2 flex justify-end gap-3">
+              <button type="button" @click="closeHolidayForm" class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]">Cancel</button>
+              <button type="submit" class="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8]">{{ holidayForm.id ? 'Save Changes' : 'Add Holiday' }}</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[#cbd8e8] text-left">
+                <th class="px-4 py-3 text-[var(--text-muted)]">Date</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday name</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday type</th>
+                <th class="px-4 py-3 text-[var(--text-muted)]">Status</th>
+                <th class="px-4 py-3 text-[var(--text-muted)] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="holiday in filteredHolidays" :key="holiday.id" class="border-b border-[#cbd8e8]">
+                <td class="px-4 py-3 text-[var(--text)]">{{ formatDisplayDate(holiday.date) }}</td>
+                <td class="px-4 py-3 text-[var(--text)] font-medium">{{ holiday.name }}</td>
+                <td class="px-4 py-3 text-[var(--text-muted)]">{{ holiday.type }}</td>
+                <td class="px-4 py-3">
+                  <span :class="holiday.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'" class="inline-flex px-2 py-1 rounded-full text-xs font-semibold">
+                    {{ holiday.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex justify-end gap-2">
+                    <button @click="openHolidayForm(holiday)" class="px-3 py-1.5 text-blue-600 border border-blue-200 rounded hover:bg-blue-50">Edit</button>
+                    <button @click="toggleHolidayStatus(holiday)" class="px-3 py-1.5 text-amber-700 border border-amber-200 rounded hover:bg-amber-50">
+                      {{ holiday.is_active ? 'Deactivate' : 'Activate' }}
+                    </button>
+                    <button @click="deleteHolidayEntry(holiday)" class="px-3 py-1.5 text-red-600 border border-red-200 rounded hover:bg-red-50">Delete</button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredHolidays.length === 0">
+                <td colspan="5" class="px-4 py-8 text-center text-[var(--text-muted)]">No holidays match the current filters.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div v-if="activeTab === 'leave'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Leave Settings</h2>
 
@@ -1821,6 +1960,13 @@ import {
   downloadBackup,
   restoreDatabaseBackup,
 } from "@/services/backup";
+import {
+  getHolidays,
+  createHoliday,
+  updateHoliday,
+  deleteHoliday,
+  type Holiday,
+} from "@/services/holiday";
 
 const activeTab = ref("account");
 const signatoryForm = ref({ name: "", designation: "" });
@@ -2059,6 +2205,10 @@ const tabs = [
   {
     id: "leave",
     name: "Leave Settings",
+  },
+  {
+    id: "holidays",
+    name: "Holidays & Non-Working Days",
   },
   {
     id: "approval",
@@ -2917,6 +3067,192 @@ const handleRestoreFile = async (event: Event) => {
   }
 };
 
+const holidays = ref<Holiday[]>([]);
+const holidayFilters = ref({
+  search: "",
+  year: null as number | null,
+  type: "",
+  is_active: null as boolean | null,
+});
+const holidayFormOpen = ref(false);
+const holidayFormError = ref("");
+const holidayForm = ref({
+  id: null as number | null,
+  date: "",
+  name: "",
+  type: "Regular Holiday",
+  description: "",
+  is_active: true,
+});
+
+const holidayYears = computed(() => {
+  const years = holidays.value
+    .map((holiday) => Number(holiday.date?.slice(0, 4)))
+    .filter((year) => Number.isFinite(year));
+
+  return [...new Set(years)].sort((a, b) => b - a);
+});
+
+const filteredHolidays = computed(() => {
+  const search = holidayFilters.value.search.trim().toLowerCase();
+
+  return holidays.value.filter((holiday) => {
+    const matchesSearch =
+      !search || holiday.name.toLowerCase().includes(search);
+    const matchesYear =
+      holidayFilters.value.year === null ||
+      Number(holiday.date.slice(0, 4)) === holidayFilters.value.year;
+    const matchesType =
+      !holidayFilters.value.type || holiday.type === holidayFilters.value.type;
+    const matchesActive =
+      holidayFilters.value.is_active === null ||
+      holiday.is_active === holidayFilters.value.is_active;
+
+    return matchesSearch && matchesYear && matchesType && matchesActive;
+  });
+});
+
+const formatDisplayDate = (value: string) => {
+  if (!value) return "—";
+
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const loadHolidays = async () => {
+  try {
+    holidays.value = await getHolidays({
+      year: holidayFilters.value.year ?? undefined,
+      type: holidayFilters.value.type || undefined,
+      search: holidayFilters.value.search || undefined,
+      is_active: holidayFilters.value.is_active ?? undefined,
+    });
+  } catch (error: any) {
+    console.error("Failed to load holidays:", error.response?.data || error);
+    notify(error.response?.data?.message || "Unable to load holidays.");
+  }
+};
+
+const openHolidayForm = (holiday?: Holiday) => {
+  holidayFormError.value = "";
+
+  if (holiday) {
+    holidayForm.value = {
+      id: holiday.id,
+      date: holiday.date,
+      name: holiday.name,
+      type: holiday.type,
+      description: holiday.description || "",
+      is_active: holiday.is_active,
+    };
+  } else {
+    holidayForm.value = {
+      id: null,
+      date: "",
+      name: "",
+      type: "Regular Holiday",
+      description: "",
+      is_active: true,
+    };
+  }
+
+  holidayFormOpen.value = true;
+};
+
+const closeHolidayForm = () => {
+  holidayFormOpen.value = false;
+  holidayFormError.value = "";
+  holidayForm.value = {
+    id: null,
+    date: "",
+    name: "",
+    type: "Regular Holiday",
+    description: "",
+    is_active: true,
+  };
+};
+
+const saveHoliday = async () => {
+  holidayFormError.value = "";
+
+  if (!holidayForm.value.date || !holidayForm.value.name.trim()) {
+    holidayFormError.value = "Please provide a date and holiday name.";
+    return;
+  }
+
+  try {
+    const payload = {
+      date: holidayForm.value.date,
+      name: holidayForm.value.name.trim(),
+      type: holidayForm.value.type,
+      description: holidayForm.value.description.trim() || null,
+      is_active: holidayForm.value.is_active,
+    };
+
+    if (holidayForm.value.id) {
+      await updateHoliday(holidayForm.value.id, payload);
+      notify("Holiday updated successfully.");
+    } else {
+      await createHoliday(payload);
+      notify("Holiday added successfully.");
+    }
+
+    closeHolidayForm();
+    await loadHolidays();
+  } catch (error: any) {
+    const responseData = error.response?.data;
+    const firstError = responseData?.errors
+      ? Object.values(responseData.errors).flat()[0]
+      : responseData?.message || "Unable to save holiday.";
+
+    holidayFormError.value = String(firstError);
+  }
+};
+
+const toggleHolidayStatus = async (holiday: Holiday) => {
+  try {
+    await updateHoliday(holiday.id, { is_active: !holiday.is_active });
+    notify(`Holiday ${holiday.is_active ? "deactivated" : "activated"}.`);
+    await loadHolidays();
+  } catch (error: any) {
+    console.error("Failed to toggle holiday status:", error.response?.data || error);
+    notify(error.response?.data?.message || "Unable to update holiday status.");
+  }
+};
+
+const deleteHolidayEntry = async (holiday: Holiday) => {
+  const confirmed = await confirmAction({
+    title: "Delete holiday?",
+    message: `Remove ${holiday.name} (${holiday.date}) from the holiday calendar?`,
+    confirmLabel: "Delete holiday",
+  });
+
+  if (!confirmed) return;
+
+  try {
+    await deleteHoliday(holiday.id);
+    notify("Holiday deleted.");
+    await loadHolidays();
+  } catch (error: any) {
+    console.error("Failed to delete holiday:", error.response?.data || error);
+    notify(error.response?.data?.message || "Unable to delete holiday.");
+  }
+};
+
+watch(
+  () => holidayFilters.value,
+  async () => {
+    await loadHolidays();
+  },
+  { deep: true },
+);
+
 onMounted(() => {
   loadAdmin();
   loadPositions();
@@ -2929,6 +3265,7 @@ onMounted(() => {
   loadAuditLogs();
   loadAuditActions();
   loadBackups();
+  loadHolidays();
 });
 
 onBeforeUnmount(releaseSignatoryPreviewUrls);

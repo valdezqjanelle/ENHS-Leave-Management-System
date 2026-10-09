@@ -14,6 +14,7 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveType;
 use App\Models\LeaveDocumentRequirement;
 use App\Models\AuthorizedSignatory;
+use App\Services\WorkingDayCalculator;
 use App\Support\AuditLogger;
 
 // use Barryvdh\DomPDF\Facade\Pdf;
@@ -91,8 +92,23 @@ class LeaveController extends Controller
             }
         }
 
-        $numberOfDays = \Carbon\Carbon::parse($validated['start_date'])
-            ->diffInDays(\Carbon\Carbon::parse($validated['end_date'])) + 1;
+        $workingDaySummary = app(WorkingDayCalculator::class)->calculate(
+            $validated['start_date'],
+            $validated['end_date']
+        );
+
+        $numberOfDays = $workingDaySummary['working_days'];
+
+        if ($numberOfDays < 1) {
+            return response()->json([
+                'message' => 'The selected leave dates do not include any chargeable working days.',
+                'errors' => [
+                    'end_date' => ['The selected date range does not include any working days after excluding weekends and holidays.'],
+                ],
+            ], 422);
+        }
+
+        $validated['number_of_days'] = $numberOfDays;
         $filedInAdvance = \Carbon\Carbon::parse($validated['start_date'])
             ->isAfter(today());
         foreach ($documentRequirements as $requirement) {
