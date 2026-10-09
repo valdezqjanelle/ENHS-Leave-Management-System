@@ -579,13 +579,7 @@ public function downloadPdf($id, Request $request)
     $tpl = $pdf->importPage(1);
 
     // A4 = 595.28 × 841.89 pt
-    $pdf->useTemplate(
-        $tpl,
-        0,
-        0,
-        595.28,
-        841.89
-    );
+$pdf->useTemplate($tpl, 0, 0, 595.28, 841.89);
 
     // Diagnostic-only overlay: draw coordinate markers on the same rendered
     // template used by the production PDF. This exits before printing any
