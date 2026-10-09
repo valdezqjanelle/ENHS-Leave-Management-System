@@ -2118,9 +2118,10 @@ const loadAuthorizedSignatory = async () => {
   try {
     const data = await getAuthorizedSignatory();
     signatoryForm.value = {
+      name: data.name || "",
       designation: data.designation || "",
-      signatureMode: data.signature_mode === "wet" ? "wet" : "esignature",    };
-    hasSavedSignatorySignature.value = Boolean(data.has_signature);
+      signatureMode: data.signature_mode === "wet" ? "wet" : "esignature",
+    };
 
     if (savedSignatorySignatureUrl.value) {
       URL.revokeObjectURL(savedSignatorySignatureUrl.value);
