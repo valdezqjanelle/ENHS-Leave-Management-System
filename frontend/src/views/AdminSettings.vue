@@ -2190,6 +2190,8 @@ const saveSignatory = async (removeImage = false) => {
   }
 
   const formData = new FormData();
+  formData.append("name", signatoryForm.value.name.trim());
+  formData.append("designation", signatoryForm.value.designation.trim());
   formData.append("signature_mode", signatoryForm.value.signatureMode);
   formData.append("remove_signature", removeImage ? "1" : "0");
   if (!removeImage && selectedSignatorySignature.value) {
