@@ -391,7 +391,7 @@
 
     <div
       v-if="showDetailModal && selectedApplication"
-      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
+      class="detail-modal-backdrop fixed inset-0 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
     >
       <div
         class="relative mx-auto my-4 sm:my-8 p-4 sm:p-5 border w-full sm:w-11/12 max-w-3xl shadow-lg rounded-lg bg-white max-h-[calc(100vh-2rem)] sm:max-h-[90vh] overflow-y-auto neo-card"
@@ -476,12 +476,148 @@
               </div>
             </div>
 
+            <div class="mt-4 text-sm text-white break-words whitespace-pre-line">
+              <strong>Reason for Leave:</strong>
+              {{ selectedApplication.reason || "Not provided" }}
+            </div>
+
             <div
               v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved' && selectedApplication.disapproval_reason"
               class="mt-4 text-sm text-white break-words"
             >
               <strong>Reason for Disapproval:</strong>
               {{ selectedApplication.disapproval_reason }}
+            </div>
+          </div>
+
+          <!-- Leave Details -->
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-3 text-white">
+              Leave Details
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
+              <div
+                v-for="row in getLeaveDetailRows(selectedApplication)"
+                :key="row.label + row.value"
+                class="break-words"
+              >
+                <strong>{{ row.label }}:</strong>
+                {{ row.value }}
+              </div>
+
+              <div class="break-words">
+                <strong>Commutation:</strong>
+                {{
+                  selectedApplication.commutation === "requested"
+                    ? "Requested"
+                    : "Not Requested"
+                }}
+              </div>
+            </div>
+
+            <p
+              v-if="getLeaveDetailRows(selectedApplication).length === 0"
+              class="text-xs text-gray-400 mt-3"
+            >
+              No additional details were provided for this leave type.
+            </p>
+          </div>
+
+          <!-- Leave Credits Snapshot -->
+          <div
+            v-if="hasCreditsSnapshot(selectedApplication)"
+            class="border border-gray-300 p-4 min-w-0 modal-section"
+          >
+            <h4 class="text-sm font-bold mb-1 text-white">
+              Leave Credits
+            </h4>
+            <p
+              v-if="selectedApplication.certification_as_of"
+              class="text-xs text-gray-400 mb-3"
+            >
+              As of {{ formatDate(selectedApplication.certification_as_of) }}
+            </p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-white">
+                <thead>
+                  <tr class="border-b border-slate-500 text-left">
+                    <th class="py-2 pr-4"></th>
+                    <th class="py-2 pr-4">Total Earned</th>
+                    <th class="py-2 pr-4">Less this Application</th>
+                    <th class="py-2">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-slate-600">
+                    <td class="py-2 pr-4 font-medium">Vacation Leave</td>
+                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.vacation_total_earned) }}</td>
+                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.vacation_less_application) }}</td>
+                    <td class="py-2">{{ formatCredit(selectedApplication.vacation_balance) }}</td>
+                  </tr>
+                  <tr class="border-b border-slate-600">
+                    <td class="py-2 pr-4 font-medium">Sick Leave</td>
+                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.sick_total_earned) }}</td>
+                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.sick_less_application) }}</td>
+                    <td class="py-2">{{ formatCredit(selectedApplication.sick_balance) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recommendation and Approval -->
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-3 text-white">
+              Recommendation and Approval
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
+              <div class="break-words">
+                <strong>Recommendation:</strong>
+                {{ formatLabel(selectedApplication.recommendation_status) || "Pending" }}
+              </div>
+
+              <div
+                v-if="hasValue(selectedApplication.recommendation_reason)"
+                class="break-words"
+              >
+                <strong>Recommendation Reason:</strong>
+                {{ selectedApplication.recommendation_reason }}
+              </div>
+
+              <div
+                v-if="hasValue(selectedApplication.days_with_pay)"
+                class="break-words"
+              >
+                <strong>Days with Pay:</strong>
+                {{ selectedApplication.days_with_pay }}
+              </div>
+
+              <div
+                v-if="hasValue(selectedApplication.days_without_pay)"
+                class="break-words"
+              >
+                <strong>Days without Pay:</strong>
+                {{ selectedApplication.days_without_pay }}
+              </div>
+
+              <div
+                v-if="hasValue(selectedApplication.other_approval)"
+                class="break-words"
+              >
+                <strong>Others:</strong>
+                {{ selectedApplication.other_approval }}
+              </div>
+
+              <div
+                v-if="hasValue(selectedApplication.admin_remarks)"
+                class="break-words sm:col-span-2"
+              >
+                <strong>Admin Remarks:</strong>
+                {{ selectedApplication.admin_remarks }}
+              </div>
             </div>
           </div>
 
@@ -926,7 +1062,34 @@ interface LeaveApplication {
 
   final_status: string;
   recommendation_status: string;
+  recommendation_reason?: string | null;
   disapproval_reason?: string | null;
+  admin_remarks?: string | null;
+
+  // Leave-type specific details
+  vacation_location_type?: string | null;
+  vacation_location?: string | null;
+  sick_type?: string | null;
+  illness?: string | null;
+  masters_degree?: boolean | number | string | null;
+  board_exam_review?: boolean | number | string | null;
+  monetization?: boolean | number | string | null;
+  terminal_leave?: boolean | number | string | null;
+  other_purpose?: string | null;
+
+  // Leave credits snapshot (CS Form 6, Part 7A)
+  certification_as_of?: string | null;
+  vacation_total_earned?: number | string | null;
+  vacation_less_application?: number | string | null;
+  vacation_balance?: number | string | null;
+  sick_total_earned?: number | string | null;
+  sick_less_application?: number | string | null;
+  sick_balance?: number | string | null;
+
+  // Approval details
+  days_with_pay?: number | null;
+  days_without_pay?: number | null;
+  other_approval?: string | null;
 
   employee: any;
   leave_type: any;
@@ -1374,6 +1537,104 @@ const formatFileSize = (bytes: number) => {
     " " +
     sizes[i]
   );
+};
+
+/* =========================================================
+   DETAIL MODAL HELPERS
+========================================================= */
+
+const hasValue = (value: unknown) =>
+  value !== null && value !== undefined && String(value).trim() !== "";
+
+const isTrue = (value: unknown) =>
+  value === true || value === 1 || value === "1";
+
+// "within_philippines" -> "Within Philippines"
+const formatLabel = (value?: string | null) =>
+  hasValue(value)
+    ? String(value)
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "";
+
+// Shows "-" instead of a misleading 0.000 when a credit value was not saved.
+const formatCredit = (value: unknown) =>
+  hasValue(value) && Number.isFinite(Number(value))
+    ? Number(value).toFixed(3)
+    : "-";
+
+const hasCreditsSnapshot = (application: LeaveApplication) =>
+  [
+    application.vacation_total_earned,
+    application.vacation_less_application,
+    application.vacation_balance,
+    application.sick_total_earned,
+    application.sick_less_application,
+    application.sick_balance,
+  ].some(hasValue);
+
+// Only the details that apply to this application are returned.
+const getLeaveDetailRows = (application: LeaveApplication) => {
+  const rows: Array<{ label: string; value: string }> = [];
+
+  if (hasValue(application.vacation_location_type)) {
+    rows.push({
+      label: "Vacation Location",
+      value: formatLabel(application.vacation_location_type),
+    });
+  }
+
+  if (hasValue(application.vacation_location)) {
+    rows.push({
+      label: "Specified Location",
+      value: String(application.vacation_location),
+    });
+  }
+
+  if (hasValue(application.sick_type)) {
+    rows.push({
+      label: "Sick Leave Type",
+      value: formatLabel(application.sick_type),
+    });
+  }
+
+  if (hasValue(application.illness)) {
+    rows.push({ label: "Illness", value: String(application.illness) });
+  }
+
+  if (isTrue(application.masters_degree)) {
+    rows.push({
+      label: "Study Leave",
+      value: "Completion of Master's Degree",
+    });
+  }
+
+  if (isTrue(application.board_exam_review)) {
+    rows.push({
+      label: "Study Leave",
+      value: "BAR/Board Examination Review",
+    });
+  }
+
+  if (isTrue(application.monetization)) {
+    rows.push({
+      label: "Other Purpose",
+      value: "Monetization of Leave Credits",
+    });
+  }
+
+  if (isTrue(application.terminal_leave)) {
+    rows.push({ label: "Other Purpose", value: "Terminal Leave" });
+  }
+
+  if (hasValue(application.other_purpose)) {
+    rows.push({
+      label: "Other Purpose",
+      value: String(application.other_purpose),
+    });
+  }
+
+  return rows;
 };
 
 /* =========================================================
@@ -2320,6 +2581,14 @@ onMounted(() => {
 
 .dashboard-shell .bg-opacity-50 {
   --tw-bg-opacity: 0.45;
+}
+
+/* Dark, blurred backdrop behind the View Details modal
+   (same look as the employee My Applications modal). */
+.detail-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 /* =========================================================
