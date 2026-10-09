@@ -130,19 +130,28 @@
             :key="application.leave_id"
             class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card min-w-0"
           >
-            <div
-              class="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4"
-            >
+            <div class="flex flex-col gap-3">
               <!-- Application Information -->
               <div class="flex-1 min-w-0">
-                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <h3 class="text-lg font-medium text-white break-words">
-                    {{ getEmployeeName(application.employee) }}
-                  </h3>
+                <!-- Header: name, office / position, status -->
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <h3
+                      class="text-base sm:text-lg font-semibold text-[#0F2742] leading-tight break-words"
+                    >
+                      {{ getEmployeeName(application.employee) }}
+                    </h3>
+
+                    <p class="mt-0.5 text-sm text-slate-500 break-words">
+                      {{ application.employee?.department_name ?? "Not available" }}
+                      <span class="mx-1 text-slate-300" aria-hidden="true">&bull;</span>
+                      {{ getEmployeePosition(application.employee) }}
+                    </p>
+                  </div>
 
                   <span
                     :class="[
-                      'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
+                      'px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap capitalize',
                       getStatusClass(application.final_status),
                     ]"
                   >
@@ -151,34 +160,45 @@
                 </div>
 
                 <!-- Application Details -->
-                <div
-                  class="mt-2 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 text-sm text-white"
+                <dl
+                  class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm"
                 >
-                  <div class="min-w-0 break-words">
-                    <span class="font-medium"> Office: </span>
-                    {{ application.employee?.department_name ?? "Not available" }}
+                  <div class="min-w-0">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Leave Type
+                    </dt>
+                    <dd class="mt-0.5 font-medium text-[#0F2742] break-words">
+                      {{ getLeaveType(application.leave_type) }}
+                    </dd>
                   </div>
 
-                  <div class="min-w-0 break-words">
-                    <span class="font-medium"> Position: </span>
-                    {{ getEmployeePosition(application.employee) }}
+                  <div class="min-w-0">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Days Applied
+                    </dt>
+                    <dd class="mt-0.5 font-medium text-[#0F2742]">
+                      {{ application.number_of_days }}
+                    </dd>
                   </div>
 
-                  <div class="min-w-0 break-words">
-                    <span class="font-medium"> Date Filed: </span>
-                    {{ formatDate(application.date_filed) }}
+                  <div class="min-w-0">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Date Filed
+                    </dt>
+                    <dd class="mt-0.5 font-medium text-[#0F2742] break-words">
+                      {{ formatDate(application.date_filed) }}
+                    </dd>
                   </div>
 
-                  <div class="min-w-0 break-words">
-                    <span class="font-medium"> Leave Type: </span>
-                    {{ getLeaveType(application.leave_type) }}
+                  <div class="min-w-0">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                      Application ID
+                    </dt>
+                    <dd class="mt-0.5 font-medium text-slate-500">
+                      #{{ application.leave_id }}
+                    </dd>
                   </div>
-
-                  <div class="min-w-0 break-words">
-                    <span class="font-medium"> Days Applied: </span>
-                    {{ application.number_of_days }}
-                  </div>
-                </div>
+                </dl>
 
                 <!-- Attachments -->
                 <div
@@ -268,59 +288,65 @@
 
               <!-- Action Buttons -->
               <div
-                class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
+                class="card-actions flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-200"
               >
                 <template v-if="activeTab !== 'deleted'">
-                  <!-- View Details -->
-                  <button
-                    @click="viewDetails(application)"
-                    class="btn-action bg-blue-600 hover:bg-blue-700"
-                  >
-                    View Details
-                  </button>
+                  <div class="flex flex-wrap gap-2">
+                    <!-- View Details -->
+                    <button
+                      @click="viewDetails(application)"
+                      class="btn-action bg-blue-600 hover:bg-blue-700"
+                    >
+                      View Details
+                    </button>
 
-                  <!-- View Form -->
-                  <button
-                    @click="viewForm(application)"
-                    class="btn-action bg-amber-600 hover:bg-amber-700"
-                  >
-                    View Form
-                  </button>
+                    <!-- View Form -->
+                    <button
+                      @click="viewForm(application)"
+                      class="btn-action bg-amber-600 hover:bg-amber-700"
+                    >
+                      View Form
+                    </button>
+                  </div>
 
-                  <!-- Approve -->
-                  <button
-                    v-if="application.final_status?.toLowerCase() === 'pending'"
-                    @click="openApprovalModal(application)"
-                    class="btn-action bg-green-600 hover:bg-green-700"
-                  >
-                    Approve
-                  </button>
+                  <div class="flex flex-wrap gap-2">
+                    <!-- Approve -->
+                    <button
+                      v-if="application.final_status?.toLowerCase() === 'pending'"
+                      @click="openApprovalModal(application)"
+                      class="btn-action bg-green-600 hover:bg-green-700"
+                    >
+                      Approve
+                    </button>
 
-                  <!-- Reject -->
-                  <button
-                    v-if="application.final_status?.toLowerCase() === 'pending'"
-                    @click="openRejectModal(application.leave_id)"
-                    class="btn-action bg-red-600 hover:bg-red-700"
-                  >
-                    Reject
-                  </button>
+                    <!-- Reject -->
+                    <button
+                      v-if="application.final_status?.toLowerCase() === 'pending'"
+                      @click="openRejectModal(application.leave_id)"
+                      class="btn-action bg-red-600 hover:bg-red-700"
+                    >
+                      Reject
+                    </button>
 
-                  <!-- Delete -->
-                  <button
-                    @click="deleteLeaveApplicationById(application.leave_id)"
-                    class="btn-action bg-gray-600 hover:bg-gray-700"
-                  >
-                    Delete
-                  </button>
+                    <!-- Delete -->
+                    <button
+                      @click="deleteLeaveApplicationById(application.leave_id)"
+                      class="btn-action bg-gray-600 hover:bg-gray-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </template>
 
                 <template v-else>
-                  <button
-                    @click="restoreLeaveApplicationById(application.leave_id)"
-                    class="btn-action bg-green-600 hover:bg-green-700"
-                  >
-                    Restore
-                  </button>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      @click="restoreLeaveApplicationById(application.leave_id)"
+                      class="btn-action bg-green-600 hover:bg-green-700"
+                    >
+                      Restore
+                    </button>
+                  </div>
                 </template>
               </div>
             </div>
@@ -2636,6 +2662,20 @@ onMounted(() => {
 
 .btn-action:active {
   transform: scale(0.97);
+}
+
+/* Application card action row: uniform, fully labelled text buttons */
+.card-actions .btn-action {
+  min-height: 2rem;
+  padding: 0.35rem 1rem;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 639px) {
+  .card-actions .btn-action {
+    flex: 1 1 auto;
+  }
 }
 
 .btn-action-lg {
