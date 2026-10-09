@@ -71,6 +71,7 @@ class LeaveApplication extends Model
 
         // FINAL STATUS
         'final_status',
+        'reviewed_at',
         'disapproval_reason',
         'admin_remarks',
         'signatory_name_snapshot',
@@ -89,7 +90,8 @@ class LeaveApplication extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'certification_as_of' => 'date',
-
+        'reviewed_at' => 'datetime',
+        
         'masters_degree' => 'boolean',
         'board_exam_review' => 'boolean',
         'monetization' => 'boolean',

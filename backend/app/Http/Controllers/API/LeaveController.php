@@ -1284,6 +1284,12 @@ $text(
         if ($request->has('final_status')) {
             $updateData['final_status'] =
                 strtolower($request->final_status);
+
+            // Record when the application left "pending" (used by the dashboard).
+            if ($previousStatus !== $updateData['final_status']) {
+                $updateData['reviewed_at'] =
+                    $updateData['final_status'] === 'pending' ? null : now();
+            }
         }
 
         if (

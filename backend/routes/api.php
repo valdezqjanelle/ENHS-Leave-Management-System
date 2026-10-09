@@ -27,6 +27,7 @@ use App\Http\Controllers\API\TeachingPersonnelRecordController;
 use App\Http\Controllers\API\NonTeachingPersonnelRecordController;
 use App\Http\Controllers\API\TeachingSetupController;
 use App\Http\Controllers\API\HolidayController;
+use App\Http\Controllers\API\DashboardOverviewController;
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
@@ -103,7 +104,8 @@ Route::middleware('auth:sanctum')->group(function () {
             '/employee/dashboard',
             [DashboardController::class, 'employeeIndex']
         );
-
+        Route::get('/employee/dashboard/overview', [DashboardOverviewController::class, 'employeeOverview']);
+        Route::get('/employee/dashboard/calendar', [DashboardOverviewController::class, 'employeeCalendar']);
 
         // Profile
         Route::put(
@@ -171,6 +173,10 @@ Route::middleware('auth:sanctum')->group(function () {
             '/admin/dashboard',
             [DashboardController::class, 'index']
         );
+        Route::get('/admin/dashboard/overview', [DashboardOverviewController::class, 'adminOverview']);
+        Route::get('/admin/dashboard/analytics', [DashboardOverviewController::class, 'adminAnalytics']);
+        Route::get('/admin/dashboard/activity', [DashboardOverviewController::class, 'adminActivity']);
+        Route::get('/admin/dashboard/calendar', [DashboardOverviewController::class, 'adminCalendar']);
 
         // Employee Management
 

@@ -2254,6 +2254,15 @@ const restoreLeaveApplicationById =
 ========================================================= */
 
 onMounted(() => {
+  // Deep links from the dashboard: /admin-applications?tab=pending&search=Name
+  const qs = new URLSearchParams(window.location.search);
+  const tab = qs.get("tab");
+  if (tab && ["all", "pending", "approved", "disapproved"].includes(tab)) {
+    activeTab.value = tab;
+  }
+  const search = qs.get("search");
+  if (search) searchQuery.value = search;
+
   loadApplications();
   loadPositions();
 });

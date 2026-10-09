@@ -2699,6 +2699,12 @@ const saveEmployee = async () => {
 };
 
 onMounted(async () => {
+  // Deep link from the dashboard: /employees?status=active
+  const status = new URLSearchParams(window.location.search).get("status");
+  if (status === "active" || status === "inactive") {
+    statusFilter.value = status;
+  }
+
   await Promise.all([loadEmployees(), loadPositions(), loadDepartments()]);
 });
 </script>

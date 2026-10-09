@@ -799,8 +799,23 @@ const loadApplications = async () => {
 };
 
 
-onMounted(() => {
-  loadApplications();
+onMounted(async () => {
+  // Deep links from the dashboard: ?status=pending or ?open=<leave_id>
+  const qs = new URLSearchParams(window.location.search);
+  const status = qs.get("status");
+  if (status && ["pending", "approved", "disapproved"].includes(status)) {
+    filterStatus.value = status;
+  }
+
+  await loadApplications();
+
+  const open = qs.get("open");
+  if (open) {
+    const target = applications.value.find(
+      (a: any) => String(a.leave_id) === open,
+    );
+    if (target) viewDetails(target);
+  }
 });
 
 
