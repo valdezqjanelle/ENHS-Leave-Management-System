@@ -1156,7 +1156,7 @@
         authority block of newly generated CS Form No. 6 documents.
       </p>
 
-      <form class="inner-card p-5 space-y-5" @submit.prevent="saveSignatory">
+      <form class="inner-card p-5 space-y-5" @submit.prevent="saveSignatory()">
         <div
           v-if="signatoryFeedback"
           role="status"
@@ -1211,66 +1211,175 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_16rem] gap-5 items-start">
-          <div>
-            <label for="signatory-signature" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
-              Signature image
-            </label>
-            <input
-              id="signatory-signature"
-              ref="signatoryFileInput"
-              type="file"
-              accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-              class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:rounded-md file:border-0 file:bg-[#eef4fb] file:px-3 file:py-2 file:font-medium file:text-[var(--text)] hover:file:bg-[#e0eaf7]"
-              :aria-invalid="Boolean(signatoryErrors.signature)"
-              :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
-              @change="selectSignatorySignature"
-            />
-            <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text-muted)]">
-              PNG or JPEG, up to 2 MB. The image is stored privately and only
-              served to administrators and in authorized CS Form No. 6 PDFs.
-            </p>
-            <p v-if="signatoryErrors.signature" id="signatory-signature-error" class="mt-1 text-sm text-red-600">
-              {{ signatoryErrors.signature }}
-            </p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <div class="space-y-4">
+            <fieldset>
+              <legend class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+                Signature on CS Form No. 6
+              </legend>
+              <div class="space-y-3">
+                <label
+                  class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
+                  :class="
+                    signatoryForm.signatureMode === 'esignature'
+                      ? 'border-[#2563eb] bg-[#eff6ff]'
+                      : 'border-[#cbd8e8] bg-white'
+                  "
+                >
+                  <input
+                    v-model="signatoryForm.signatureMode"
+                    type="radio"
+                    name="signatory-signature-mode"
+                    value="esignature"
+                    class="mt-1"
+                  />
+                  <span>
+                    <span class="block font-semibold text-[var(--text)]">Use e-signature</span>
+                    <span class="block text-sm text-[var(--text-muted)]">
+                      The stored signature image is printed above the name.
+                    </span>
+                  </span>
+                </label>
 
-            <label
-              v-if="hasSavedSignatorySignature"
-              class="mt-4 flex items-start gap-2 text-sm text-[var(--text-muted)]"
-            >
+                <label
+                  class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
+                  :class="
+                    signatoryForm.signatureMode === 'wet'
+                      ? 'border-[#2563eb] bg-[#eff6ff]'
+                      : 'border-[#cbd8e8] bg-white'
+                  "
+                >
+                  <input
+                    v-model="signatoryForm.signatureMode"
+                    type="radio"
+                    name="signatory-signature-mode"
+                    value="wet"
+                    class="mt-1"
+                  />
+                  <span>
+                    <span class="block font-semibold text-[var(--text)]">Leave blank for wet signature</span>
+                    <span class="block text-sm text-[var(--text-muted)]">
+                      Name and designation still print, with empty space above
+                      for a handwritten signature after printing.
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <p
+                v-if="signatoryForm.signatureMode === 'esignature' && !hasSavedSignatorySignature && !selectedSignatorySignature"
+                class="mt-2 text-sm text-amber-700"
+              >
+                No signature image is stored yet. Upload one below, or the
+                signature space will print blank.
+              </p>
+            </fieldset>
+
+            <div class="border-t border-[#cbd8e8] pt-4">
+              <label for="signatory-signature" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+                {{ hasSavedSignatorySignature ? "Replace signature image" : "Signature image" }}
+              </label>
               <input
-                v-model="removeSignatorySignature"
-                type="checkbox"
-                class="mt-1"
-                @change="handleRemoveSignatorySignature"
+                id="signatory-signature"
+                ref="signatoryFileInput"
+                type="file"
+                accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+                class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:rounded-md file:border-0 file:bg-[#eef4fb] file:px-3 file:py-2 file:font-medium file:text-[var(--text)] hover:file:bg-[#e0eaf7]"
+                :aria-invalid="Boolean(signatoryErrors.signature)"
+                :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
+                @change="selectSignatorySignature"
               />
-              Remove the current signature when saving
-            </label>
+              <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text-muted)]">
+                PNG or JPEG, up to 2 MB. The image is stored privately and only
+                served to administrators and in authorized CS Form No. 6 PDFs.
+                Switching to wet signature keeps the stored image.
+              </p>
+              <p v-if="signatoryErrors.signature" id="signatory-signature-error" class="mt-1 text-sm text-red-600">
+                {{ signatoryErrors.signature }}
+              </p>
+              <button
+                v-if="selectedSignatorySignature"
+                type="button"
+                class="mt-2 text-sm font-medium text-[var(--text-muted)] underline underline-offset-2 hover:text-[var(--text)]"
+                @click="clearSelectedSignatorySignature"
+              >
+                Discard selected image
+              </button>
+            </div>
+
+            <div v-if="hasSavedSignatorySignature" class="border-t border-[#cbd8e8] pt-4">
+              <p class="text-sm font-medium text-[var(--text-muted)] mb-2">
+                Stored signature image
+              </p>
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="flex h-14 w-24 items-center justify-center rounded-md bg-[#f8fafc] p-1">
+                  <img
+                    v-if="savedSignatorySignatureUrl"
+                    :src="savedSignatorySignatureUrl"
+                    alt="Stored authorized signatory signature"
+                    class="max-h-full max-w-full object-contain"
+                  />
+                </div>
+                <button
+                  type="button"
+                  class="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  :disabled="signatorySaving"
+                  @click="deleteStoredSignatorySignature"
+                >
+                  Delete stored image
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div class="rounded-lg border border-[#cbd8e8] bg-white p-4">
-            <p class="text-sm font-medium text-[var(--text)] mb-3">
-              {{ selectedSignatorySignature ? "New signature preview" : "Current signature" }}
-            </p>
-            <div class="flex min-h-24 items-center justify-center rounded-md bg-[#f8fafc] p-3">
-              <img
-                v-if="displayedSignatorySignature"
-                :src="displayedSignatorySignature"
-                alt="Authorized signatory signature preview"
-                class="max-h-20 max-w-full object-contain"
-              />
-              <span v-else class="text-sm text-[var(--text-muted)]">
-                No signature uploaded
+          <div>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <p class="text-sm font-medium text-[var(--text-muted)]">
+                Preview: block 7.B on a new CS Form No. 6
+              </p>
+              <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
+                {{ signatoryForm.signatureMode === "wet" ? "Wet signature" : "E-signature" }}
               </span>
             </div>
-            <button
-              v-if="selectedSignatorySignature"
-              type="button"
-              class="mt-3 text-sm font-medium text-[var(--text-muted)] underline underline-offset-2 hover:text-[var(--text)]"
-              @click="clearSelectedSignatorySignature"
-            >
-              Discard selected image
-            </button>
+                        <div class="rounded-lg border border-[#cbd8e8] bg-white p-3">
+              <div class="relative w-full" style="container-type: inline-size">
+                <img
+                  :src="block7bImage"
+                  alt="CS Form No. 6 block 7.B Recommendation"
+                  class="block w-full select-none"
+                  draggable="false"
+                />
+                <div
+                  class="absolute flex flex-col items-center justify-end text-center text-black"
+                  style="left: 10.9%; width: 85%; bottom: 16%"
+                >
+                  <img
+                    v-if="signatoryForm.signatureMode === 'esignature' && displayedSignatorySignature"
+                    :src="displayedSignatorySignature"
+                    alt="Signature as it will print"
+                    class="object-contain"
+                    style="max-height: 10cqw; max-width: 28cqw"
+                  />
+                  <p class="font-bold leading-none" style="font-size: 2.9cqw">
+                    {{ signatoryForm.name || "—" }}
+                  </p>
+                </div>
+                <p
+                  class="absolute text-center text-black leading-none"
+                  style="left: 10.9%; width: 85%; top: 86%; font-size: 2.5cqw"
+                >
+                  {{ signatoryForm.designation || "—" }}
+                </p>
+              </div>
+            </div>
+            <p class="mt-2 text-xs text-[var(--text-muted)]">
+              {{
+                signatoryForm.signatureMode === "wet"
+                  ? "The space above the name stays blank so the signatory can sign by hand after printing."
+                  : "The stored signature prints above the name."
+              }}
+              Applies to newly generated forms only; forms already finalized
+              keep the signature setting they were approved with.
+            </p>
           </div>
         </div>
 
@@ -1967,9 +2076,14 @@ import {
   deleteHoliday,
   type Holiday,
 } from "@/services/holiday";
+import block7bImage from "@/assets/cs-form-6-block-7b.png";
 
 const activeTab = ref("account");
-const signatoryForm = ref({ name: "", designation: "" });
+const signatoryForm = ref<{
+  name: string;
+  designation: string;
+  signatureMode: "esignature" | "wet";
+}>({ name: "", designation: "", signatureMode: "esignature" });
 const signatoryErrors = ref({
   name: "",
   designation: "",
@@ -1981,7 +2095,6 @@ const signatoryFeedback = ref<{
 } | null>(null);
 const signatorySaving = ref(false);
 const hasSavedSignatorySignature = ref(false);
-const removeSignatorySignature = ref(false);
 const selectedSignatorySignature = ref<File | null>(null);
 const savedSignatorySignatureUrl = ref("");
 const selectedSignatorySignatureUrl = ref("");
@@ -2005,9 +2118,8 @@ const loadAuthorizedSignatory = async () => {
   try {
     const data = await getAuthorizedSignatory();
     signatoryForm.value = {
-      name: data.name || "",
       designation: data.designation || "",
-    };
+      signatureMode: data.signature_mode === "wet" ? "wet" : "esignature",    };
     hasSavedSignatorySignature.value = Boolean(data.has_signature);
 
     if (savedSignatorySignatureUrl.value) {
@@ -2043,7 +2155,6 @@ const selectSignatorySignature = (event: Event) => {
   }
 
   selectedSignatorySignature.value = file;
-  removeSignatorySignature.value = false;
   signatoryErrors.value.signature = "";
   signatoryFeedback.value = null;
 
@@ -2063,13 +2174,7 @@ const clearSelectedSignatorySignature = () => {
   }
 };
 
-const handleRemoveSignatorySignature = () => {
-  if (removeSignatorySignature.value) {
-    clearSelectedSignatorySignature();
-  }
-};
-
-const saveSignatory = async () => {
+const saveSignatory = async (removeImage = false) => {
   signatoryErrors.value = { name: "", designation: "", signature: "" };
   signatoryFeedback.value = null;
 
@@ -2084,10 +2189,9 @@ const saveSignatory = async () => {
   }
 
   const formData = new FormData();
-  formData.append("name", signatoryForm.value.name.trim());
-  formData.append("designation", signatoryForm.value.designation.trim());
-  formData.append("remove_signature", removeSignatorySignature.value ? "1" : "0");
-  if (selectedSignatorySignature.value) {
+  formData.append("signature_mode", signatoryForm.value.signatureMode);
+  formData.append("remove_signature", removeImage ? "1" : "0");
+  if (!removeImage && selectedSignatorySignature.value) {
     formData.append("signature", selectedSignatorySignature.value);
   }
 
@@ -2095,11 +2199,12 @@ const saveSignatory = async () => {
   try {
     await saveAuthorizedSignatory(formData);
     clearSelectedSignatorySignature();
-    removeSignatorySignature.value = false;
     await loadAuthorizedSignatory();
     signatoryFeedback.value = {
       type: "success",
-      message: "Authorized signatory settings saved successfully.",
+      message: removeImage
+        ? "Stored signature image deleted."
+        : "Authorized signatory settings saved successfully.",
     };
   } catch (error: any) {
     console.error(
@@ -2121,6 +2226,15 @@ const saveSignatory = async () => {
   } finally {
     signatorySaving.value = false;
   }
+};
+
+const deleteStoredSignatorySignature = async () => {
+  const confirmed = window.confirm(
+    "Delete the stored signature image? You will need to upload it again to use the e-signature.",
+  );
+  if (!confirmed) return;
+
+  await saveSignatory(true);
 };
 
 const auditLogs = ref<any[]>([]);

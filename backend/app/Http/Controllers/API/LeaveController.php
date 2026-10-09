@@ -896,6 +896,14 @@ public function downloadPdf($id, Request $request)
             'signature_path' => $leave->signatory_signature_path_snapshot,
         ]
         : AuthorizedSignatory::query()->find(1);
+    // Wet-signature mode: keep the name and designation, but never print the stored image.
+    if ($signatory instanceof AuthorizedSignatory && !$signatory->use_signature) {
+        $signatory = (object) [
+            'name' => $signatory->name,
+            'designation' => $signatory->designation,
+            'signature_path' => null,
+        ];
+    }
 
     if (
         $signatory &&
@@ -1290,7 +1298,9 @@ $text(
             $updateData['signatory_snapshot_locked'] = true;
             $updateData['signatory_name_snapshot'] = $signatory?->name;
             $updateData['signatory_designation_snapshot'] = $signatory?->designation;
-            $updateData['signatory_signature_path_snapshot'] = $signatory?->signature_path;
+            $updateData['signatory_signature_path_snapshot'] = ($signatory?->use_signature ?? true)
+                ? $signatory?->signature_path
+                : null;
         }
 
         if ($request->has('disapproval_reason')) {

@@ -14,7 +14,12 @@ class AuthorizedSignatory extends Model
         'name',
         'designation',
         'signature_path',
+        'use_signature',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'use_signature' => 'boolean',
     ];
 
     protected $hidden = [

@@ -22,6 +22,7 @@ class AuthorizedSignatoryController extends Controller
             'name' => $signatory?->name ?? '',
             'designation' => $signatory?->designation ?? '',
             'has_signature' => (bool) $signatory?->signature_path,
+            'signature_mode' => ($signatory?->use_signature ?? true) ? 'esignature' : 'wet',
         ]);
     }
 
@@ -72,6 +73,7 @@ class AuthorizedSignatoryController extends Controller
             'designation' => 'required|string|max:255',
             'signature' => 'nullable|image|mimes:png,jpg,jpeg|max:2048|dimensions:max_width=3000,max_height=2000',
             'remove_signature' => 'sometimes|boolean',
+            'signature_mode' => 'sometimes|in:esignature,wet',
         ]);
 
         if ($request->hasFile('signature') && $request->boolean('remove_signature')) {
@@ -92,6 +94,7 @@ class AuthorizedSignatoryController extends Controller
         }
 
         $oldPath = null;
+        $modeBefore = AuthorizedSignatory::query()->find(1)?->use_signature ?? true;
 
         try {
             DB::transaction(function () use ($request, $validated, $newPath, &$oldPath) {
@@ -108,6 +111,9 @@ class AuthorizedSignatoryController extends Controller
                 $signatory->name = $validated['name'];
                 $signatory->designation = $validated['designation'];
                 $signatory->updated_by = $request->user()->user_id;
+                if (isset($validated['signature_mode'])) {
+                    $signatory->use_signature = $validated['signature_mode'] === 'esignature';
+                }
 
                 if ($newPath) {
                     $signatory->signature_path = $newPath;
@@ -134,7 +140,8 @@ class AuthorizedSignatoryController extends Controller
 
         $signatory = AuthorizedSignatory::query()->findOrFail(1);
         $signatureChanged = $oldPath !== $signatory->signature_path;
-
+        $modeChanged = isset($validated['signature_mode']) && $modeBefore !== $signatory->use_signature;
+        
         if (
             $signatureChanged &&
             $oldPath &&
@@ -159,7 +166,12 @@ class AuthorizedSignatoryController extends Controller
         AuditLogger::log(
             'Authorized signatory updated',
             'Updated the authorized signatory details' .
-                ($signatureChanged ? ' and signature.' : '.')
+                ($signatureChanged ? ' and signature' : '') .
+                ($modeChanged
+                    ? ($signatory->use_signature
+                        ? '; CS Form No. 6 now prints the e-signature.'
+                        : '; CS Form No. 6 now leaves the signature blank for wet signing.')
+                    : '.')
         );
 
         return response()->json([
@@ -167,6 +179,7 @@ class AuthorizedSignatoryController extends Controller
             'data' => [
                 'name' => $signatory->name,
                 'designation' => $signatory->designation,
+                'signature_mode' => $signatory->use_signature ? 'esignature' : 'wet',
                 'has_signature' => (bool) $signatory->signature_path,
             ],
         ]);
