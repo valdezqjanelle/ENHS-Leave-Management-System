@@ -394,15 +394,15 @@
       class="detail-modal-backdrop fixed inset-0 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
     >
       <div
-        class="relative mx-auto my-4 sm:my-8 p-4 sm:p-5 border w-full sm:w-11/12 max-w-3xl shadow-lg rounded-lg bg-white max-h-[calc(100vh-2rem)] sm:max-h-[90vh] overflow-y-auto neo-card"
+        class="relative mx-auto my-1 sm:my-3 w-full max-w-3xl shadow-lg rounded-lg bg-white neo-card flex flex-col max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)]"
       >
         <!-- Header -->
-        <div class="flex justify-between items-start mb-4 gap-3">
+        <div class="flex justify-between items-start gap-3 px-4 pt-3 pb-2 border-b border-gray-200">
           <div>
-            <h3 class="text-xl font-semibold text-white">
+            <h3 class="text-lg font-semibold text-white leading-tight">
               Application Details
             </h3>
-            <p class="text-sm text-gray-400 mt-1">
+            <p class="text-xs text-gray-400 mt-0.5">
               Application #{{ selectedApplication.leave_id }}
             </p>
           </div>
@@ -412,20 +412,21 @@
             class="text-white hover:text-gray-600 flex-shrink-0"
             aria-label="Close"
           >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div class="space-y-6">
+        <!-- Scrollable body -->
+        <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
           <!-- Application Information -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-3 text-white">
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
               Application Information
             </h4>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white">
               <div class="break-words">
                 <strong>Employee:</strong>
                 {{ getEmployeeName(selectedApplication.employee) }}
@@ -441,6 +442,32 @@
                 {{ getEmployeePosition(selectedApplication.employee) }}
               </div>
 
+              <div class="break-words">
+                <strong>Filed Date:</strong>
+                {{ formatDate(selectedApplication.date_filed) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Status:</strong>
+                <span
+                  :class="[
+                    'px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap',
+                    getStatusClass(selectedApplication.final_status),
+                  ]"
+                >
+                  {{ selectedApplication.final_status }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leave Details -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
+              Leave Details
+            </h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white">
               <div class="break-words">
                 <strong>Leave Type:</strong>
                 {{ getLeaveType(selectedApplication.leave_type) }}
@@ -459,44 +486,14 @@
               </div>
 
               <div class="break-words">
-                <strong>Filed Date:</strong>
-                {{ formatDate(selectedApplication.date_filed) }}
+                <strong>Commutation:</strong>
+                {{
+                  selectedApplication.commutation === "requested"
+                    ? "Requested"
+                    : "Not Requested"
+                }}
               </div>
 
-              <div class="break-words">
-                <strong>Status:</strong>
-                <span
-                  :class="[
-                    'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
-                    getStatusClass(selectedApplication.final_status),
-                  ]"
-                >
-                  {{ selectedApplication.final_status }}
-                </span>
-              </div>
-            </div>
-
-            <div class="mt-4 text-sm text-white break-words whitespace-pre-line">
-              <strong>Reason for Leave:</strong>
-              {{ selectedApplication.reason || "Not provided" }}
-            </div>
-
-            <div
-              v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved' && selectedApplication.disapproval_reason"
-              class="mt-4 text-sm text-white break-words"
-            >
-              <strong>Reason for Disapproval:</strong>
-              {{ selectedApplication.disapproval_reason }}
-            </div>
-          </div>
-
-          <!-- Leave Details -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-3 text-white">
-              Leave Details
-            </h4>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
               <div
                 v-for="row in getLeaveDetailRows(selectedApplication)"
                 :key="row.label + row.value"
@@ -506,61 +503,58 @@
                 {{ row.value }}
               </div>
 
-              <div class="break-words">
-                <strong>Commutation:</strong>
-                {{
-                  selectedApplication.commutation === "requested"
-                    ? "Requested"
-                    : "Not Requested"
-                }}
+              <div class="break-words whitespace-pre-line sm:col-span-2">
+                <strong>Reason for Leave:</strong>
+                {{ selectedApplication.reason || "Not provided" }}
+              </div>
+
+              <div
+                v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved' && selectedApplication.disapproval_reason"
+                class="break-words sm:col-span-2"
+              >
+                <strong>Reason for Disapproval:</strong>
+                {{ selectedApplication.disapproval_reason }}
               </div>
             </div>
-
-            <p
-              v-if="getLeaveDetailRows(selectedApplication).length === 0"
-              class="text-xs text-gray-400 mt-3"
-            >
-              No additional details were provided for this leave type.
-            </p>
           </div>
 
           <!-- Leave Credits Snapshot -->
           <div
             v-if="hasCreditsSnapshot(selectedApplication)"
-            class="border border-gray-300 p-4 min-w-0 modal-section"
+            class="border border-gray-300 p-3 min-w-0 modal-section"
           >
-            <h4 class="text-sm font-bold mb-1 text-white">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
               Leave Credits
+              <span
+                v-if="selectedApplication.certification_as_of"
+                class="text-xs font-normal text-gray-400 ml-1"
+              >
+                (as of {{ formatDate(selectedApplication.certification_as_of) }})
+              </span>
             </h4>
-            <p
-              v-if="selectedApplication.certification_as_of"
-              class="text-xs text-gray-400 mb-3"
-            >
-              As of {{ formatDate(selectedApplication.certification_as_of) }}
-            </p>
 
             <div class="overflow-x-auto">
               <table class="w-full text-sm text-white">
                 <thead>
                   <tr class="border-b border-slate-500 text-left">
-                    <th class="py-2 pr-4"></th>
-                    <th class="py-2 pr-4">Total Earned</th>
-                    <th class="py-2 pr-4">Less this Application</th>
-                    <th class="py-2">Balance</th>
+                    <th class="py-1 pr-4"></th>
+                    <th class="py-1 pr-4">Total Earned</th>
+                    <th class="py-1 pr-4">Less this Application</th>
+                    <th class="py-1">Balance</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr class="border-b border-slate-600">
-                    <td class="py-2 pr-4 font-medium">Vacation Leave</td>
-                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.vacation_total_earned) }}</td>
-                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.vacation_less_application) }}</td>
-                    <td class="py-2">{{ formatCredit(selectedApplication.vacation_balance) }}</td>
+                    <td class="py-1 pr-4 font-medium">Vacation Leave</td>
+                    <td class="py-1 pr-4">{{ formatCredit(selectedApplication.vacation_total_earned) }}</td>
+                    <td class="py-1 pr-4">{{ formatCredit(selectedApplication.vacation_less_application) }}</td>
+                    <td class="py-1">{{ formatCredit(selectedApplication.vacation_balance) }}</td>
                   </tr>
                   <tr class="border-b border-slate-600">
-                    <td class="py-2 pr-4 font-medium">Sick Leave</td>
-                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.sick_total_earned) }}</td>
-                    <td class="py-2 pr-4">{{ formatCredit(selectedApplication.sick_less_application) }}</td>
-                    <td class="py-2">{{ formatCredit(selectedApplication.sick_balance) }}</td>
+                    <td class="py-1 pr-4 font-medium">Sick Leave</td>
+                    <td class="py-1 pr-4">{{ formatCredit(selectedApplication.sick_total_earned) }}</td>
+                    <td class="py-1 pr-4">{{ formatCredit(selectedApplication.sick_less_application) }}</td>
+                    <td class="py-1">{{ formatCredit(selectedApplication.sick_balance) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -568,12 +562,12 @@
           </div>
 
           <!-- Recommendation and Approval -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-3 text-white">
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
               Recommendation and Approval
             </h4>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white">
               <div class="break-words">
                 <strong>Recommendation:</strong>
                 {{ formatLabel(selectedApplication.recommendation_status) || "Pending" }}
@@ -622,22 +616,19 @@
           </div>
 
           <!-- Supporting Documents -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-1 text-white">
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
               Supporting Documents
             </h4>
-            <p class="text-xs text-gray-400 mb-3">
-              Documents uploaded by the employee for this application.
-            </p>
 
             <div
               v-if="selectedApplication.attachments?.length"
-              class="space-y-2"
+              class="space-y-1.5"
             >
               <div
                 v-for="file in selectedApplication.attachments"
                 :key="file.attachment_id"
-                class="flex items-center justify-between gap-3 p-3 border border-gray-300 rounded-lg bg-white"
+                class="flex items-center justify-between gap-3 px-3 py-1.5 border border-gray-300 rounded-lg bg-white"
               >
                 <span class="text-sm text-white truncate">
                   {{ file.file_name || file.name || "Supporting Document" }}
@@ -653,19 +644,19 @@
               </div>
             </div>
 
-            <p v-else class="text-sm text-gray-400 py-1">
+            <p v-else class="text-sm text-gray-400">
               No supporting documents attached.
             </p>
 
             <div
               v-if="selectedApplication.document_requirements_snapshot?.length"
-              class="overflow-x-auto mt-4"
+              class="overflow-x-auto mt-2"
             >
               <table class="w-full text-sm text-white">
                 <thead>
                   <tr class="border-b border-slate-500 text-left">
-                    <th class="py-2 pr-4">Requirement</th>
-                    <th class="py-2">Status</th>
+                    <th class="py-1 pr-4">Requirement</th>
+                    <th class="py-1">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -674,8 +665,8 @@
                     :key="requirement.id"
                     class="border-b border-slate-600"
                   >
-                    <td class="py-2 pr-4">{{ requirement.document_name }}</td>
-                    <td class="py-2">
+                    <td class="py-1 pr-4">{{ requirement.document_name }}</td>
+                    <td class="py-1">
                       <span v-if="attachmentForRequirement(selectedApplication, requirement.id)" class="text-green-600">Uploaded</span>
                       <span v-else-if="requirement.required" class="text-red-600">Missing</span>
                       <span v-else-if="requirement.status === 'optional'" class="text-gray-400">Optional</span>
@@ -688,17 +679,17 @@
           </div>
 
           <!-- Status Timeline -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-4 text-white">
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
               Status Timeline
             </h4>
 
-            <div class="space-y-5">
+            <div class="flex flex-wrap gap-x-8 gap-y-2">
               <div class="flex items-start">
-                <div class="w-3 h-3 bg-blue-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                <div class="w-2.5 h-2.5 bg-blue-600 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
                 <div>
-                  <p class="text-sm font-medium text-white">Application Submitted</p>
-                  <p class="text-xs text-gray-400 mt-1">
+                  <p class="text-sm font-medium text-white leading-tight">Application Submitted</p>
+                  <p class="text-xs text-gray-400">
                     {{ formatDate(selectedApplication.date_filed) }}
                   </p>
                 </div>
@@ -708,58 +699,54 @@
                 v-if="selectedApplication.final_status?.toLowerCase() === 'approved'"
                 class="flex items-start"
               >
-                <div class="w-3 h-3 bg-green-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-                <div>
-                  <p class="text-sm font-medium text-white">Application Approved</p>
-                </div>
+                <div class="w-2.5 h-2.5 bg-green-600 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
+                <p class="text-sm font-medium text-white leading-tight">Application Approved</p>
               </div>
 
               <div
                 v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved'"
                 class="flex items-start"
               >
-                <div class="w-3 h-3 bg-red-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-                <div>
-                  <p class="text-sm font-medium text-white">Application Disapproved</p>
-                </div>
+                <div class="w-2.5 h-2.5 bg-red-600 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
+                <p class="text-sm font-medium text-white leading-tight">Application Disapproved</p>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Action Buttons -->
-          <div
-            class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200"
+        <!-- Footer (always visible) -->
+        <div
+          class="flex flex-col sm:flex-row justify-end gap-2 px-4 py-3 border-t border-gray-200"
+        >
+          <button
+            @click="viewForm(selectedApplication)"
+            class="btn-action-lg bg-amber-600 hover:bg-amber-700"
           >
-            <button
-              @click="viewForm(selectedApplication)"
-              class="btn-action-lg bg-amber-600 hover:bg-amber-700"
-            >
-              View Form
-            </button>
+            View Form
+          </button>
 
-            <button
-              v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
-              @click="openApprovalModal(selectedApplication)"
-              class="btn-action-lg bg-green-600 hover:bg-green-700"
-            >
-              Approve
-            </button>
+          <button
+            v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
+            @click="openApprovalModal(selectedApplication)"
+            class="btn-action-lg bg-green-600 hover:bg-green-700"
+          >
+            Approve
+          </button>
 
-            <button
-              v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
-              @click="openRejectModal(selectedApplication.leave_id)"
-              class="btn-action-lg bg-red-600 hover:bg-red-700"
-            >
-              Reject
-            </button>
+          <button
+            v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
+            @click="openRejectModal(selectedApplication.leave_id)"
+            class="btn-action-lg bg-red-600 hover:bg-red-700"
+          >
+            Reject
+          </button>
 
-            <button
-              @click="closeDetailModal"
-              class="btn-action-lg bg-gray-600 hover:bg-gray-700"
-            >
-              Close
-            </button>
-          </div>
+          <button
+            @click="closeDetailModal"
+            class="btn-action-lg bg-gray-600 hover:bg-gray-700"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
