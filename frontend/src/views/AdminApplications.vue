@@ -271,12 +271,20 @@
                 class="flex flex-row flex-wrap gap-2 xl:flex-col xl:ml-4 w-full xl:w-auto xl:flex-shrink-0"
               >
                 <template v-if="activeTab !== 'deleted'">
-                  <!-- View -->
+                  <!-- View Details -->
                   <button
-                    @click="viewApplication(application)"
+                    @click="viewDetails(application)"
                     class="btn-action bg-blue-600 hover:bg-blue-700"
                   >
                     View Details
+                  </button>
+
+                  <!-- View Form -->
+                  <button
+                    @click="viewForm(application)"
+                    class="btn-action bg-amber-600 hover:bg-amber-700"
+                  >
+                    View Form
                   </button>
 
                   <!-- Approve -->
@@ -382,62 +390,50 @@
     <!-- ====================================================== -->
 
     <div
-      v-if="showDetailModal"
+      v-if="showDetailModal && selectedApplication"
       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
     >
       <div
-        class="relative mx-auto my-4 sm:my-8 p-4 sm:p-5 border w-full sm:w-11/12 max-w-4xl shadow-lg rounded-lg bg-white max-h-[calc(100vh-2rem)] sm:max-h-[90vh] overflow-y-auto neo-card"
+        class="relative mx-auto my-4 sm:my-8 p-4 sm:p-5 border w-full sm:w-11/12 max-w-3xl shadow-lg rounded-lg bg-white max-h-[calc(100vh-2rem)] sm:max-h-[90vh] overflow-y-auto neo-card"
       >
-        <div class="flex justify-between items-center mb-4 gap-3">
-          <h3 class="text-xl font-medium text-white">
-            Leave Application Details
-          </h3>
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-4 gap-3">
+          <div>
+            <h3 class="text-xl font-semibold text-white">
+              Application Details
+            </h3>
+            <p class="text-sm text-gray-400 mt-1">
+              Application #{{ selectedApplication.leave_id }}
+            </p>
+          </div>
 
           <button
-            @click="showDetailModal = false"
+            @click="closeDetailModal"
             class="text-white hover:text-gray-600 flex-shrink-0"
+            aria-label="Close"
           >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div v-if="selectedApplication" class="space-y-6">
-          <!-- Applicant Information -->
+        <div class="space-y-6">
+          <!-- Application Information -->
           <div class="border border-gray-300 p-4 min-w-0 modal-section">
             <h4 class="text-sm font-bold mb-3 text-white">
-              Applicant Information
+              Application Information
             </h4>
 
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white"
-            >
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-white">
+              <div class="break-words">
+                <strong>Employee:</strong>
+                {{ getEmployeeName(selectedApplication.employee) }}
+              </div>
+
               <div class="break-words">
                 <strong>Office:</strong>
-                {{ selectedApplication.employee.department_name }}
-              </div>
-
-              <div class="break-words">
-                <strong>Name:</strong>
-                {{ selectedApplication.employee.employee_last_name }},
-                {{ selectedApplication.employee.employee_first_name }}
-                {{ selectedApplication.employee.employee_middle_name }}
-              </div>
-
-              <div class="break-words">
-                <strong>Date of Filing:</strong>
-                {{ formatDate(selectedApplication.date_filed) }}
+                {{ selectedApplication.employee?.department_name ?? "Not available" }}
               </div>
 
               <div class="break-words">
@@ -446,57 +442,150 @@
               </div>
 
               <div class="break-words">
-                <strong>Salary:</strong>
-                {{ selectedApplication.employee.salary }}
-              </div>
-
-              <div class="break-words">
-                <strong>Status:</strong>
-
-                <span :class="getStatusClass(selectedApplication.final_status)">
-                  {{ selectedApplication.final_status }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Leave Details -->
-          <div class="border border-gray-300 p-4 min-w-0 modal-section">
-            <h4 class="text-sm font-bold mb-3 text-white">Leave Details</h4>
-
-            <div class="space-y-2 text-sm text-white">
-              <div class="break-words">
-                <strong>Type of Leave:</strong>
+                <strong>Leave Type:</strong>
                 {{ getLeaveType(selectedApplication.leave_type) }}
               </div>
 
               <div class="break-words">
-                <strong>Number of Days:</strong>
-                {{ selectedApplication.number_of_days }}
-              </div>
-
-              <div class="break-words">
-                <strong>Inclusive Dates:</strong>
+                <strong>Duration:</strong>
                 {{ formatDate(selectedApplication.start_date) }}
                 -
                 {{ formatDate(selectedApplication.end_date) }}
               </div>
 
               <div class="break-words">
-                <strong>Commutation:</strong>
-
-                {{
-                  selectedApplication.commutation
-                    ? "Requested"
-                    : "Not Requested"
-                }}
+                <strong>Days Applied:</strong>
+                {{ selectedApplication.number_of_days }}
               </div>
 
               <div class="break-words">
-                <strong>Applicant Signature:</strong>
+                <strong>Filed Date:</strong>
+                {{ formatDate(selectedApplication.date_filed) }}
+              </div>
 
-                {{ selectedApplication.employee.employee_first_name }}
-                {{ selectedApplication.employee.employee_last_name }}
+              <div class="break-words">
+                <strong>Status:</strong>
+                <span
+                  :class="[
+                    'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
+                    getStatusClass(selectedApplication.final_status),
+                  ]"
+                >
+                  {{ selectedApplication.final_status }}
+                </span>
+              </div>
+            </div>
+
+            <div
+              v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved' && selectedApplication.disapproval_reason"
+              class="mt-4 text-sm text-white break-words"
+            >
+              <strong>Reason for Disapproval:</strong>
+              {{ selectedApplication.disapproval_reason }}
+            </div>
+          </div>
+
+          <!-- Supporting Documents -->
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1 text-white">
+              Supporting Documents
+            </h4>
+            <p class="text-xs text-gray-400 mb-3">
+              Documents uploaded by the employee for this application.
+            </p>
+
+            <div
+              v-if="selectedApplication.attachments?.length"
+              class="space-y-2"
+            >
+              <div
+                v-for="file in selectedApplication.attachments"
+                :key="file.attachment_id"
+                class="flex items-center justify-between gap-3 p-3 border border-gray-300 rounded-lg bg-white"
+              >
+                <span class="text-sm text-white truncate">
+                  {{ file.file_name || file.name || "Supporting Document" }}
+                </span>
+
+                <button
+                  type="button"
+                  class="text-blue-600 hover:text-blue-700 text-sm font-medium flex-shrink-0"
+                  @click="openSupportingDocument(selectedApplication, file)"
+                >
+                  View
+                </button>
+              </div>
+            </div>
+
+            <p v-else class="text-sm text-gray-400 py-1">
+              No supporting documents attached.
+            </p>
+
+            <div
+              v-if="selectedApplication.document_requirements_snapshot?.length"
+              class="overflow-x-auto mt-4"
+            >
+              <table class="w-full text-sm text-white">
+                <thead>
+                  <tr class="border-b border-slate-500 text-left">
+                    <th class="py-2 pr-4">Requirement</th>
+                    <th class="py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="requirement in selectedApplication.document_requirements_snapshot"
+                    :key="requirement.id"
+                    class="border-b border-slate-600"
+                  >
+                    <td class="py-2 pr-4">{{ requirement.document_name }}</td>
+                    <td class="py-2">
+                      <span v-if="attachmentForRequirement(selectedApplication, requirement.id)" class="text-green-600">Uploaded</span>
+                      <span v-else-if="requirement.required" class="text-red-600">Missing</span>
+                      <span v-else-if="requirement.status === 'optional'" class="text-gray-400">Optional</span>
+                      <span v-else class="text-gray-400">Not Required</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Status Timeline -->
+          <div class="border border-gray-300 p-4 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-4 text-white">
+              Status Timeline
+            </h4>
+
+            <div class="space-y-5">
+              <div class="flex items-start">
+                <div class="w-3 h-3 bg-blue-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                <div>
+                  <p class="text-sm font-medium text-white">Application Submitted</p>
+                  <p class="text-xs text-gray-400 mt-1">
+                    {{ formatDate(selectedApplication.date_filed) }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                v-if="selectedApplication.final_status?.toLowerCase() === 'approved'"
+                class="flex items-start"
+              >
+                <div class="w-3 h-3 bg-green-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                <div>
+                  <p class="text-sm font-medium text-white">Application Approved</p>
+                </div>
+              </div>
+
+              <div
+                v-if="selectedApplication.final_status?.toLowerCase() === 'disapproved'"
+                class="flex items-start"
+              >
+                <div class="w-3 h-3 bg-red-600 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
+                <div>
+                  <p class="text-sm font-medium text-white">Application Disapproved</p>
+                </div>
               </div>
             </div>
           </div>
@@ -506,16 +595,14 @@
             class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200"
           >
             <button
-              @click="downloadApplication(selectedApplication)"
-              class="btn-action-lg bg-green-600 hover:bg-green-700"
+              @click="viewForm(selectedApplication)"
+              class="btn-action-lg bg-amber-600 hover:bg-amber-700"
             >
-              Download PDF
+              View Form
             </button>
 
             <button
-              v-if="
-                selectedApplication.final_status?.toLowerCase() === 'pending'
-              "
+              v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
               @click="openApprovalModal(selectedApplication)"
               class="btn-action-lg bg-green-600 hover:bg-green-700"
             >
@@ -523,13 +610,18 @@
             </button>
 
             <button
-              v-if="
-                selectedApplication.final_status?.toLowerCase() === 'pending'
-              "
+              v-if="selectedApplication.final_status?.toLowerCase() === 'pending'"
               @click="openRejectModal(selectedApplication.leave_id)"
               class="btn-action-lg bg-red-600 hover:bg-red-700"
             >
               Reject
+            </button>
+
+            <button
+              @click="closeDetailModal"
+              class="btn-action-lg bg-gray-600 hover:bg-gray-700"
+            >
+              Close
             </button>
           </div>
         </div>
@@ -834,6 +926,7 @@ interface LeaveApplication {
 
   final_status: string;
   recommendation_status: string;
+  disapproval_reason?: string | null;
 
   employee: any;
   leave_type: any;
@@ -1284,22 +1377,26 @@ const formatFileSize = (bytes: number) => {
 };
 
 /* =========================================================
-   VIEW APPLICATION
+   VIEW DETAILS (opens the details modal)
 ========================================================= */
 
-const viewApplication = (
+const viewDetails = (
   application: LeaveApplication,
 ) => {
-  router.push(
-    `/leave-print/${application.leave_id}`,
-  );
+  selectedApplication.value = application;
+  showDetailModal.value = true;
+};
+
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  selectedApplication.value = null;
 };
 
 /* =========================================================
-   DOWNLOAD APPLICATION
+   VIEW FORM (opens the CS Form 6 print view)
 ========================================================= */
 
-const downloadApplication = (
+const viewForm = (
   application: LeaveApplication,
 ) => {
   router.push(
