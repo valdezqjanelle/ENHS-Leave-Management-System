@@ -186,10 +186,10 @@
             <div v-if="isSpecialWomenLeave" class="detail-box">
               <div>
                 <label class="form-label">
-                  Specify Illness
+                  Specify Illness <span class="text-red-500">*</span>
                 </label>
-
-                <input v-model="form.illness" type="text" class="input-field" placeholder="Specify illness" />
+                <input v-model.trim="form.illness" type="text" required class="input-field"
+                  placeholder="Specify illness" />
               </div>
             </div>
 
