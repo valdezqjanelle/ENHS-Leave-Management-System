@@ -853,9 +853,9 @@ foreach ($coords as $field => $point) {
         $leave->sick_type === 'out_patient'
     );
 
-        $textWrap(
-        'out_patient_illness',
-        $leave->sick_type === 'out_patient' ? $leave->illness : '',
+    $textWrap(
+        'special_women_illness',
+        $leaveCategoryMatches['chk_special_women'] ? ($leave->illness ?? '') : '',
         150
     );
 

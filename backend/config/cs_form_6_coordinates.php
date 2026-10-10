@@ -42,22 +42,22 @@ return [
     'middle_name'        => ['x' => 460, 'y' => 140],
     'date_of_filing'      => ['x' => 137, 'y' => 161],
     'position'            => ['x' => 277, 'y' => 161],
-    'salary'              => ['x' => 456, 'y' => 159],
+    'salary'              => ['x' => 456, 'y' => 160],
 
     // ── Section 6.A: Type of Leave (checkboxes) ─────────────────
-    'chk_vacation'            => ['x' => 71, 'y' => 216],
-    'chk_mandatory_forced'    => ['x' => 71, 'y' => 231],
-    'chk_sick'                => ['x' => 71, 'y' => 246],
-    'chk_maternity'           => ['x' => 71, 'y' => 260],
-    'chk_paternity'           => ['x' => 71, 'y' => 274],
-    'chk_special_privilege'   => ['x' => 71, 'y' => 289],
-    'chk_solo_parent'         => ['x' => 71, 'y' => 304],
-    'chk_study'                => ['x' => 71, 'y' => 319],
-    'chk_vawc'                 => ['x' => 71, 'y' => 333],
-    'chk_rehabilitation'      => ['x' => 71, 'y' => 348],
-    'chk_special_women'       => ['x' => 71, 'y' => 362],
-    'chk_special_emergency'   => ['x' => 71, 'y' => 377],
-    'chk_adoption'             => ['x' => 71, 'y' => 391],
+    'chk_vacation'            => ['x' => 70, 'y' => 216],
+    'chk_mandatory_forced'    => ['x' => 70, 'y' => 231],
+    'chk_sick'                => ['x' => 70, 'y' => 246],
+    'chk_maternity'           => ['x' => 70, 'y' => 260],
+    'chk_paternity'           => ['x' => 70, 'y' => 274],
+    'chk_special_privilege'   => ['x' => 70, 'y' => 289],
+    'chk_solo_parent'         => ['x' => 70, 'y' => 304],
+    'chk_study'                => ['x' => 70, 'y' => 319],
+    'chk_vawc'                 => ['x' => 70, 'y' => 333],
+    'chk_rehabilitation'      => ['x' => 70, 'y' => 348],
+    'chk_special_women'       => ['x' => 70, 'y' => 362],
+    'chk_special_emergency'   => ['x' => 70, 'y' => 377],
+    'chk_adoption'             => ['x' => 70, 'y' => 391],
     'others_specify'           => ['x' => 72, 'y' => 433],   // free-text blank
 
     // ── Section 6.B: Details of Leave (checkboxes + specify blanks) ──
@@ -69,9 +69,9 @@ return [
         'in_hospital_illness'      => ['x' => 427, 'y' => 275],
     'chk_out_patient'          => ['x' => 322, 'y' => 290],
         'out_patient_illness'      => ['x' => 380, 'y' => 334],
-        'special_women_illness'    => ['x' => 380, 'y' => 334],
-    'chk_completion_masters'  => ['x' => 322, 'y' => 378],
-    'chk_bar_board_exam'      => ['x' => 322, 'y' => 393],
+        'special_women_illness'    => ['x' => 379, 'y' => 333],
+    'chk_completion_masters'  => ['x' => 322, 'y' => 377],
+    'chk_bar_board_exam'      => ['x' => 322, 'y' => 392],
     'chk_monetization'         => ['x' => 322, 'y' => 422],
     'chk_terminal_leave'       => ['x' => 322, 'y' => 436],
 
@@ -86,12 +86,12 @@ return [
     // ── Section 7.A: Certification of Leave Credits ─────────────
     'certification_as_of'      => ['x' => 165, 'y' => 566],
     // Small grid: columns Vacation Leave / Sick Leave
-    'vl_total_earned'          => ['x' => 165, 'y' => 592],
-    'sl_total_earned'          => ['x' => 240, 'y' => 592],
-    'vl_less_this_application' => ['x' => 165, 'y' => 602],
-    'sl_less_this_application' => ['x' => 240, 'y' => 602],
-    'vl_balance'                => ['x' => 240, 'y' => 613],
-    'sl_balance'                => ['x' => 165, 'y' => 613],
+    'vl_total_earned'          => ['x' => 165, 'y' => 590],
+    'sl_total_earned'          => ['x' => 240, 'y' => 590],
+    'vl_less_this_application' => ['x' => 165, 'y' => 600],
+    'sl_less_this_application' => ['x' => 240, 'y' => 600],
+    'vl_balance'                => ['x' => 240, 'y' => 611],
+    'sl_balance'                => ['x' => 165, 'y' => 611],
 
     // ── Section 7.B: Recommendation ─────────────────────────────
     'chk_for_approval'         => ['x' => 325, 'y' => 566],
