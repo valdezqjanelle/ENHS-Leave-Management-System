@@ -862,7 +862,7 @@ foreach ($coords as $field => $point) {
     $textWrap(
         'special_women_illness',
         !empty($leaveCategoryMatches['chk_special_women']) ? ($leave->illness ?? '') : '',
-        150
+        170
     );
 
     $check(
