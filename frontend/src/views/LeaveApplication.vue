@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard-shell min-h-screen w-full px-4 sm:px-6 lg:px-8 py-8">
 
-    
+
     <div class="neo-card w-full max-w-5xl mx-auto overflow-hidden">
 
-      
+
       <div class="px-6 py-5 border-b border-slate-200">
         <h2 class="text-2xl font-semibold text-white">
           Leave Application Form
@@ -15,12 +15,12 @@
         </p>
       </div>
 
-      
+
       <form @submit.prevent="submitApplication" class="p-6 space-y-6">
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
           <h3 class="section-title">
@@ -29,7 +29,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            
+
             <div>
               <label class="form-label">
                 Full Name <span class="text-red-400">*</span>
@@ -38,7 +38,7 @@
               <input :value="fullName" type="text" readonly class="input-field" placeholder="Enter your full name" />
             </div>
 
-            
+
             <div>
               <label class="form-label">
                 Department <span class="text-red-400">*</span>
@@ -47,7 +47,7 @@
               <input :value="employee.department_name" type="text" readonly class="input-field" />
             </div>
 
-            
+
             <div>
               <label class="form-label">
                 Position <span class="text-red-400">*</span>
@@ -57,7 +57,7 @@
                 placeholder="e.g., Professor, Assistant Professor" />
             </div>
 
-            
+
             <div>
               <label class="form-label">
                 Employee ID <span class="text-red-400">*</span>
@@ -71,9 +71,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
 
@@ -83,7 +83,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            
+
             <div>
               <label class="form-label">
                 Leave Type <span class="text-red-400">*</span>
@@ -99,7 +99,7 @@
             </div>
 
 
-            
+
             <div v-if="isVacationLeave" class="detail-box">
               <div>
                 <label class="form-label">
@@ -136,7 +136,7 @@
             </div>
 
 
-            
+
             <div v-if="isSickLeave" class="detail-box">
               <div>
                 <label class="form-label">
@@ -166,7 +166,7 @@
             </div>
 
 
-            
+
             <div v-if="isStudyLeave" class="option-box">
               <label class="checkbox-label">
                 <input type="checkbox" v-model="form.masters_degree" class="checkbox-input" />
@@ -182,7 +182,7 @@
             </div>
 
 
-            
+
             <div v-if="isSpecialWomenLeave" class="detail-box">
               <div>
                 <label class="form-label">
@@ -194,52 +194,37 @@
             </div>
 
 
-            
+
             <div v-if="isOtherLeave" class="option-box">
               <label class="checkbox-label">
-                <input
-                  v-model="form.monetization"
-                  type="checkbox"
-                  class="checkbox-input"
-                  @change="
-                    form.monetization &&
-                    ((form.terminal_leave = false),
+                <input v-model="form.monetization" type="checkbox" class="checkbox-input" @change="
+                  form.monetization &&
+                  ((form.terminal_leave = false),
                     (otherPurposeSelected = false),
                     (form.other_purpose = ''))
-                  "
-                />
+                  " />
 
                 <span>Monetization of Leave Credits</span>
               </label>
 
               <label class="checkbox-label">
-                <input
-                  v-model="form.terminal_leave"
-                  type="checkbox"
-                  class="checkbox-input"
-                  @change="
-                    form.terminal_leave &&
-                    ((form.monetization = false),
+                <input v-model="form.terminal_leave" type="checkbox" class="checkbox-input" @change="
+                  form.terminal_leave &&
+                  ((form.monetization = false),
                     (otherPurposeSelected = false),
                     (form.other_purpose = ''))
-                  "
-                />
+                  " />
 
                 <span>Terminal Leave</span>
               </label>
 
               <label class="checkbox-label">
-                <input
-                  v-model="otherPurposeSelected"
-                  type="checkbox"
-                  class="checkbox-input"
-                  @change="
-                    otherPurposeSelected
-                      ? ((form.monetization = false),
-                        (form.terminal_leave = false))
-                      : (form.other_purpose = '')
-                  "
-                />
+                <input v-model="otherPurposeSelected" type="checkbox" class="checkbox-input" @change="
+                  otherPurposeSelected
+                    ? ((form.monetization = false),
+                      (form.terminal_leave = false))
+                    : (form.other_purpose = '')
+                  " />
 
                 <span>Other (Please Specify)</span>
               </label>
@@ -255,7 +240,7 @@
             </div>
 
 
-            
+
             <div>
               <label class="form-label">
                 Commutation <span class="text-red-400">*</span>
@@ -275,7 +260,7 @@
             </div>
 
 
-            
+
             <div>
               <label class="form-label">
                 Contact Number <span class="text-red-400">*</span>
@@ -288,9 +273,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
 
@@ -300,7 +285,7 @@
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            
+
             <div>
               <label class="form-label">
                 Start Date <span class="text-red-400">*</span>
@@ -310,7 +295,7 @@
             </div>
 
 
-            
+
             <div>
               <label class="form-label">
                 End Date <span class="text-red-400">*</span>
@@ -320,7 +305,7 @@
             </div>
 
 
-            
+
             <div>
               <label class="form-label">
                 Total Days
@@ -335,9 +320,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="credit-box">
 
@@ -383,9 +368,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
 
@@ -400,9 +385,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
 
@@ -411,11 +396,8 @@
           </label>
 
           <div v-if="documentRequirements.length > 0" class="mb-5 space-y-3">
-            <div
-              v-for="requirement in documentRequirements"
-              :key="requirement.id"
-              class="rounded-xl border border-slate-200 bg-white p-4"
-            >
+            <div v-for="requirement in documentRequirements" :key="requirement.id"
+              class="rounded-xl border border-slate-200 bg-white p-4">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="font-semibold text-slate-800">
@@ -425,32 +407,23 @@
                     {{ requirement.description }}
                   </p>
                 </div>
-                <span
-                  class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold"
-                  :class="requirement.required
-                    ? 'bg-red-100 text-red-700'
-                    : requirement.is_required
-                      ? 'bg-slate-100 text-slate-600'
-                      : 'bg-emerald-100 text-emerald-700'"
-                >
+                <span class="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold" :class="requirement.required
+                  ? 'bg-red-100 text-red-700'
+                  : requirement.is_required
+                    ? 'bg-slate-100 text-slate-600'
+                    : 'bg-emerald-100 text-emerald-700'">
                   {{ requirement.required ? "Required" : requirement.is_required ? "Not Required" : "Optional" }}
                 </span>
               </div>
               <div class="mt-3 flex flex-wrap items-center gap-3">
-                <input
-                  :key="requirementFileInputKey[requirement.id] || 0"
-                  type="file"
+                <input :key="requirementFileInputKey[requirement.id] || 0" type="file"
                   accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
                   class="block max-w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-white"
-                  @change="handleRequirementUpload($event, requirement.id)"
-                />
+                  @change="handleRequirementUpload($event, requirement.id)" />
                 <span v-if="requirementFiles[requirement.id]" class="text-sm text-emerald-700">
                   {{ requirementFiles[requirement.id]?.name }}
-                  <button
-                    type="button"
-                    class="ml-2 text-red-600 underline"
-                    @click="removeRequirementFile(requirement.id)"
-                  >
+                  <button type="button" class="ml-2 text-red-600 underline"
+                    @click="removeRequirementFile(requirement.id)">
                     Remove
                   </button>
                 </span>
@@ -484,7 +457,7 @@
           </div>
 
 
-          
+
           <div v-if="form.attachments.length > 0" class="mt-4 space-y-3">
 
             <div v-for="(file, index) in form.attachments" :key="index"
@@ -515,9 +488,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="form-section">
 
@@ -554,9 +527,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="border-t border-slate-200 pt-6">
 
@@ -577,9 +550,9 @@
         </div>
 
 
-        
-        
-        
+
+
+
 
         <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
 
@@ -599,9 +572,9 @@
     </div>
 
 
-    
-    
-    
+
+
+
 
     <div v-if="showSuccessModal"
       class="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-6">
@@ -1381,22 +1354,15 @@ const submitApplication = async () => {
     );
 
 
-    form.value.attachments.forEach(
-      (file) => {
+    form.value.attachments.forEach((file) => {
+      data.append("attachments[]", file.file);
+    });
 
-        data.append(
-          "attachments[]",
-          file.file
-        );
-
-        Object.entries(requirementFiles.value).forEach(([requirementId, file]) => {
-          if (file) {
-            data.append(`document_attachments[${requirementId}]`, file);
-          }
-        });
-
+    Object.entries(requirementFiles.value).forEach(([requirementId, file]) => {
+      if (file) {
+        data.append(`document_attachments[${requirementId}]`, file);
       }
-    );
+    });
 
 
     const response =
@@ -1600,7 +1566,6 @@ const resetForm = () => {
 
 
 <style scoped>
-
 .dashboard-shell {
   background: var(--app-bg);
   width: 100%;
@@ -1702,6 +1667,7 @@ select.input-field option {
   color: var(--text);
   background: #ffffff;
 }
+
 .detail-box {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1712,6 +1678,7 @@ select.input-field option {
   border-radius: 0.8rem;
   min-width: 0;
 }
+
 .option-box {
   padding: 1rem;
   background: #eef4fb;
@@ -1843,4 +1810,4 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 0.75rem;
   }
 }
-</style> 
+</style>
