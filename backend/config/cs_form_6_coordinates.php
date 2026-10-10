@@ -68,10 +68,10 @@ return [
     'chk_in_hospital'          => ['x' => 322, 'y' => 275],
         'in_hospital_illness'      => ['x' => 427, 'y' => 275],
     'chk_out_patient'          => ['x' => 322, 'y' => 290],
-        'out_patient_illness'      => ['x' => 380, 'y' => 334],
+        'out_patient_illness'      => ['x' => 380, 'y' => 290],
         'special_women_illness'    => ['x' => 379, 'y' => 333],
-    'chk_completion_masters'  => ['x' => 322, 'y' => 377],
-    'chk_bar_board_exam'      => ['x' => 322, 'y' => 392],
+    'chk_completion_masters'  => ['x' => 322, 'y' => 376],
+    'chk_bar_board_exam'      => ['x' => 322, 'y' => 391],
     'chk_monetization'         => ['x' => 322, 'y' => 422],
     'chk_terminal_leave'       => ['x' => 322, 'y' => 436],
 
@@ -88,8 +88,8 @@ return [
     // Small grid: columns Vacation Leave / Sick Leave
     'vl_total_earned'          => ['x' => 165, 'y' => 590],
     'sl_total_earned'          => ['x' => 240, 'y' => 590],
-    'vl_less_this_application' => ['x' => 165, 'y' => 600],
-    'sl_less_this_application' => ['x' => 240, 'y' => 600],
+    'vl_less_this_application' => ['x' => 165, 'y' => 599],
+    'sl_less_this_application' => ['x' => 240, 'y' => 599],
     'vl_balance'                => ['x' => 240, 'y' => 611],
     'sl_balance'                => ['x' => 165, 'y' => 611],
 
@@ -109,7 +109,7 @@ return [
     'approved_days_others'      => ['x' => 85,  'y' => 703],
 
     // ── Section 7.D: Disapproved Due To ─────────────────────────
-    'disapproved_reason_l1' => ['x' => 337, 'y' => 681],
+    'disapproved_reason_l1' => ['x' => 337, 'y' => 678],
     'disapproved_reason_l2' => ['x' => 337, 'y' => 691],
     'disapproved_reason_l3' => ['x' => 337, 'y' => 702],
 
