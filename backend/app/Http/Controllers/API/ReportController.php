@@ -118,38 +118,60 @@ class ReportController extends Controller
 
     public function leaveCredits()
     {
-        // Include employees with balances even when they have no credit entries.
-        $employeeIds = LeaveCredit::query()->pluck('employee_id')
-            ->merge(LeaveBalance::query()->pluck('employee_id'))->unique();
+        // Current balance snapshot, using the same rules as /leave-balances (the Leave
+        // Balances page): every non-archived employee is listed, active or inactive, and
+        // an employee with no leave_balances row is flagged instead of reported as 0.
+        $units = fn ($value) => (int) round((float) ($value ?? 0) * 1000);
+        $days = fn (int $thousandths) => round($thousandths / 1000, 3);
+        $fields = ['vacation_earned', 'sick_earned', 'vacation_balance',
+            'sick_balance', 'service_credits', 'used_leave'];
+        $sums = array_fill_keys([...$fields, 'total_remaining'], 0);
+        $withoutRecord = 0;
+        $rows = [];
 
         $employees = EmployeeRecord::with(['department', 'leaveBalance'])
-            ->whereIn('employee_id', $employeeIds)
-            ->get()
-            ->map(function ($employee) {
-                $balance = $employee->leaveBalance;
-                return [
-                    'employee_id' => $employee->employee_id,
-                    'employee_name' => trim($employee->first_name . ' ' . $employee->last_name),
-                    'department_name' => $employee->department?->department_name ?? 'Unknown',
-                    'vacation_earned' => (float) ($balance?->vacation_earned ?? 0),
-                    'sick_earned' => (float) ($balance?->sick_earned ?? 0),
-                    'vacation_balance' => (float) ($balance?->vacation_balance ?? 0),
-                    'sick_balance' => (float) ($balance?->sick_balance ?? 0),
-                    'used_leave' => (float) ($balance?->used_leave ?? 0),
-                ];
-            })->values();
+            ->orderBy('employee_id')
+            ->get();
+
+        foreach ($employees as $employee) {
+            $balance = $employee->leaveBalance;
+            $hasRecord = $balance !== null;
+            if (!$hasRecord) $withoutRecord++;
+
+            $amount = [];
+            foreach ($fields as $field) {
+                $amount[$field] = $units($balance?->{$field});
+            }
+            // Same rule as the Leave Balances page: Vacation + Sick + Local (service) credits.
+            $amount['total_remaining'] = $amount['vacation_balance']
+                + $amount['sick_balance'] + $amount['service_credits'];
+            foreach ($amount as $field => $value) {
+                $sums[$field] += $value;
+            }
+
+            $rows[] = [
+                'employee_id' => $employee->employee_id,
+                'employee_name' => implode(', ', array_filter([$employee->last_name, $employee->first_name])) ?: 'Unknown employee',
+                'department_name' => $employee->department?->department_name ?? 'Unassigned',
+                'has_balance_record' => $hasRecord,
+            ] + array_map($days, $amount);
+        }
 
         return response()->json([
-            'employees' => $employees,
+            'report_version' => 'leave-credits-v2',
+            'employees' => $rows,
             'totals' => [
-                'employees' => $employees->count(),
-                'vacation_earned' => $employees->sum('vacation_earned'),
-                'sick_earned' => $employees->sum('sick_earned'),
-                'vacation_balance' => $employees->sum('vacation_balance'),
-                'sick_balance' => $employees->sum('sick_balance'),
-                'used_leave' => $employees->sum('used_leave'),
+                'employees' => count($rows),
+                'employees_without_balance_record' => $withoutRecord,
+            ] + array_map($days, $sums),
+            'generated_at' => Carbon::now('Asia/Manila')->toIso8601String(),
+            'filters' => [
+                'date_basis' => 'Current balance snapshot; date filters do not apply and balances are not historical.',
+                'employee_scope' => 'All non-archived employees, active and inactive. Archived employees are not listed.',
+                'missing_record_basis' => 'Employees without a leave balance record are listed with has_balance_record = false; their zeros mean no record, not a recorded zero balance.',
+                'total_remaining_basis' => 'Vacation balance + sick balance + local (service) credits, as on the Leave Balances page.',
             ],
-        ]);
+        ])->header('Cache-Control', 'no-store, private');
     }
 
     public function generateLeaveReport(Request $request)

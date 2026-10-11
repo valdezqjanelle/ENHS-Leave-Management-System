@@ -10,13 +10,9 @@ export const getLeaveSummary = (params?: {
   })
 }
 
-export const getLeaveCredits = (params?: {
-  start_date?: string
-  end_date?: string
-}) => {
-  return api.get('/reports/leave-credits', {
-    params
-  })
+// Current balance snapshot: balances are not historical, so no date range is accepted.
+export const getLeaveCredits = () => {
+  return api.get('/reports/leave-credits')
 }
 
 export const getEmployeesReport = (params?: {

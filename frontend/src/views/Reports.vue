@@ -467,7 +467,8 @@
 
           <div class="p-5 sm:p-6">
 
-            <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot.</p>
+            <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot. Employee scope: all non-archived employees, including inactive/resigned; archived employees are not listed, and the inactive/archived option applies to Leave Summary only.</p>
+            <p v-if="Number(leaveTotals.employees_without_record || 0) > 0" role="status" class="mb-4 text-sm text-gray-400">{{ leaveTotals.employees_without_record }} of {{ leaveTotals.employees }} employee(s) have no leave balance record yet and are shown as "No record". This is different from a recorded balance of 0.000, and they add nothing to the totals below.</p>
 
             <!-- Summary Cards -->
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -605,23 +606,23 @@
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ formatNumber(employee.service_credits) }}
+                      {{ formatCredit(employee, 'service_credits') }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ formatNumber(employee.vacation_balance) }}
+                      {{ formatCredit(employee, 'vacation_balance') }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ formatNumber(employee.sick_balance) }}
+                      {{ formatCredit(employee, 'sick_balance') }}
                     </td>
 
                     <td class="px-6 py-4 text-sm font-semibold">
-                      {{ formatNumber(employee.total_available) }}
+                      {{ formatCredit(employee, 'total_available') }}
                     </td>
 
                     <td class="px-6 py-4 text-sm">
-                      {{ formatNumber(employee.used_leave) }}
+                      {{ formatCredit(employee, 'used_leave') }}
                     </td>
 
                   </tr>
@@ -971,10 +972,15 @@ const dayUnits = (value: unknown): number => {
 }
 const formatNumber = (value: unknown) => (dayUnits(value) / 1000).toFixed(3)
 
+// An employee with no leave balance record is not the same as a recorded 0.000 balance.
+const formatCredit = (row: any, field: string) =>
+  row.has_balance_record === false ? 'No record' : formatNumber(row[field])
+
 const buildCreditRows = (employees: any[], balances: any[]) => {
   const balanceMap = new Map(balances.map((balance: any) => [Number(balance.employee_id), balance]))
   return employees.map((employee: any) => {
     const balance = balanceMap.get(Number(employee.employee_id)) as any
+    const hasBalanceRecord = balance?.balance_id !== undefined && balance?.balance_id !== null
     const local = dayUnits(balance?.service_credits)
     const vacation = dayUnits(balance?.vacation_balance)
     const sick = dayUnits(balance?.sick_balance)
@@ -983,6 +989,7 @@ const buildCreditRows = (employees: any[], balances: any[]) => {
       employee_id: employee.employee_id,
       employee_name: [employee.last_name, employee.first_name].filter(Boolean).join(', ') || 'Unknown employee',
       department_name: employee.department_name || (typeof department === 'string' ? department : department?.department_name) || balance?.employee?.department_name || 'Unassigned',
+      has_balance_record: hasBalanceRecord,
       service_credits: local / 1000,
       vacation_balance: vacation / 1000,
       sick_balance: sick / 1000,
@@ -992,7 +999,10 @@ const buildCreditRows = (employees: any[], balances: any[]) => {
   })
 }
 const summarizeCreditRows = (rows: any[]) => {
-  const totals: Record<string, number> = { employees: rows.length }
+  const totals: Record<string, number> = {
+    employees: rows.length,
+    employees_without_record: rows.filter((row: any) => !row.has_balance_record).length
+  }
   for (const field of ['service_credits', 'vacation_balance', 'sick_balance', 'used_leave', 'total_available']) {
     totals[field] = rows.reduce((sum: number, row: any) => sum + dayUnits(row[field]), 0) / 1000
   }
@@ -1642,11 +1652,11 @@ const exportReport = () => {
       const exportRow = (employee: any) => ({
         Employee: employee.employee_name,
         Department: employee.department_name,
-        'Remaining Local Credits': formatNumber(employee.service_credits),
-        'Vacation Balance': formatNumber(employee.vacation_balance),
-        'Sick Balance': formatNumber(employee.sick_balance),
-        'Total Remaining Days': formatNumber(employee.total_available),
-        'Used Leave (Overall)': formatNumber(employee.used_leave)
+        'Remaining Local Credits': formatCredit(employee, 'service_credits'),
+        'Vacation Balance': formatCredit(employee, 'vacation_balance'),
+        'Sick Balance': formatCredit(employee, 'sick_balance'),
+        'Total Remaining Days': formatCredit(employee, 'total_available'),
+        'Used Leave (Overall)': formatCredit(employee, 'used_leave')
       })
       if (displayedCreditsData.value.length === 0) {
         notify('No employee balances available to export.')

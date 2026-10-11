@@ -1,0 +1,455 @@
+diff --git a/backend/app/Http/Controllers/API/ReportController.php b/backend/app/Http/Controllers/API/ReportController.php
+index 759c98a..a826787 100644
+--- a/backend/app/Http/Controllers/API/ReportController.php
++++ b/backend/app/Http/Controllers/API/ReportController.php
+@@ -118,38 +118,60 @@ class ReportController extends Controller
+ 
+     public function leaveCredits()
+     {
+-        // Include employees with balances even when they have no credit entries.
+-        $employeeIds = LeaveCredit::query()->pluck('employee_id')
+-            ->merge(LeaveBalance::query()->pluck('employee_id'))->unique();
++        // Current balance snapshot, using the same rules as /leave-balances (the Leave
++        // Balances page): every non-archived employee is listed, active or inactive, and
++        // an employee with no leave_balances row is flagged instead of reported as 0.
++        $units = fn ($value) => (int) round((float) ($value ?? 0) * 1000);
++        $days = fn (int $thousandths) => round($thousandths / 1000, 3);
++        $fields = ['vacation_earned', 'sick_earned', 'vacation_balance',
++            'sick_balance', 'service_credits', 'used_leave'];
++        $sums = array_fill_keys([...$fields, 'total_remaining'], 0);
++        $withoutRecord = 0;
++        $rows = [];
+ 
+         $employees = EmployeeRecord::with(['department', 'leaveBalance'])
+-            ->whereIn('employee_id', $employeeIds)
+-            ->get()
+-            ->map(function ($employee) {
+-                $balance = $employee->leaveBalance;
+-                return [
+-                    'employee_id' => $employee->employee_id,
+-                    'employee_name' => trim($employee->first_name . ' ' . $employee->last_name),
+-                    'department_name' => $employee->department?->department_name ?? 'Unknown',
+-                    'vacation_earned' => (float) ($balance?->vacation_earned ?? 0),
+-                    'sick_earned' => (float) ($balance?->sick_earned ?? 0),
+-                    'vacation_balance' => (float) ($balance?->vacation_balance ?? 0),
+-                    'sick_balance' => (float) ($balance?->sick_balance ?? 0),
+-                    'used_leave' => (float) ($balance?->used_leave ?? 0),
+-                ];
+-            })->values();
++            ->orderBy('employee_id')
++            ->get();
++
++        foreach ($employees as $employee) {
++            $balance = $employee->leaveBalance;
++            $hasRecord = $balance !== null;
++            if (!$hasRecord) $withoutRecord++;
++
++            $amount = [];
++            foreach ($fields as $field) {
++                $amount[$field] = $units($balance?->{$field});
++            }
++            // Same rule as the Leave Balances page: Vacation + Sick + Local (service) credits.
++            $amount['total_remaining'] = $amount['vacation_balance']
++                + $amount['sick_balance'] + $amount['service_credits'];
++            foreach ($amount as $field => $value) {
++                $sums[$field] += $value;
++            }
++
++            $rows[] = [
++                'employee_id' => $employee->employee_id,
++                'employee_name' => implode(', ', array_filter([$employee->last_name, $employee->first_name])) ?: 'Unknown employee',
++                'department_name' => $employee->department?->department_name ?? 'Unassigned',
++                'has_balance_record' => $hasRecord,
++            ] + array_map($days, $amount);
++        }
+ 
+         return response()->json([
+-            'employees' => $employees,
++            'report_version' => 'leave-credits-v2',
++            'employees' => $rows,
+             'totals' => [
+-                'employees' => $employees->count(),
+-                'vacation_earned' => $employees->sum('vacation_earned'),
+-                'sick_earned' => $employees->sum('sick_earned'),
+-                'vacation_balance' => $employees->sum('vacation_balance'),
+-                'sick_balance' => $employees->sum('sick_balance'),
+-                'used_leave' => $employees->sum('used_leave'),
++                'employees' => count($rows),
++                'employees_without_balance_record' => $withoutRecord,
++            ] + array_map($days, $sums),
++            'generated_at' => Carbon::now('Asia/Manila')->toIso8601String(),
++            'filters' => [
++                'date_basis' => 'Current balance snapshot; date filters do not apply and balances are not historical.',
++                'employee_scope' => 'All non-archived employees, active and inactive. Archived employees are not listed.',
++                'missing_record_basis' => 'Employees without a leave balance record are listed with has_balance_record = false; their zeros mean no record, not a recorded zero balance.',
++                'total_remaining_basis' => 'Vacation balance + sick balance + local (service) credits, as on the Leave Balances page.',
+             ],
+-        ]);
++        ])->header('Cache-Control', 'no-store, private');
+     }
+ 
+     public function generateLeaveReport(Request $request)
+diff --git a/backend/tests/Feature/ReportDataAccuracyTest.php b/backend/tests/Feature/ReportDataAccuracyTest.php
+new file mode 100644
+index 0000000..c5235a5
+--- /dev/null
++++ b/backend/tests/Feature/ReportDataAccuracyTest.php
+@@ -0,0 +1,241 @@
++<?php
++
++namespace Tests\Feature;
++
++use App\Models\Department;
++use App\Models\EmployeeRecord;
++use App\Models\LeaveApplication;
++use App\Models\LeaveBalance;
++use App\Models\LeaveType;
++use App\Models\User;
++use Illuminate\Foundation\Testing\RefreshDatabase;
++use Tests\TestCase;
++
++class ReportDataAccuracyTest extends TestCase
++{
++    use RefreshDatabase;
++
++    private User $admin;
++    private LeaveType $leaveType;
++    private int $sequence = 0;
++
++    protected function setUp(): void
++    {
++        parent::setUp();
++
++        $this->admin = User::create([
++            'email' => 'admin@example.test',
++            'password' => 'password',
++            'role' => 'admin',
++        ]);
++        $this->leaveType = LeaveType::create([
++            'code' => 'SL',
++            'leave_type_name' => 'Sick Leave',
++        ]);
++    }
++
++    private function department(string $name): Department
++    {
++        return Department::create(['department_name' => $name, 'level' => 'JHS']);
++    }
++
++    private function employee(string $lastName, string $status = 'active', ?Department $department = null): EmployeeRecord
++    {
++        $number = ++$this->sequence;
++        $user = User::create([
++            'email' => "employee{$number}@example.test",
++            'password' => 'password',
++            'role' => 'employee',
++        ]);
++
++        return EmployeeRecord::create([
++            'user_id' => $user->user_id,
++            'employee_code' => sprintf('ENHS-%03d', $number),
++            'first_name' => 'Test',
++            'last_name' => $lastName,
++            'sex' => 'Female',
++            'employment_status' => $status,
++            'date_hired' => '2020-01-01',
++            'department_id' => $department?->department_id,
++        ]);
++    }
++
++    private function leave(
++        EmployeeRecord $employee,
++        string $start,
++        string $end,
++        int $days,
++        string $status,
++        string $filed = '2026-01-01'
++    ): LeaveApplication {
++        return LeaveApplication::create([
++            'employee_id' => $employee->employee_id,
++            'leave_type_id' => $this->leaveType->leave_type_id,
++            'date_filed' => $filed,
++            'number_of_days' => $days,
++            'start_date' => $start,
++            'end_date' => $end,
++            'reason' => 'Test leave',
++            'final_status' => $status,
++        ]);
++    }
++
++    private function balance(EmployeeRecord $employee, array $values): LeaveBalance
++    {
++        return LeaveBalance::create(['employee_id' => $employee->employee_id] + $values);
++    }
++
++    private function getAsAdmin(string $uri)
++    {
++        return $this->actingAs($this->admin, 'sanctum')->getJson($uri);
++    }
++
++    private function assertDays(float $expected, mixed $actual, string $message = ''): void
++    {
++        $this->assertEqualsWithDelta($expected, (float) $actual, 0.0005, $message);
++    }
++
++    /** Leave Summary: preserves the intended rules; guards against regressions. */
++    public function test_leave_summary_uses_leave_date_overlap_and_consistent_totals(): void
++    {
++        $deptA = $this->department('Department A');
++        $deptB = $this->department('Department B');
++        $active = $this->employee('Active', 'active', $deptA);
++        $inactive = $this->employee('Inactive', 'inactive', $deptB);
++        $archived = $this->employee('Archived', 'active', $deptA);
++
++        // Included: starts before the period but overlaps it.
++        $this->leave($active, '2026-02-27', '2026-03-02', 4, 'approved');
++        // Included: inside the period.
++        $this->leave($active, '2026-03-10', '2026-03-11', 2, 'pending');
++        // Included: starts on the last day of the period.
++        $this->leave($inactive, '2026-03-31', '2026-04-02', 3, 'disapproved');
++        // Excluded: filed inside the period, but the leave dates are outside it.
++        $this->leave($active, '2026-04-01', '2026-04-02', 2, 'approved', '2026-03-15');
++        // Excluded: filed inside the period, but the leave ended before it.
++        $this->leave($active, '2026-02-01', '2026-02-05', 5, 'approved', '2026-03-05');
++        // Included only while archived employees are in scope.
++        $this->leave($archived, '2026-03-05', '2026-03-05', 1, 'approved');
++        // Excluded: soft-deleted application.
++        $this->leave($active, '2026-03-20', '2026-03-21', 2, 'approved')->delete();
++        $archived->delete();
++
++        $query = '?start_date=2026-03-01&end_date=2026-03-31';
++
++        $all = $this->getAsAdmin("/api/reports/leave-summary{$query}&include_inactive=1")->assertOk();
++        $this->assertSame(4, $all->json('totals.applications'));
++        $this->assertSame(2, $all->json('totals.approved'));
++        $this->assertSame(1, $all->json('totals.pending'));
++        $this->assertSame(1, $all->json('totals.disapproved'));
++        $this->assertSame(0, $all->json('totals.other'));
++        $this->assertSame('10.000', $all->json('totals.total_days'));
++        $this->assertSame('5.000', $all->json('totals.approved_days'));
++
++        // Department rows and leave-type breakdowns add up to the grand totals.
++        $rows = collect($all->json('summary'));
++        $this->assertSame(4, $rows->sum('total'));
++        $this->assertSame(
++            $all->json('totals.applications'),
++            $rows->sum(fn ($row) => array_sum($row['leave_types']))
++        );
++        $this->assertDays(10, $rows->sum(fn ($row) => (float) $row['total_days']));
++        $this->assertDays(5, $rows->sum(fn ($row) => (float) $row['approved_days']));
++
++        $activeOnly = $this->getAsAdmin("/api/reports/leave-summary{$query}&include_inactive=0")->assertOk();
++        $this->assertSame(2, $activeOnly->json('totals.applications'));
++        $this->assertSame(1, $activeOnly->json('totals.approved'));
++        $this->assertSame(1, $activeOnly->json('totals.pending'));
++        $this->assertSame(0, $activeOnly->json('totals.disapproved'));
++        $this->assertSame('6.000', $activeOnly->json('totals.total_days'));
++        $this->assertSame('4.000', $activeOnly->json('totals.approved_days'));
++
++        // With no dates every non-deleted application counts (soft-deleted one excluded).
++        $undated = $this->getAsAdmin('/api/reports/leave-summary?include_inactive=1')->assertOk();
++        $this->assertSame(6, $undated->json('totals.applications'));
++    }
++
++    /** Leave Credits: every non-archived employee is listed; a missing record is not a zero balance. */
++    public function test_leave_credits_lists_all_employees_and_flags_missing_balance_records(): void
++    {
++        $withBalance = $this->employee('Funded');
++        $inactive = $this->employee('Inactive', 'inactive');
++        $noRecord = $this->employee('Norecord');
++        $archived = $this->employee('Archived');
++
++        $this->balance($withBalance, [
++            'vacation_earned' => 15, 'sick_earned' => 15,
++            'vacation_balance' => 10, 'sick_balance' => 5,
++            'service_credits' => 2.5, 'used_leave' => 3,
++        ]);
++        $this->balance($inactive, [
++            'vacation_balance' => 1, 'sick_balance' => 1,
++            'service_credits' => 0, 'used_leave' => 0,
++        ]);
++        $this->balance($archived, ['vacation_balance' => 99, 'sick_balance' => 99]);
++        $archived->delete();
++
++        // A pending application is not a completed deduction.
++        $this->leave($withBalance, '2026-03-10', '2026-03-12', 3, 'pending');
++
++        $response = $this->getAsAdmin('/api/reports/leave-credits')->assertOk();
++        $rows = collect($response->json('employees'))->keyBy('employee_id');
++
++        $this->assertCount(3, $rows);
++        $this->assertFalse($rows->has($archived->employee_id));
++        $this->assertSame(3, $response->json('totals.employees'));
++        $this->assertSame(1, $response->json('totals.employees_without_balance_record'));
++
++        $funded = $rows[$withBalance->employee_id];
++        $this->assertTrue($funded['has_balance_record']);
++        $this->assertDays(10, $funded['vacation_balance']);
++        $this->assertDays(5, $funded['sick_balance']);
++        $this->assertDays(2.5, $funded['service_credits']);
++        $this->assertDays(17.5, $funded['total_remaining']);
++        $this->assertDays(3, $funded['used_leave']);
++
++        $missing = $rows[$noRecord->employee_id];
++        $this->assertFalse($missing['has_balance_record']);
++        $this->assertDays(0, $missing['total_remaining']);
++
++        $this->assertTrue($rows[$inactive->employee_id]['has_balance_record']);
++
++        // Aggregate totals equal the sum of the employee rows.
++        $this->assertDays(11, $response->json('totals.vacation_balance'));
++        $this->assertDays(6, $response->json('totals.sick_balance'));
++        $this->assertDays(2.5, $response->json('totals.service_credits'));
++        $this->assertDays(19.5, $response->json('totals.total_remaining'));
++        $this->assertDays(3, $response->json('totals.used_leave'));
++        foreach (['vacation_balance', 'sick_balance', 'service_credits', 'total_remaining', 'used_leave'] as $field) {
++            $this->assertDays($rows->sum($field), $response->json("totals.{$field}"), $field);
++        }
++    }
++
++    /** The report endpoint and the Leave Balances page must agree on the same data. */
++    public function test_leave_credits_report_matches_leave_balances_endpoint(): void
++    {
++        $one = $this->employee('One');
++        $two = $this->employee('Two');
++        $this->employee('Three'); // no balance record
++
++        $this->balance($one, [
++            'vacation_balance' => 12.5, 'sick_balance' => 7, 'service_credits' => 1.25, 'used_leave' => 4,
++        ]);
++        $this->balance($two, [
++            'vacation_balance' => 0, 'sick_balance' => 0, 'service_credits' => 0, 'used_leave' => 0,
++        ]);
++
++        $report = collect($this->getAsAdmin('/api/reports/leave-credits')->assertOk()->json('employees'))
++            ->keyBy('employee_id');
++        $balances = collect($this->getAsAdmin('/api/leave-balances')->assertOk()->json())
++            ->keyBy('employee_id');
++
++        $this->assertSame($balances->keys()->sort()->values()->all(), $report->keys()->sort()->values()->all());
++        foreach ($balances as $employeeId => $balance) {
++            foreach (['vacation_balance', 'sick_balance', 'service_credits', 'used_leave'] as $field) {
++                $this->assertDays((float) $balance[$field], $report[$employeeId][$field], "{$field} for employee {$employeeId}");
++            }
++            // The Leave Balances endpoint marks a missing record with a null balance_id.
++            $this->assertSame($balance['balance_id'] !== null, $report[$employeeId]['has_balance_record']);
++        }
++    }
++}
+diff --git a/frontend/src/services/report.ts b/frontend/src/services/report.ts
+index b9fea9e..27d8d2f 100644
+--- a/frontend/src/services/report.ts
++++ b/frontend/src/services/report.ts
+@@ -10,13 +10,9 @@ export const getLeaveSummary = (params?: {
+   })
+ }
+ 
+-export const getLeaveCredits = (params?: {
+-  start_date?: string
+-  end_date?: string
+-}) => {
+-  return api.get('/reports/leave-credits', {
+-    params
+-  })
++// Current balance snapshot: balances are not historical, so no date range is accepted.
++export const getLeaveCredits = () => {
++  return api.get('/reports/leave-credits')
+ }
+ 
+ export const getEmployeesReport = (params?: {
+diff --git a/frontend/src/views/Reports.vue b/frontend/src/views/Reports.vue
+index 5d5dccc..0fe65c7 100644
+--- a/frontend/src/views/Reports.vue
++++ b/frontend/src/views/Reports.vue
+@@ -467,7 +467,8 @@
+ 
+           <div class="p-5 sm:p-6">
+ 
+-            <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot.</p>
++            <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot. Employee scope: all non-archived employees, including inactive/resigned; archived employees are not listed, and the inactive/archived option applies to Leave Summary only.</p>
++            <p v-if="Number(leaveTotals.employees_without_record || 0) > 0" role="status" class="mb-4 text-sm text-gray-400">{{ leaveTotals.employees_without_record }} of {{ leaveTotals.employees }} employee(s) have no leave balance record yet and are shown as "No record". This is different from a recorded balance of 0.000, and they add nothing to the totals below.</p>
+ 
+             <!-- Summary Cards -->
+             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+@@ -605,23 +606,23 @@
+                     </td>
+ 
+                     <td class="px-6 py-4 text-sm">
+-                      {{ formatNumber(employee.service_credits) }}
++                      {{ formatCredit(employee, 'service_credits') }}
+                     </td>
+ 
+                     <td class="px-6 py-4 text-sm">
+-                      {{ formatNumber(employee.vacation_balance) }}
++                      {{ formatCredit(employee, 'vacation_balance') }}
+                     </td>
+ 
+                     <td class="px-6 py-4 text-sm">
+-                      {{ formatNumber(employee.sick_balance) }}
++                      {{ formatCredit(employee, 'sick_balance') }}
+                     </td>
+ 
+                     <td class="px-6 py-4 text-sm font-semibold">
+-                      {{ formatNumber(employee.total_available) }}
++                      {{ formatCredit(employee, 'total_available') }}
+                     </td>
+ 
+                     <td class="px-6 py-4 text-sm">
+-                      {{ formatNumber(employee.used_leave) }}
++                      {{ formatCredit(employee, 'used_leave') }}
+                     </td>
+ 
+                   </tr>
+@@ -971,10 +972,15 @@ const dayUnits = (value: unknown): number => {
+ }
+ const formatNumber = (value: unknown) => (dayUnits(value) / 1000).toFixed(3)
+ 
++// An employee with no leave balance record is not the same as a recorded 0.000 balance.
++const formatCredit = (row: any, field: string) =>
++  row.has_balance_record === false ? 'No record' : formatNumber(row[field])
++
+ const buildCreditRows = (employees: any[], balances: any[]) => {
+   const balanceMap = new Map(balances.map((balance: any) => [Number(balance.employee_id), balance]))
+   return employees.map((employee: any) => {
+     const balance = balanceMap.get(Number(employee.employee_id)) as any
++    const hasBalanceRecord = balance?.balance_id !== undefined && balance?.balance_id !== null
+     const local = dayUnits(balance?.service_credits)
+     const vacation = dayUnits(balance?.vacation_balance)
+     const sick = dayUnits(balance?.sick_balance)
+@@ -983,6 +989,7 @@ const buildCreditRows = (employees: any[], balances: any[]) => {
+       employee_id: employee.employee_id,
+       employee_name: [employee.last_name, employee.first_name].filter(Boolean).join(', ') || 'Unknown employee',
+       department_name: employee.department_name || (typeof department === 'string' ? department : department?.department_name) || balance?.employee?.department_name || 'Unassigned',
++      has_balance_record: hasBalanceRecord,
+       service_credits: local / 1000,
+       vacation_balance: vacation / 1000,
+       sick_balance: sick / 1000,
+@@ -992,7 +999,10 @@ const buildCreditRows = (employees: any[], balances: any[]) => {
+   })
+ }
+ const summarizeCreditRows = (rows: any[]) => {
+-  const totals: Record<string, number> = { employees: rows.length }
++  const totals: Record<string, number> = {
++    employees: rows.length,
++    employees_without_record: rows.filter((row: any) => !row.has_balance_record).length
++  }
+   for (const field of ['service_credits', 'vacation_balance', 'sick_balance', 'used_leave', 'total_available']) {
+     totals[field] = rows.reduce((sum: number, row: any) => sum + dayUnits(row[field]), 0) / 1000
+   }
+@@ -1642,11 +1652,11 @@ const exportReport = () => {
+       const exportRow = (employee: any) => ({
+         Employee: employee.employee_name,
+         Department: employee.department_name,
+-        'Remaining Local Credits': formatNumber(employee.service_credits),
+-        'Vacation Balance': formatNumber(employee.vacation_balance),
+-        'Sick Balance': formatNumber(employee.sick_balance),
+-        'Total Remaining Days': formatNumber(employee.total_available),
+-        'Used Leave (Overall)': formatNumber(employee.used_leave)
++        'Remaining Local Credits': formatCredit(employee, 'service_credits'),
++        'Vacation Balance': formatCredit(employee, 'vacation_balance'),
++        'Sick Balance': formatCredit(employee, 'sick_balance'),
++        'Total Remaining Days': formatCredit(employee, 'total_available'),
++        'Used Leave (Overall)': formatCredit(employee, 'used_leave')
+       })
+       if (displayedCreditsData.value.length === 0) {
+         notify('No employee balances available to export.')
