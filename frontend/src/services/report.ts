@@ -4,6 +4,10 @@ export const getLeaveSummary = (params?: {
   start_date?: string
   end_date?: string
   include_inactive?: boolean
+  department_id?: number | string // a department id, or 'unassigned'
+  status?: 'approved' | 'pending' | 'disapproved'
+  leave_type_id?: number | string
+  search?: string // employee name words
 }) => {
   return api.get('/reports/leave-summary', {
     params

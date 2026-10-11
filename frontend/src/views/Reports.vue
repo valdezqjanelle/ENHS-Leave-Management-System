@@ -130,6 +130,7 @@
             </label>
 
             <select
+              :value="activeQuickRange"
               @change="setQuickDateRange"
               class="report-input w-full"
             >
@@ -164,6 +165,191 @@
 
 
       <!-- ========================================================= -->
+      <!-- LEAVE SUMMARY FILTERS -->
+      <!-- ========================================================= -->
+
+      <div v-if="selectedReportType === 'leave-summary'" class="neo-card report-filters-card w-full p-5 sm:p-6">
+
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-white">
+              Filters
+            </h3>
+
+            <p class="mt-1 text-sm text-gray-400">
+              Narrow the applications counted in the cards, table, charts and export below.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="!hasSummaryFilters"
+            @click="clearSummaryFilters"
+          >
+            Clear filters
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+          <div>
+            <label for="summary-search" class="mb-2 block text-sm font-medium text-gray-300">
+              Employee
+            </label>
+
+            <input
+              id="summary-search"
+              v-model="summarySearchInput"
+              type="search"
+              maxlength="100"
+              autocomplete="off"
+              placeholder="Search employee name"
+              class="report-input w-full"
+            />
+          </div>
+
+          <div>
+            <label for="summary-department" class="mb-2 block text-sm font-medium text-gray-300">
+              Department
+            </label>
+
+            <select id="summary-department" v-model="summaryDepartment" class="report-input w-full">
+              <option value="">All departments</option>
+              <option value="unassigned">Unassigned</option>
+              <option v-for="option in departmentOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label for="summary-status" class="mb-2 block text-sm font-medium text-gray-300">
+              Application Status
+            </label>
+
+            <select id="summary-status" v-model="summaryStatus" class="report-input w-full">
+              <option value="">All statuses</option>
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+              <option value="disapproved">Disapproved</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="summary-leave-type" class="mb-2 block text-sm font-medium text-gray-300">
+              Leave Type
+            </label>
+
+            <select id="summary-leave-type" v-model="summaryLeaveType" class="report-input w-full">
+              <option value="">All leave types</option>
+              <option v-for="option in leaveTypeOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+        </div>
+
+        <p v-if="filterOptionsError" role="status" class="mt-3 text-sm text-gray-400">
+          {{ filterOptionsError }} Reload the page to try again.
+        </p>
+      </div>
+
+
+      <!-- ========================================================= -->
+      <!-- LEAVE CREDITS FILTERS -->
+      <!-- ========================================================= -->
+
+      <div v-else-if="selectedReportType === 'leave-credits'" class="neo-card report-filters-card w-full p-5 sm:p-6">
+
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-white">
+              Filters
+            </h3>
+
+            <p class="mt-1 text-sm text-gray-400">
+              Leave Credits is a current balance snapshot, so date filters do not apply. These filters only narrow which employees are listed and totaled.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+            :disabled="!hasCreditFilters"
+            @click="clearCreditFilters"
+          >
+            Clear filters
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+          <div>
+            <label for="credit-search" class="mb-2 block text-sm font-medium text-gray-300">
+              Employee
+            </label>
+
+            <input
+              id="credit-search"
+              v-model="creditFilters.search"
+              type="search"
+              maxlength="100"
+              autocomplete="off"
+              placeholder="Search employee name"
+              class="report-input w-full"
+            />
+          </div>
+
+          <div>
+            <label for="credit-department" class="mb-2 block text-sm font-medium text-gray-300">
+              Department
+            </label>
+
+            <select id="credit-department" v-model="creditFilters.department" class="report-input w-full">
+              <option value="">All departments</option>
+              <option value="unassigned">Unassigned</option>
+              <option v-for="option in departmentOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label for="credit-status" class="mb-2 block text-sm font-medium text-gray-300">
+              Employee Status
+            </label>
+
+            <select id="credit-status" v-model="creditFilters.status" class="report-input w-full">
+              <option value="">Active and inactive</option>
+              <option value="active">Active only</option>
+              <option value="inactive">Inactive / resigned only</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="credit-balance" class="mb-2 block text-sm font-medium text-gray-300">
+              Remaining Balance
+            </label>
+
+            <select id="credit-balance" v-model="creditFilters.balance" class="report-input w-full">
+              <option value="">All balances</option>
+              <option value="with-balance">Has remaining days</option>
+              <option value="zero">Zero remaining days</option>
+              <option value="no-record">No balance record</option>
+            </select>
+          </div>
+
+        </div>
+
+        <p v-if="filterOptionsError" role="status" class="mt-3 text-sm text-gray-400">
+          {{ filterOptionsError }} Reload the page to try again.
+        </p>
+      </div>
+
+
+      <!-- ========================================================= -->
       <!-- REPORT DISPLAY -->
       <!-- ========================================================= -->
 
@@ -194,16 +380,6 @@
             </div>
 
             <div class="flex w-full gap-2 sm:w-auto">
-
-              <button
-                v-if="selectedReportType === 'leave-credits'"
-                @click="toggleCreditsSort"
-                type="button"
-                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
-                :title="creditsSorted ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
-              >
-                Sort
-              </button>
 
               <button
                 @click="exportReport"
@@ -251,6 +427,8 @@
                 <p v-if="summaryGeneratedAt"><strong>Generated:</strong> {{ new Date(summaryGeneratedAt).toLocaleString('en-PH') }}</p>
                 <p>Applications whose leave dates overlap the selected period. Day totals include full requested days of matching applications; they are not credits deducted or days restricted to that period.</p>
                 <p>Departments reflect current employee assignments. Non-deleted applications only; missing links are shown as Unassigned.</p>
+                <p><strong>Filters:</strong> {{ summaryFilterText }}</p>
+                <p><strong>Matching applications:</strong> {{ leaveTotals.applications ?? 0 }} in {{ leaveSummaryData.length }} {{ leaveSummaryData.length === 1 ? 'department' : 'departments' }}</p>
               </div>
               <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-4">
                 <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Total Applications</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</p></div>
@@ -263,12 +441,25 @@
               <h5 class="text-sm font-semibold uppercase tracking-wide text-gray-300 mb-3">Leave Summary by Department</h5>
               <div class="summary-table-wrapper">
                 <table class="department-summary-table">
-                  <thead><tr><th>Department</th><th>Total Applications</th><th>Approved</th><th>Pending</th><th>Disapproved</th><th v-if="Number(leaveTotals.other || 0) > 0">Other</th><th>Requested Days</th><th>Requested Days of Approved Applications</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th v-for="column in summaryColumns" :key="column.key" scope="col" :aria-sort="ariaSort(summarySort, column.key)">
+                        <button type="button" class="sort-button" :title="'Sort by ' + column.label" @click="toggleSummarySort(column.key)">
+                          <span>{{ column.label }}</span><span class="sort-mark" :class="{ active: summarySort?.key === column.key }" aria-hidden="true">{{ sortMark(summarySort, column.key) }}</span>
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    <tr v-for="dept in leaveSummaryData" :key="dept.department_id ?? dept.department">
+                    <tr v-for="dept in sortedSummaryRows" :key="dept.department_id ?? dept.department">
                       <td>{{ dept.department }}</td><td>{{ dept.total }}</td><td>{{ dept.approved }}</td><td>{{ dept.pending }}</td><td>{{ dept.disapproved }}</td><td v-if="Number(leaveTotals.other || 0) > 0">{{ dept.other ?? 0 }}</td><td>{{ formatSummaryDays(dept.total_days) }}</td><td>{{ formatApprovedDays(dept.approved_days) }}</td>
                     </tr>
-                    <tr v-if="!leaveSummaryData.length"><td :colspan="Number(leaveTotals.other || 0) > 0 ? 8 : 7">No applications match the selected period and employee scope.</td></tr>
+                    <tr v-if="!leaveSummaryData.length">
+                      <td :colspan="summaryColumns.length" class="empty-cell">
+                        {{ hasSummaryFilters ? 'No applications match the selected period, employee scope and filters.' : 'No applications match the selected period and employee scope.' }}
+                        <button v-if="hasSummaryFilters" type="button" class="link-button" @click="clearSummaryFilters">Clear filters</button>
+                      </td>
+                    </tr>
                   </tbody>
                   <tfoot><tr><th>Grand Total</th><td>{{ leaveTotals.applications ?? 0 }}</td><td>{{ leaveTotals.approved ?? 0 }}</td><td>{{ leaveTotals.pending ?? 0 }}</td><td>{{ leaveTotals.disapproved ?? 0 }}</td><td v-if="Number(leaveTotals.other || 0) > 0">{{ leaveTotals.other }}</td><td>{{ formatSummaryDays(leaveTotals.total_days) }}</td><td>{{ formatApprovedDays(leaveTotals.approved_days) }}</td></tr></tfoot>
                 </table>
@@ -468,7 +659,8 @@
           <div class="p-5 sm:p-6">
 
             <p class="mb-4 text-sm text-gray-400">Current balance snapshot · Loaded: {{ creditsLoadedAt }}. Values are in days. Local credits are remaining credits after deductions; accumulated earned credits are shown in the Leave Credits module. Used Leave is the overall recorded usage, not only local credits. Date filters do not apply to this snapshot. Employee scope: all non-archived employees, including inactive/resigned; archived employees are not listed, and the inactive/archived option applies to Leave Summary only.</p>
-            <p v-if="Number(leaveTotals.employees_without_record || 0) > 0" role="status" class="mb-4 text-sm text-gray-400">{{ leaveTotals.employees_without_record }} of {{ leaveTotals.employees }} employee(s) have no leave balance record yet and are shown as "No record". This is different from a recorded balance of 0.000, and they add nothing to the totals below.</p>
+            <p class="mb-4 text-sm text-gray-400"><strong>Filters:</strong> {{ creditFilterText }} · <strong>Matching employees:</strong> {{ creditTotals.employees }} of {{ creditsData.length }}</p>
+            <p v-if="Number(creditTotals.employees_without_record || 0) > 0" role="status" class="mb-4 text-sm text-gray-400">{{ creditTotals.employees_without_record }} of {{ creditTotals.employees }} employee(s) in this view have no leave balance record yet and are shown as "No record". This is different from a recorded balance of 0.000, and they add nothing to the totals below.</p>
 
             <!-- Summary Cards -->
             <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -481,11 +673,11 @@
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ leaveTotals.employees ?? 0 }}
+                  {{ creditTotals.employees ?? 0 }}
                 </p>
 
                 <p class="mt-1 text-xs">
-                  Employees included in this report
+                  Employees matching the filters
                 </p>
 
               </div>
@@ -499,7 +691,7 @@
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ formatNumber(leaveTotals.vacation_balance) }}
+                  {{ formatNumber(creditTotals.vacation_balance) }}
                 </p>
 
                 <p class="mt-1 text-xs">
@@ -517,7 +709,7 @@
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ formatNumber(leaveTotals.sick_balance) }}
+                  {{ formatNumber(creditTotals.sick_balance) }}
                 </p>
 
                 <p class="mt-1 text-xs">
@@ -535,7 +727,7 @@
                 </h4>
 
                 <p class="text-2xl font-bold text-white">
-                  {{ formatNumber(leaveTotals.service_credits) }}
+                  {{ formatNumber(creditTotals.service_credits) }}
                 </p>
 
                 <p class="mt-1 text-xs">
@@ -548,6 +740,29 @@
 
 
             <!-- Employee Leave Balances -->
+            <div class="table-controls mb-3">
+
+              <p class="text-sm text-gray-400" role="status" aria-live="polite">
+                <template v-if="creditPageInfo.total">
+                  Showing <strong>{{ creditPageInfo.from }}&ndash;{{ creditPageInfo.to }}</strong> of <strong>{{ creditPageInfo.total }}</strong> matching {{ creditPageInfo.total === 1 ? 'employee' : 'employees' }}
+                </template>
+                <template v-else>
+                  <strong>0</strong> matching employees
+                </template>
+                <template v-if="hasCreditFilters"> (out of {{ creditsData.length }})</template>
+              </p>
+
+              <label for="credit-page-size" class="flex items-center gap-2 text-sm text-gray-400">
+                Rows per page
+                <select id="credit-page-size" v-model.number="creditPageSize" class="report-input">
+                  <option v-for="size in creditPageSizes" :key="size" :value="size">
+                    {{ size === 0 ? 'All' : size }}
+                  </option>
+                </select>
+              </label>
+
+            </div>
+
             <div class="overflow-x-auto">
 
               <table class="report-table w-full min-w-[900px]">
@@ -556,32 +771,23 @@
 
                   <tr>
 
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Employee
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Department
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Remaining Local Credits
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Vacation Balance
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Sick Balance
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Total Remaining Days
-                    </th>
-
-                    <th class="whitespace-nowrap px-6 py-3 text-left text-xs font-medium uppercase">
-                      Used Leave (Overall)
+                    <th
+                      v-for="column in creditColumns"
+                      :key="column.key"
+                      scope="col"
+                      :aria-sort="ariaSort(creditSort, column.key)"
+                      class="px-6 py-3 text-xs font-medium uppercase"
+                      :class="column.numeric ? 'numeric-cell' : 'text-left'"
+                    >
+                      <button
+                        type="button"
+                        class="sort-button"
+                        :title="'Sort by ' + column.label"
+                        @click="toggleCreditSort(column.key)"
+                      >
+                        <span>{{ column.label }}</span>
+                        <span class="sort-mark" :class="{ active: creditSort?.key === column.key }" aria-hidden="true">{{ sortMark(creditSort, column.key) }}</span>
+                      </button>
                     </th>
 
                   </tr>
@@ -592,49 +798,55 @@
                 <tbody>
 
                   <tr
-                    v-for="employee in displayedCreditsData"
+                    v-for="employee in sortedCreditRows"
                     :key="employee.employee_id"
                     class="transition"
+                    :class="{ 'off-page': !visibleCreditIds.has(employee.employee_id) }"
                   >
 
-                    <td class="px-6 py-4 text-sm font-medium">
+                    <td class="employee-name-cell px-6 py-4 text-sm font-medium">
                       {{ employee.employee_name }}
+                      <span
+                        v-if="String(employee.employment_status).toLowerCase() === 'inactive'"
+                        class="status-tag"
+                      >Inactive</span>
                     </td>
 
                     <td class="px-6 py-4 text-sm">
                       {{ employee.department_name || employee.department || "Unknown" }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm">
+                    <td class="numeric-cell px-6 py-4 text-sm" :class="{ 'no-record-cell': employee.has_balance_record === false }">
                       {{ formatCredit(employee, 'service_credits') }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm">
+                    <td class="numeric-cell px-6 py-4 text-sm" :class="{ 'no-record-cell': employee.has_balance_record === false }">
                       {{ formatCredit(employee, 'vacation_balance') }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm">
+                    <td class="numeric-cell px-6 py-4 text-sm" :class="{ 'no-record-cell': employee.has_balance_record === false }">
                       {{ formatCredit(employee, 'sick_balance') }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm font-semibold">
+                    <td class="numeric-cell px-6 py-4 text-sm font-semibold" :class="{ 'no-record-cell': employee.has_balance_record === false }">
                       {{ formatCredit(employee, 'total_available') }}
                     </td>
 
-                    <td class="px-6 py-4 text-sm">
+                    <td class="numeric-cell px-6 py-4 text-sm" :class="{ 'no-record-cell': employee.has_balance_record === false }">
                       {{ formatCredit(employee, 'used_leave') }}
                     </td>
 
                   </tr>
 
 
-                  <tr v-if="displayedCreditsData.length === 0">
+                  <tr v-if="sortedCreditRows.length === 0">
 
                     <td
                       colspan="7"
-                      class="px-6 py-8 text-center text-gray-500"
+                      class="empty-cell px-6 py-8 text-center text-gray-500"
                     >
-                      No leave credit records found.
+                      {{ hasCreditFilters && creditsData.length ? 'No employees match the current filters.' : 'No leave credit records found.' }}
+                      <button v-if="hasCreditFilters" type="button" class="link-button" @click="clearCreditFilters">Clear filters</button>
                     </td>
 
                   </tr>
@@ -643,17 +855,50 @@
 
                 <tfoot>
                   <tr class="font-semibold">
-                    <th class="px-6 py-4 text-left" colspan="2">Grand Total</th>
-                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.service_credits) }}</td>
-                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.vacation_balance) }}</td>
-                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.sick_balance) }}</td>
-                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.total_available) }}</td>
-                    <td class="px-6 py-4">{{ formatNumber(leaveTotals.used_leave) }}</td>
+                    <th class="px-6 py-4 text-left" colspan="2">
+                      Grand Total
+                      <span class="block text-xs font-normal">All {{ creditTotals.employees }} matching {{ creditTotals.employees === 1 ? 'employee' : 'employees' }}, not just this page</span>
+                    </th>
+                    <td class="numeric-cell px-6 py-4">{{ formatNumber(creditTotals.service_credits) }}</td>
+                    <td class="numeric-cell px-6 py-4">{{ formatNumber(creditTotals.vacation_balance) }}</td>
+                    <td class="numeric-cell px-6 py-4">{{ formatNumber(creditTotals.sick_balance) }}</td>
+                    <td class="numeric-cell px-6 py-4">{{ formatNumber(creditTotals.total_available) }}</td>
+                    <td class="numeric-cell px-6 py-4">{{ formatNumber(creditTotals.used_leave) }}</td>
                   </tr>
                 </tfoot>
               </table>
 
             </div>
+
+            <nav
+              v-if="creditPageInfo.pageCount > 1"
+              class="table-controls mt-3"
+              aria-label="Leave credits pagination"
+            >
+              <p class="text-sm text-gray-400">
+                Page {{ creditPageInfo.page }} of {{ creditPageInfo.pageCount }}
+              </p>
+
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="creditPageInfo.page <= 1"
+                  @click="creditPage = creditPageInfo.page - 1"
+                >
+                  Previous
+                </button>
+
+                <button
+                  type="button"
+                  class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="creditPageInfo.page >= creditPageInfo.pageCount"
+                  @click="creditPage = creditPageInfo.page + 1"
+                >
+                  Next
+                </button>
+              </div>
+            </nav>
 
           </div>
 
@@ -673,7 +918,9 @@ import {
   ref,
   nextTick,
   watch,
-  computed
+  computed,
+  onMounted,
+  onBeforeUnmount
 } from 'vue'
 
 import {
@@ -700,6 +947,20 @@ import {
 
 import api from '@/services/api'
 import { getEmployees } from '@/services/employee'
+import {
+  buildSearchText,
+  emptyCreditFilters,
+  filterCreditRows,
+  hasActiveCreditFilters,
+  matchQuickRange,
+  nextSort,
+  paginate,
+  quickDateRange,
+  sortRows,
+  type CreditFilters,
+  type SortKind,
+  type SortState
+} from '@/utils/reportTable'
 
 
 /*
@@ -749,7 +1010,119 @@ const localDate = (date: Date) => [
 
 const dateRange = ref({ start: '', end: '' })
 const includeInactive = ref(true)
-const summaryFilters = ref<{ start_date: string | null; end_date: string | null; include_inactive: boolean }>({ start_date: null, end_date: null, include_inactive: true })
+const summaryFilters = ref<{
+  start_date: string | null; end_date: string | null; include_inactive: boolean
+  department_id?: string | null; status?: string | null; leave_type_id?: number | null; search?: string | null
+}>({ start_date: null, end_date: null, include_inactive: true })
+
+/*
+|--------------------------------------------------------------------------
+| Leave Summary filters (applied by the API, so cards, tables, charts and
+| exports all describe the same set of applications)
+|--------------------------------------------------------------------------
+*/
+
+const summaryDepartment = ref('')
+const summaryStatus = ref('')
+const summaryLeaveType = ref('')
+const summarySearchInput = ref('')
+const summarySearch = ref('')
+let summarySearchTimer: ReturnType<typeof setTimeout> | undefined
+
+// Wait for a pause in typing before asking the API again.
+watch(summarySearchInput, (value) => {
+  clearTimeout(summarySearchTimer)
+  summarySearchTimer = setTimeout(() => { summarySearch.value = value.trim() }, 300)
+})
+onBeforeUnmount(() => clearTimeout(summarySearchTimer))
+
+const hasSummaryFilters = computed(() =>
+  Boolean(summaryDepartment.value || summaryStatus.value || summaryLeaveType.value || summarySearchInput.value.trim()))
+
+const clearSummaryFilters = () => {
+  clearTimeout(summarySearchTimer)
+  summaryDepartment.value = ''
+  summaryStatus.value = ''
+  summaryLeaveType.value = ''
+  summarySearchInput.value = ''
+  summarySearch.value = ''
+}
+
+const summaryParams = () => ({
+  ...reportParams(),
+  include_inactive: includeInactive.value ? 1 : 0,
+  ...(summaryDepartment.value && { department_id: summaryDepartment.value }),
+  ...(summaryStatus.value && { status: summaryStatus.value }),
+  ...(summaryLeaveType.value && { leave_type_id: summaryLeaveType.value }),
+  ...(summarySearch.value && { search: summarySearch.value })
+})
+
+/*
+|--------------------------------------------------------------------------
+| Filter options come from existing records (departments, leave types)
+|--------------------------------------------------------------------------
+*/
+
+interface FilterOption { value: string; label: string }
+const departmentOptions = ref<FilterOption[]>([])
+const leaveTypeOptions = ref<FilterOption[]>([])
+const filterOptionsError = ref('')
+
+async function loadFilterOptions() {
+  const [departments, leaveTypes] = await Promise.allSettled([api.get('/departments'), api.get('/leave-types')])
+  filterOptionsError.value = ''
+
+  if (departments.status === 'fulfilled' && Array.isArray(departments.value.data)) {
+    const list: any[] = departments.value.data
+    const nameCounts = new Map<string, number>()
+    list.forEach((item) => {
+      const key = String(item.department_name ?? '').trim().toLowerCase()
+      nameCounts.set(key, (nameCounts.get(key) ?? 0) + 1)
+    })
+    departmentOptions.value = list.map((item) => {
+      const name = String(item.department_name ?? '').trim() || `Department ${item.department_id}`
+      const duplicate = (nameCounts.get(name.toLowerCase()) ?? 0) > 1 && item.level
+      return { value: String(item.department_id), label: duplicate ? `${name} (${item.level})` : name }
+    }).sort((a, b) => a.label.localeCompare(b.label))
+  } else {
+    filterOptionsError.value = 'Department options could not be loaded.'
+  }
+
+  if (leaveTypes.status === 'fulfilled' && Array.isArray(leaveTypes.value.data)) {
+    leaveTypeOptions.value = leaveTypes.value.data
+      .map((item: any) => ({ value: String(item.leave_type_id), label: String(item.leave_type_name ?? '').trim() || `Leave type ${item.leave_type_id}` }))
+      .sort((a: FilterOption, b: FilterOption) => a.label.localeCompare(b.label))
+  } else {
+    filterOptionsError.value = [filterOptionsError.value, 'Leave type options could not be loaded.'].filter(Boolean).join(' ')
+  }
+}
+onMounted(loadFilterOptions)
+
+const optionLabel = (options: FilterOption[], value: unknown) =>
+  options.find((option) => option.value === String(value))?.label ?? `#${value}`
+
+const statusLabels: Record<string, string> = { approved: 'Approved', pending: 'Pending', disapproved: 'Disapproved' }
+
+// Describes the filters the CURRENT results were actually produced with (echoed by the API).
+const summaryFilterText = computed(() => {
+  const applied = summaryFilters.value
+  const parts: string[] = []
+  if (applied.department_id) {
+    parts.push(`Department: ${applied.department_id === 'unassigned' ? 'Unassigned' : optionLabel(departmentOptions.value, applied.department_id)}`)
+  }
+  if (applied.status) parts.push(`Status: ${statusLabels[applied.status] ?? applied.status}`)
+  if (applied.leave_type_id) parts.push(`Leave type: ${optionLabel(leaveTypeOptions.value, applied.leave_type_id)}`)
+  if (applied.search) parts.push(`Employee: "${applied.search}"`)
+  return parts.length ? parts.join(' · ') : 'None'
+})
+
+/*
+|--------------------------------------------------------------------------
+| Quick date selection (whole calendar periods; see utils/reportTable.ts)
+|--------------------------------------------------------------------------
+*/
+
+const activeQuickRange = computed(() => matchQuickRange(dateRange.value.start, dateRange.value.end))
 const summaryGeneratedAt = ref('')
 const summaryPeriod = computed(() => {
   const { start_date, end_date } = summaryFilters.value
@@ -828,26 +1201,98 @@ const loading = ref(false)
 
 /*
 |--------------------------------------------------------------------------
-| Leave Credits Sort
-| Mirrors the "Sort" toggle on LeaveBalances.vue: click once to sort
-| employees A-Z by name, click again to revert to original order.
+| Leave Summary table sorting (client-side; the API already applied the
+| filters, and the Grand Total row always comes from the API totals)
 |--------------------------------------------------------------------------
 */
 
-const creditsSorted = ref(false)
+const summarySort = ref<SortState | null>(null)
+const summarySortKinds: Record<string, SortKind> = {
+  department: 'text', total: 'number', approved: 'number', pending: 'number',
+  disapproved: 'number', other: 'number', total_days: 'number', approved_days: 'number'
+}
+const summaryColumns = computed(() => [
+  { key: 'department', label: 'Department', numeric: false },
+  { key: 'total', label: 'Total Applications', numeric: true },
+  { key: 'approved', label: 'Approved', numeric: true },
+  { key: 'pending', label: 'Pending', numeric: true },
+  { key: 'disapproved', label: 'Disapproved', numeric: true },
+  ...(Number(leaveTotals.value.other || 0) > 0 ? [{ key: 'other', label: 'Other', numeric: true }] : []),
+  { key: 'total_days', label: 'Requested Days', numeric: true },
+  { key: 'approved_days', label: 'Requested Days of Approved Applications', numeric: true }
+])
+const sortedSummaryRows = computed(() =>
+  sortRows(leaveSummaryData.value, summarySort.value, summarySortKinds, { tieBreak: 'department' }))
 
-const toggleCreditsSort = () => {
-  creditsSorted.value = !creditsSorted.value
+const sortMark = (sort: SortState | null, key: string) =>
+  sort?.key === key ? (sort.dir === 'asc' ? '▲' : '▼') : '↕'
+const ariaSort = (sort: SortState | null, key: string) =>
+  sort?.key === key ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'
+
+
+/*
+|--------------------------------------------------------------------------
+| Leave Credits table: search, filters, sorting and pagination.
+|
+| /leave-balances already returns every employee, so these controls work on
+| that list in the browser (no extra requests). Totals are always computed
+| from ALL matching rows, never from the current page.
+|--------------------------------------------------------------------------
+*/
+
+const creditFilters = ref<CreditFilters>(emptyCreditFilters())
+const creditSort = ref<SortState | null>(null)
+const creditPage = ref(1)
+const creditPageSize = ref(25) // 0 = all
+const creditPageSizes = [10, 25, 50, 100, 0]
+const creditSortKinds: Record<string, SortKind> = {
+  employee_name: 'text', department_name: 'text', service_credits: 'number',
+  vacation_balance: 'number', sick_balance: 'number', total_available: 'number', used_leave: 'number'
+}
+const creditColumns = [
+  { key: 'employee_name', label: 'Employee', numeric: false },
+  { key: 'department_name', label: 'Department', numeric: false },
+  { key: 'service_credits', label: 'Remaining Local Credits', numeric: true },
+  { key: 'vacation_balance', label: 'Vacation Balance', numeric: true },
+  { key: 'sick_balance', label: 'Sick Balance', numeric: true },
+  { key: 'total_available', label: 'Total Remaining Days', numeric: true },
+  { key: 'used_leave', label: 'Used Leave (Overall)', numeric: true }
+]
+const balanceFilterLabels: Record<string, string> = {
+  'with-balance': 'Has remaining days', zero: 'Zero remaining days', 'no-record': 'No balance record'
 }
 
-const displayedCreditsData = computed(() => {
-  if (!creditsSorted.value) return creditsData.value
-  return [...creditsData.value].sort((a, b) => {
-    const aName = String(a.employee_name || '').trim().toLowerCase()
-    const bName = String(b.employee_name || '').trim().toLowerCase()
-    return aName.localeCompare(bName)
-  })
+const hasCreditFilters = computed(() => hasActiveCreditFilters(creditFilters.value))
+const filteredCreditRows = computed(() => filterCreditRows(creditsData.value, creditFilters.value))
+const sortedCreditRows = computed(() =>
+  sortRows(filteredCreditRows.value, creditSort.value, creditSortKinds, {
+    tieBreak: 'employee_name',
+    isMissing: (row: any) => row.has_balance_record === false
+  }))
+const creditPageInfo = computed(() => paginate(sortedCreditRows.value, creditPage.value, creditPageSize.value))
+// Rows outside the current page stay in the DOM but are hidden on screen, so printing shows every match.
+const visibleCreditIds = computed(() => new Set(creditPageInfo.value.items.map((row: any) => row.employee_id)))
+const creditTotals = computed(() => summarizeCreditRows(filteredCreditRows.value))
+
+const creditFilterText = computed(() => {
+  const filters = creditFilters.value
+  const parts: string[] = []
+  if (filters.search.trim()) parts.push(`Employee: "${filters.search.trim()}"`)
+  if (filters.department) {
+    parts.push(`Department: ${filters.department === 'unassigned' ? 'Unassigned' : optionLabel(departmentOptions.value, filters.department)}`)
+  }
+  if (filters.status) parts.push(`Status: ${filters.status === 'active' ? 'Active' : 'Inactive'}`)
+  if (filters.balance) parts.push(`Balance: ${balanceFilterLabels[filters.balance] ?? filters.balance}`)
+  return parts.length ? parts.join(' · ') : 'None'
 })
+
+const clearCreditFilters = () => { creditFilters.value = emptyCreditFilters() }
+const toggleCreditSort = (key: string) => { creditSort.value = nextSort(creditSort.value, key) }
+const toggleSummarySort = (key: string) => { summarySort.value = nextSort(summarySort.value, key) }
+
+// Any change to what is shown starts again from page 1; a page past the end is pulled back.
+watch([creditFilters, creditSort, creditPageSize], () => { creditPage.value = 1 }, { deep: true })
+watch(() => creditPageInfo.value.page, (page) => { if (page !== creditPage.value) creditPage.value = page })
 
 
 /*
@@ -987,6 +1432,9 @@ const buildCreditRows = (employees: any[], balances: any[]) => {
     const department = employee.department
     return {
       employee_id: employee.employee_id,
+      department_id: employee.department_id ?? null,
+      employment_status: employee.employment_status ?? '',
+      search_text: buildSearchText(employee.first_name, employee.middle_name, employee.last_name, employee.extension_name),
       employee_name: [employee.last_name, employee.first_name].filter(Boolean).join(', ') || 'Unknown employee',
       department_name: employee.department_name || (typeof department === 'string' ? department : department?.department_name) || balance?.employee?.department_name || 'Unassigned',
       has_balance_record: hasBalanceRecord,
@@ -1042,7 +1490,7 @@ async function loadLeaveSummary() {
   try {
 
     const response =
-      await api.get('/reports/leave-summary', { params: { ...reportParams(), include_inactive: includeInactive.value ? 1 : 0 } })
+      await api.get('/reports/leave-summary', { params: summaryParams() })
 
     if (version !== summaryRequestVersion || selectedReportType.value !== 'leave-summary') return
     summaryFilters.value = response.data.filters || { start_date: null, end_date: null, include_inactive: true }
@@ -1449,7 +1897,6 @@ async function loadLeaveCredits(version: number) {
   const rows = buildCreditRows(employees, response.data)
   if (version !== reportRefreshVersion || selectedReportType.value !== 'leave-credits') return
   creditsData.value = rows
-  leaveTotals.value = summarizeCreditRows(rows)
   creditsLoadedAt.value = new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
 }
 
@@ -1512,87 +1959,10 @@ const getAttendanceRateClass = (
 const setQuickDateRange = (
   event: Event
 ) => {
+  const range = quickDateRange((event.target as HTMLSelectElement).value)
 
-  const select =
-    event.target as HTMLSelectElement
-
-  const value =
-    select.value
-
-  if (!value) {
-    dateRange.value = { start: '', end: '' }
-    return
-  }
-
-  const today =
-    new Date()
-
-  let start =
-    new Date()
-
-
-  switch (value) {
-
-    case 'today':
-
-      start = today
-
-      break
-
-
-    case 'week':
-
-      start.setDate(
-        today.getDate() - ((today.getDay() + 6) % 7)
-      )
-
-      break
-
-
-    case 'month':
-
-      start = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-      )
-
-      break
-
-
-    case 'quarter':
-
-      start = new Date(
-        today.getFullYear(),
-        Math.floor(
-          today.getMonth() / 3
-        ) * 3,
-        1
-      )
-
-      break
-
-
-    case 'year':
-
-      start = new Date(
-        today.getFullYear(),
-        0,
-        1
-      )
-
-      break
-
-  }
-
-
-  if (value) {
-
-    dateRange.value.start = localDate(start)
-    dateRange.value.end = localDate(today)
-
-  }
-
+  // "All Dates / Custom Range" clears the period.
+  dateRange.value = range ? { start: range.start, end: range.end } : { start: '', end: '' }
 }
 
 
@@ -1625,7 +1995,7 @@ const exportReport = () => {
   ) {
 
     case 'leave-summary': {
-      data = leaveSummaryData.value.map((item: any) => ({
+      data = sortedSummaryRows.value.map((item: any) => ({
         Department: item.department ?? 'Unassigned',
         'Total Applications': item.total ?? 0,
         Approved: item.approved ?? 0,
@@ -1658,12 +2028,13 @@ const exportReport = () => {
         'Total Remaining Days': formatCredit(employee, 'total_available'),
         'Used Leave (Overall)': formatCredit(employee, 'used_leave')
       })
-      if (displayedCreditsData.value.length === 0) {
-        notify('No employee balances available to export.')
+      // Every matching employee (not only the current page), in the order shown on screen.
+      if (sortedCreditRows.value.length === 0) {
+        notify(hasCreditFilters.value ? 'No employee balances match the current filters.' : 'No employee balances available to export.')
         return
       }
-      data = displayedCreditsData.value.map(exportRow)
-      data.push(exportRow({ ...leaveTotals.value, employee_name: 'Grand Total', department_name: '' }))
+      data = sortedCreditRows.value.map(exportRow)
+      data.push(exportRow({ ...creditTotals.value, employee_name: 'Grand Total', department_name: '' }))
       filename = 'leave-credits-balances-report.csv'
       break
     }
@@ -1804,7 +2175,8 @@ const printReport = () => {
 */
 
 watch(
-  [selectedReportType, () => dateRange.value.start, () => dateRange.value.end, includeInactive],
+  [selectedReportType, () => dateRange.value.start, () => dateRange.value.end, includeInactive,
+    summaryDepartment, summaryStatus, summaryLeaveType, summarySearch],
   async () => {
     const version = ++reportRefreshVersion
     ++summaryRequestVersion
@@ -1838,6 +2210,34 @@ watch(
 
 
 <style scoped>
+/* Table controls: sortable headers, numeric alignment, pagination (Reports tables) */
+.sort-button { display:inline-flex; align-items:center; gap:.35rem; padding:0; border:0; background:none; font:inherit; letter-spacing:inherit; text-transform:inherit; color:inherit; text-align:inherit; cursor:pointer; }
+.sort-button:hover, .sort-button:focus-visible { color:#2563eb; }
+.sort-button:focus-visible { outline:2px solid #7aa7e8; outline-offset:2px; border-radius:.25rem; }
+.sort-mark { font-size:.65rem; opacity:.4; }
+.sort-mark.active { opacity:1; color:#2563eb; }
+.report-table .numeric-cell, .report-table th.numeric-cell { text-align:right; font-variant-numeric:tabular-nums; }
+.report-table .numeric-cell .sort-button { justify-content:flex-end; }
+.report-table .no-record-cell { color:var(--text-muted); font-style:italic; font-weight:400; }
+.employee-name-cell { min-width:11rem; overflow-wrap:anywhere; }
+.status-tag { display:inline-block; margin-left:.4rem; padding:.05rem .4rem; border-radius:999px; background:#e2e8f0; color:#475569; font-size:.7rem; font-weight:500; vertical-align:middle; }
+.table-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; }
+.link-button { margin-left:.5rem; padding:0; border:0; background:none; color:#2563eb; font:inherit; text-decoration:underline; cursor:pointer; }
+.empty-cell { text-align:center !important; }
+.department-summary-table th .sort-button { text-transform:none; letter-spacing:normal; }
+.department-summary-table th:not(:first-child) .sort-button { justify-content:flex-end; text-align:right; }
+.department-summary-table td { font-variant-numeric:tabular-nums; }
+/* Pages other than the current one are hidden on screen only, so printing lists every matching employee. */
+@media screen { .report-table tr.off-page { display:none; } }
+/* Keep the employee name visible while the wide table scrolls sideways on small screens. */
+@media (max-width: 767px) {
+  .report-table th:first-child, .report-table td:first-child { position:sticky; left:0; z-index:1; background:var(--surface); box-shadow:1px 0 0 var(--border); }
+  .report-table thead th:first-child, .report-table tfoot th:first-child { background:var(--surface-muted); }
+}
+@media print {
+  .report-filters-card, .table-controls, .sort-mark, .link-button { display:none !important; }
+}
+
 .approved-days-warning { color: #92400e; background: #fffbeb; border: 1px solid #fcd34d; }
 
 .summary-table-wrapper { width:100%; overflow-x:auto; }

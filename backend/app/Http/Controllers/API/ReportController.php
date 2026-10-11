@@ -11,6 +11,7 @@ use App\Models\AttendanceRecord;
 use App\Models\LeaveBalance;
 use App\Models\LeaveCredit;
 use App\Models\EmployeeRecord;
+use App\Models\Department;
 
 use Carbon\Carbon;
 use PDF;
@@ -31,10 +32,40 @@ class ReportController extends Controller
         ]);
     }
 
+    /**
+     * Optional Leave Summary filters. Each one narrows the application set itself, so cards,
+     * department rows, leave-type breakdowns and charts are all computed from the same records.
+     */
+    private function summaryFilters(Request $request): array
+    {
+        $filters = $request->validate([
+            'department_id' => ['nullable', function ($attribute, $value, $fail) {
+                $valid = $value === 'unassigned'
+                    || (is_scalar($value) && ctype_digit((string) $value)
+                        && Department::whereKey((int) $value)->exists());
+                if (!$valid) $fail('The selected department is invalid.');
+            }],
+            'status' => ['nullable', 'in:approved,pending,disapproved'],
+            'leave_type_id' => ['nullable', 'integer', 'exists:leave_types,leave_type_id'],
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        // Employee search: every whitespace/comma separated word must match a name part.
+        $tokens = preg_split('/[\s,]+/u', mb_strtolower(trim((string) ($filters['search'] ?? ''))), -1, PREG_SPLIT_NO_EMPTY);
+
+        return [
+            'department_id' => isset($filters['department_id']) ? (string) $filters['department_id'] : null,
+            'status' => $filters['status'] ?? null,
+            'leave_type_id' => isset($filters['leave_type_id']) ? (int) $filters['leave_type_id'] : null,
+            'search' => $tokens ? implode(' ', array_slice($tokens, 0, 5)) : null,
+        ];
+    }
+
     public function leaveSummary(Request $request)
     {
         $dates = $this->reportDates($request);
         $request->validate(['include_inactive' => 'sometimes|boolean']);
+        $filters = $this->summaryFilters($request);
         // Historical applications are included by default, even after departure.
         $includeInactive = $request->boolean('include_inactive', true);
         $leaves = LeaveApplication::with([
@@ -48,6 +79,34 @@ class ReportController extends Controller
                     });
             }))
             ->when($dates['end_date'] ?? null, fn ($q, $date) => $q->whereDate('start_date', '<=', $date))
+            ->when($filters['status'] !== null, fn ($q) => $q->whereRaw('LOWER(TRIM(final_status)) = ?', [$filters['status']]))
+            ->when($filters['leave_type_id'] !== null, fn ($q) => $q->where('leave_type_id', $filters['leave_type_id']))
+            ->when($filters['department_id'] !== null, function ($q) use ($filters) {
+                // Current department of the linked employee (archived employees included).
+                $department = $filters['department_id'];
+                if ($department === 'unassigned') {
+                    $q->where(function ($query) {
+                        $query->whereDoesntHave('employee', fn ($e) => $e->withTrashed())
+                            ->orWhereHas('employee', fn ($e) => $e->withTrashed()->whereNull('department_id'));
+                    });
+                } else {
+                    $q->whereHas('employee', fn ($e) => $e->withTrashed()->where('department_id', (int) $department));
+                }
+            })
+            ->when($filters['search'] !== null, function ($q) use ($filters) {
+                $q->whereHas('employee', function ($e) use ($filters) {
+                    $e->withTrashed();
+                    foreach (explode(' ', $filters['search']) as $token) {
+                        // "!" is the LIKE escape character so % and _ typed by the user stay literal.
+                        $like = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $token) . '%';
+                        $e->where(function ($name) use ($like) {
+                            foreach (['first_name', 'middle_name', 'last_name'] as $column) {
+                                $name->orWhereRaw("LOWER(employee_records.{$column}) LIKE ? ESCAPE '!'", [$like]);
+                            }
+                        });
+                    }
+                });
+            })
             ->get()
             ->filter(function ($leave) use ($includeInactive) {
                 if (!$leave->employee) return true;
@@ -108,6 +167,10 @@ class ReportController extends Controller
                 'start_date' => $dates['start_date'] ?? null,
                 'end_date' => $dates['end_date'] ?? null,
                 'include_inactive' => $includeInactive,
+                'department_id' => $filters['department_id'],
+                'status' => $filters['status'],
+                'leave_type_id' => $filters['leave_type_id'],
+                'search' => $filters['search'],
                 'date_basis' => 'Applications with leave dates overlapping the selected period.',
                 'days_basis' => 'Full requested days per matching application, not days restricted to the period or credits deducted.',
                 'department_basis' => 'Current department of the linked employee; historical department snapshots are not available.',
