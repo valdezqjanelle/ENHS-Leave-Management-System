@@ -19,10 +19,10 @@ export const getLeaveBalances = async () => {
 
 
 
-export const deleteBalance = async (employee_id: number) => {
+export const deleteBalance = async (employee_id: number, reason: string) => {
   const response = await axios.delete(
     `${API}/leave-balances/${employee_id}`,
-    authHeader()
+    { ...authHeader(), data: { reason } }
   );
   return response.data;
 };

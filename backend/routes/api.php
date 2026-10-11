@@ -311,6 +311,8 @@ Route::middleware('auth:sanctum')->group(function () {
             [LeaveBalanceController::class, 'show']
         );
 
+        Route::get('/leave-balances/{employee_id}/history', [LeaveBalanceController::class, 'history']);
+
         Route::put(
             '/leave-balances/{employee_id}',
             [LeaveBalanceController::class, 'update']

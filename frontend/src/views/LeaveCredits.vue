@@ -33,12 +33,7 @@
             Credit Type
           </label>
 
-          <input
-            value="Local Credits"
-            type="text"
-            readonly
-            class="form-control readonly-control"
-          />
+          <input value="Local Credits (service credit)" type="text" readonly class="form-control readonly-control" />
         </div>
 
         <div class="min-w-0">
@@ -50,7 +45,8 @@
             v-model="form.activity_name"
             type="text"
             class="form-control"
-            placeholder="Example: Overtime Duty"
+            maxlength="255"
+            placeholder="Describe the activity or reason for the award"
           />
         </div>
 
@@ -62,9 +58,10 @@
           <input
             v-model="renderedTime"
             type="number"
-            min="0"
-            step="0.25"
+            min="0.0167"
+            step="0.0001"
             class="form-control"
+            placeholder="Enter time in hours (for example, 7.5)"
           />
           <p v-if="conversionError" class="validation-message mt-1">
             {{ conversionError }}
@@ -77,17 +74,19 @@
           </label>
 
           <input
-            :value="form.equivalent_leave_days"
             type="text"
             readonly
+            step="0.001"
+            placeholder="Calculated from rendered hours"
+            :value="form.equivalent_leave_days"
             class="form-control"
           />
         </div>
       </div>
 
       <div class="mt-6">
-        <button @click="applyCredit" type="button" class="primary-button">
-          Apply Credit
+        <button @click="applyCredit" type="button" class="primary-button" :disabled="submitting">
+          {{ submitting ? "Saving…" : "Record Credit" }}
         </button>
       </div>
     </div>
@@ -202,7 +201,7 @@
             </tr>
             <tr v-if="filteredCreditGroups.length === 0">
               <td colspan="6" class="empty-state">
-                No leave credit records found.
+                {{ creditsLoading ? "Loading leave credit records…" : creditsError || "No leave credit records found." }}
               </td>
             </tr>
           </tbody>
@@ -312,8 +311,9 @@
                       @click="revokeCredit(credit)"
                       type="button"
                       class="remove-button"
+                      :disabled="revokingCreditId === credit.credits_id"
                     >
-                      Revoke Credits
+                      {{ revokingCreditId === credit.credits_id ? "Revoking…" : "Revoke Credits" }}
                     </button>
                   </div>
                 </td>
@@ -382,6 +382,10 @@ const form = ref({
    whenever a credit is recorded or revoked.
    ============================================================ */
 const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
+const submitting = ref(false);
+const creditsLoading = ref(false);
+const creditsError = ref("");
+const revokingCreditId = ref<number | null>(null);
 
 const authHeaders = () => {
   const token = localStorage.getItem("token");
@@ -392,65 +396,6 @@ const authHeaders = () => {
   };
 };
 
-/* ============================================================
-   Apply / revert a credit against the employee's leave balance.
-   direction = +1 when applying a credit, -1 when revoking one.
-   ============================================================ */
-const syncBalanceWithCredit = async (
-  employee_id: number,
-  credit_type: string,
-  equivalent_leave_days: number,
-  direction: 1 | -1,
-) => {
-  const days = Number(equivalent_leave_days || 0);
-  if (!employee_id || !days) return;
-
-  // 1. Fetch the current balance for this employee.
-  const { data } = await axios.get(`${API_BASE}/leave-balances`, {
-    headers: authHeaders(),
-  });
-
-  const list = Array.isArray(data) ? data : [];
-  const current =
-    list.find((b: any) => Number(b.employee_id) === Number(employee_id)) || {};
-
-  // 2. Start from current values (default to 0).
-  const payload = {
-    vacation_earned: Number(current.vacation_earned ?? 0),
-    sick_earned: Number(current.sick_earned ?? 0),
-    vacation_balance: Number(current.vacation_balance ?? 0),
-    sick_balance: Number(current.sick_balance ?? 0),
-    service_credits: Number(current.service_credits ?? 0),
-  };
-
-  // 3. Apply the delta to the correct bucket.
-  const delta = direction * days;
-
-  if (credit_type === "Service") {
-    payload.service_credits += delta;
-  } else if (credit_type === "Vacation") {
-    payload.vacation_earned += delta;
-    payload.vacation_balance += delta;
-  } else if (credit_type === "Sick") {
-    payload.sick_earned += delta;
-    payload.sick_balance += delta;
-  } else {
-    return;
-  }
-
-  // 4. Clamp to zero so balances can never go negative.
-  (Object.keys(payload) as (keyof typeof payload)[]).forEach((k) => {
-    if (payload[k] < 0) payload[k] = 0;
-    payload[k] = Number(payload[k].toFixed(3));
-  });
-
-  // 5. Persist the updated balance.
-  await axios.put(`${API_BASE}/leave-balances/${employee_id}`, payload, {
-    headers: authHeaders(),
-  });
-};
-
-// Conversion only: existing balance/apply/revoke functions are unchanged.
 const renderedTime = ref<string | number>("");
 const conversionError = ref("");
 const conversionRows = ref<
@@ -547,13 +492,10 @@ interface CreditGroup {
 }
 
 const selectedEmployeeId = ref<number | null>(null);
-const isLocalCredit = (credit: LeaveCredit) =>
-  ["service", "local credits"].includes(String(credit.credit_type || "").trim().toLowerCase());
 
 const creditGroups = computed<CreditGroup[]>(() => {
   const groups = new Map<number, CreditGroup>();
   for (const credit of credits.value) {
-    if (!isLocalCredit(credit)) continue;
     const employeeId = Number(credit.employee_id);
     let group = groups.get(employeeId);
     if (!group) {
@@ -577,10 +519,11 @@ const creditGroups = computed<CreditGroup[]>(() => {
     const hours = Number(credit.hours_rendered || 0);
     const days = Number(credit.equivalent_leave_days || 0);
     if (Number.isFinite(hours)) group.hourUnits += Math.round(hours * 10000);
-    // Sum recorded three-decimal equivalents rather than recomputing from total hours.
-    let bucket = group.buckets.find((b) => b.type === "Service");
+    // Keep each transaction type separate; service, vacation, and sick awards are not fungible.
+    const bucketType = credit.credit_type;
+    let bucket = group.buckets.find((b) => b.type === bucketType);
     if (!bucket) {
-      bucket = { type: "Service", dayUnits: 0 };
+      bucket = { type: bucketType, dayUnits: 0 };
       group.buckets.push(bucket);
     }
     if (Number.isFinite(days)) bucket.dayUnits += Math.round(days * 1000);
@@ -606,7 +549,7 @@ const filteredCreditGroups = computed(() => {
 });
 const detailCredits = computed(() =>
   credits.value.filter(
-    (credit) => isLocalCredit(credit) && Number(credit.employee_id) === selectedEmployeeId.value,
+    (credit) => Number(credit.employee_id) === selectedEmployeeId.value,
   ),
 );
 const selectedEmployeeName = computed(
@@ -629,43 +572,28 @@ const loadEmployees = async () => {
 };
 
 const loadCredits = async () => {
+  creditsLoading.value = true;
+  creditsError.value = "";
   try {
     credits.value = await getLeaveCredits();
   } catch (error) {
     console.error("Failed to load leave credits.", error);
+    creditsError.value = "Unable to load leave credit records. Try refreshing the page.";
+  } finally {
+    creditsLoading.value = false;
   }
 };
 
 const applyCredit = async () => {
-  if (!form.value.equivalent_leave_days) {
+  if (submitting.value) return;
+  if (!form.value.employee_id || !form.value.activity_name.trim() || !form.value.equivalent_leave_days || Number(form.value.equivalent_leave_days) <= 0) {
     notify(conversionError.value || "Enter valid rendered hours or minutes.");
     return;
   }
+  submitting.value = true;
   try {
-    console.log("Applying credit data:", form.value);
-
-    // 1. Create the credit record.
     await addLeaveCredit(form.value);
-
-    // 2. Add the equivalent days to the correct leave balance bucket.
-    try {
-      await syncBalanceWithCredit(
-        Number(form.value.employee_id),
-        form.value.credit_type,
-        Number(form.value.equivalent_leave_days || 0),
-        1,
-      );
-    } catch (balanceError: any) {
-      console.error(
-        "Credit saved but balance sync failed:",
-        balanceError.response?.data || balanceError,
-      );
-      notify(
-        "Credit was saved, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
-      );
-    }
-
-    notify("Leave credit applied successfully!");
+    notify("Leave credit recorded and added to the employee balance.");
     renderedTime.value = "";
 
     form.value = {
@@ -675,6 +603,7 @@ const applyCredit = async () => {
       equivalent_leave_days: "",
       credit_type: "",
     };
+    form.value.credit_type = "Service";
 
     await loadCredits();
   } catch (error: any) {
@@ -687,47 +616,32 @@ const applyCredit = async () => {
           error.response?.data?.errors ?? "Unable to apply leave credit.",
         ),
     );
-  }
+  } finally { submitting.value = false; }
 };
 
 const revokeCredit = async (credit: LeaveCredit) => {
+  if (revokingCreditId.value !== null) return;
   if (
     !(await confirmAction({
       title: "Revoke leave credit?",
-      message: "Are you sure you want to revoke this credit?",
+      message: "Revoking this credit removes its contribution from the employee’s applicable balance when permitted by the balance rules. Continue?",
       confirmLabel: "Revoke credit",
     }))
   ) {
     return;
   }
 
+  revokingCreditId.value = credit.credits_id;
   try {
-    // 1. Delete the credit record.
-    await deleteLeaveCredit(credit.credits_id);
+    await axios.delete(`${API_BASE}/leave-credits/${credit.credits_id}`, { headers: authHeaders() });
 
-    // 2. Subtract the same amount from the employee's balance.
-    try {
-      await syncBalanceWithCredit(
-        Number(credit.employee_id),
-        credit.credit_type,
-        Number(credit.equivalent_leave_days || 0),
-        -1,
-      );
-    } catch (balanceError: any) {
-      console.error(
-        "Credit revoked but balance sync failed:",
-        balanceError.response?.data || balanceError,
-      );
-      notify(
-        "Credit was revoked, but the employee's leave balance could not be updated automatically. Please refresh the Leave Balances page.",
-      );
-    }
-
-    notify("Leave credit revoked successfully!");
+    notify("Leave credit revoked successfully.");
     await loadCredits();
   } catch (error: any) {
     console.error("Failed to revoke credit:", error);
-    notify("Unable to revoke leave credit.");
+    notify(error.response?.data?.message || Object.values(error.response?.data?.errors || {}).flat().join("\n") || "Unable to revoke leave credit.");
+  } finally {
+    revokingCreditId.value = null;
   }
 };
 

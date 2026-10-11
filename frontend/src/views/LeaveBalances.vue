@@ -59,8 +59,6 @@
                 <th class="balance-column px-6 py-4">Local Credits</th>
                 <th class="balance-column px-6 py-4">Vacation Balance</th>
                 <th class="balance-column px-6 py-4">Sick Balance</th>
-                <th class="total-column px-6 py-4">Total Available</th>
-                <th class="used-column px-6 py-4">Used Leave</th>
                 <th class="action-column px-6 py-4">Action</th>
               </tr>
             </thead>
@@ -81,30 +79,25 @@
                   <span :class="balanceColor(balance.service_credits)">
                     {{ formatNumber(balance.service_credits) }}
                   </span>
+                  <span class="balance-label">{{ balanceLabel(balance.service_credits) }}</span>
                 </td>
 
                 <td class="px-6 py-5">
                   <span :class="balanceColor(balance.vacation_balance)">
                     {{ formatNumber(balance.vacation_balance) }}
                   </span>
+                  <span class="balance-label">{{ balanceLabel(balance.vacation_balance) }}</span>
                 </td>
 
                 <td class="px-6 py-5">
                   <span :class="balanceColor(balance.sick_balance)">
                     {{ formatNumber(balance.sick_balance) }}
                   </span>
+                  <span class="balance-label">{{ balanceLabel(balance.sick_balance) }}</span>
                 </td>
 
-                <td class="px-6 py-5 font-semibold total-value">
-                  {{ totalBalance(balance) }}
-                </td>
-
-                <td class="px-6 py-5 used-value">
-                  {{ formatNumber(balance.used_leave) }}
-                </td>
-
-                <td class="px-6 py-5">
-                  <div class="flex items-center gap-2">
+                <td class="px-4 py-4 action-cell">
+                  <div class="flex flex-wrap items-center justify-center gap-2">
                     <button
                       @click="openModal(balance)"
                       type="button"
@@ -112,6 +105,7 @@
                     >
                       Edit Balance
                     </button>
+                    <button @click="showHistory(balance)" type="button" class="btn-action history-button">History</button>
 
                     <button
                       @click="deleteBalance(balance.employee_id)"
@@ -125,8 +119,8 @@
               </tr>
 
               <tr v-if="displayedBalances.length === 0">
-                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
-                  {{ searchQuery.trim() ? "No employees match your search." : "No leave balance records found." }}
+                <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                  {{ balancesLoading ? "Loading leave balances…" : balancesError || (searchQuery.trim() ? "No employees match your search." : "No leave balance records found.") }}
                 </td>
               </tr>
             </tbody>
@@ -150,6 +144,11 @@
               :value="selectedBalance.employee.last_name + ', ' + selectedBalance.employee.first_name"
               class="balance-input w-full"
             />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-white mb-2">Adjustment reason <span aria-hidden="true">*</span></label>
+            <textarea v-model="adjustmentReason" maxlength="500" minlength="5" required rows="3" class="balance-input w-full" placeholder="Explain why these balances are being changed."></textarea>
           </div>
 
 <div class="mb-4">
@@ -194,6 +193,15 @@
         </div>
       </div>
 
+      <div v-if="historyEmployee" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4" @click.self="historyEmployee = null">
+        <div class="neo-card modal-card w-full max-w-3xl p-6">
+          <div class="flex justify-between items-center mb-4"><div><h3 class="text-xl font-bold text-white">Balance Adjustment History</h3><p class="text-gray-400">{{ historyEmployee.last_name }}, {{ historyEmployee.first_name }}</p></div><button type="button" class="btn-action-lg cancel-button" @click="historyEmployee = null">Close</button></div>
+          <p v-if="historyLoading" class="text-gray-400 py-4">Loading history…</p>
+          <p v-else-if="balanceHistory.length === 0" class="text-gray-400 py-4">No manual adjustments recorded.</p>
+          <div v-else class="table-wrapper"><table class="leave-balance-table history-table"><thead><tr><th>When / administrator</th><th>Vacation</th><th>Sick</th><th>Reason</th></tr></thead><tbody><tr v-for="entry in balanceHistory" :key="entry.id"><td>{{ new Date(entry.created_at).toLocaleString() }}<br><span class="text-gray-400">{{ entry.administrator }}</span></td><td>{{ formatNumber(entry.vacation_before) }} → {{ formatNumber(entry.vacation_after) }}</td><td>{{ formatNumber(entry.sick_before) }} → {{ formatNumber(entry.sick_after) }}</td><td class="reason-cell">{{ entry.reason }}</td></tr></tbody></table></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -224,8 +232,14 @@ interface LeaveBalance {
 }
 
 const balances = ref<LeaveBalance[]>([]);
+const balancesLoading = ref(false);
+const balancesError = ref("");
 const arranged = ref(false);
 const searchQuery = ref("");
+const adjustmentReason = ref("");
+const historyEmployee = ref<Employee | null>(null);
+const balanceHistory = ref<any[]>([]);
+const historyLoading = ref(false);
 
 const toggleSort = () => {
   arranged.value = !arranged.value;
@@ -273,6 +287,8 @@ const selectedBalance = ref<LeaveBalance>({
 const API_BASE = "https://enhs-leave-management-system.onrender.com/api";
 
 const loadBalances = async () => {
+  balancesLoading.value = true;
+  balancesError.value = "";
   try {
     const token = localStorage.getItem("token");
 
@@ -330,6 +346,7 @@ const openModal = (balance: LeaveBalance) => {
   };
 
   showModal.value = true;
+  adjustmentReason.value = "";
 };
 
 const closeModal = () => {
@@ -343,9 +360,10 @@ const updateBalance = async () => {
     const payload = {
       vacation_balance: Number(selectedBalance.value.vacation_balance ?? 0),
       sick_balance: Number(selectedBalance.value.sick_balance ?? 0),
+      reason: adjustmentReason.value.trim(),
     };
 
-    const values = Object.values(payload);
+    const values = [payload.vacation_balance, payload.sick_balance];
 
     if (
       values.some(
@@ -357,6 +375,7 @@ const updateBalance = async () => {
       );
       return;
     }
+    if (payload.reason.length < 5) { notify("Provide an adjustment reason of at least 5 characters."); return; }
 
     await axios.put(
       `${API_BASE}/leave-balances/${selectedBalance.value.employee_id}`,
@@ -395,6 +414,18 @@ const updateBalance = async () => {
   }
 };
 
+const showHistory = async (balance: LeaveBalance) => {
+  historyEmployee.value = balance.employee;
+  historyLoading.value = true;
+  try {
+    const response = await axios.get(`${API_BASE}/leave-balances/${balance.employee_id}/history`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+    balanceHistory.value = response.data?.data ?? [];
+  } catch (error: any) {
+    historyEmployee.value = null;
+    notify(error.response?.data?.message || "Unable to load balance history.");
+  } finally { historyLoading.value = false; }
+};
+
 const deleteBalance = async (employee_id: number) => {
   const confirmed = await confirmAction({
     title: "Clear leave balance?",
@@ -405,9 +436,11 @@ const deleteBalance = async (employee_id: number) => {
   });
 
   if (!confirmed) return;
+  const reason = window.prompt("Reason for clearing vacation and sick balances:")?.trim();
+  if (!reason || reason.length < 5) { notify("Enter a reason of at least 5 characters."); return; }
 
   try {
-    await deleteLeaveBalance(employee_id);
+    await deleteLeaveBalance(employee_id, reason);
 
     notify("Leave balance cleared successfully.");
 
@@ -422,15 +455,11 @@ const deleteBalance = async (employee_id: number) => {
       error.response?.data?.message ||
       "Failed clearing balance."
     );
+    balancesError.value = "Unable to load leave balances. Use Refresh to try again.";
+  } finally {
+    balancesLoading.value = false;
   }
 };
-
-const totalBalance = (balance: LeaveBalance) =>
-  (
-    Number(balance.vacation_balance ?? 0) +
-    Number(balance.sick_balance ?? 0) +
-    Number(balance.service_credits ?? 0)
-  ).toFixed(3);
 
 const formatNumber = (
   value: number | string | null | undefined
@@ -452,6 +481,13 @@ const balanceColor = (
   if (amount <= 0) return "balance-zero";
   if (amount <= 10) return "balance-low";
   return "balance-good";
+};
+
+const balanceLabel = (value: number | string | null | undefined) => {
+  const amount = Number(value ?? 0);
+  if (amount <= 0) return "None";
+  if (amount <= 10) return "Low";
+  return "Available";
 };
 
 /* Auto-reload balances whenever the tab regains focus so newly
@@ -606,9 +642,9 @@ onUnmounted(() => {
 .leave-balance-table {
   width: 100%;
 
-  table-layout: auto;
+  table-layout: fixed;
 
-  min-width: 1050px;
+  min-width: 940px;
 
   border-collapse: collapse;
 }
@@ -665,27 +701,17 @@ onUnmounted(() => {
    ============================================================ */
 
 .employee-column {
-  min-width: 220px;
+  width: 23%;
 }
 
 
 .balance-column {
-  min-width: 150px;
-}
-
-
-.total-column {
-  min-width: 155px;
-}
-
-
-.used-column {
-  min-width: 130px;
+  width: 16%;
 }
 
 
 .action-column {
-  min-width: 190px;
+  width: 29%;
 
   text-align: center;
 }
@@ -708,7 +734,7 @@ onUnmounted(() => {
    ============================================================ */
 
 .employee-cell {
-  min-width: 220px;
+  min-width: 0;
 }
 
 
@@ -724,15 +750,6 @@ onUnmounted(() => {
    ============================================================ */
 
 /* TOTAL AVAILABLE = BLUE */
-.total-value {
-  color: #2563eb !important;
-}
-
-/* USED LEAVE = BLACK */
-.used-value {
-  color: #000000 !important;
-}
-
 
 /* ============================================================
    BALANCE COLORS
@@ -760,6 +777,11 @@ onUnmounted(() => {
 
   font-weight: 700;
 }
+
+.balance-label { display: block; color: var(--text-muted); font-size: 0.7rem; font-weight: 500; }
+.history-button { background: #1e40af; }
+.reason-cell { white-space: normal !important; min-width: 220px; }
+.history-table { min-width: 780px; }
 
 
 /* ============================================================
@@ -1019,7 +1041,7 @@ button {
   }
 
   .leave-balance-table {
-    min-width: 1000px;
+    min-width: 940px;
   }
 
 }

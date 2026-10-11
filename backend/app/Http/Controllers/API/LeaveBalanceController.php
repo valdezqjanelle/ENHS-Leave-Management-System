@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\LeaveBalance;
 use App\Models\EmployeeRecord;
 use App\Support\AuditLogger;
+use Illuminate\Support\Facades\DB;
 
 class LeaveBalanceController extends Controller
 {
@@ -91,6 +92,7 @@ class LeaveBalanceController extends Controller
         $validated = $request->validate([
             'vacation_balance' => 'required|numeric|min:0',
             'sick_balance' => 'required|numeric|min:0',
+            'reason' => 'required|string|min:5|max:500',
 
             // Optional: supplied by Leave Credits synchronization.
             'vacation_earned' => 'sometimes|numeric|min:0',
@@ -106,46 +108,34 @@ class LeaveBalanceController extends Controller
             ], 404);
         }
 
-        $balance = LeaveBalance::where('employee_id', $employee_id)
-            ->first();
-
-        $wasCreated = false;
-
-        if (!$balance) {
-            $balance = new LeaveBalance();
-            $balance->employee_id = $employee->employee_id;
-            $balance->vacation_earned = 0;
-            $balance->sick_earned = 0;
-            $balance->vacation_balance = 0;
-            $balance->sick_balance = 0;
-            $balance->service_credits = 0;
-            $balance->used_leave = 0;
-
-            $wasCreated = true;
-        }
-
-        $balance->vacation_balance = $validated['vacation_balance'];
-        $balance->sick_balance = $validated['sick_balance'];
-
-        // Preserve existing values when these fields are omitted.
-        foreach (
-            ['vacation_earned', 'sick_earned', 'service_credits']
-            as $field
-        ) {
-            if (array_key_exists($field, $validated)) {
-                $balance->{$field} = $validated[$field];
-            }
-        }
-
-        $balance->last_updated = now();
-        $balance->save();
+        [$balance, $wasCreated] = DB::transaction(function () use ($employee, $employee_id, $validated, $request) {
+            EmployeeRecord::whereKey($employee_id)->lockForUpdate()->firstOrFail();
+            $balance = LeaveBalance::withTrashed()->where('employee_id', $employee_id)->lockForUpdate()->first();
+            if ($balance?->trashed()) $balance->restore();
+            $wasCreated = !$balance;
+            $balance ??= new LeaveBalance(['employee_id' => $employee->employee_id]);
+            foreach (['vacation_earned', 'sick_earned', 'vacation_balance', 'sick_balance', 'service_credits', 'used_leave'] as $field) $balance->{$field} ??= 0;
+            $beforeVacation = number_format((float) $balance->vacation_balance, 3, '.', '');
+            $beforeSick = number_format((float) $balance->sick_balance, 3, '.', '');
+            $balance->vacation_balance = number_format((float) $validated['vacation_balance'], 3, '.', '');
+            $balance->sick_balance = number_format((float) $validated['sick_balance'], 3, '.', '');
+            $balance->last_updated = now();
+            $balance->save();
+            DB::table('leave_balance_adjustments')->insert([
+                'employee_id' => $employee_id, 'admin_user_id' => $request->user()->user_id,
+                'vacation_before' => $beforeVacation, 'vacation_after' => $balance->vacation_balance,
+                'sick_before' => $beforeSick, 'sick_after' => $balance->sick_balance,
+                'reason' => $validated['reason'], 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            return [$balance, $wasCreated];
+        });
 
         AuditLogger::log(
             $wasCreated
                 ? 'Leave balance created'
                 : 'Leave balance updated',
             "Set leave balance for employee #{$employee_id} " .
-            "(vacation: {$balance->vacation_balance}, " .
+            "(reason: {$validated['reason']}; vacation: {$balance->vacation_balance}, " .
             "sick: {$balance->sick_balance}, " .
             "service: {$balance->service_credits})"
         );
@@ -156,6 +146,18 @@ class LeaveBalanceController extends Controller
                 : 'Leave balance updated successfully.',
             'data' => $balance->fresh('employee'),
         ], $wasCreated ? 201 : 200);
+    }
+
+    public function history($employee_id)
+    {
+        abort_unless(EmployeeRecord::whereKey($employee_id)->exists(), 404, 'Employee record not found.');
+        $history = DB::table('leave_balance_adjustments as a')
+            ->join('users as u', 'u.user_id', '=', 'a.admin_user_id')
+            ->where('a.employee_id', $employee_id)
+            ->orderByDesc('a.created_at')
+            ->select('a.id', 'a.vacation_before', 'a.vacation_after', 'a.sick_before', 'a.sick_after', 'a.reason', 'a.created_at', 'u.email as administrator')
+            ->get();
+        return response()->json(['data' => $history]);
     }
 
     public function myBalance(Request $request)
@@ -201,6 +203,7 @@ class LeaveBalanceController extends Controller
 
     public function destroy($employee_id)
     {
+        $validated = request()->validate(['reason' => 'required|string|min:5|max:500']);
         $employee = EmployeeRecord::find($employee_id);
 
         if (!$employee) {
@@ -209,28 +212,29 @@ class LeaveBalanceController extends Controller
             ], 404);
         }
 
-        $balance = LeaveBalance::where('employee_id', $employee_id)
-            ->first();
-
-        if (!$balance) {
-            $balance = new LeaveBalance();
-            $balance->employee_id = $employee->employee_id;
-            $balance->vacation_earned = 0;
-            $balance->sick_earned = 0;
-            $balance->service_credits = 0;
-            $balance->used_leave = 0;
-        }
-
-        // Preserve your current clear behavior:
-        // clear Vacation/Sick balances only.
-        $balance->vacation_balance = 0;
-        $balance->sick_balance = 0;
-        $balance->last_updated = now();
-        $balance->save();
+        $balance = DB::transaction(function () use ($employee, $employee_id, $validated) {
+            EmployeeRecord::whereKey($employee_id)->lockForUpdate()->firstOrFail();
+            $balance = LeaveBalance::withTrashed()->where('employee_id', $employee_id)->lockForUpdate()->first();
+            if ($balance?->trashed()) $balance->restore();
+            $balance ??= new LeaveBalance(['employee_id' => $employee->employee_id]);
+            foreach (['vacation_earned', 'sick_earned', 'vacation_balance', 'sick_balance', 'service_credits', 'used_leave'] as $field) $balance->{$field} ??= 0;
+            $beforeVacation = number_format((float) $balance->vacation_balance, 3, '.', '');
+            $beforeSick = number_format((float) $balance->sick_balance, 3, '.', '');
+            $balance->vacation_balance = 0;
+            $balance->sick_balance = 0;
+            $balance->last_updated = now();
+            $balance->save();
+            DB::table('leave_balance_adjustments')->insert([
+                'employee_id' => $employee_id, 'admin_user_id' => request()->user()->user_id,
+                'vacation_before' => $beforeVacation, 'vacation_after' => '0.000', 'sick_before' => $beforeSick, 'sick_after' => '0.000',
+                'reason' => $validated['reason'], 'created_at' => now(), 'updated_at' => now(),
+            ]);
+            return $balance;
+        });
 
         AuditLogger::log(
             'Leave balance cleared',
-            "Cleared vacation and sick balances for employee #{$employee_id}"
+            "Cleared vacation and sick balances for employee #{$employee_id}: {$validated['reason']}"
         );
 
         return response()->json([

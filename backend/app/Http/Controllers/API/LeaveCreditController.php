@@ -81,29 +81,55 @@ class LeaveCreditController extends Controller
     // ADD CREDIT
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'employee_id' => 'required|exists:employee_records,employee_id',
-            'activity_name' => 'required|string',
-            'hours_rendered' => 'required|numeric',
-            'equivalent_leave_days' => 'required|numeric',
-            'credit_type' => 'required|in:Vacation,Sick,Service',
+            'activity_name' => 'required|string|max:255',
+            'hours_rendered' => 'required|numeric|min:0|max:100000',
+            'equivalent_leave_days' => 'required|numeric|min:0|max:100000',
+            'credit_type' => 'required|in:Service',
         ]);
+        $units = (int) round((float) $data['hours_rendered'] * 60);
+        if ($units < 1) {
+                return response()->json(['message' => 'Rendered time must be at least one minute.'], 422);
+        }
+            $references = DB::table('work_time_conversions')->get()->keyBy(fn ($r) => $r->unit . ':' . $r->quantity);
+            $hours = intdiv($units, 60);
+            $minutes = $units % 60;
+            $hourRate = $references->get('hour:1');
+            $minuteRate = $minutes ? $references->get('minute:' . $minutes) : null;
+            if (!$hourRate || ($minutes && !$minuteRate)) {
+                return response()->json(['message' => 'The work-time conversion reference is unavailable or incomplete.'], 503);
+            }
+            $calculated = (int) round((float) $hourRate->equivalent_days * 1000) * $hours
+                + ($minutes ? (int) round((float) $minuteRate->equivalent_days * 1000) : 0);
+            if ($calculated < 1 || abs($calculated - (int) round((float) $data['equivalent_leave_days'] * 1000)) > 0) {
+                return response()->json(['message' => 'Equivalent days do not match the approved conversion reference.', 'errors' => ['equivalent_leave_days' => ['Refresh the preview and submit again.']]], 422);
+            }
+            $data['equivalent_leave_days'] = number_format($calculated / 1000, 3, '.', '');
 
-        $credit = LeaveCredit::create([
-            'employee_id' => $request->employee_id,
-            'activity_name' => $request->activity_name,
-            'hours_rendered' => $request->hours_rendered,
-            'equivalent_leave_days' => $request->equivalent_leave_days,
-            'credit_type' => $request->credit_type,
-            'status' => 'Pending',
-            'date_recorded' => Carbon::now(),
-            'recorded_by' => auth()->user()->user_id,
-        ]);
-
-        AuditLogger::log(
-            'Leave credit added',
-            "Added {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) for employee #{$credit->employee_id} ({$credit->activity_name})"
-        );
+        $credit = DB::transaction(function () use ($data, $request, $units) {
+            EmployeeRecord::where('employee_id', $data['employee_id'])->lockForUpdate()->firstOrFail();
+            $balance = LeaveBalance::withTrashed()->where('employee_id', $data['employee_id'])->lockForUpdate()->first();
+            if ($balance?->trashed()) $balance->restore();
+            $balance ??= new LeaveBalance(['employee_id' => $data['employee_id']]);
+            foreach (['vacation_earned', 'sick_earned', 'vacation_balance', 'sick_balance', 'service_credits', 'used_leave'] as $field) {
+                $balance->{$field} ??= 0;
+            }
+            $days = (int) round((float) $data['equivalent_leave_days'] * 1000);
+            $balance->service_credits = number_format(((int) round((float) $balance->service_credits * 1000) + $days) / 1000, 3, '.', '');
+            $bucket = 'service';
+            $balance->last_updated = now();
+            $balance->save();
+            $credit = LeaveCredit::create([
+                'employee_id' => $data['employee_id'], 'activity_name' => $data['activity_name'],
+                'hours_rendered' => number_format($units / 60, 4, '.', ''),
+                'equivalent_leave_days' => $data['equivalent_leave_days'], 'credit_type' => $data['credit_type'],
+                'status' => 'Applied', 'posted_bucket' => $bucket, 'posted_days' => $data['equivalent_leave_days'],
+                'date_recorded' => Carbon::now(), 'recorded_by' => $request->user()->user_id,
+            ]);
+            AuditLogger::log('Leave credit added', "Added {$credit->equivalent_leave_days} {$credit->credit_type} credit day(s) for employee #{$credit->employee_id} ({$credit->activity_name})");
+            return $credit;
+        });
 
         return response()->json([
             'message' => 'Leave credit added successfully',
@@ -124,7 +150,7 @@ class LeaveCreditController extends Controller
     // VIEW ALL CREDITS PER EMPLOYEE
     public function show($employee_id)
     {
-        $credits = LeaveCredit::where('employee_id', $employee_id)->get();
+        $credits = LeaveCredit::with('employee')->where('employee_id', $employee_id)->orderByDesc('credits_id')->get();
 
         return response()->json([
             'data' => $credits
@@ -156,14 +182,28 @@ class LeaveCreditController extends Controller
     // DELETE CREDIT
     public function destroy($id)
     {
-        $credit = LeaveCredit::findOrFail($id);
-
-        $credit->delete();
-
-        AuditLogger::log(
-            'Leave credit deleted',
-            "Soft deleted leave credit #{$credit->credits_id} for employee #{$credit->employee_id}"
-        );
+        DB::transaction(function () use ($id) {
+            $credit = LeaveCredit::whereKey($id)->lockForUpdate()->firstOrFail();
+            if ($credit->status === 'Applied' && !$credit->posted_bucket) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['credit' => 'This historical credit has no recorded balance allocation and requires a balance review before it can be revoked.']);
+            }
+            if ($credit->status === 'Applied' && $credit->posted_bucket && $credit->posted_days) {
+                $balance = LeaveBalance::where('employee_id', $credit->employee_id)->lockForUpdate()->firstOrFail();
+                $units = (int) round((float) $credit->posted_days * 1000);
+                $field = match ($credit->posted_bucket) { 'vacation' => 'vacation_balance', 'sick' => 'sick_balance', default => 'service_credits' };
+                if ((int) round((float) $balance->{$field} * 1000) < $units) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['credit' => 'This credit has already been used and cannot be revoked without a balance review.']);
+                }
+                $balance->{$field} = number_format(((int) round((float) $balance->{$field} * 1000) - $units) / 1000, 3, '.', '');
+                if ($credit->posted_bucket === 'vacation') $balance->vacation_earned = number_format(max(0, ((int) round((float) $balance->vacation_earned * 1000) - $units)) / 1000, 3, '.', '');
+                if ($credit->posted_bucket === 'sick') $balance->sick_earned = number_format(max(0, ((int) round((float) $balance->sick_earned * 1000) - $units)) / 1000, 3, '.', '');
+                $balance->last_updated = now(); $balance->save();
+            }
+            $credit->revoked_reason = null; $credit->revoked_by = request()->user()->user_id; $credit->revoked_at = now();
+            $credit->save();
+            $credit->delete();
+            AuditLogger::log('Leave credit revoked', "Revoked leave credit #{$credit->credits_id} for employee #{$credit->employee_id}");
+        });
 
         return response()->json([
             'message' => 'Leave credit deleted successfully.'
@@ -183,7 +223,15 @@ class LeaveCreditController extends Controller
     // APPLY CREDIT
     public function apply(Request $request, $id)
     {
-        $credit = LeaveCredit::findOrFail($id);
+        $request->validate([
+            'leave_type' => 'nullable|in:Vacation,Sick,Service',
+            'days' => 'nullable|numeric|min:0',
+            'split' => 'nullable|boolean',
+            'vacation_days' => 'nullable|numeric|min:0',
+            'sick_days' => 'nullable|numeric|min:0',
+        ]);
+        return DB::transaction(function () use ($request, $id) {
+        $credit = LeaveCredit::whereKey($id)->lockForUpdate()->firstOrFail();
 
         // Prevent duplicate application
         if ($credit->status === 'Applied') {
@@ -192,26 +240,11 @@ class LeaveCreditController extends Controller
             ], 400);
         }
 
-        $request->validate([
-            'leave_type' => 'nullable|in:Vacation,Sick,Service',
-            'days' => 'nullable|numeric|min:0',
-            'split' => 'nullable|boolean',
-            'vacation_days' => 'nullable|numeric|min:0',
-            'sick_days' => 'nullable|numeric|min:0',
-        ]);
-
-        $balance = LeaveBalance::firstOrCreate(
-            ['employee_id' => $credit->employee_id],
-            [
-                'vacation_earned' => 0,
-                'sick_earned' => 0,
-                'vacation_balance' => 0,
-                'sick_balance' => 0,
-                'service_credits' => 0,
-                'used_leave' => 0,
-                'last_updated' => now(),
-            ]
-        );
+        EmployeeRecord::whereKey($credit->employee_id)->lockForUpdate()->firstOrFail();
+        $balance = LeaveBalance::withTrashed()->where('employee_id', $credit->employee_id)->lockForUpdate()->first();
+        if ($balance?->trashed()) $balance->restore();
+        $balance ??= new LeaveBalance(['employee_id' => $credit->employee_id]);
+        foreach (['vacation_earned', 'sick_earned', 'vacation_balance', 'sick_balance', 'service_credits', 'used_leave'] as $field) $balance->{$field} ??= 0;
 
         $creditType = strtolower(trim($credit->credit_type));
         $availableDays = (float) $credit->equivalent_leave_days;
@@ -290,5 +323,6 @@ class LeaveCreditController extends Controller
             'message' => 'Leave credit applied successfully.',
             'data' => $credit
         ]);
+        });
     }
 }
