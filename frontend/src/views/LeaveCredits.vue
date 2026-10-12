@@ -1,21 +1,21 @@
 <template>
   <div class="dashboard-shell p-8 min-h-screen space-y-8">
-    <div class="neo-card p-6">
-      <h2 class="text-2xl font-bold text-white">Leave Credits</h2>
+    <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+      <h2 class="text-2xl font-semibold" style="color: var(--text);">Leave Credits</h2>
 
-      <p class="text-gray-400 mt-1">
+      <p class="mt-1" style="color: var(--text-muted);">
         Record earned leave credits for employees.
       </p>
     </div>
 
-    <div class="neo-card p-6">
+    <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="min-w-0">
-          <label class="block text-sm font-medium text-white mb-2">
+          <label class="block text-sm font-medium mb-2" style="color: var(--text);">
             Employee
           </label>
 
-          <select v-model="form.employee_id" class="form-control">
+          <select v-model="form.employee_id" class="form-control" style="border-color: var(--border); background: var(--surface); color: var(--text);">
             <option value="">Select Employee</option>
 
             <option
@@ -29,15 +29,15 @@
         </div>
 
         <div class="min-w-0">
-          <label class="block text-sm font-medium text-white mb-2">
+          <label class="block text-sm font-medium mb-2" style="color: var(--text);">
             Credit Type
           </label>
 
-          <input value="Local Credits (service credit)" type="text" readonly class="form-control readonly-control" />
+          <input value="Local Credits (service credit)" type="text" readonly class="form-control readonly-control" style="border-color: var(--border); background: var(--surface-muted); color: var(--text);" />
         </div>
 
         <div class="min-w-0">
-          <label class="block text-sm font-medium text-white mb-2">
+          <label class="block text-sm font-medium mb-2" style="color: var(--text);">
             Activity Name
           </label>
 
@@ -47,11 +47,12 @@
             class="form-control"
             maxlength="255"
             placeholder="Describe the activity or reason for the award"
+            style="border-color: var(--border); background: var(--surface); color: var(--text);"
           />
         </div>
 
         <div class="min-w-0">
-          <label class="block text-sm font-medium text-white mb-2">
+          <label class="block text-sm font-medium mb-2" style="color: var(--text);">
             Hours Rendered
           </label>
 
@@ -62,14 +63,15 @@
             step="0.0001"
             class="form-control"
             placeholder="Enter time in hours (for example, 7.5)"
+            style="border-color: var(--border); background: var(--surface); color: var(--text);"
           />
-          <p v-if="conversionError" class="validation-message mt-1">
+          <p v-if="conversionError" class="validation-message mt-1" style="color: var(--danger);">
             {{ conversionError }}
           </p>
         </div>
 
         <div class="min-w-0">
-          <label class="block text-sm font-medium text-white mb-2">
+          <label class="block text-sm font-medium mb-2" style="color: var(--text);">
             Equivalent Leave Days
           </label>
 
@@ -80,23 +82,24 @@
             placeholder="Calculated from rendered hours"
             :value="form.equivalent_leave_days"
             class="form-control"
+            style="border-color: var(--border); background: var(--surface-muted); color: var(--text);"
           />
         </div>
       </div>
 
       <div class="mt-6">
-        <button @click="applyCredit" type="button" class="primary-button" :disabled="submitting">
+        <button @click="applyCredit" type="button" class="primary-button" :disabled="submitting" style="background: var(--primary);">
           {{ submitting ? "Saving…" : "Record Credit" }}
         </button>
       </div>
     </div>
 
-    <div class="neo-card p-6">
+    <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
       <div class="flex items-center justify-between mb-6">
         <div>
-          <h3 class="text-lg font-semibold text-white">Leave Credit Records</h3>
+          <h3 class="text-lg font-semibold" style="color: var(--text);">Leave Credit Records</h3>
 
-          <p class="text-gray-400 text-sm mt-1">
+          <p class="text-sm mt-1" style="color: var(--text-muted);">
             View and apply recorded leave credits.
           </p>
         </div>
@@ -110,12 +113,14 @@
             type="text"
             placeholder="Search employee or activity..."
             class="flex-1 min-w-0 form-control"
+            style="border-color: var(--border); background: var(--surface); color: var(--text);"
           />
 
           <button
             @click="toggleSort"
             type="button"
-            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border rounded-full transition whitespace-nowrap"
+            style="border-color: var(--border); color: var(--text);"
             :title="
               arranged
                 ? 'Unsort records'
@@ -127,20 +132,21 @@
 
           <button
             @click="searchQuery = ''"
-            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+            class="w-full sm:w-auto px-4 py-2 text-xs font-medium border rounded-full transition whitespace-nowrap"
+            style="border-color: var(--border); color: var(--text);"
           >
             Clear
           </button>
         </div>
       </div>
 
-      <p class="text-gray-400 text-sm mb-4">
+      <p class="text-sm mb-4" style="color: var(--text-muted);">
         Accumulated earned credits from recorded activities. Remaining credits
         after leave deductions are shown in Leave Balances.
       </p>
       <div class="table-wrapper">
         <table class="credit-table">
-          <thead>
+          <thead class="text-left font-semibold" style="background: var(--surface-muted); color: var(--text);">
             <tr>
               <th>Employee</th>
               <th>Records</th>
@@ -151,13 +157,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="group in filteredCreditGroups" :key="group.employee_id">
-              <td class="employee-cell">
+            <tr v-for="group in filteredCreditGroups" :key="group.employee_id" style="border-color: var(--border);">
+              <td class="employee-cell" style="color: var(--text);">
                 <span class="employee-name">{{ group.employee_name }}</span>
               </td>
-              <td>{{ group.records.length }}</td>
-              <td>{{ (group.hourUnits / 10000).toFixed(4) }}</td>
-              <td>
+              <td style="color: var(--text);">{{ group.records.length }}</td>
+              <td style="color: var(--text);">{{ (group.hourUnits / 10000).toFixed(4) }}</td>
+              <td style="color: var(--text);">
                 <div
                   v-for="bucket in group.buckets"
                   :key="bucket.type"
@@ -175,7 +181,7 @@
                     "
                     >{{ (bucket.dayUnits / 1000).toFixed(3) }} days</span
                   >
-                  <span class="text-gray-400 text-sm">
+                  <span class="text-sm" style="color: var(--text-muted);">
                     {{
                       bucket.type === "Service"
                         ? " Local Credits"
@@ -188,19 +194,20 @@
                   >
                 </div>
               </td>
-              <td>{{ formatDate(group.latestDate) }}</td>
+              <td style="color: var(--text);">{{ formatDate(group.latestDate) }}</td>
               <td class="action-cell">
                 <button
                   @click="selectedEmployeeId = group.employee_id"
                   type="button"
                   class="apply-button"
+                  style="background: var(--primary);"
                 >
                   View Details
                 </button>
               </td>
             </tr>
             <tr v-if="filteredCreditGroups.length === 0">
-              <td colspan="6" class="empty-state">
+              <td colspan="6" class="empty-state" style="color: var(--text-muted);">
                 {{ creditsLoading ? "Loading leave credit records…" : creditsError || "No leave credit records found." }}
               </td>
             </tr>
@@ -215,7 +222,8 @@
       @keydown.esc="selectedEmployeeId = null"
     >
       <div
-        class="neo-card modal-card credit-history-modal"
+        class="modal-card credit-history-modal rounded-lg border"
+        style="border-color: var(--border); background: var(--surface);"
         role="dialog"
         aria-modal="true"
         aria-labelledby="credit-history-title"
@@ -225,21 +233,23 @@
           <div>
             <h3
               id="credit-history-title"
-              class="text-lg font-semibold text-white"
+              class="text-lg font-semibold"
+              style="color: var(--text);"
             >
               Credit Activity History
             </h3>
-            <p class="text-gray-400">{{ selectedEmployeeName }}</p>
+            <p style="color: var(--text-muted);">{{ selectedEmployeeName }}</p>
           </div>
           <button
             type="button"
             class="cancel-button"
+            style="background: var(--text-muted);"
             @click="selectedEmployeeId = null"
           >
             Close
           </button>
         </div>
-        <p class="text-gray-400 text-sm mb-4">
+        <p class="text-sm mb-4" style="color: var(--text-muted);">
           Each activity remains a separate record. Revoking an activity updates
           the accumulated summary.
         </p>

@@ -166,18 +166,22 @@ const s = computed(() => overview.value?.summary);
 <template>
   <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
-        <p class="text-sm text-slate-600 dark:text-slate-300">
+        <h1 class="text-2xl font-semibold tracking-tight" style="color: var(--text);">
+          Admin Dashboard
+        </h1>
+        <p class="text-sm mt-1" style="color: var(--text-muted);">
           <template v-if="overview">Welcome back, {{ overview.greetingName }}. </template>{{ todayLabel }}
         </p>
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+        class="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
+        style="border-color: var(--border); background: var(--surface); color: var(--text);"
         :disabled="refreshing"
         @click="refreshAll"
+        :style="refreshing ? 'opacity: 0.6;' : ''"
       >
         <RefreshCw class="h-4 w-4" :class="refreshing ? 'animate-spin' : ''" aria-hidden="true" />
         Refresh
@@ -209,14 +213,14 @@ const s = computed(() => overview.value?.summary);
         @retry="loadOverview"
       >
         <template #actions>
-          <router-link to="/admin-applications?tab=pending" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
+          <router-link to="/admin-applications?tab=pending" class="text-sm font-medium hover:underline" style="color: var(--primary);">
             View all pending
           </router-link>
         </template>
 
         <div class="overflow-x-auto">
           <table class="min-w-full text-left text-sm">
-            <thead class="text-xs uppercase text-slate-500 dark:text-slate-300">
+            <thead class="text-xs uppercase" style="color: var(--text-muted);">
               <tr>
                 <th class="py-2 pr-3 font-medium">Employee</th>
                 <th class="py-2 pr-3 font-medium">Leave Type</th>
@@ -227,8 +231,8 @@ const s = computed(() => overview.value?.summary);
                 <th class="py-2 font-medium"><span class="sr-only">Action</span></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-              <tr v-for="a in overview.pendingApplications" :key="a.id" class="text-slate-800 dark:text-slate-100">
+            <tbody class="divide-y" style="border-color: var(--border);">
+              <tr v-for="a in overview.pendingApplications" :key="a.id" style="color: var(--text);">
                 <td class="py-2 pr-3 font-medium">{{ a.employee }}</td>
                 <td class="max-w-[160px] truncate py-2 pr-3" :title="a.leave_type">{{ a.leave_type }}</td>
                 <td class="whitespace-nowrap py-2 pr-3">{{ fmt(a.date_filed) }}</td>
@@ -236,7 +240,7 @@ const s = computed(() => overview.value?.summary);
                 <td class="py-2 pr-3">{{ a.days }}</td>
                 <td class="py-2 pr-3"><StatusBadge :status="a.status" /></td>
                 <td class="py-2 text-right">
-                  <button type="button" class="rounded-md bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700" @click="reviewPending(a.employee)">
+                  <button type="button" class="rounded-md px-3 py-1 text-xs font-medium text-white transition-colors hover:opacity-90" style="background: var(--primary);" @click="reviewPending(a.employee)">
                     Review
                   </button>
                 </td>
@@ -254,12 +258,12 @@ const s = computed(() => overview.value?.summary);
         empty-message="No upcoming approved leave."
         @retry="loadOverview"
       >
-        <ul class="divide-y divide-slate-100 dark:divide-slate-700">
+        <ul class="divide-y" style="border-color: var(--border);">
           <li v-for="u in overview.upcomingLeave" :key="u.id">
-            <button type="button" class="w-full py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50" @click="openApplication(u.id)">
-              <p class="text-sm font-medium text-slate-900 dark:text-white">{{ u.employee }}</p>
-              <p class="truncate text-xs text-slate-500 dark:text-slate-300">{{ u.leave_type }}</p>
-              <p class="text-xs text-slate-600 dark:text-slate-200">
+            <button type="button" class="w-full py-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50" @click="openApplication(u.id)">
+              <p class="text-sm font-medium" style="color: var(--text);">{{ u.employee }}</p>
+              <p class="truncate text-xs" style="color: var(--text-muted);">{{ u.leave_type }}</p>
+              <p class="text-xs" style="color: var(--text);">
                 {{ fmtRange(u.start_date, u.end_date) }} · {{ u.days }} working day{{ u.days == 1 ? "" : "s" }}
               </p>
             </button>
@@ -291,8 +295,8 @@ const s = computed(() => overview.value?.summary);
       >
         <ul class="space-y-3">
           <li v-for="a in activity" :key="a.id" class="text-sm">
-            <p class="text-slate-900 dark:text-white">{{ a.description }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-300">
+            <p style="color: var(--text);">{{ a.description }}</p>
+            <p class="text-xs" style="color: var(--text-muted);">
               {{ a.action }} · {{ a.user ?? "system" }} · {{ fmtDateTime(a.created_at) }}
             </p>
           </li>
@@ -304,54 +308,54 @@ const s = computed(() => overview.value?.summary);
     <SectionCard title="Leave Trends & Analytics" subtitle="A quick look. Use Reports for detailed, filterable, printable data.">
       <template #actions>
         <label class="sr-only" for="period">Period</label>
-        <select id="period" v-model="period" class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100" @change="loadAnalytics">
+        <select id="period" v-model="period" class="rounded-lg border px-2 py-1 text-sm" style="border-color: var(--border); background: var(--surface); color: var(--text);" @change="loadAnalytics">
           <option v-for="p in periodOptions" :key="p.value" :value="p.value">{{ p.label }}</option>
         </select>
-        <router-link to="/reports" class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">Open Reports</router-link>
+        <router-link to="/reports" class="text-sm font-medium hover:underline" style="color: var(--primary);">Open Reports</router-link>
       </template>
 
       <div v-if="analyticsLoading" class="space-y-2" role="status" aria-label="Loading">
-        <div class="h-40 animate-pulse rounded bg-slate-200 dark:bg-slate-600" />
+        <div class="h-40 animate-pulse rounded" style="background: var(--surface-muted);" />
       </div>
 
-      <div v-else-if="analyticsError" class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-200" role="alert">
+      <div v-else-if="analyticsError" class="rounded-lg p-3 text-sm" style="background: rgba(214, 69, 69, 0.1); color: var(--danger);" role="alert">
         {{ analyticsError }}
         <button type="button" class="ml-2 underline" @click="loadAnalytics">Retry</button>
       </div>
 
       <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div>
-          <h3 class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Applications by status</h3>
-          <p v-if="!statusTotal" class="py-10 text-center text-sm text-slate-500 dark:text-slate-300">No applications in this period.</p>
+          <h3 class="mb-2 text-sm font-medium" style="color: var(--text);">Applications by status</h3>
+          <p v-if="!statusTotal" class="py-10 text-center text-sm" style="color: var(--text-muted);">No applications in this period.</p>
           <DonutChart v-else
             :labels="['Pending', 'Approved', 'Disapproved']"
             :values="[analytics.statusChart.pending, analytics.statusChart.approved, analytics.statusChart.disapproved]"
-            :colors="['#f59e0b', '#22c55e', '#ef4444']" />
+            :colors="['#D99117', '#16865B', '#D64545']" />
         </div>
 
         <div>
-          <h3 class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Applications by leave type</h3>
-          <p v-if="!typeTotal" class="py-10 text-center text-sm text-slate-500 dark:text-slate-300">No applications in this period.</p>
+          <h3 class="mb-2 text-sm font-medium" style="color: var(--text);">Applications by leave type</h3>
+          <p v-if="!typeTotal" class="py-10 text-center text-sm" style="color: var(--text-muted);">No applications in this period.</p>
           <BarChart v-else horizontal :labels="typeRows.map((t) => t.name)"
-            :datasets="[{ label: 'Applications', data: typeRows.map((t) => t.count), color: '#2563eb' }]" />
+            :datasets="[{ label: 'Applications', data: typeRows.map((t) => t.count), color: '#1687E8' }]" />
         </div>
 
         <div>
-          <h3 class="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Volume over the last 6 months</h3>
-          <p v-if="!monthlyHasData" class="py-10 text-center text-sm text-slate-500 dark:text-slate-300">No applications filed in the last 6 months.</p>
+          <h3 class="mb-2 text-sm font-medium" style="color: var(--text);">Volume over the last 6 months</h3>
+          <p v-if="!monthlyHasData" class="py-10 text-center text-sm" style="color: var(--text-muted);">No applications filed in the last 6 months.</p>
           <template v-else>
             <BarChart :labels="analytics.monthly.map((m: any) => m.label)" stacked
               :datasets="[
-                { label: 'Approved', data: analytics.monthly.map((m: any) => m.approved), color: '#22c55e' },
-                { label: 'Pending', data: analytics.monthly.map((m: any) => m.pending), color: '#f59e0b' },
-                { label: 'Disapproved', data: analytics.monthly.map((m: any) => m.disapproved), color: '#ef4444' },
+                { label: 'Approved', data: analytics.monthly.map((m: any) => m.approved), color: '#16865B' },
+                { label: 'Pending', data: analytics.monthly.map((m: any) => m.pending), color: '#D99117' },
+                { label: 'Disapproved', data: analytics.monthly.map((m: any) => m.disapproved), color: '#D64545' },
               ]" />
-            <p v-if="analytics.hasEnoughHistory && analytics.comparison.percentChange !== null" class="mt-2 text-xs text-slate-600 dark:text-slate-300">
+            <p v-if="analytics.hasEnoughHistory && analytics.comparison.percentChange !== null" class="mt-2 text-xs" style="color: var(--text-muted);">
               {{ analytics.comparison.currentLabel }}: {{ analytics.comparison.current }} filed vs
               {{ analytics.comparison.previousLabel }}: {{ analytics.comparison.previous }}
               ({{ analytics.comparison.percentChange > 0 ? "+" : "" }}{{ analytics.comparison.percentChange }}%)
             </p>
-            <p v-else class="mt-2 text-xs text-slate-500 dark:text-slate-400">Monthly comparison appears once there are at least two months of history.</p>
+            <p v-else class="mt-2 text-xs" style="color: var(--text-muted);">Monthly comparison appears once there are at least two months of history.</p>
           </template>
         </div>
       </div>

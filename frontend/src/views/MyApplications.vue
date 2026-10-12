@@ -7,32 +7,33 @@
 <!-- FILTER AND SEARCH -->
 <!-- =============================== -->
 
-<div class="neo-card p-5">
+<div class="p-5 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
   <div class="flex flex-col lg:flex-row gap-4">
 
     <!-- Search Input -->
     <div class="flex-1">
       <div class="relative">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5 pointer-events-none z-10" />
+        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none z-10" style="color: var(--text-muted);" />
         <input 
           v-model="searchQuery" 
           type="text" 
           placeholder="Search ID, leave type, status, date..."
-          class="dark-input w-full !pl-10 py-2" 
+          class="w-full !pl-10 py-2 border rounded-lg"
+          style="border-color: var(--border); background: var(--surface); color: var(--text);"
         />
       </div>
     </div>
 
     <!-- Filters -->
     <div class="flex flex-col sm:flex-row gap-3">
-      <select v-model="filterStatus" class="dark-input sm:w-44">
+      <select v-model="filterStatus" class="sm:w-44 border rounded-lg" style="border-color: var(--border); background: var(--surface); color: var(--text);">
         <option value="">All Status</option>
         <option value="pending">Pending</option>
         <option value="approved">Approved</option>
         <option value="disapproved">Disapproved</option>
       </select>
 
-      <select v-model="filterType" class="dark-input sm:w-48">
+      <select v-model="filterType" class="sm:w-48 border rounded-lg" style="border-color: var(--border); background: var(--surface); color: var(--text);">
         <option value="">All Types</option>
         <option value="vacation">Vacation Leave</option>
         <option value="sick">Sick Leave</option>
@@ -43,7 +44,8 @@
 
       <button 
         @click="clearFilters"
-        class="px-4 py-2 text-sm border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition"
+        class="px-4 py-2 text-sm border rounded-lg transition"
+        style="border-color: var(--border); color: var(--text);"
       >
         Clear
       </button>
@@ -53,7 +55,7 @@
 </div>
 
 <!-- Search Result Counter -->
-<div v-if="searchQuery || filterStatus || filterType" class="mt-3 text-sm text-slate-500">
+<div v-if="searchQuery || filterStatus || filterType" class="mt-3 text-sm" style="color: var(--text-muted);">
   {{ filteredApplications.length }} application(s) found
 </div>
 
@@ -62,24 +64,28 @@
   <!-- APPLICATION HISTORY -->
   <!-- =============================== -->
 
-  <div class="neo-card overflow-hidden">
+  <div class="overflow-hidden rounded-lg border" style="border-color: var(--border); background: var(--surface);">
 
     <div
-      class="px-6 py-5 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      class="px-6 py-5 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+      style="border-color: var(--border);"
+    >
 
       <div>
-        <h3 class="text-lg font-semibold text-white">
+        <h3 class="text-lg font-semibold" style="color: var(--text);">
           Application History
         </h3>
 
-        <p class="text-sm text-slate-400 mt-1">
+        <p class="text-sm mt-1" style="color: var(--text-muted);">
           Showing {{ displayedApplications.length }} of
           {{ filteredApplications.length }} application(s)
         </p>
       </div>
 
       <button v-if="applications.length > 15" @click="showAllApplications = !showAllApplications"
-        class="px-4 py-2 text-sm border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-500/10 transition">
+        class="px-4 py-2 text-sm border rounded-lg transition"
+        style="border-color: var(--primary); color: var(--primary);"
+      >
         {{
           showAllApplications
             ? "Show Recent 15"
@@ -95,7 +101,7 @@
       <table class="w-full">
 
         <!-- Table Header -->
-        <thead class="bg-[#0D1725]">
+        <thead class="text-left font-semibold" style="background: var(--surface-muted); color: var(--text);">
 
           <tr>
 
@@ -125,22 +131,22 @@
 
 
         <!-- Table Body -->
-        <tbody class="divide-y divide-slate-800">
+        <tbody class="divide-y" style="border-color: var(--border);">
 
           <tr v-for="application in displayedApplications" :key="application.leave_id"
-            class="hover:bg-slate-800/40 transition">
+            class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
 
             
 
 
             <!-- Leave Type -->
-            <td class="table-cell text-slate-300">
+            <td class="table-cell" style="color: var(--text);">
               {{ application.leave_type.leave_type_name }}
             </td>
 
 
             <!-- Duration -->
-            <td class="table-cell text-slate-300">
+            <td class="table-cell" style="color: var(--text);">
               {{
                 formatDateRange(
                   application.start_date,
@@ -151,7 +157,7 @@
 
 
             <!-- Filed -->
-            <td class="table-cell text-slate-300">
+            <td class="table-cell" style="color: var(--text);">
               {{ formatDate(application.date_filed) }}
             </td>
 
@@ -173,12 +179,12 @@
               <div class="flex items-center gap-3">
 
                 <button @click="viewDetails(application)"
-                  class="btn-action bg-blue-600 hover:bg-blue-700">
+                  class="btn-action" style="background: var(--primary);">
                   View Details
                 </button>
 
                 <button @click="viewForm(application)"
-                  class="btn-action bg-yellow-600 hover:bg-yellow-700">
+                  class="btn-action" style="background: var(--warning);">
                   View Form
                 </button>
 
@@ -194,9 +200,9 @@
 
             <td colspan="6" class="px-6 py-12 text-center">
 
-              <FileText class="w-10 h-10 mx-auto text-slate-600 mb-3" />
+              <FileText class="w-10 h-10 mx-auto mb-3" style="color: var(--text-muted);" />
 
-              <p class="text-slate-400">
+              <p style="color: var(--text-muted);">
                 No leave applications found.
               </p>
 

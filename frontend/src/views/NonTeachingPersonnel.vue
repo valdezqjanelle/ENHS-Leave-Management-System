@@ -7,23 +7,24 @@
       <!-- HEADER -->
       <!-- ========================================================= -->
 
-      <div class="neo-card w-full p-6">
+      <div class="w-full p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div
           class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4"
         >
           <div class="min-w-0">
-            <h2 class="text-2xl font-bold text-white">
+            <h2 class="text-2xl font-semibold" style="color: var(--text);">
               Non-Teaching Personnel
             </h2>
 
-            <p class="text-white mt-1">
+            <p class="mt-1" style="color: var(--text-muted);">
               Manage non-teaching personnel records and job assignments.
             </p>
           </div>
 
           <button
             @click="openCreateModal"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            class="px-5 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
+            style="background: var(--primary);"
           >
             + Add Non-Teaching Personnel
           </button>
@@ -34,7 +35,7 @@
       <!-- SEARCH -->
       <!-- ========================================================= -->
 
-      <div class="neo-card w-full p-6">
+      <div class="w-full p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div
           class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
         >
@@ -42,13 +43,15 @@
             v-model="search"
             type="text"
             placeholder="Search non-teaching personnel..."
-            class="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+            class="flex-1 min-w-0 border rounded-lg px-4 py-2 focus:ring-2"
+            style="border-color: var(--border); background: var(--surface); color: var(--text);"
           />
 
           <button
             @click="toggleSort"
             type="button"
-            class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+            class="w-full sm:w-auto flex-shrink-0 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
+            style="background: var(--text-muted);"
             :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
           >
             Sort
@@ -60,11 +63,11 @@
       <!-- TABLE -->
       <!-- ========================================================= -->
 
-      <div class="neo-card w-full p-6">
+      <div class="w-full p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div class="table-wrapper">
           <table class="non-teaching-table">
-            <thead>
-              <tr class="text-left text-white font-semibold">
+            <thead class="text-left font-semibold" style="background: var(--surface-muted); color: var(--text);">
+              <tr>
                 <th class="px-3 py-3">Employee Code</th>
                 <th class="px-3 py-3">Employee</th>
                 <th class="px-3 py-3">Position</th>
@@ -81,27 +84,27 @@
                 :key="record.non_teaching_record_id"
                 class="table-row transition-colors duration-200"
               >
-                <td class="px-3 py-4 text-white font-semibold">
+                <td class="px-3 py-4 font-semibold" style="color: var(--text);">
                   {{ record.employee?.employee_code || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white font-medium">
+                <td class="px-3 py-4 font-medium" style="color: var(--text);">
                   {{ employeeName(record) }}
                 </td>
 
-                <td class="px-3 py-4 text-white">
+                <td class="px-3 py-4" style="color: var(--text);">
                   {{ record.employee?.position?.name || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white">
+                <td class="px-3 py-4" style="color: var(--text);">
                   {{ record.employee?.department?.department_name || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white">
+                <td class="px-3 py-4" style="color: var(--text);">
                   {{ record.office_assignment || "-" }}
                 </td>
 
-                <td class="px-3 py-4 text-white">
+                <td class="px-3 py-4" style="color: var(--text);">
                   {{ record.job_assignment || "-" }}
                 </td>
 
@@ -111,21 +114,24 @@
                   >
                     <button
                       @click="viewRecord(record)"
-                      class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                      class="px-2 py-1 rounded-full text-xs whitespace-nowrap text-white"
+                      style="background: var(--primary);"
                     >
                       View
                     </button>
 
                     <button
                       @click="editRecord(record)"
-                      class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                      class="px-2 py-1 rounded-full text-xs whitespace-nowrap text-white"
+                      style="background: var(--warning);"
                     >
                       Edit
                     </button>
 
                     <button
                       @click="deleteRecord(record)"
-                      class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                      class="px-2 py-1 rounded-full text-xs whitespace-nowrap text-white"
+                      style="background: var(--danger);"
                     >
                       Delete
                     </button>
@@ -134,7 +140,7 @@
               </tr>
 
               <tr v-if="filteredRecords.length === 0">
-                <td colspan="7" class="text-center py-10 text-white">
+                <td colspan="7" class="text-center py-10" style="color: var(--text-muted);">
                   No non-teaching personnel records found.
                 </td>
               </tr>

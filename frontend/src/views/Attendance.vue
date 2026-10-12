@@ -3,36 +3,39 @@
     <!-- Admin Attendance View -->
     <div v-if="userRole === 'ADAS'" class="space-y-8">
       <!-- Header with Date Navigation -->
-      <div class="neo-card p-6">
+      <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 class="text-xl font-semibold text-gray-100">Faculty Attendance</h2>
-            <p class="text-sm text-gray-400 mt-1">Track and manage faculty attendance records</p>
+            <h2 class="text-xl font-semibold" style="color: var(--text);">Faculty Attendance</h2>
+            <p class="text-sm mt-1" style="color: var(--text-muted);">Track and manage faculty attendance records</p>
           </div>
 
           <div class="flex items-center space-x-4">
             <button
               @click="previousMonth"
-              class="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+              class="p-2 rounded-lg"
+              style="color: var(--text-muted);"
             >
               <ChevronLeft class="w-5 h-5" />
             </button>
 
             <div class="text-center">
-              <p class="text-lg font-medium text-gray-100">{{ currentMonth }}</p>
-              <p class="text-sm text-gray-500">{{ currentYear }}</p>
+              <p class="text-lg font-medium" style="color: var(--text);">{{ currentMonth }}</p>
+              <p class="text-sm" style="color: var(--text-muted);">{{ currentYear }}</p>
             </div>
 
             <button
               @click="nextMonth"
-              class="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg"
+              class="p-2 rounded-lg"
+              style="color: var(--text-muted);"
             >
               <ChevronRight class="w-5 h-5" />
             </button>
 
             <button
               @click="goToToday"
-              class="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              class="px-3 py-1 text-sm rounded-lg text-white"
+              style="background: var(--primary);"
             >
               Today
             </button>
@@ -42,66 +45,67 @@
 
       <!-- Statistics Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="neo-card stats-card border-green-500 p-6">
+        <div class="stats-card p-6 rounded-lg border" style="border-color: var(--success); background: var(--surface);">
           <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-lg">
-              <CheckCircle class="w-6 h-6 text-green-600" />
+            <div class="p-3 rounded-lg" style="background: rgba(22, 134, 91, 0.12);">
+              <CheckCircle class="w-6 h-6" style="color: var(--success);" />
             </div>
             <div class="ml-4">
-              <h3 class="text-sm text-gray-400">Present Today</h3>
-              <p class="text-2xl font-semibold text-gray-100">{{ stats.present }}</p>
+              <h3 class="text-sm" style="color: var(--text-muted);">Present Today</h3>
+              <p class="text-2xl font-semibold" style="color: var(--text);">{{ stats.present }}</p>
             </div>
           </div>
         </div>
 
-        <div class="neo-card stats-card border-yellow-500 p-6">
+        <div class="stats-card p-6 rounded-lg border" style="border-color: var(--warning); background: var(--surface);">
           <div class="flex items-center">
-            <div class="p-3 bg-yellow-100 rounded-lg">
-              <Clock class="w-6 h-6 text-yellow-600" />
+            <div class="p-3 rounded-lg" style="background: rgba(217, 145, 23, 0.12);">
+              <Clock class="w-6 h-6" style="color: var(--warning);" />
             </div>
             <div class="ml-4">
-              <h3 class="text-sm text-gray-400">Late</h3>
-              <p class="text-2xl font-semibold text-gray-100">{{ stats.late }}</p>
+              <h3 class="text-sm" style="color: var(--text-muted);">Late</h3>
+              <p class="text-2xl font-semibold" style="color: var(--text);">{{ stats.late }}</p>
             </div>
           </div>
         </div>
 
-        <div class="neo-card stats-card border-red-500 p-6">
+        <div class="stats-card p-6 rounded-lg border" style="border-color: var(--danger); background: var(--surface);">
           <div class="flex items-center">
-            <div class="p-3 bg-red-100 rounded-lg">
-              <XCircle class="w-6 h-6 text-red-600" />
+            <div class="p-3 rounded-lg" style="background: rgba(214, 69, 69, 0.12);">
+              <XCircle class="w-6 h-6" style="color: var(--danger);" />
             </div>
             <div class="ml-4">
-              <h3 class="text-sm text-gray-400">Absent</h3>
-              <p class="text-2xl font-semibold text-gray-100">{{ stats.absent }}</p>
+              <h3 class="text-sm" style="color: var(--text-muted);">Absent</h3>
+              <p class="text-2xl font-semibold" style="color: var(--text);">{{ stats.absent }}</p>
             </div>
           </div>
         </div>
 
-        <div class="neo-card stats-card border-blue-500 p-6">
+        <div class="stats-card p-6 rounded-lg border" style="border-color: var(--primary); background: var(--surface);">
           <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-lg">
-              <Calendar class="w-6 h-6 text-blue-600" />
+            <div class="p-3 rounded-lg" style="background: rgba(22, 135, 232, 0.12);">
+              <Calendar class="w-6 h-6" style="color: var(--primary);" />
             </div>
             <div class="ml-4">
-              <h3 class="text-sm text-gray-400">On Leave</h3>
-              <p class="text-2xl font-semibold text-gray-100">{{ stats.onLeave }}</p>
+              <h3 class="text-sm" style="color: var(--text-muted);">On Leave</h3>
+              <p class="text-2xl font-semibold" style="color: var(--text);">{{ stats.onLeave }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Filter and Search -->
-      <div class="neo-card p-4">
+      <div class="p-4 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div class="flex flex-col sm:flex-row gap-4">
           <div class="flex-1">
             <div class="relative">
-              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" style="color: var(--text-muted);" />
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search by faculty name, department..."
-                class="w-full pl-10 pr-4 py-2 bg-white/5 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full pl-10 pr-4 py-2 border rounded-lg"
+                style="border-color: var(--border); background: var(--surface); color: var(--text);"
               />
             </div>
           </div>
@@ -109,9 +113,10 @@
           <div class="flex gap-2">
             <select
               v-model="filterDepartment"
-              class="px-4 py-2 bg-white/5 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-2 border rounded-lg"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             >
-              <option value="" class="text-black">All Departments</option>
+              <option value="">All Departments</option>
               <option value="cs" class="text-black">Computer Science</option>
               <option value="math" class="text-black">Mathematics</option>
               <option value="english" class="text-black">English</option>
@@ -120,13 +125,14 @@
 
             <select
               v-model="filterStatus"
-              class="px-4 py-2 bg-white/5 border border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="px-4 py-2 border rounded-lg"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             >
-              <option value="" class="text-black">All Status</option>
-              <option value="present" class="text-black">Present</option>
-              <option value="late" class="text-black">Late</option>
-              <option value="absent" class="text-black">Absent</option>
-              <option value="leave" class="text-black">On Leave</option>
+              <option value="">All Status</option>
+              <option value="present">Present</option>
+              <option value="late">Late</option>
+              <option value="absent">Absent</option>
+              <option value="leave">On Leave</option>
             </select>
           </div>
         </div>

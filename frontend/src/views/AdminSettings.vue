@@ -1,16 +1,16 @@
  
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
-    <div class="neo-card p-6">
-      <h1 class="text-2xl font-bold text-[var(--text)]">Admin Settings</h1>
+    <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+      <h1 class="text-2xl font-semibold" style="color: var(--text);">Admin Settings</h1>
 
-      <p class="text-[var(--text-muted)] mt-2">
+      <p class="mt-2" style="color: var(--text-muted);">
         Manage system configuration and administration settings.
       </p>
     </div>
 
-    <div class="neo-card">
-      <div class="border-b border-[#cbd8e8] px-6">
+    <div class="rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+      <div class="border-b px-6" style="border-color: var(--border);">
         <nav class="flex flex-wrap gap-6">
           <button
             v-for="tab in tabs"
@@ -19,9 +19,10 @@
             :class="[
               'py-4 text-sm font-medium transition',
               activeTab === tab.id
-                ? 'text-[#2563eb] border-b-2 border-[#2563eb]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text)]',
+                ? 'border-b-2'
+                : 'hover:text-[var(--text)]',
             ]"
+            :style="activeTab === tab.id ? 'color: var(--primary); border-color: var(--primary);' : 'color: var(--text-muted);'"
           >
             {{ tab.name }}
           </button>
@@ -29,22 +30,22 @@
       </div>
     </div>
 
-    <div v-if="activeTab === 'account'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
+    <div v-if="activeTab === 'account'" class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+      <h2 class="text-xl font-semibold mb-2" style="color: var(--text);">
         Account Settings
       </h2>
 
-      <p class="text-[var(--text-muted)] mb-6">
+      <p class="mb-6" style="color: var(--text-muted);">
         Manage administrator account information and security.
       </p>
 
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold text-[var(--text)]">
+            <h3 class="text-lg font-semibold" style="color: var(--text);">
               Administrator Profile
             </h3>
-            <p class="text-sm text-[var(--text-muted)]">
+            <p class="text-sm" style="color: var(--text-muted);">
               Update your administrator information.
             </p>
           </div>
@@ -53,7 +54,8 @@
             v-if="!isEditingProfile"
             @click="startEditProfile"
             type="button"
-            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
+            class="px-4 py-2 rounded-lg text-white"
+            style="background: var(--warning);"
           >
             Edit Profile
           </button>
@@ -62,7 +64,8 @@
             <button
               @click="cancelEditProfile"
               type="button"
-              class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]"
+              class="px-4 py-2 border rounded-lg"
+              style="border-color: var(--border); color: var(--text-muted);"
             >
               Cancel
             </button>
@@ -70,7 +73,8 @@
             <button
               @click="saveAdminProfile"
               type="button"
-              class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
+              class="px-4 py-2 rounded-lg text-white"
+              style="background: var(--primary);"
             >
               Save Changes
             </button>
@@ -79,7 +83,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-[var(--text-muted)]">
+            <label class="block text-sm font-medium" style="color: var(--text-muted);">
               First Name
             </label>
 
@@ -91,11 +95,12 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-[var(--text-muted)]">
+            <label class="block text-sm font-medium" style="color: var(--text-muted);">
               Middle Name
             </label>
 
@@ -107,11 +112,12 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-[var(--text-muted)]">
+            <label class="block text-sm font-medium" style="color: var(--text-muted);">
               Last Name
             </label>
 
@@ -123,11 +129,12 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-[var(--text-muted)]">
+            <label class="block text-sm font-medium" style="color: var(--text-muted);">
               Sex
             </label>
 
@@ -138,6 +145,7 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             >
               <option value="">Select Sex</option>
               <option value="Male">Male</option>
@@ -146,7 +154,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-[var(--text-muted)]">
+            <label class="block text-sm font-medium" style="color: var(--text-muted);">
               Extension Name
             </label>
 

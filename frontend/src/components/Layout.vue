@@ -23,7 +23,7 @@
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       "
     >
-      <div class="p-6 flex items-center justify-between">
+      <div class="p-5 flex items-center justify-between border-b border-white/10">
         <div class="brand-block flex items-center gap-3">
           <img
             src="@/assets/logo.png"
@@ -31,8 +31,8 @@
             class="brand-logo"
           />
           <div>
-            <h1 class="text-xl font-bold text-white">ENHS</h1>
-            <p class="text-sm text-blue-100">Leave Management System</p>
+            <h1 class="text-lg font-bold text-white tracking-tight">ENHS</h1>
+            <p class="text-xs text-white/70 font-medium">Leave Management</p>
           </div>
         </div>
 
@@ -40,9 +40,9 @@
         <button
           v-if="sidebarOpen"
           @click="sidebarOpen = false"
-          class="sidebar-close-btn lg:hidden p-2 rounded-xl"
+          class="sidebar-close-btn lg:hidden p-2"
         >
-          <X class="w-5 h-5" />
+          <X class="w-4 h-4" />
         </button>
       </div>
 
@@ -252,19 +252,27 @@
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
       <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
-        <h2 class="font-bold text-xl tracking-tight" style="color: var(--primary);">
-          {{ pageTitle }}
-        </h2>
+        <div>
+          <h2 class="font-semibold text-lg tracking-tight" style="color: var(--text);">
+            {{ pageTitle }}
+          </h2>
+          <p v-if="currentUser.role === 'admin'" class="text-sm" style="color: var(--text-muted);">
+            Administrative Portal
+          </p>
+          <p v-else class="text-sm" style="color: var(--text-muted);">
+            Faculty Portal
+          </p>
+        </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <!-- Dark Mode Toggle -->
           <button
             @click="toggleDarkMode"
-            class="p-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-300 transition-colors"
+            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
           >
-            <Sun v-if="isDarkMode" class="w-5 h-5 text-white dark:text-white" />
-            <Moon v-else class="w-5 h-5 text-black dark:text-black" />
+            <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text);" />
+            <Moon v-else class="w-5 h-5" style="color: var(--text-muted);" />
           </button>
 
           <div class="user-summary" aria-label="Current user">
@@ -604,8 +612,8 @@ const logout = async () => {
 }
 
 .sidebar {
-  background: linear-gradient(180deg, var(--sidebar) 0%, var(--sidebar-hover) 100%);
-  box-shadow: 2px 0 18px rgba(15, 47, 82, 0.14);
+  background: var(--sidebar);
+  box-shadow: 2px 0 18px rgba(11, 31, 56, 0.12);
   transition: background 0.3s ease;
 }
 
@@ -625,54 +633,61 @@ const logout = async () => {
 }
 
 .topbar {
-  min-height: 72px;
+  min-height: 64px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(23, 32, 51, 0.05);
+  box-shadow: 0 1px 3px rgba(11, 31, 56, 0.04);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .topbar h2 {
   color: var(--text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .content-panel {
   background: var(--app-bg);
 }
 
-.mobile-toggle,
-.search-input,
-.bell-wrap,
-.user-pill {
-  background: #020914;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+.mobile-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(11, 31, 56, 0.06);
 }
 
 .nav-item {
-  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-white font-medium transition-all duration-200;
-  margin: 0.3rem 0;
-  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  transition: all 0.2s;
+  margin: 0.125rem 0;
+  letter-spacing: 0.005em;
+  font-size: 0.875rem;
 }
 
 .nav-item:hover {
-  background: rgba(147, 197, 253, 0.12);
+  background: rgba(22, 135, 232, 0.12);
   color: #ffffff;
-  transform: translateX(2px);
+  transform: translateX(1px);
 }
 
 .nav-item.router-link-active {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.18),
-    rgba(96, 165, 250, 0.09)
-  );
-  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.22);
+  background: rgba(22, 135, 232, 0.16);
   color: #ffffff;
+  font-weight: 600;
+  border-left: 3px solid var(--primary);
+  padding-left: 13px;
 }
 
 .icon {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
 }
 
 .brand-block {
@@ -680,32 +695,33 @@ const logout = async () => {
 }
 
 .brand-logo {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
-  border-radius: 50%;
+  border-radius: 8px;
   background: #ffffff;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-summary {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
   color: var(--text);
-
 }
 
 .user-avatar {
   display: inline-flex;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background: var(--primary);
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
   color: #ffffff;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 0.875rem;
 }
 
 .user-summary strong,
@@ -716,12 +732,14 @@ const logout = async () => {
 
 .user-summary strong {
   font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .user-summary small {
-  margin-top: 0.15rem;
+  margin-top: 0.125rem;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
+  text-transform: capitalize;
 }
 
 @media (max-width: 640px) {
@@ -734,106 +752,100 @@ const logout = async () => {
   }
 }
 
-.search-input {
-  border: 1px solid #dfeaf7;
-  background: #f9fbff;
-  color: #1f2937;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: rgba(59, 130, 246, 0.55);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
-}
-
 /* ============================================================
-   SIDEBAR CLOSE BUTTON — sits at the right of the sidebar's own
-   header row (next to "E-LMS"), only shown on mobile while open.
+   SIDEBAR CLOSE BUTTON
    ============================================================ */
 
 .sidebar-close-btn {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
+  border-radius: 8px;
 }
 
 .sidebar-close-btn:hover {
   background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
 
 /* ============================================================
-   PROFILE — sits directly above Logout in the pinned footer
-   section. The icon is wrapped in a circular badge (rounded-full)
-   so it echoes the round avatar used on the Profile page itself,
-   instead of the square icon treatment used by the other nav items.
+   PROFILE ITEM
    ============================================================ */
 
 .profile-item {
-  color: #93c5fd;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(22, 135, 232, 0.1);
+  border: 1px solid rgba(22, 135, 232, 0.2);
+  border-radius: 8px;
 }
 
 .profile-item:hover {
-  background: rgba(59, 130, 246, 0.16);
-  color: #bfdbfe;
-  transform: translateX(2px);
+  background: rgba(22, 135, 232, 0.16);
+  color: #ffffff;
+  transform: translateX(1px);
 }
 
 .profile-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 9999px;
-  background: rgba(59, 130, 246, 0.18);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(22, 135, 232, 0.2);
   flex-shrink: 0;
 }
 
 .profile-avatar .icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* ============================================================
-   LOGOUT — pinned at bottom via the wrapping div in the template,
-   styled red to signal a destructive/exit action. Declared after
-   .nav-item's rules so it wins the color/hover overrides.
+   LOGOUT ITEM
    ============================================================ */
 
 .logout-item {
-  color: #f87171;
+  color: rgba(248, 113, 113, 0.9);
   background: rgba(248, 113, 113, 0.08);
   border: 1px solid rgba(248, 113, 113, 0.15);
+  border-radius: 8px;
 }
 
 .logout-item:hover {
-  background: rgba(248, 113, 113, 0.16);
+  background: rgba(248, 113, 113, 0.14);
   color: #fca5a5;
-  transform: translateX(2px);
+  transform: translateX(1px);
 }
 
 /* ============================================================
-   NAV SUB-ITEMS — indented links inside the collapsible
-   "Employee Management" submenu (Employees / Teaching Personnel /
-   Non-Teaching Personnel).
+   NAV SUB-ITEMS
    ============================================================ */
 
 .nav-subitem {
-  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-white/80 text-sm font-medium transition-all duration-200;
-  margin: 0.15rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+  transition: all 0.2s;
+  margin: 0.0625rem 0;
+  font-size: 0.8125rem;
 }
 
 .nav-subitem:hover {
-  background: rgba(147, 197, 253, 0.1);
+  background: rgba(22, 135, 232, 0.1);
   color: #ffffff;
 }
 
 .nav-subitem.router-link-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(96, 165, 250, 0.1));
+  background: rgba(22, 135, 232, 0.14);
   color: #ffffff;
   font-weight: 600;
+  border-left: 2px solid var(--primary);
+  padding-left: 14px;
 }
 </style>

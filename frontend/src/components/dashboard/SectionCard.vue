@@ -12,11 +12,11 @@ defineEmits<{ (e: "retry"): void }>();
 </script>
 
 <template>
-  <section class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:p-5">
+  <section class="rounded-lg border p-4 md:p-5" style="border-color: var(--border); background: var(--surface);">
     <header class="mb-4 flex flex-wrap items-start justify-between gap-2">
       <div>
-        <h2 class="text-base font-semibold text-slate-900 dark:text-white">{{ title }}</h2>
-        <p v-if="subtitle" class="text-xs text-slate-500 dark:text-slate-300">{{ subtitle }}</p>
+        <h2 class="text-base font-semibold" style="color: var(--text);">{{ title }}</h2>
+        <p v-if="subtitle" class="text-xs" style="color: var(--text-muted);">{{ subtitle }}</p>
       </div>
       <div class="flex items-center gap-2">
         <slot name="actions" />
@@ -24,23 +24,24 @@ defineEmits<{ (e: "retry"): void }>();
     </header>
 
     <div v-if="loading" class="space-y-2" role="status" aria-label="Loading">
-      <div class="h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-600" />
-      <div class="h-4 w-5/6 animate-pulse rounded bg-slate-200 dark:bg-slate-600" />
-      <div class="h-4 w-2/3 animate-pulse rounded bg-slate-200 dark:bg-slate-600" />
+      <div class="h-4 w-full animate-pulse rounded" style="background: var(--surface-muted);" />
+      <div class="h-4 w-5/6 animate-pulse rounded" style="background: var(--surface-muted);" />
+      <div class="h-4 w-2/3 animate-pulse rounded" style="background: var(--surface-muted);" />
     </div>
 
-    <div v-else-if="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-200" role="alert">
+    <div v-else-if="error" class="rounded-lg p-3 text-sm" style="background: rgba(214, 69, 69, 0.1); color: var(--danger);" role="alert">
       <p>{{ error }}</p>
       <button
         type="button"
-        class="mt-2 rounded-md bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700"
+        class="mt-2 rounded-md px-3 py-1 text-xs font-medium text-white transition-colors hover:opacity-90"
+        style="background: var(--danger);"
         @click="$emit('retry')"
       >
         Retry
       </button>
     </div>
 
-    <p v-else-if="empty" class="py-6 text-center text-sm text-slate-500 dark:text-slate-300">
+    <p v-else-if="empty" class="py-6 text-center text-sm" style="color: var(--text-muted);">
       {{ emptyMessage ?? "Nothing to show yet." }}
     </p>
 

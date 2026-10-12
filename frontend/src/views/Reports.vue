@@ -44,13 +44,13 @@
       <!-- FILTERS: leave dates + applications (Leave Summary and Leave Application History) -->
       <!-- ========================================================= -->
 
-      <div v-if="isApplicationReport" class="neo-card report-filters-card print-hide filters-card w-full">
+      <div v-if="isApplicationReport" class="report-filters-card print-hide filters-card w-full rounded-lg border" style="border-color: var(--border); background: var(--surface);">
 
         <div class="filters-head">
-          <h3 class="text-base font-semibold text-white">Filters</h3>
+          <h3 class="text-base font-semibold" style="color: var(--text);">Filters</h3>
 
           <div class="filters-actions">
-            <label class="inline-check">
+            <label class="inline-check" style="color: var(--text);">
               <input v-model="includeInactive" type="checkbox" class="h-4 w-4" />
               Include inactive/resigned and archived employees
             </label>
@@ -58,6 +58,7 @@
             <button
               type="button"
               class="secondary-button rounded-lg px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+              style="border-color: var(--border); color: var(--text);"
               :disabled="!hasSummaryFilters"
               @click="clearSummaryFilters"
             >
