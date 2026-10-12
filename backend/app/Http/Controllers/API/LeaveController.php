@@ -358,6 +358,9 @@ class LeaveController extends Controller
             'monetization' => 'required|boolean',
             'terminal_leave' => 'required|boolean',
             'other_purpose' => 'nullable|string|max:1000',
+            'applicants_signature' => 'required|string|starts_with:data:image/png;base64,',
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
             'confirm_changes' => 'accepted',
             'original_updated_at' => 'required|date',
             'document_attachments' => 'nullable|array|max:10',
@@ -405,7 +408,7 @@ class LeaveController extends Controller
                         throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => "{$requirement->document_name} is required. Upload it before saving."]);
                     }
                 }
-                if ($leave->attachments()->count() + count($files) > 10) throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => 'Maximum 10 attachments per application.']);
+                if ($leave->attachments()->count() + count($files) + count($request->file('attachments', [])) > 10) throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => 'Maximum 10 attachments per application.']);
                 $validated['commutation'] = ($validated['commutation'] ?? null) === 'not_requested' ? 'not requested' : ($validated['commutation'] ?? null);
                 $leave->fill(collect($validated)->only(['leave_type_id', 'start_date', 'end_date', 'reason', 'commutation', 'monetization', 'terminal_leave', 'other_purpose'])->all());
                 $leave->vacation_location_type = $vacation ? ($validated['vacation_location_type'] ?? null) : null;
@@ -423,6 +426,7 @@ class LeaveController extends Controller
                     'condition_days' => $item->condition_days, 'required' => $item->isRequiredForDays($days, $advance),
                     'status' => $item->isRequiredForDays($days, $advance) ? 'required' : ($item->is_required ? 'not_required' : 'optional'),
                 ])->all();
+                $leave->applicants_signature = $validated['applicants_signature'];
                 $leave->save();
                 foreach ($files as $requirementId => $file) {
                     $path = $file->store('leave_attachments', 'supabase');
@@ -430,6 +434,17 @@ class LeaveController extends Controller
                     $storedPaths[] = $path;
                     LeaveAttachment::create([
                         'leave_id' => $leave->leave_id, 'leave_document_requirement_id' => (int) $requirementId,
+                        'file_name' => $file->getClientOriginalName(), 'file_path' => $path,
+                        'stored_filename' => basename($path), 'file_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(), 'uploaded_at' => now(),
+                    ]);
+                }
+                foreach ($request->file('attachments', []) as $file) {
+                    $path = $file->store('leave_attachments', 'supabase');
+                    if (!$path) throw new \RuntimeException('Unable to store document.');
+                    $storedPaths[] = $path;
+                    LeaveAttachment::create([
+                        'leave_id' => $leave->leave_id, 'leave_document_requirement_id' => null,
                         'file_name' => $file->getClientOriginalName(), 'file_path' => $path,
                         'stored_filename' => basename($path), 'file_type' => $file->getMimeType(),
                         'file_size' => $file->getSize(), 'uploaded_at' => now(),

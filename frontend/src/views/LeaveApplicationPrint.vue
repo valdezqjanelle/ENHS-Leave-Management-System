@@ -7,26 +7,22 @@
 
     <div class="flex flex-wrap justify-end items-center gap-2 sm:gap-3 mb-4">
 
-      <button @click="goBack" :disabled="savingForm" type="button"
+      <button @click="goBack" type="button"
         class="flex-1 sm:flex-none bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         Back
       </button>
 
-      <button @click="downloadPdf" :disabled="downloadingPdf || editMode" type="button"
+      <button @click="downloadPdf" :disabled="downloadingPdf" type="button"
         class="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         {{ downloadingPdf ? "Downloading..." : "Download PDF" }}
       </button>
 
-      <button @click="printForm" :disabled="printingPdf || editMode" type="button"
+      <button @click="printForm" :disabled="printingPdf" type="button"
         class="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 sm:px-6 py-2 rounded-lg transition text-sm sm:text-base">
         {{ printingPdf ? "Preparing..." : "Print Form" }}
       </button>
 
     </div>
-
-    <LeaveFormEditor v-if="editMode && canEditForm" :application="leave" @saved="onFormSaved" @cancel="closeEditor" @busy="savingForm = $event" />
-    <div v-else-if="editMode" class="max-w-4xl mx-auto bg-white text-red-700 p-4 mb-4 rounded-lg">This application cannot be edited. Only your pending, unprocessed application is editable.</div>
-    <p v-if="editMode" class="max-w-4xl mx-auto text-sm text-gray-600 mb-3">The PDF below shows the saved form. Save Changes to regenerate its preview.</p>
 
     <!-- ========================================= -->
     <!-- PDF PREVIEW (backend-generated CS Form 6) -->
@@ -207,7 +203,6 @@ import { ref, computed, onMounted, onUnmounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getLeave, getLeaveTypes, downloadLeavePdf, downloadLeaveAttachment } from "../services/leave";
 import mammoth from "mammoth";
-import LeaveFormEditor from "@/components/LeaveFormEditor.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -216,21 +211,6 @@ const router = useRouter();
 const leave = ref<any>(null);
 const leaveTypes = ref<any[]>([]);
 const loading = ref(true);
-const savingForm = ref(false);
-const editMode = computed(() => route.query.mode === 'edit');
-const canEditForm = computed(() => {
-  let user: any = {};
-  try { user = JSON.parse(localStorage.getItem('user') || '{}'); } catch {}
-  return user.role === 'employee' && leave.value?.final_status?.toLowerCase() === 'pending' && !leave.value?.reviewed_at && !leave.value?.signatory_snapshot_locked;
-});
-const closeEditor = () => { void router.replace({ path: route.path, query: {} }); };
-const onFormSaved = async (updated: any) => {
-  leave.value = updated;
-  pdfBlob.value = null;
-  await loadLeave();
-  await loadPdfPreview();
-  closeEditor();
-};
 
 const downloadingPdf = ref(false);
 const printingPdf = ref(false);

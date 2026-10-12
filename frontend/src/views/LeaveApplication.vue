@@ -7,16 +7,18 @@
 
       <div class="px-6 py-5 border-b" style="border-color: var(--border);">
         <h2 class="text-2xl font-semibold" style="color: var(--text);">
-          Leave Application Form
+          {{ isEditMode ? "Edit Leave Application" : "Leave Application Form" }}
         </h2>
 
         <p class="text-sm mt-1" style="color: var(--text-muted);">
-          Fill out the form below to apply for leave
+          {{ isEditMode ? "Update your saved application details, then save your changes." : "Fill out the form below to apply for leave" }}
         </p>
       </div>
 
 
-      <form @submit.prevent="submitApplication" class="p-6 space-y-6">
+      <p v-if="editLoading" class="p-6">Loading your application…</p>
+      <p v-if="editLoadError" role="alert" class="p-6 text-red-600">{{ editLoadError }}</p>
+      <form v-show="!editLoading && !editLoadError" @submit.prevent="submitApplication" class="p-6 space-y-6">
 
 
 
@@ -291,7 +293,7 @@
                 Start Date <span class="text-red-400">*</span>
               </label>
 
-              <input v-model="form.startDate" type="date" required :min="minDate" class="input-field" />
+              <input v-model="form.startDate" type="date" required :min="isEditMode ? undefined : minDate" class="input-field" />
             </div>
 
 
@@ -427,6 +429,7 @@
                     Remove
                   </button>
                 </span>
+                <span v-else-if="isEditMode && existingRequirement(requirement.id)" class="text-sm text-emerald-700">Already attached</span>
                 <span v-else-if="requirement.required" class="text-sm text-red-600">
                   Missing document
                 </span>
@@ -458,6 +461,11 @@
 
 
 
+          <div v-if="isEditMode && existingAttachments.length" class="mb-4">
+            <h4 class="font-medium text-[var(--text)]">Existing Supporting Documents</h4>
+            <ul class="text-sm text-[var(--text-muted)] mt-2"><li v-for="file in existingAttachments" :key="file.attachment_id">{{ file.file_name }}</li></ul>
+            <p class="text-xs text-[var(--text-muted)] mt-2">Existing files remain attached. New uploads will be added.</p>
+          </div>
           <div v-if="form.attachments.length > 0" class="mt-4 space-y-3">
 
             <div v-for="(file, index) in form.attachments" :key="index"
@@ -556,14 +564,14 @@
 
         <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200">
 
-          <button type="button" @click="resetForm"
+          <button type="button" @click="isEditMode ? cancelEditForm() : resetForm()"
             class="w-full sm:w-auto px-6 py-2.5 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800 transition text-sm">
-            Reset Form
+            {{ isEditMode ? "Cancel" : "Reset Form" }}
           </button>
 
-          <button type="submit" :disabled="isSubmitting"
+          <button type="submit" :disabled="isSubmitting || editLoading || Boolean(editLoadError)"
             class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ isSubmitting ? "Submitting..." : "Submit Application" }}
+            {{ isSubmitting ? (isEditMode ? "Saving..." : "Submitting...") : (isEditMode ? "Save Changes" : "Submit Application") }}
           </button>
 
         </div>
@@ -640,12 +648,14 @@ import SignaturePad from "signature_pad";
 import {
   getLeaveTypes,
   submitLeave,
+  getMyLeave,
+  updateMyLeave,
   getMyLeaves,
   getDocumentRequirements,
   type LeaveDocumentRequirement,
 } from "../services/leave";
 
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import {
   Upload,
@@ -668,6 +678,44 @@ interface Attachment {
 
 
 const router = useRouter();
+const route = useRoute();
+const editId = computed(() => Number(route.query.edit || 0));
+const isEditMode = computed(() => Number.isInteger(editId.value) && editId.value > 0);
+const editRecord = ref<any>(null);
+const editLoading = ref(false);
+const editLoadError = ref('');
+const existingAttachments = computed<any[]>(() => editRecord.value?.attachments || []);
+const existingRequirement = (id: number) => existingAttachments.value.some(file => Number(file.leave_document_requirement_id) === Number(id));
+const cancelEditForm = () => { if (!isSubmitting.value) router.push('/my-applications'); };
+const loadEditForm = async () => {
+  if (!isEditMode.value) return;
+  editLoading.value = true;
+  editLoadError.value = '';
+  try {
+    const record = await getMyLeave(editId.value);
+    if (record.final_status?.toLowerCase() !== 'pending' || record.reviewed_at || record.signatory_snapshot_locked) throw new Error('This application has already been processed and cannot be edited.');
+    editRecord.value = record;
+    form.value = {
+      leave_type_id: String(record.leave_type_id || ''),
+      vacation_location_type: record.vacation_location_type || '',
+      vacation_location: record.vacation_location || '',
+      sick_type: record.sick_type || '', illness: record.illness || '',
+      masters_degree: Boolean(record.masters_degree), board_exam_review: Boolean(record.board_exam_review),
+      monetization: Boolean(record.monetization), terminal_leave: Boolean(record.terminal_leave),
+      other_purpose: record.other_purpose || '',
+      startDate: String(record.start_date || '').slice(0,10), endDate: String(record.end_date || '').slice(0,10),
+      commutation: record.commutation === 'not_requested' ? 'not requested' : record.commutation || '',
+      reason: record.reason || '', attachments: [], declaration: false,
+    };
+    otherPurposeSelected.value = Boolean(record.other_purpose);
+    await nextTick();
+    if (record.applicants_signature && signaturePad.value) {
+      await signaturePad.value.fromDataURL(record.applicants_signature);
+      signatureData.value = record.applicants_signature;
+    }
+  } catch (error: any) { editLoadError.value = error.response?.data?.message || error.message || 'Unable to load the application.'; }
+  finally { editLoading.value = false; }
+};
 
 
 const form = ref({
@@ -815,6 +863,7 @@ onMounted(async () => {
     if (hasEmployeeRecord) await loadLeaveBalance();
 
     await initializeSignaturePad();
+    await loadEditForm();
 
     window.addEventListener(
       "resize",
@@ -829,6 +878,13 @@ onMounted(async () => {
 
 });
 
+
+watch(() => route.query.edit, async () => {
+  editRecord.value = null;
+  editLoadError.value = '';
+  resetForm();
+  if (isEditMode.value) await loadEditForm();
+});
 
 onBeforeUnmount(() => {
 
@@ -1190,7 +1246,7 @@ const formatFileSize = (bytes: number) => {
 
 const submitApplication = async () => {
   const missingRequirement = documentRequirements.value.find(
-    (requirement) => requirement.required && !requirementFiles.value[requirement.id],
+    (requirement) => requirement.required && !requirementFiles.value[requirement.id] && !(isEditMode.value && existingRequirement(requirement.id)),
   );
   if (missingRequirement) {
     notify(`${missingRequirement.document_name} is required for this leave application.`);
@@ -1365,8 +1421,16 @@ const submitApplication = async () => {
     });
 
 
-    const response =
-      await submitLeave(data);
+    if (isEditMode.value) {
+      if (!editRecord.value) throw new Error('The application has not loaded.');
+      data.append('confirm_changes', '1');
+      data.append('original_updated_at', String(editRecord.value.updated_at || ''));
+      const saved = await updateMyLeave(editId.value, data);
+      notify(saved.message || 'Application updated successfully.');
+      await router.push('/my-applications');
+      return;
+    }
+    const response = await submitLeave(data);
 
 
     console.log(
