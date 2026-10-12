@@ -33,6 +33,11 @@ Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public recovery endpoints: no login required; throttle limits requests per IP.
+Route::post('/forgot-password', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'sendCode'])->middleware('throttle:5,1');
+Route::post('/forgot-password/verify', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'verifyCode'])->middleware('throttle:10,1');
+Route::post('/reset-password', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'resetPassword'])->middleware('throttle:10,1');
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leave-school-year/current', [LeaveSchoolYearController::class, 'current']);

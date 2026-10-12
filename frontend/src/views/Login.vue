@@ -118,9 +118,9 @@
 
             </label>
 
-            <a href="#" class="font-medium text-white hover:text-blue-900">
+            <router-link to="/forgot-password" class="font-medium text-white hover:text-blue-900">
               Forgot password?
-            </a>
+            </router-link>
 
           </div>
 
