@@ -1,6 +1,6 @@
 <template>
-  <div class="dashboard-shell report-print-root min-h-screen p-4 sm:p-6 lg:p-8">
-    <div class="w-full space-y-6">
+  <div class="dashboard-shell report-print-root min-h-screen">
+    <div class="w-full space-y-4">
       <!-- Printed identification (hidden on screen) -->
       <header class="print-header">
         <p class="print-school">{{ SCHOOL_NAME }}</p>
@@ -15,251 +15,136 @@
       </header>
 
       <!-- ========================================================= -->
-      <!-- HEADER -->
+      <!-- PAGE INTRODUCTION (compact) + REPORT TYPE -->
       <!-- ========================================================= -->
-
-      <div class="neo-card print-hide w-full p-5 sm:p-6">
-        <div
-          class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      
+      <div class="report-type-bar print-hide" role="group" aria-label="Report type">
+        <button
+          v-for="reportType in reportTypes"
+          :key="reportType.id"
+          type="button"
+          :aria-pressed="selectedReportType === reportType.id"
+          :class="['report-type-button', selectedReportType === reportType.id ? 'selected-report' : 'unselected-report']"
+          @click="selectedReportType = reportType.id"
         >
-          <div>
-            <h2 class="text-xl font-semibold text-white">
-              Reports
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-400">
-              Generate and view various reports
-            </p>
-          </div>
-        </div>
+          <component :is="reportType.icon" class="report-type-icon" :class="reportType.iconColor" aria-hidden="true" />
+          <span class="report-type-text">
+            <span class="report-type-name">{{ reportType.name }}</span>
+            <span class="report-type-desc">{{ reportType.description }}</span>
+          </span>
+          <span v-if="selectedReportType === reportType.id" class="report-type-selected">
+            <Check class="h-4 w-4" aria-hidden="true" />
+            <span class="sr-only">Selected</span>
+          </span>
+        </button>
       </div>
 
 
       <!-- ========================================================= -->
-      <!-- REPORT TYPE SELECTION -->
+      <!-- FILTERS: leave dates + applications (Leave Summary and Leave Application History) -->
       <!-- ========================================================= -->
 
-      <div class="neo-card print-hide w-full p-5 sm:p-6">
+      <div v-if="isApplicationReport" class="neo-card report-filters-card print-hide filters-card w-full">
 
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
-            Select Report Type
-          </h3>
+        <div class="filters-head">
+          <h3 class="text-base font-semibold text-white">Filters</h3>
 
-          <p class="mt-1 text-sm text-gray-400">
-            Choose the type of report you want to view.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-          <button
-            v-for="reportType in reportTypes"
-            :key="reportType.id"
-            @click="selectedReportType = reportType.id"
-            :class="[
-              'report-type-button rounded-xl border p-4 text-left transition-all duration-200',
-              selectedReportType === reportType.id
-                ? 'selected-report'
-                : 'unselected-report'
-            ]"
-          >
-
-            <div class="flex flex-col items-center">
-
-              <component
-                :is="reportType.icon"
-                class="mb-3 h-8 w-8"
-                :class="reportType.iconColor"
-              />
-
-              <h4 class="text-center font-medium text-white">
-                {{ reportType.name }}
-              </h4>
-
-              <p class="mt-1 text-center text-sm leading-5 text-gray-400">
-                {{ reportType.description }}
-              </p>
-
-            </div>
-
-          </button>
-
-        </div>
-      </div>
-
-
-      <!-- ========================================================= -->
-      <!-- DATE RANGE SELECTION -->
-      <!-- ========================================================= -->
-
-      <div v-if="selectedReportType === 'leave-summary'" class="neo-card print-hide w-full p-5 sm:p-6">
-
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-white">
-            Date Range
-          </h3>
-
-          <p class="mt-1 text-sm text-gray-400">
-            Show leave applications whose leave dates overlap this period.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-
-          <!-- Start Date -->
-          <div>
-            <label class="mb-2 block text-sm font-medium text-gray-300">
-              Start Date
+          <div class="filters-actions">
+            <label class="inline-check">
+              <input v-model="includeInactive" type="checkbox" class="h-4 w-4" />
+              Include inactive/resigned and archived employees
             </label>
 
-            <input
-              v-model="dateRange.start"
-              type="date"
-              class="report-input w-full"
-            />
-          </div>
-
-
-          <!-- End Date -->
-          <div>
-            <label class="mb-2 block text-sm font-medium text-gray-300">
-              End Date
-            </label>
-
-            <input
-              v-model="dateRange.end"
-              type="date"
-              class="report-input w-full"
-            />
-          </div>
-
-
-          <!-- Quick Select -->
-          <div>
-            <label class="mb-2 block text-sm font-medium text-gray-300">
-              Quick Select
-            </label>
-
-            <select
-              :value="activeQuickRange"
-              @change="setQuickDateRange"
-              class="report-input w-full"
+            <button
+              type="button"
+              class="secondary-button rounded-lg px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="!hasSummaryFilters"
+              @click="clearSummaryFilters"
             >
-              <option value="">
-                All Dates / Custom Range
-              </option>
-
-              <option value="today">
-                Today
-              </option>
-
-              <option value="week">
-                This Week
-              </option>
-
-              <option value="month">
-                This Month
-              </option>
-
-              <option value="quarter">
-                This Quarter
-              </option>
-
-              <option value="year">
-                This Year
-              </option>
-            </select>
+              Clear filters
+            </button>
           </div>
-
-        </div>
-      </div>
-
-
-      <!-- ========================================================= -->
-      <!-- LEAVE SUMMARY FILTERS -->
-      <!-- ========================================================= -->
-
-      <div v-if="selectedReportType === 'leave-summary'" class="neo-card report-filters-card print-hide w-full p-5 sm:p-6">
-
-        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h3 class="text-lg font-semibold text-white">
-              Filters
-            </h3>
-
-            <p class="mt-1 text-sm text-gray-400">
-              Narrow the applications counted in the cards, table, charts and export below.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-            :disabled="!hasSummaryFilters"
-            @click="clearSummaryFilters"
-          >
-            Clear filters
-          </button>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div class="filters-groups">
 
-          <div>
-            <label for="summary-search" class="mb-2 block text-sm font-medium text-gray-300">
-              Employee
-            </label>
+          <fieldset class="filter-group">
+            <legend>Leave dates <span>(applications overlapping this period)</span></legend>
 
-            <input
-              id="summary-search"
-              v-model="summarySearchInput"
-              type="search"
-              maxlength="100"
-              autocomplete="off"
-              placeholder="Search employee name"
-              class="report-input w-full"
-            />
-          </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <label for="report-start" class="filter-label">Start date</label>
+                <input id="report-start" v-model="dateRange.start" type="date" class="report-input w-full" />
+              </div>
 
-          <div>
-            <label for="summary-department" class="mb-2 block text-sm font-medium text-gray-300">
-              Department
-            </label>
+              <div>
+                <label for="report-end" class="filter-label">End date</label>
+                <input id="report-end" v-model="dateRange.end" type="date" class="report-input w-full" />
+              </div>
 
-            <select id="summary-department" v-model="summaryDepartment" class="report-input w-full">
-              <option value="">All departments</option>
-              <option value="unassigned">Unassigned</option>
-              <option v-for="option in departmentOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
+              <div>
+                <label for="report-quick" class="filter-label">Quick select</label>
+                <select id="report-quick" :value="activeQuickRange" @change="setQuickDateRange" class="report-input w-full">
+                  <option value="">All dates / custom</option>
+                  <option value="today">Today</option>
+                  <option value="week">This week</option>
+                  <option value="month">This month</option>
+                  <option value="quarter">This quarter</option>
+                  <option value="year">This year</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
 
-          <div>
-            <label for="summary-status" class="mb-2 block text-sm font-medium text-gray-300">
-              Application Status
-            </label>
+          <fieldset class="filter-group">
+            <legend>Applications</legend>
 
-            <select id="summary-status" v-model="summaryStatus" class="report-input w-full">
-              <option value="">All statuses</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-              <option value="disapproved">Disapproved</option>
-            </select>
-          </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+              <div>
+                <label for="summary-search" class="filter-label">Employee</label>
+                <input
+                  id="summary-search"
+                  v-model="summarySearchInput"
+                  type="search"
+                  maxlength="100"
+                  autocomplete="off"
+                  placeholder="Search employee name"
+                  class="report-input w-full"
+                />
+              </div>
 
-          <div>
-            <label for="summary-leave-type" class="mb-2 block text-sm font-medium text-gray-300">
-              Leave Type
-            </label>
+              <div>
+                <label for="summary-department" class="filter-label">Department</label>
+                <select id="summary-department" v-model="summaryDepartment" class="report-input w-full">
+                  <option value="">All departments</option>
+                  <option value="unassigned">Unassigned</option>
+                  <option v-for="option in departmentOptions" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
 
-            <select id="summary-leave-type" v-model="summaryLeaveType" class="report-input w-full">
-              <option value="">All leave types</option>
-              <option v-for="option in leaveTypeOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </div>
+              <div>
+                <label for="summary-leave-type" class="filter-label">Leave type</label>
+                <select id="summary-leave-type" v-model="summaryLeaveType" class="report-input w-full">
+                  <option value="">All leave types</option>
+                  <option v-for="option in leaveTypeOptions" :key="option.value" :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label for="summary-status" class="filter-label">Status</label>
+                <select id="summary-status" v-model="summaryStatus" class="report-input w-full">
+                  <option value="">All statuses</option>
+                  <option value="approved">Approved</option>
+                  <option value="pending">Pending</option>
+                  <option value="disapproved">Disapproved</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
 
         </div>
 
@@ -372,43 +257,27 @@
 
       <div class="neo-card w-full overflow-hidden">
 
-        <!-- Report Header -->
-        <div
-          class="report-header print-hide border-b px-5 py-5 sm:px-6"
-        >
+        <!-- Report Header: title, record count and the Export / Print actions -->
+        <div class="report-header print-hide results-bar">
 
-          <div
-            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-          >
+          <div class="min-w-0">
+            <h3 class="text-base font-semibold text-white">
+              {{ getCurrentReportName() }}
+            </h3>
 
-            <div>
-              <h3 class="text-lg font-semibold text-white">
-                {{ getCurrentReportName() }}
-              </h3>
+            <p class="text-sm text-gray-400" role="status" aria-live="polite">
+              {{ resultSubtitle }}
+            </p>
+          </div>
 
-              <p class="mt-1 text-sm text-gray-400">
-                Report results and statistics
-              </p>
-            </div>
+          <div class="results-actions">
+            <button type="button" @click="exportReport" class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition">
+              Export CSV
+            </button>
 
-            <div class="flex w-full gap-2 sm:w-auto">
-
-              <button
-                @click="exportReport"
-                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
-              >
-                Export
-              </button>
-
-              <button
-                @click="printReport"
-                class="secondary-button flex-1 rounded-lg px-4 py-2 text-sm font-medium transition sm:flex-none"
-              >
-                Print
-              </button>
-
-            </div>
-
+            <button type="button" @click="printReport" class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition">
+              Print
+            </button>
           </div>
 
         </div>
@@ -420,7 +289,7 @@
 
         <template v-if="selectedReportType === 'leave-summary'">
 
-          <div class="leave-summary p-5 sm:p-6">
+          <div class="leave-summary p-4 sm:p-5">
             <p v-if="summaryBackendWarning" role="alert" class="approved-days-warning mb-4 rounded-lg p-4">{{ summaryBackendWarning }}</p>
 
 
@@ -428,27 +297,26 @@
             <!-- LEAVE SUMMARY OVERVIEW -->
             <!-- ===================================================== -->
 
-            <div class="mb-6">
-              <label class="summary-filter flex items-center gap-2 text-sm text-gray-300 mb-4">
-                <input v-model="includeInactive" type="checkbox" class="h-4 w-4" />
-                Include inactive/resigned and archived employees
-              </label>
-              <div class="summary-context print-hide mb-4 text-sm text-gray-400 space-y-1">
-                <p><strong>Report period:</strong> {{ summaryPeriod }}</p>
-                <p><strong>Employee scope:</strong> {{ summaryFilters.include_inactive ? 'All linked employees, including inactive and archived' : 'Currently active, non-archived employees' }}</p>
-                <p v-if="summaryGeneratedAt"><strong>Generated:</strong> {{ new Date(summaryGeneratedAt).toLocaleString('en-PH') }}</p>
-                <p>Applications whose leave dates overlap the selected period. Day totals include full requested days of matching applications; they are not credits deducted or days restricted to that period.</p>
+            <div class="mb-4">
+              <p class="summary-context print-hide mb-2 text-sm text-gray-400">
+                <strong>Period:</strong> {{ summaryPeriod }} ·
+                <strong>Employees:</strong> {{ summaryFilters.include_inactive ? 'including inactive and archived' : 'active, non-archived only' }} ·
+                <strong>Filters:</strong> {{ summaryFilterText }} ·
+                <strong>Matching:</strong> {{ leaveTotals.applications ?? 0 }} {{ Number(leaveTotals.applications ?? 0) === 1 ? 'application' : 'applications' }} in {{ leaveSummaryData.length }} {{ leaveSummaryData.length === 1 ? 'department' : 'departments' }}
+                <template v-if="summaryGeneratedAt"> · <strong>Data as of:</strong> {{ formatGeneratedAt(new Date(summaryGeneratedAt)) }}</template>
+              </p>
+              <details class="report-notes print-hide mb-3">
+                <summary>How these figures are calculated</summary>
+                <p>Applications whose leave dates overlap the selected period. Requested days are the full requested days of every matching application; they are not credits deducted or days restricted to the period.</p>
                 <p>Departments reflect current employee assignments. Non-deleted applications only; missing links are shown as Unassigned.</p>
-                <p><strong>Filters:</strong> {{ summaryFilterText }}</p>
-                <p><strong>Matching applications:</strong> {{ leaveTotals.applications ?? 0 }} in {{ leaveSummaryData.length }} {{ leaveSummaryData.length === 1 ? 'department' : 'departments' }}</p>
-              </div>
-              <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-4">
+              </details>
+              <div class="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-3">
                 <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Total Applications</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.applications ?? 0 }}</p></div>
                 <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Approved</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.approved ?? 0 }}</p></div>
                 <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Pending</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.pending ?? 0 }}</p></div>
                 <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Disapproved</p><p class="text-2xl font-semibold text-white">{{ leaveTotals.disapproved ?? 0 }}</p></div>
               </div>
-              <p class="text-sm text-gray-400 mb-4">Total Requested Days: <strong>{{ formatSummaryDays(leaveTotals.total_days) }}</strong> · Requested Days of Approved Applications: <strong>{{ formatApprovedDays(leaveTotals.approved_days) }}</strong></p>
+              <p class="text-sm text-gray-400 mb-3">Total Requested Days: <strong>{{ formatSummaryDays(leaveTotals.total_days) }}</strong> · Requested Days of Approved Applications: <strong>{{ formatApprovedDays(leaveTotals.approved_days) }}</strong></p>
               <p v-if="Number(leaveTotals.other || 0) > 0" class="text-sm text-gray-400 mb-4">Other/unrecognized status: {{ leaveTotals.other }} application(s). Review these records; they are included in the total.</p>
               <h5 class="text-sm font-semibold uppercase tracking-wide text-gray-300 mb-3">Leave Summary by Department</h5>
               <div class="summary-table-wrapper">
@@ -500,7 +368,7 @@
                 </div>
 
 
-                <div class="space-y-5">
+                <div v-if="Number(leaveTotals.applications || 0) > 0" class="space-y-5">
 
                   <!-- Approved -->
                   <div>
@@ -512,7 +380,7 @@
                       </span>
 
                       <span class="text-sm font-semibold text-green-400">
-                        {{ statusChartData.approved }}
+                        {{ statusChartData.approved }} <span class="status-pct">({{ statusPercent(statusChartData.approved) }})</span>
                       </span>
 
                     </div>
@@ -542,7 +410,7 @@
                       </span>
 
                       <span class="text-sm font-semibold text-yellow-400">
-                        {{ statusChartData.pending }}
+                        {{ statusChartData.pending }} <span class="status-pct">({{ statusPercent(statusChartData.pending) }})</span>
                       </span>
 
                     </div>
@@ -572,7 +440,7 @@
                       </span>
 
                       <span class="text-sm font-semibold text-red-400">
-                        {{ statusChartData.disapproved }}
+                        {{ statusChartData.disapproved }} <span class="status-pct">({{ statusPercent(statusChartData.disapproved) }})</span>
                       </span>
 
                     </div>
@@ -591,6 +459,14 @@
 
                   </div>
 
+                </div>
+
+                <p v-if="Number(leaveTotals.other || 0) > 0" class="mt-4 text-sm text-gray-400">
+                  Other/unrecognized status: <strong>{{ leaveTotals.other }}</strong> ({{ statusPercent(leaveTotals.other) }}) &mdash; included in the total, not in the three bars.
+                </p>
+
+                <div v-if="!Number(leaveTotals.applications || 0)" class="empty-report-state rounded-xl px-4 py-6 text-center">
+                  <p class="text-sm text-gray-400">No applications match the current period and filters.</p>
                 </div>
 
               </div>
@@ -656,6 +532,59 @@
 
             </div>
 
+
+            <!-- =================================================== -->
+            <!-- APPLICATIONS FILED BY MONTH -->
+            <!-- =================================================== -->
+
+            <div class="summary-panel monthly-panel mt-4 rounded-xl p-4 sm:p-5">
+              <div class="mb-3">
+                <h3 class="text-base font-semibold text-white">Applications Filed by Month</h3>
+                <p class="text-sm text-gray-400">
+                  Counted by the month each application was filed, split by its <strong>current</strong> status. Earlier status changes are not stored, so this is not a history of approvals.
+                </p>
+              </div>
+
+              <template v-if="monthlyTrend.length">
+                <ul class="monthly-legend" aria-label="Legend">
+                  <li><span class="swatch seg-approved"></span>Approved</li>
+                  <li><span class="swatch seg-pending"></span>Pending</li>
+                  <li><span class="swatch seg-disapproved"></span>Disapproved</li>
+                  <li v-if="Number(leaveTotals.other || 0) > 0"><span class="swatch seg-other"></span>Other</li>
+                </ul>
+
+                <div class="monthly-chart" role="img" :aria-label="monthlyAriaLabel">
+                  <div v-for="month in monthlyTrend" :key="month.month" class="month-col">
+                    <span class="month-total">{{ month.submitted }}</span>
+                    <div class="month-track">
+                      <div class="month-bar" :style="{ height: monthBarHeight(month.submitted) }">
+                        <span v-for="status in monthSegments" :key="status" v-show="Number(month[status] || 0) > 0" :class="['seg', 'seg-' + status]" :style="{ height: (Number(month[status] || 0) / Number(month.submitted) * 100) + '%' }"></span>
+                      </div>
+                    </div>
+                    <span class="month-label">{{ monthLabel(month.month) }}</span>
+                  </div>
+                </div>
+
+                <div class="monthly-table-wrap">
+                  <table class="monthly-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Month filed</th><th scope="col">Submitted</th><th scope="col">Approved</th><th scope="col">Pending</th><th scope="col">Disapproved</th><th v-if="Number(leaveTotals.other || 0) > 0" scope="col">Other</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="month in monthlyTrend" :key="month.month">
+                        <th scope="row">{{ monthLabel(month.month) }}</th><td>{{ month.submitted }}</td><td>{{ month.approved }}</td><td>{{ month.pending }}</td><td>{{ month.disapproved }}</td><td v-if="Number(leaveTotals.other || 0) > 0">{{ month.other ?? 0 }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </template>
+
+              <div v-else class="empty-report-state rounded-xl px-4 py-6 text-center">
+                <p class="text-sm text-gray-400">No applications match the current period and filters, so there is no monthly trend to show.</p>
+              </div>
+            </div>
           </div>
           
 
@@ -916,6 +845,121 @@
 
         </template>
 
+
+        <!-- ========================================================= -->
+        <!-- LEAVE APPLICATION HISTORY -->
+        <!-- ========================================================= -->
+
+        <template v-else-if="selectedReportType === 'leave-history'">
+
+          <div class="leave-history p-4 sm:p-5">
+
+            <p class="summary-context print-hide mb-2 text-sm text-gray-400">
+              <strong>Period:</strong> {{ summaryPeriod }} ·
+              <strong>Employees:</strong> {{ summaryFilters.include_inactive ? 'including inactive and archived' : 'active, non-archived only' }} ·
+              <strong>Filters:</strong> {{ summaryFilterText }}
+              <template v-if="summaryGeneratedAt"> · <strong>Data as of:</strong> {{ formatGeneratedAt(new Date(summaryGeneratedAt)) }}</template>
+            </p>
+
+            <details class="report-notes print-hide mb-3">
+              <summary>What this report shows and does not show</summary>
+              <p>One row per leave application whose leave dates overlap the selected period. <strong>Current Status</strong> is the application's status now; <strong>Status Last Changed</strong> is when it was last changed, when recorded.</p>
+              <p>Not stored by the system, so not reported: a Division Office outcome, earlier status changes, and approval dates or signatories for each decision.</p>
+            </details>
+
+            <div class="mb-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Matching Applications</p><p class="text-2xl font-semibold text-white">{{ historyTotals.records ?? 0 }}</p></div>
+              <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Approved</p><p class="text-2xl font-semibold text-white">{{ historyTotals.approved ?? 0 }}</p></div>
+              <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Pending</p><p class="text-2xl font-semibold text-white">{{ historyTotals.pending ?? 0 }}</p></div>
+              <div class="summary-panel rounded-xl p-4"><p class="text-sm text-gray-400">Disapproved</p><p class="text-2xl font-semibold text-white">{{ historyTotals.disapproved ?? 0 }}</p></div>
+            </div>
+            <p class="mb-3 text-sm text-gray-400">Total Requested Days: <strong>{{ formatSummaryDays(historyTotals.requested_days) }}</strong> · Requested Days of Approved Applications: <strong>{{ formatApprovedDays(historyTotals.approved_days) }}</strong></p>
+            <p v-if="Number(historyTotals.other || 0) > 0" class="mb-3 text-sm text-gray-400">Other/unrecognized status: {{ historyTotals.other }} application(s), included in the total.</p>
+
+            <div class="table-controls mb-3">
+              <p class="text-sm text-gray-400" role="status" aria-live="polite">
+                <template v-if="historyPageInfo.total">
+                  Showing <strong>{{ historyPageInfo.from }}&ndash;{{ historyPageInfo.to }}</strong> of <strong>{{ historyPageInfo.total }}</strong> matching {{ historyPageInfo.total === 1 ? 'application' : 'applications' }}
+                </template>
+                <template v-else><strong>0</strong> matching applications</template>
+              </p>
+
+              <label for="history-page-size" class="flex items-center gap-2 text-sm text-gray-400">
+                Rows per page
+                <select id="history-page-size" v-model.number="historyPageSize" class="report-input">
+                  <option v-for="size in creditPageSizes" :key="size" :value="size">{{ size === 0 ? 'All' : size }}</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="report-table history-table w-full min-w-[1100px]">
+                <thead>
+                  <tr>
+                    <th
+                      v-for="column in historyColumns"
+                      :key="column.key"
+                      scope="col"
+                      :aria-sort="column.sortable ? ariaSort(historySort, column.key) : undefined"
+                      class="px-3 py-3 text-xs font-medium uppercase"
+                      :class="column.numeric ? 'numeric-cell' : 'text-left'"
+                    >
+                      <button v-if="column.sortable" type="button" class="sort-button" :title="'Sort by ' + column.label" @click="toggleHistorySort(column.key)">
+                        <span>{{ column.label }}</span><span class="sort-mark" :class="{ active: historySort?.key === column.key }" aria-hidden="true">{{ sortMark(historySort, column.key) }}</span>
+                      </button>
+                      <span v-else>{{ column.label }}</span>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr
+                    v-for="row in sortedHistoryRows"
+                    :key="row.leave_id"
+                    :class="{ 'off-page': !visibleHistoryIds.has(row.leave_id) }"
+                  >
+                    <td class="employee-name-cell px-3 py-3 text-sm font-medium">
+                      {{ row.employee_name }}
+                      <span v-if="historyEmployeeTag(row)" class="status-tag">{{ historyEmployeeTag(row) }}</span>
+                    </td>
+                    <td class="px-3 py-3 text-sm">{{ row.department }}</td>
+                    <td class="px-3 py-3 text-sm">{{ row.leave_type }}</td>
+                    <td class="px-3 py-3 text-sm date-cell">{{ row.start_date || '—' }}</td>
+                    <td class="px-3 py-3 text-sm date-cell">{{ row.end_date || '—' }}</td>
+                    <td class="numeric-cell px-3 py-3 text-sm">{{ formatSummaryDays(row.requested_days) }}</td>
+                    <td class="px-3 py-3 text-sm date-cell">{{ row.date_filed || '—' }}</td>
+                    <td class="px-3 py-3 text-sm"><span :class="['status-pill', 'status-' + row.status]">{{ historyStatusLabels[row.status] ?? row.status }}</span></td>
+                    <td class="px-3 py-3 text-sm date-cell">{{ statusChangedText(row.status_changed_at) || 'Not recorded' }}</td>
+                    <td class="approval-cell px-3 py-3 text-sm">
+                      <template v-if="approvalDetails(row).length">
+                        <span v-for="detail in approvalDetails(row)" :key="detail" class="approval-line">{{ detail }}</span>
+                      </template>
+                      <span v-else class="no-record-cell">None recorded</span>
+                    </td>
+                  </tr>
+
+                  <tr v-if="historyData.length === 0">
+                    <td :colspan="historyColumns.length" class="empty-cell px-6 py-8 text-center text-gray-500">
+                      {{ hasSummaryFilters ? 'No applications match the selected period, employee scope and filters.' : 'No applications match the selected period and employee scope.' }}
+                      <button v-if="hasSummaryFilters" type="button" class="link-button" @click="clearSummaryFilters">Clear filters</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <nav v-if="historyPageInfo.pageCount > 1" class="table-controls mt-3" aria-label="Leave application history pagination">
+              <p class="text-sm text-gray-400">Page {{ historyPageInfo.page }} of {{ historyPageInfo.pageCount }}</p>
+              <div class="flex gap-2">
+                <button type="button" class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50" :disabled="historyPageInfo.page <= 1" @click="historyPage = historyPageInfo.page - 1">Previous</button>
+                <button type="button" class="secondary-button rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50" :disabled="historyPageInfo.page >= historyPageInfo.pageCount" @click="historyPage = historyPageInfo.page + 1">Next</button>
+              </div>
+            </nav>
+
+          </div>
+
+        </template>
+
       </div>
 
     </div>
@@ -948,7 +992,9 @@ import {
   FileText,
   Users,
   TrendingUp,
-  CreditCard
+  CreditCard,
+  ClipboardList,
+  Check
 } from 'lucide-vue-next'
 
 import {
@@ -1188,9 +1234,17 @@ const reportTypes = [
   {
     id: 'leave-summary',
     name: 'Leave Summary',
-    description: 'Comprehensive leave statistics',
+    description: 'Totals by department, status and month',
     icon: FileText,
     iconColor: 'text-blue-500'
+  },
+
+  {
+    id: 'leave-history',
+    name: 'Leave Application History',
+    description: 'Every application, with recorded decisions',
+    icon: ClipboardList,
+    iconColor: 'text-emerald-600'
   },
 
   {
@@ -1216,6 +1270,14 @@ const creditsData = ref<any[]>([])
 const creditsLoadedAt = ref('')
 
 const leaveTotals = ref<any>({})
+
+// Applications filed per month, split by current status (Leave Summary only).
+const monthlyTrend = ref<any[]>([])
+
+// Leave Application History (shares the Leave Summary period and filters).
+const historyData = ref<any[]>([])
+const historyTotals = ref<any>({})
+const isApplicationReport = computed(() => selectedReportType.value === 'leave-summary' || selectedReportType.value === 'leave-history')
 
 const loading = ref(false)
 
@@ -1294,6 +1356,66 @@ const creditPageInfo = computed(() => paginate(sortedCreditRows.value, creditPag
 // Rows outside the current page stay in the DOM but are hidden on screen, so printing shows every match.
 const visibleCreditIds = computed(() => new Set(creditPageInfo.value.items.map((row: any) => row.employee_id)))
 const creditTotals = computed(() => summarizeCreditRows(filteredCreditRows.value))
+
+/*
+|--------------------------------------------------------------------------
+| Leave Application History table (rows are already filtered by the API)
+|--------------------------------------------------------------------------
+*/
+
+const historyStatusLabels: Record<string, string> = { approved: 'Approved', pending: 'Pending', disapproved: 'Disapproved', other: 'Other' }
+const historyColumns = [
+  { key: 'employee_name', label: 'Employee', numeric: false, sortable: true },
+  { key: 'department', label: 'Department', numeric: false, sortable: true },
+  { key: 'leave_type', label: 'Leave Type', numeric: false, sortable: true },
+  { key: 'start_date', label: 'Leave Start', numeric: false, sortable: true },
+  { key: 'end_date', label: 'Leave End', numeric: false, sortable: true },
+  { key: 'requested_days', label: 'Requested Days', numeric: true, sortable: true },
+  { key: 'date_filed', label: 'Date Filed', numeric: false, sortable: true },
+  { key: 'status', label: 'Current Status', numeric: false, sortable: true },
+  { key: 'status_changed_at', label: 'Status Last Changed', numeric: false, sortable: true },
+  { key: 'approval_record', label: 'Recorded Approval Details', numeric: false, sortable: false }
+]
+const historySortKinds: Record<string, SortKind> = {
+  employee_name: 'text', department: 'text', leave_type: 'text', start_date: 'text', end_date: 'text',
+  requested_days: 'number', date_filed: 'text', status: 'text', status_changed_at: 'text'
+}
+const historySort = ref<SortState | null>(null)
+const historyPage = ref(1)
+const historyPageSize = ref(25) // 0 = all
+
+const sortedHistoryRows = computed(() =>
+  sortRows(historyData.value, historySort.value, historySortKinds, { tieBreak: 'employee_name' }))
+const historyPageInfo = computed(() => paginate(sortedHistoryRows.value, historyPage.value, historyPageSize.value))
+// Rows outside the current page stay in the DOM but are hidden on screen, so printing lists every match.
+const visibleHistoryIds = computed(() => new Set(historyPageInfo.value.items.map((row: any) => row.leave_id)))
+const toggleHistorySort = (key: string) => { historySort.value = nextSort(historySort.value, key) }
+watch([historyData, historySort, historyPageSize], () => { historyPage.value = 1 })
+watch(() => historyPageInfo.value.page, (page) => { if (page !== historyPage.value) historyPage.value = page })
+
+const statusChangedText = (value: unknown) => {
+  if (!value) return ''
+  const date = new Date(String(value))
+  return Number.isNaN(date.getTime()) ? '' : fileStamp(date)
+}
+const recommendationText = (row: any) =>
+  row.recommendation_status ? `${historyStatusLabels[row.recommendation_status] ?? row.recommendation_status}` : ''
+// Plain-language list of the approval details that were actually recorded for this application.
+const approvalDetails = (row: any): string[] => {
+  const details: string[] = []
+  if (row.recommendation_status) details.push(`Recommendation: ${recommendationText(row)}`)
+  if (row.recommendation_reason) details.push(`Recommendation reason: ${row.recommendation_reason}`)
+  if (row.days_with_pay !== null && row.days_with_pay !== undefined) details.push(`Days with pay: ${row.days_with_pay}`)
+  if (row.days_without_pay !== null && row.days_without_pay !== undefined) details.push(`Days without pay: ${row.days_without_pay}`)
+  if (row.other_approval) details.push(`Other: ${row.other_approval}`)
+  if (row.disapproval_reason) details.push(`Disapproval reason: ${row.disapproval_reason}`)
+  if (row.admin_remarks) details.push(`Remarks: ${row.admin_remarks}`)
+  return details
+}
+const historyEmployeeTag = (row: any) =>
+  row.employee_state === 'archived' ? 'Archived' : row.employee_state === 'inactive' ? 'Inactive' : ''
+
+
 
 const creditFilterText = computed(() => {
   const filters = creditFilters.value
@@ -1521,6 +1643,7 @@ async function loadLeaveSummary() {
 
     leaveTotals.value =
       response.data.totals || {}
+    monthlyTrend.value = Array.isArray(response.data.monthly) ? response.data.monthly : []
     summaryLoaded.value = true
 
     await nextTick()
@@ -1537,6 +1660,26 @@ async function loadLeaveSummary() {
 
   }
 
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Load Leave Application History
+|
+| Same period, employee scope and filters as Leave Summary, so both reports
+| (and their exports) describe the same applications.
+|--------------------------------------------------------------------------
+*/
+
+async function loadLeaveHistory() {
+  const version = ++summaryRequestVersion
+  const response = await api.get('/reports/leave-history', { params: summaryParams() })
+  if (version !== summaryRequestVersion || selectedReportType.value !== 'leave-history') return
+  summaryFilters.value = response.data.filters || { start_date: null, end_date: null, include_inactive: true }
+  summaryGeneratedAt.value = response.data.generated_at || ''
+  historyData.value = Array.isArray(response.data.records) ? response.data.records : []
+  historyTotals.value = response.data.totals || {}
 }
 
 
@@ -1928,6 +2071,38 @@ async function loadLeaveCredits(version: number) {
 |--------------------------------------------------------------------------
 */
 
+const resultSubtitle = computed(() => {
+  const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
+  switch (selectedReportType.value) {
+    case 'leave-credits':
+      return `${count(creditTotals.value.employees ?? 0, 'employee', 'employees')} · current balance snapshot`
+    case 'leave-history':
+      return `${count(Number(historyTotals.value.records ?? 0), 'application', 'applications')} · period ${summaryPeriod.value.toLowerCase()}`
+    default:
+      return `${count(Number(leaveTotals.value.applications ?? 0), 'application', 'applications')} in ${count(leaveSummaryData.value.length, 'department', 'departments')} · period ${summaryPeriod.value.toLowerCase()}`
+  }
+})
+
+// Share of the matching applications, whole percent. Rounding can make the three shares total 99-101%.
+const statusPercent = (count: unknown) => {
+  const total = Number(leaveTotals.value.applications ?? 0)
+  return total > 0 ? `${Math.round((Number(count || 0) / total) * 100)}%` : '0%'
+}
+
+// Monthly filed-applications chart (data: summary.monthly).
+const monthSegments = computed(() => Number(leaveTotals.value.other || 0) > 0
+  ? ['approved', 'pending', 'disapproved', 'other'] : ['approved', 'pending', 'disapproved'])
+const monthlyMax = computed(() => Math.max(1, ...monthlyTrend.value.map((m: any) => Number(m.submitted || 0))))
+const monthBarHeight = (submitted: unknown) => `${Math.max(2, (Number(submitted || 0) / monthlyMax.value) * 100)}%`
+const monthLabel = (month: string) => {
+  const [year, number] = String(month).split('-').map(Number)
+  if (!year || !number) return String(month)
+  return new Intl.DateTimeFormat('en-PH', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(year, number - 1, 1)))
+}
+const monthlyAriaLabel = computed(() =>
+  'Applications filed per month: ' + monthlyTrend.value.map((m: any) =>
+    `${monthLabel(m.month)} ${m.submitted} (${m.approved} approved, ${m.pending} pending, ${m.disapproved} disapproved)`).join('; '))
+
 const getCurrentReportName = () => {
 
   const report =
@@ -2021,6 +2196,52 @@ const summaryScopeText = computed(() => summaryFilters.value.include_inactive
 
 const reportDocument = computed<ReportDocument>(() => {
   const generated = formatGeneratedAt(outputAt.value)
+
+  if (selectedReportType.value === 'leave-history') {
+    const totals = historyTotals.value
+    const showOther = Number(totals.other || 0) > 0
+    return {
+      title: 'Leave Application History Report',
+      meta: [
+        ['Reporting period', summaryPeriod.value],
+        ['Employee scope', summaryScopeText.value],
+        ['Filters', summaryFilterText.value],
+        ['Matching applications', String(totals.records ?? 0)],
+        ['Data as of', summaryGeneratedAt.value ? formatGeneratedAt(new Date(summaryGeneratedAt.value)) : 'Not loaded'],
+        ['Generated', generated]
+      ],
+      notes: [
+        'One row per leave application whose leave dates overlap the reporting period. Status is the current application status; earlier status changes are not stored, and "Status Last Changed" is the time of the most recent change when it was recorded.',
+        'Approval details are shown only as recorded in the system. A Division Office outcome, approval dates and signatories per decision are not stored, so none is reported.'
+      ],
+      totals: [
+        ['Matching applications', totals.records ?? 0],
+        ['Approved applications', totals.approved ?? 0],
+        ['Pending applications', totals.pending ?? 0],
+        ['Disapproved applications', totals.disapproved ?? 0],
+        ...(showOther ? [['Other/unrecognized status', totals.other] as [string, number]] : []),
+        ['Requested days (all matching applications)', formatSummaryDays(totals.requested_days)],
+        ['Requested days of approved applications', formatApprovedDays(totals.approved_days)]
+      ],
+      tables: [{
+        title: 'Leave Applications',
+        headers: ['Employee', 'Department', 'Leave Type', 'Leave Start', 'Leave End', 'Requested Days', 'Date Filed',
+          'Current Status', 'Status Last Changed', 'Recommendation', 'Recommendation Reason', 'Days With Pay',
+          'Days Without Pay', 'Other Approval Detail', 'Disapproval Reason', 'Remarks'],
+        // Every matching application (not only the current page), in the order shown on screen.
+        rows: sortedHistoryRows.value.map((row: any) => [
+          historyEmployeeTag(row) ? `${row.employee_name} (${historyEmployeeTag(row)})` : row.employee_name,
+          row.department, row.leave_type, row.start_date, row.end_date, formatSummaryDays(row.requested_days), row.date_filed,
+          historyStatusLabels[row.status] ?? row.status, statusChangedText(row.status_changed_at),
+          recommendationText(row), row.recommendation_reason, row.days_with_pay, row.days_without_pay,
+          row.other_approval, row.disapproval_reason, row.admin_remarks
+        ]),
+        emptyMessage: hasSummaryFilters.value
+          ? 'No applications match the selected period, employee scope and filters.'
+          : 'No applications match the selected period and employee scope.'
+      }]
+    }
+  }
 
   if (selectedReportType.value === 'leave-credits') {
     const totals = creditTotals.value
@@ -2119,6 +2340,17 @@ const reportDocument = computed<ReportDocument>(() => {
         rows: leaveByType.value.map((leave) => [leave.name, leave.count]),
         footer: ['Total', leaveByType.value.reduce((sum, leave) => sum + Number(leave.count), 0)],
         emptyMessage: 'No leave type data available.'
+      },
+      {
+        title: 'Applications Filed by Month (grouped by filing date; status is the current status)',
+        headers: ['Month Filed', 'Submitted', 'Approved', 'Pending', 'Disapproved', ...(showOther ? ['Other'] : [])],
+        rows: monthlyTrend.value.map((m: any) => [
+          m.month, m.submitted, m.approved, m.pending, m.disapproved, ...(showOther ? [m.other ?? 0] : [])
+        ]),
+        footer: ['Total', ...(['submitted', 'approved', 'pending', 'disapproved'] as const).map((key) =>
+          monthlyTrend.value.reduce((sum: number, m: any) => sum + Number(m[key] || 0), 0)),
+          ...(showOther ? [monthlyTrend.value.reduce((sum: number, m: any) => sum + Number(m.other || 0), 0)] : [])],
+        emptyMessage: 'No applications match the selected period and filters.'
       }
     ]
   }
@@ -2129,12 +2361,16 @@ const exportReport = () => {
 
   outputAt.value = new Date()
   const report = reportDocument.value
-  const isCredits = selectedReportType.value === 'leave-credits'
+  const slugs: Record<string, string> = {
+    'leave-summary': 'leave-summary-report',
+    'leave-history': 'leave-application-history-report',
+    'leave-credits': 'leave-credits-balances-report'
+  }
   const primary = report.tables[0]
   const empty = !primary || primary.rows.length === 0
 
   downloadCsv(
-    reportFilename(isCredits ? 'leave-credits-balances-report' : 'leave-summary-report', outputAt.value),
+    reportFilename(slugs[selectedReportType.value] ?? 'report', outputAt.value),
     buildCsvRows(report)
   )
 
@@ -2162,15 +2398,18 @@ const prepareForPrint = () => {
 const restoreAfterPrint = () => { if (savedTitle) document.title = savedTitle; savedTitle = '' }
 
 // Page size, margins and "Page X of Y" apply only while the Reports page is open.
-const PRINT_PAGE_CSS = `@page { size: A4 portrait; margin: 14mm 12mm 16mm;
+const printPageCss = (orientation: 'portrait' | 'landscape') => `@page { size: A4 ${orientation}; margin: 14mm 12mm 16mm;
   @bottom-center { content: "Page " counter(page) " of " counter(pages); font-size: 8pt; color: #444; }
   @bottom-right { content: "${SCHOOL_NAME}"; font-size: 8pt; color: #444; } }`
 let pageStyle: HTMLStyleElement | null = null
+// The history table has ten columns, so it prints on a landscape page.
+const printOrientation = computed(() => selectedReportType.value === 'leave-history' ? 'landscape' : 'portrait')
+watch(printOrientation, (orientation) => { if (pageStyle) pageStyle.textContent = printPageCss(orientation) })
 
 onMounted(() => {
   pageStyle = document.createElement('style')
   pageStyle.setAttribute('data-report-print-page', '')
-  pageStyle.textContent = PRINT_PAGE_CSS
+  pageStyle.textContent = printPageCss(printOrientation.value)
   document.head.appendChild(pageStyle)
   window.addEventListener('beforeprint', prepareForPrint)
   window.addEventListener('afterprint', restoreAfterPrint)
@@ -2202,7 +2441,7 @@ watch(
     const version = ++reportRefreshVersion
     ++summaryRequestVersion
     reportError.value = ''
-    if (selectedReportType.value === 'leave-summary' && dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
+    if (isApplicationReport.value && dateRange.value.start && dateRange.value.end && dateRange.value.start > dateRange.value.end) {
       reportError.value = 'Start date must be on or before end date.'
       if (version === reportRefreshVersion) loading.value = false
       return
@@ -2212,6 +2451,9 @@ watch(
       switch (selectedReportType.value) {
         case 'leave-summary':
           await loadLeaveSummary()
+          break
+        case 'leave-history':
+          await loadLeaveHistory()
           break
         case 'leave-credits':
           await loadLeaveCredits(version)
@@ -2718,7 +2960,7 @@ canvas {
 @media (max-width: 640px) {
 
   .dashboard-shell {
-    padding: 1rem;
+    padding: 0;
   }
 
   .neo-card {
@@ -2762,6 +3004,64 @@ canvas {
 
 }
 
+
+/* ---- Compact page hierarchy: intro, report type, grouped filters, results bar ---- */
+.report-type-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(14rem, 1fr)); gap:.5rem; }
+.report-type-button { display:flex; align-items:center; gap:.65rem; width:100%; padding:.6rem .85rem; border-radius:.75rem; text-align:left; cursor:pointer; }
+.report-type-button:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
+.report-type-icon { flex:none; width:1.5rem; height:1.5rem; }
+.report-type-text { display:flex; flex-direction:column; min-width:0; flex:1; }
+.report-type-name { font-weight:600; font-size:.9rem; color:var(--text); }
+.report-type-desc { font-size:.75rem; color:var(--text-muted); line-height:1.25; }
+.selected-report .report-type-name { color:#1d4ed8; }
+.report-type-selected { flex:none; display:inline-flex; align-items:center; justify-content:center; width:1.35rem; height:1.35rem; border-radius:999px; background:#2563eb; color:#fff; }
+.filters-card { padding:.85rem 1rem 1rem; }
+.filters-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.5rem .75rem; margin-bottom:.65rem; }
+.filters-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1rem; }
+.inline-check { display:inline-flex; align-items:center; gap:.5rem; font-size:.85rem; color:var(--text-muted); }
+.filters-groups { display:grid; align-items:start; gap:.75rem; grid-template-columns:minmax(0,1fr); }
+@media (min-width:1280px) { .filters-groups { grid-template-columns:minmax(0,5fr) minmax(0,7fr); } }
+.filter-group { min-width:0; margin:0; padding:.6rem .75rem .75rem; border:1px solid var(--border, #cbd5e1); border-radius:.75rem; }
+.filter-group legend { padding:0 .35rem; font-size:.72rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); }
+.filter-group legend span { font-weight:400; text-transform:none; letter-spacing:0; }
+.filter-label { display:block; margin-bottom:.25rem; font-size:.8rem; font-weight:500; color:var(--text-muted); }
+.filter-group .report-input { padding:.45rem .65rem; }
+.results-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.5rem .75rem; padding:.75rem 1rem; border-bottom:1px solid var(--border, #cbd5e1); }
+.results-actions { display:flex; gap:.5rem; }
+.report-notes { font-size:.85rem; color:var(--text-muted); }
+.report-notes summary { cursor:pointer; width:max-content; color:#2563eb; }
+.report-notes summary:focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
+.report-notes p { margin:.35rem 0 0; }
+.status-pct { font-weight:400; color:var(--text-muted); }
+
+/* ---- Applications filed by month ---- */
+.monthly-legend { display:flex; flex-wrap:wrap; gap:.25rem 1rem; margin:0 0 .6rem; padding:0; list-style:none; font-size:.8rem; color:var(--text-muted); }
+.monthly-legend li { display:inline-flex; align-items:center; gap:.35rem; }
+.swatch { width:.75rem; height:.75rem; border-radius:.2rem; display:inline-block; }
+.seg-approved { background:#22c55e; } .seg-pending { background:#eab308; } .seg-disapproved { background:#ef4444; } .seg-other { background:#94a3b8; }
+.monthly-chart { display:flex; align-items:flex-end; gap:.5rem; overflow-x:auto; padding-bottom:.25rem; }
+.month-col { flex:1 0 2.75rem; display:flex; flex-direction:column; align-items:center; gap:.2rem; min-width:2.75rem; }
+.month-total { font-size:.8rem; font-weight:600; font-variant-numeric:tabular-nums; color:var(--text); }
+.month-track { display:flex; align-items:flex-end; width:100%; height:7.5rem; }
+.month-bar { display:flex; flex-direction:column-reverse; width:70%; margin:0 auto; overflow:hidden; border-radius:.3rem .3rem 0 0; background:#dce6f2; }
+.month-bar .seg { display:block; width:100%; }
+.month-label { font-size:.7rem; color:var(--text-muted); white-space:nowrap; }
+.monthly-table-wrap { margin-top:.75rem; max-height:13rem; overflow:auto; }
+.monthly-table { width:100%; border-collapse:collapse; font-size:.8rem; color:var(--text); }
+.monthly-table th, .monthly-table td { padding:.3rem .6rem; border-bottom:1px solid var(--border, #cbd5e1); text-align:right; font-variant-numeric:tabular-nums; }
+.monthly-table th:first-child { text-align:left; font-weight:500; }
+.monthly-table thead th { position:sticky; top:0; background:var(--surface-muted); font-weight:600; }
+
+/* ---- Leave Application History ---- */
+.history-table td { vertical-align:top; }
+.date-cell { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.approval-cell { min-width:14rem; max-width:24rem; overflow-wrap:anywhere; }
+.approval-line { display:block; }
+.status-pill { display:inline-block; padding:.1rem .55rem; border-radius:999px; font-size:.75rem; font-weight:600; }
+.status-approved { background:#dcfce7; color:#166534; }
+.status-pending { background:#fef9c3; color:#854d0e; }
+.status-disapproved { background:#fee2e2; color:#991b1b; }
+.status-other { background:#e2e8f0; color:#475569; }
 </style>
 <!--
   Print layout. Not scoped because it has to reach the shared Layout shell (sidebar, top bar and the
@@ -2800,7 +3100,7 @@ canvas {
   .report-print-root { min-height: 0 !important; padding: 0 !important; background: #fff !important; }
   .report-print-root .print-hide { display: none !important; }
   .report-print-root .neo-card { overflow: visible !important; }
-  .report-print-root .space-y-6 > * + * { margin-top: 10pt !important; }
+  .report-print-root .space-y-4 > * + * { margin-top: 10pt !important; }
 
   /* Report identification */
   .report-print-root .print-header { display: block; margin-bottom: 10pt; color: #000; font-size: 9pt; }
@@ -2837,5 +3137,18 @@ canvas {
   .report-print-root .leave-type-item { break-inside: avoid; }
   .report-print-root .status-track,
   .report-print-root .status-track > div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .report-print-root .month-bar,
+  .report-print-root .month-bar .seg,
+  .report-print-root .swatch,
+  .report-print-root .status-pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .report-print-root .monthly-chart { overflow: visible; break-inside: avoid; }
+  .report-print-root .month-track { height: 5rem; }
+  .report-print-root .monthly-table-wrap { max-height: none !important; overflow: visible !important; }
+  .report-print-root .monthly-table th, .report-print-root .monthly-table td { padding: 2pt 5pt !important; font-size: 8pt; }
+  .report-print-root .monthly-table thead th { position: static; }
+  .report-print-root .history-table { font-size: 8pt; }
+  .report-print-root .history-table .approval-cell { min-width: 0; max-width: none; }
+  .report-print-root .date-cell { white-space: nowrap; }
+  .report-print-root .status-pill { padding: 0; background: none !important; font-weight: 700; color: #000 !important; }
 }
 </style>

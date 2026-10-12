@@ -358,6 +358,11 @@ Route::middleware('auth:sanctum')->group(function () {
         );
 
         Route::get(
+            '/reports/leave-history',
+            [ReportController::class, 'leaveHistory']
+        );
+
+        Route::get(
             '/reports/leave-credits',
             [ReportController::class, 'leaveCredits']
         );

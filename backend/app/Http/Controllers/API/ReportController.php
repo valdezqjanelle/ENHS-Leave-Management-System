@@ -61,14 +61,14 @@ class ReportController extends Controller
         ];
     }
 
-    public function leaveSummary(Request $request)
+    /**
+     * The one query behind every application-based report (Leave Summary, Leave Application History):
+     * leave dates overlapping the period, then status, leave type, current department, employee search
+     * and employee scope. Using it everywhere keeps counts, tables, exports and print output consistent.
+     */
+    private function filteredApplications(array $dates, array $filters, bool $includeInactive)
     {
-        $dates = $this->reportDates($request);
-        $request->validate(['include_inactive' => 'sometimes|boolean']);
-        $filters = $this->summaryFilters($request);
-        // Historical applications are included by default, even after departure.
-        $includeInactive = $request->boolean('include_inactive', true);
-        $leaves = LeaveApplication::with([
+        return LeaveApplication::with([
             'employee' => fn ($q) => $q->withTrashed()->with('department'),
             'leaveType',
         ])
@@ -113,8 +113,19 @@ class ReportController extends Controller
                 return $includeInactive || (!$leave->employee->trashed()
                     && strtolower(trim((string) $leave->employee->employment_status)) === 'active');
             })->values();
+    }
+
+    public function leaveSummary(Request $request)
+    {
+        $dates = $this->reportDates($request);
+        $request->validate(['include_inactive' => 'sometimes|boolean']);
+        $filters = $this->summaryFilters($request);
+        // Historical applications are included by default, even after departure.
+        $includeInactive = $request->boolean('include_inactive', true);
+        $leaves = $this->filteredApplications($dates, $filters, $includeInactive);
 
         $summary = [];
+        $monthly = [];
         $totals = ['departments' => 0, 'applications' => 0, 'total_days' => 0,
             'approved_days' => 0, 'approved' => 0, 'pending' => 0,
             'disapproved' => 0, 'other' => 0];
@@ -146,7 +157,17 @@ class ReportController extends Controller
             }
             $type = $leave->leaveType?->leave_type_name ?? 'Unspecified';
             $summary[$key]['leave_types'][$type] = ($summary[$key]['leave_types'][$type] ?? 0) + 1;
+
+            // Filing month (date_filed) with the application's CURRENT status; earlier statuses are not stored.
+            $month = $leave->date_filed ? Carbon::parse($leave->date_filed)->format('Y-m') : null;
+            if ($month !== null) {
+                $monthly[$month] ??= ['month' => $month, 'submitted' => 0, 'approved' => 0,
+                    'pending' => 0, 'disapproved' => 0, 'other' => 0];
+                $monthly[$month]['submitted']++;
+                $monthly[$month][$status]++;
+            }
         }
+        ksort($monthly);
         $formatDays = fn ($units) => number_format($units / 1000, 3, '.', '');
         foreach ($summary as &$row) {
             $row['total_days'] = $formatDays($row['total_days']);
@@ -162,6 +183,7 @@ class ReportController extends Controller
         return response()->json([
             'report_version' => 'leave-summary-v2',
             'summary' => $rows, 'totals' => $totals,
+            'monthly' => array_values($monthly),
             'generated_at' => Carbon::now('Asia/Manila')->toIso8601String(),
             'filters' => [
                 'start_date' => $dates['start_date'] ?? null,
@@ -175,6 +197,94 @@ class ReportController extends Controller
                 'days_basis' => 'Full requested days per matching application, not days restricted to the period or credits deducted.',
                 'department_basis' => 'Current department of the linked employee; historical department snapshots are not available.',
                 'record_scope' => 'Non-deleted leave applications. Missing employee/department links are shown as Unassigned.',
+                'monthly_basis' => 'Applications grouped by the month they were filed, split by their current status. Past status changes are not stored, so this is not a history of approvals.',
+            ],
+        ])->header('Cache-Control', 'no-store, private');
+    }
+
+    /**
+     * Leave Application History: one row per matching application, using the same filters as Leave Summary.
+     * Only recorded information is returned. The system does not store a Division Office outcome or earlier
+     * status changes, so none is reported; status is the application's current status.
+     */
+    public function leaveHistory(Request $request)
+    {
+        $dates = $this->reportDates($request);
+        $request->validate(['include_inactive' => 'sometimes|boolean']);
+        $filters = $this->summaryFilters($request);
+        $includeInactive = $request->boolean('include_inactive', true);
+        $leaves = $this->filteredApplications($dates, $filters, $includeInactive)
+            ->sortBy([['start_date', 'desc'], ['leave_id', 'desc']])->values();
+
+        $totals = ['records' => 0, 'approved' => 0, 'pending' => 0, 'disapproved' => 0, 'other' => 0,
+            'requested_days' => 0, 'approved_days' => 0];
+        $dayText = fn ($units) => number_format($units / 1000, 3, '.', '');
+        $dateText = fn ($value) => $value ? Carbon::parse($value)->format('Y-m-d') : null;
+        $recommendations = ['pending', 'approved', 'disapproved'];
+
+        $records = $leaves->map(function ($leave) use (&$totals, $dayText, $dateText, $recommendations) {
+            $employee = $leave->employee;
+            $status = strtolower(trim((string) $leave->final_status));
+            if (!in_array($status, ['approved', 'pending', 'disapproved'], true)) $status = 'other';
+            $units = (int) round((float) ($leave->number_of_days ?? 0) * 1000);
+            $totals['records']++;
+            $totals[$status]++;
+            $totals['requested_days'] += $units;
+            if ($status === 'approved') $totals['approved_days'] += $units;
+            $recommendation = strtolower(trim((string) $leave->recommendation_status));
+            $text = fn ($value) => ($value === null || trim((string) $value) === '') ? null : trim((string) $value);
+
+            return [
+                'leave_id' => $leave->leave_id,
+                'employee_id' => $leave->employee_id,
+                'employee_name' => $employee
+                    ? (implode(', ', array_filter([$employee->last_name, $employee->first_name])) ?: 'Unknown employee')
+                    : 'Unknown employee',
+                'employee_state' => !$employee ? 'unlinked'
+                    : ($employee->trashed() ? 'archived'
+                        : (strtolower(trim((string) $employee->employment_status)) === 'active' ? 'active' : 'inactive')),
+                'department_id' => $employee?->department?->department_id,
+                'department' => $employee?->department?->department_name ?? 'Unassigned',
+                'leave_type_id' => $leave->leave_type_id,
+                'leave_type' => $leave->leaveType?->leave_type_name ?? 'Unspecified',
+                'date_filed' => $dateText($leave->date_filed),
+                'start_date' => $dateText($leave->start_date),
+                'end_date' => $dateText($leave->end_date),
+                'requested_days' => $dayText($units),
+                'status' => $status,
+                'status_changed_at' => $leave->reviewed_at
+                    ? Carbon::parse($leave->reviewed_at)->timezone('Asia/Manila')->toIso8601String() : null,
+                'recommendation_status' => in_array($recommendation, $recommendations, true) ? $recommendation : null,
+                'recommendation_reason' => $text($leave->recommendation_reason),
+                'days_with_pay' => $leave->days_with_pay,
+                'days_without_pay' => $leave->days_without_pay,
+                'other_approval' => $text($leave->other_approval),
+                'disapproval_reason' => $text($leave->disapproval_reason),
+                'admin_remarks' => $text($leave->admin_remarks),
+            ];
+        })->all();
+
+        $totals['requested_days'] = $dayText($totals['requested_days']);
+        $totals['approved_days'] = $dayText($totals['approved_days']);
+
+        return response()->json([
+            'report_version' => 'leave-history-v1',
+            'records' => $records,
+            'totals' => $totals,
+            'generated_at' => Carbon::now('Asia/Manila')->toIso8601String(),
+            'filters' => [
+                'start_date' => $dates['start_date'] ?? null,
+                'end_date' => $dates['end_date'] ?? null,
+                'include_inactive' => $includeInactive,
+                'department_id' => $filters['department_id'],
+                'status' => $filters['status'],
+                'leave_type_id' => $filters['leave_type_id'],
+                'search' => $filters['search'],
+                'date_basis' => 'Applications with leave dates overlapping the selected period.',
+                'days_basis' => 'Requested days exactly as recorded on each application.',
+                'department_basis' => 'Current department of the linked employee; historical department snapshots are not available.',
+                'status_basis' => 'Current application status. Earlier status changes are not stored; "status changed" is the time of the most recent change when recorded.',
+                'not_recorded' => ['Division Office outcome', 'Status change history', 'Per-approval dates and signatories'],
             ],
         ])->header('Cache-Control', 'no-store, private');
     }
