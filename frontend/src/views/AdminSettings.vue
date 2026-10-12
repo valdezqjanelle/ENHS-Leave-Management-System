@@ -2323,18 +2323,19 @@ const tabs = [
     id: "leave",
     name: "Leave Settings",
   },
-  {
-    id: "holidays",
-    name: "Holidays & Non-Working Days",
-  },
-  {
-    id: "approval",
-    name: "Approval Settings",
-  },
-  {
-    id: "system",
-    name: "System Settings",
-  },
+  // hide muna this 
+  // {
+  //   id: "holidays",
+  //   name: "Holidays & Non-Working Days",
+  // },
+  // {
+  //   id: "approval",
+  //   name: "Approval Settings",
+  // },
+  // {
+  //   id: "system",
+  //   name: "System Settings",
+  // },
   {
     id: "signatory",
     name: "Authorized Signatory",
