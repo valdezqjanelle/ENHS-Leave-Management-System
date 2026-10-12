@@ -120,7 +120,7 @@
                   </button>
                 </th>
                 <th class="px-2 sm:px-3 py-3 font-bold text-center">
-                  Action
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -135,15 +135,18 @@
                 <td data-label="#" class="employee-number-cell px-2 sm:px-3 py-4 text-[var(--text-muted)]">
                   {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
                 </td>
-                <td data-label="Employee Code" class="employee-code-cell px-2 sm:px-3 py-4 text-[var(--text)] font-semibold">
-                  {{ employee.employee_code }}
-                </td>
-
-                <td data-label="Employee" class="employee-name-cell px-2 sm:px-3 py-4 text-[var(--text)] font-medium">
-                  {{ employee.last_name }},
-                  {{ employee.first_name }}
-                  {{ employee.middle_name || "" }}
-                  {{ employee.extension_name || "" }}
+                <td data-label="Profile" class="employee-name-cell px-2 sm:px-3 py-4 text-[var(--text)] font-medium">
+                  <div class="employee-profile-cell">
+                    <img v-if="employee.photo_url && !failedEmployeePhotos.has(employee.employee_id)"
+                      :src="employee.photo_url" alt="" class="employee-avatar"
+                      @error="failedEmployeePhotos.add(employee.employee_id)" />
+                    <span v-else class="employee-avatar employee-avatar-fallback" aria-hidden="true">
+                      {{ employeeInitials(employee) }}
+                    </span>
+                    <span class="employee-profile-name">
+                      {{ employee.last_name }}, {{ employee.first_name }} {{ employee.middle_name || "" }} {{ employee.extension_name || "" }}
+                    </span>
+                  </div>
                 </td>
 
                 <td data-label="Email" class="employee-email-cell px-2 sm:px-3 py-4 text-[var(--text)]">
@@ -156,24 +159,12 @@
                   </span>
                 </td>
 
-                <td data-label="Status" class="employee-status-cell px-2 sm:px-3 py-4 text-[var(--text)]">
-                  <span :class="normalizeEmploymentStatus(employee.employment_status) ===
-                    'active'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-slate-100 text-slate-700'
-                    " class="inline-block px-2 py-1 rounded-full text-xs whitespace-nowrap">
-                    {{ employee.employment_status || "Inactive" }}
-                  </span>
-                </td>
-
                 <td data-label="Actions" class="employee-actions-cell px-2 sm:px-3 py-4">
                   <div class="employee-row-actions">
-                    <button @click="viewEmployee(employee)"
-                      class="employee-btn employee-btn-secondary employee-view-button">
-                      View
-                    </button>
-
-                    <details class="employee-actions-menu" @keydown.esc="closeEmployeeActionMenu">
+                    <button type="button" @click="viewEmployee(employee)"
+                      class="employee-btn employee-btn-secondary employee-view-button">View</button>
+                    <details class="employee-actions-menu" @keydown.esc="closeEmployeeActionMenu"
+                      @toggle="keepSingleEmployeeMenuOpen">
                       <summary class="employee-actions-trigger" aria-label="More employee actions" title="More actions">
                         <svg aria-hidden="true" viewBox="0 0 20 20" class="h-5 w-5">
                           <circle cx="4" cy="10" r="1.5" fill="currentColor" />
@@ -198,7 +189,7 @@
               </tr>
 
               <tr v-if="filteredEmployees.length === 0">
-                <td colspan="8" class="empty-row text-center py-10 text-[var(--text-muted)]">
+                <td colspan="6" class="empty-row text-center py-10 text-[var(--text-muted)]">
                   No employees found.
                 </td>
               </tr>
@@ -1487,6 +1478,7 @@ import {
 interface Employee {
   employee_id: number;
   employee_code: string;
+  photo_url?: string | null;
   deleted_at?: string;
 
   first_name: string;
@@ -1606,11 +1598,9 @@ const sortDir = ref<SortDir>(savedListState.sortDir === "desc" ? "desc" : "asc")
 
 // Columns that can be sorted by clicking their header
 const sortableColumns: { key: SortKey; label: string }[] = [
-  { key: "employee_code", label: "Employee Code" },
-  { key: "name", label: "Employee" },
+  { key: "name", label: "Profile" },
   { key: "email", label: "Email" },
   { key: "position", label: "Position" },
-  { key: "status", label: "Status" },
 ];
 
 // Choices shown in the "Sort by" dropdown
@@ -2121,6 +2111,17 @@ const closeEmployeeActionMenu = (event: Event) => {
     ? currentTarget
     : (currentTarget as HTMLElement | null)?.closest("details");
   details?.removeAttribute("open");
+};
+
+const failedEmployeePhotos = ref(new Set<number>());
+const employeeInitials = (employee: Employee) =>
+  `${employee.first_name?.trim().charAt(0) || ""}${employee.last_name?.trim().charAt(0) || ""}`.toUpperCase() || "?";
+
+const keepSingleEmployeeMenuOpen = (event: Event) => {
+  const activeMenu = event.currentTarget;
+  if (!(activeMenu instanceof HTMLDetailsElement) || !activeMenu.open) return;
+  activeMenu.closest("tbody")?.querySelectorAll<HTMLDetailsElement>(".employee-actions-menu[open]")
+    .forEach((menu) => { if (menu !== activeMenu) menu.removeAttribute("open"); });
 };
 
 const filteredEmployees = computed(() => {
@@ -2860,7 +2861,7 @@ onMounted(async () => {
 
 .dashboard-shell .employee-table {
   width: 100%;
-  min-width: 1040px;
+  min-width: 850px;
   max-width: none;
   table-layout: fixed;
   border-collapse: collapse;
@@ -2939,32 +2940,22 @@ onMounted(async () => {
 
 .employee-table th:nth-child(3),
 .employee-table td:nth-child(3) {
-  width: 11%;
+  width: 22%;
 }
 
 .employee-table th:nth-child(4),
 .employee-table td:nth-child(4) {
-  width: 19%;
+  width: 25%;
 }
 
 .employee-table th:nth-child(5),
 .employee-table td:nth-child(5) {
-  width: 23%;
+  width: 17%;
 }
 
 .employee-table th:nth-child(6),
 .employee-table td:nth-child(6) {
-  width: 15%;
-}
-
-.employee-table th:nth-child(7),
-.employee-table td:nth-child(7) {
-  width: 9%;
-}
-
-.employee-table th:nth-child(8),
-.employee-table td:nth-child(8) {
-  width: 14%;
+  width: 18%;
 }
 
 .employee-number-cell {
@@ -2973,13 +2964,38 @@ onMounted(async () => {
   text-align: center;
 }
 
-.employee-code-cell {
-  white-space: nowrap !important;
-  font-variant-numeric: tabular-nums;
-}
-
 .employee-name-cell {
   font-weight: 600;
+}
+
+.employee-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.employee-avatar {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.employee-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1d4ed8;
+  background: #dbeafe;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.employee-profile-name {
+  min-width: 0;
 }
 
 .employee-email-cell {
@@ -2996,10 +3012,6 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
-.employee-status-cell {
-  white-space: nowrap !important;
-}
-
 .employee-row-actions {
   display: flex;
   align-items: center;
@@ -3012,6 +3024,7 @@ onMounted(async () => {
 }
 
 .employee-actions-menu {
+  position: relative;
   display: grid;
   justify-items: center;
 }
@@ -3039,10 +3052,14 @@ onMounted(async () => {
 }
 
 .employee-actions-popover {
+  position: absolute;
+  z-index: 30;
+  right: 0;
+  bottom: calc(100% + 0.5rem);
   display: grid;
-  width: 100%;
-  max-width: 11rem;
-  margin-top: 0.35rem;
+  width: 11rem;
+  max-width: min(11rem, calc(100vw - 2rem));
+  margin: 0;
   padding: 0.3rem;
   border: 1px solid #cbd8e8;
   border-radius: 0.65rem;
@@ -3060,6 +3077,7 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   text-align: left;
+  white-space: nowrap;
   background: transparent;
   cursor: pointer;
 }

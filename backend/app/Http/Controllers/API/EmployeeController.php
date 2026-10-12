@@ -182,7 +182,10 @@ class EmployeeController extends Controller
             ->latest()
             ->get();
 
-        return response()->json($employees);
+        return response()->json($employees->map(function (EmployeeRecord $employee) {
+            $employee->setAttribute('photo_url', \App\Support\ProfilePhotoStorage::url($employee->profile_photo_path));
+            return $employee;
+        }));
     }
 
     public function resetPassword($id)
