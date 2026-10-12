@@ -2,15 +2,15 @@
   <div class="dashboard-shell min-h-screen w-full px-4 sm:px-6 lg:px-8 py-8">
 
 
-    <div class="neo-card w-full max-w-5xl mx-auto overflow-hidden">
+    <div class="w-full max-w-5xl mx-auto overflow-hidden rounded-lg border" style="border-color: var(--border); background: var(--surface);">
 
 
-      <div class="px-6 py-5 border-b border-slate-200">
-        <h2 class="text-2xl font-semibold text-white">
+      <div class="px-6 py-5 border-b" style="border-color: var(--border);">
+        <h2 class="text-2xl font-semibold" style="color: var(--text);">
           Leave Application Form
         </h2>
 
-        <p class="text-sm text-slate-400 mt-1">
+        <p class="text-sm mt-1" style="color: var(--text-muted);">
           Fill out the form below to apply for leave
         </p>
       </div>

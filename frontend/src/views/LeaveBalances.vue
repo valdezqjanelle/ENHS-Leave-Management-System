@@ -3,18 +3,19 @@
     <div class="dashboard-content w-full space-y-6">
 
       <!-- HEADER -->
-      <div class="neo-card w-full p-6">
+      <div class="w-full p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 class="text-2xl font-bold text-white">Leave Balances</h2>
-            <p class="text-gray-400 mt-1">View and manage employee leave balances.</p>
+            <h2 class="text-2xl font-semibold" style="color: var(--text);">Leave Balances</h2>
+            <p class="mt-1" style="color: var(--text-muted);">View and manage employee leave balances.</p>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button
               @click="loadBalances"
               type="button"
-              class="w-full sm:w-auto flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+              class="w-full sm:w-auto flex-shrink-0 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
+              style="background: var(--primary);"
               title="Reload balances (picks up newly applied credits)"
             >
               Refresh
@@ -23,7 +24,8 @@
             <button
               @click="toggleSort"
               type="button"
-              class="w-full sm:w-auto flex-shrink-0 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap"
+              class="w-full sm:w-auto flex-shrink-0 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
+              style="background: var(--text-muted);"
               :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
             >
               Sort
@@ -35,7 +37,7 @@
       <SchoolYearManager @processed="loadBalances" />
 
       <!-- TABLE -->
-      <div class="neo-card table-card w-full overflow-hidden">
+      <div class="table-card w-full overflow-hidden rounded-lg border" style="border-color: var(--border); background: var(--surface);">
         <div class="p-4 sm:p-6 flex flex-col sm:flex-row gap-3">
           <input
             v-model="searchQuery"
@@ -43,18 +45,20 @@
             aria-label="Search employees by name"
             placeholder="Search employee name..."
             class="balance-search flex-1 min-w-0 rounded-lg px-4 py-2"
+            style="border-color: var(--border); background: var(--surface); color: var(--text);"
           />
           <button
             @click="searchQuery = ''"
             type="button"
-            class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium"
+            class="px-4 py-2 rounded-lg font-medium text-white"
+            style="background: var(--text-muted);"
           >Clear</button>
         </div>
 
         <div class="table-wrapper w-full overflow-x-auto">
           <table class="leave-balance-table w-full">
-            <thead>
-              <tr class="text-left text-white">
+            <thead class="text-left font-semibold" style="background: var(--surface-muted); color: var(--text);">
+              <tr>
                 <th class="employee-column px-6 py-4">Employee</th>
                 <th class="balance-column px-6 py-4">Local Credits</th>
                 <th class="balance-column px-6 py-4">Vacation Balance</th>
@@ -68,8 +72,9 @@
                 v-for="balance in displayedBalances"
                 :key="balance.employee_id"
                 class="balance-row"
+                style="border-color: var(--border);"
               >
-                <td class="px-6 py-5 font-medium text-white employee-cell">
+                <td class="px-6 py-5 font-medium employee-cell" style="color: var(--text);">
                   <div class="employee-name">
                     {{ balance.employee.last_name }}, {{ balance.employee.first_name }}
                   </div>
@@ -119,7 +124,7 @@
               </tr>
 
               <tr v-if="displayedBalances.length === 0">
-                <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                <td colspan="5" class="px-6 py-12 text-center" style="color: var(--text-muted);">
                   {{ balancesLoading ? "Loading leave balances…" : balancesError || (searchQuery.trim() ? "No employees match your search." : "No leave balance records found.") }}
                 </td>
               </tr>
@@ -134,20 +139,21 @@
         class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 p-4"
         @click.self="closeModal"
       >
-        <div class="neo-card modal-card w-full max-w-lg p-6">
-          <h3 class="text-xl font-bold text-white mb-5">Edit Leave Balance</h3>
+        <div class="modal-card w-full max-w-lg p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+          <h3 class="text-xl font-semibold mb-5" style="color: var(--text);">Edit Leave Balance</h3>
 
           <div class="mb-4">
-            <label class="block text-sm font-semibold text-white mb-2">Employee</label>
+            <label class="block text-sm font-semibold mb-2" style="color: var(--text);">Employee</label>
             <input
               disabled
               :value="selectedBalance.employee.last_name + ', ' + selectedBalance.employee.first_name"
               class="balance-input w-full"
+              style="border-color: var(--border); background: var(--surface-muted); color: var(--text);"
             />
           </div>
 
           <div class="mb-4">
-            <label class="block text-sm font-semibold text-white mb-2">Adjustment reason <span aria-hidden="true">*</span></label>
+            <label class="block text-sm font-semibold mb-2" style="color: var(--text);">Adjustment reason <span aria-hidden="true">*</span></label>
             <textarea v-model="adjustmentReason" maxlength="500" minlength="5" required rows="3" class="balance-input w-full" placeholder="Explain why these balances are being changed."></textarea>
           </div>
 

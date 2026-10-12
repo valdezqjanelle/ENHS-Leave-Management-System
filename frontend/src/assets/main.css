@@ -1,21 +1,21 @@
 @import './base.css';
 
 :root {
-  --app-bg: #f3f6fa;
-  --surface: #ffffff;
-  --surface-muted: #f8fafc;
-  --surface-soft: #eef4fb;
-  --sidebar: #12355b;
-  --sidebar-hover: #1b4b7a;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --text: #172033;
-  --text-muted: #526176;
-  --border: #d8e1ec;
-  --success: #15803d;
-  --warning: #a16207;
-  --danger: #b91c1c;
-  --focus-ring: rgba(29, 78, 216, 0.2);
+  --app-bg: #F5F8FC;
+  --surface: #FFFFFF;
+  --surface-muted: #F8FAFC;
+  --surface-soft: #EAF4FF;
+  --sidebar: #0B1F38;
+  --sidebar-hover: #142B4A;
+  --primary: #1687E8;
+  --primary-hover: #0F6FD6;
+  --text: #172B45;
+  --text-muted: #66758A;
+  --border: #E2EAF3;
+  --success: #16865B;
+  --warning: #D99117;
+  --danger: #D64545;
+  --focus-ring: rgba(22, 135, 232, 0.25);
 }
 
 .dark {

@@ -2,20 +2,20 @@
   <div
     class="w-full max-w-[1400px] mx-auto px-2 sm:px-3 md:px-4 lg:px-6 py-4 dashboard-shell"
   >
-    <div class="bg-white rounded-lg shadow neo-card w-full min-w-0">
+    <div class="rounded-lg border w-full min-w-0" style="border-color: var(--border); background: var(--surface);">
       <!-- Header -->
-      <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold text-[var(--text)]">
+      <div class="px-4 sm:px-6 py-4 border-b" style="border-color: var(--border);">
+        <h2 class="text-xl font-semibold" style="color: var(--text);">
           Submitted Leave Applications
         </h2>
 
-        <p class="text-sm text-[var(--text-muted)] mt-1">
+        <p class="text-sm mt-1" style="color: var(--text-muted);">
           Review and manage faculty leave applications
         </p>
       </div>
 
       <!-- Filter Tabs -->
-      <div class="px-4 sm:px-6 py-3 border-b border-gray-200 overflow-x-auto">
+      <div class="px-4 sm:px-6 py-3 border-b overflow-x-auto" style="border-color: var(--border);">
         <div class="flex space-x-2 sm:space-x-4 min-w-max">
           <button
             v-for="tab in tabs"
@@ -24,14 +24,16 @@
             :class="[
               'px-3 sm:px-4 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap',
               activeTab === tab.key
-                ? 'bg-blue-100 text-blue-700'
-                : 'text-white hover:text-gray-700 hover:bg-gray-100',
+                ? ''
+                : 'hover:bg-gray-100 dark:hover:bg-gray-700',
             ]"
+            :style="activeTab === tab.key ? 'background: rgba(22, 135, 232, 0.12); color: #1687E8;' : 'color: var(--text);'"
           >
             {{ tab.label }}
 
             <span
               :class="['ml-2 px-2 py-1 text-xs rounded-full', tab.countClass]"
+              :style="activeTab === tab.key ? 'background: rgba(22, 135, 232, 0.2); color: #1687E8;' : 'background: var(--surface-muted); color: var(--text-muted);'"
             >
               {{ getTabCount(tab.key) }}
             </span>
@@ -50,14 +52,18 @@
                 v-model="searchQuery"
                 type="text"
                 placeholder="Search employee, leave type, status, or ID..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
+                class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2"
+                style="border-color: var(--border); background: var(--surface); color: var(--text);"
+                :style="'--tw-ring-color: var(--primary);'"
               />
             </div>
 
             <!-- Leave Type -->
             <select
               v-model="filterType"
-              class="w-full lg:w-auto px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-white bg-[#0B1420]"
+              class="w-full lg:w-auto px-4 py-2 border rounded-full focus:outline-none focus:ring-2"
+              style="border-color: var(--border); background: var(--surface); color: var(--text);"
+              :style="'--tw-ring-color: var(--primary);'"
             >
               <option value="">All Leave Types</option>
               <option value="vacation">Vacation Leave</option>
@@ -73,7 +79,8 @@
             <button
               @click="toggleSort"
               type="button"
-              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+              style="border-color: var(--border); color: var(--text);"
               :title="arranged ? 'Unsort applications' : 'Sort applications alphabetically (A to Z)'"
             >
               Sort
@@ -86,7 +93,8 @@
                 filterType = '';
                 activeTab = 'all';
               "
-              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border border-gray-300 text-[var(--text)] rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+              class="w-full lg:w-auto px-4 py-2 text-xs font-medium border rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition whitespace-nowrap"
+              style="border-color: var(--border); color: var(--text);"
             >
               Clear
             </button>
@@ -95,7 +103,8 @@
           <!-- Search Result Count -->
           <div
             v-if="searchQuery || filterType"
-            class="mt-2 text-sm text-gray-400"
+            class="mt-2 text-sm"
+            style="color: var(--text-muted);"
           >
             {{ filteredApplications.length }} application(s) found
           </div>
@@ -103,7 +112,7 @@
 
         <!-- No Applications -->
         <div v-if="filteredApplications.length === 0" class="text-center py-8">
-          <div class="mx-auto h-12 w-12 text-white">
+          <div class="mx-auto h-12 w-12" style="color: var(--text-muted);">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -114,11 +123,11 @@
             </svg>
           </div>
 
-          <h3 class="mt-2 text-sm font-medium text-white">
+          <h3 class="mt-2 text-sm font-medium" style="color: var(--text);">
             No applications found
           </h3>
 
-          <p class="mt-1 text-sm text-white">
+          <p class="mt-1 text-sm" style="color: var(--text-muted);">
             No leave applications have been submitted yet.
           </p>
         </div>
@@ -128,7 +137,8 @@
           <div
             v-for="application in displayedApplications"
             :key="application.leave_id"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow neo-card min-w-0"
+            class="border rounded-lg p-4 hover:shadow-md transition-shadow min-w-0"
+            style="border-color: var(--border); background: var(--surface);"
           >
             <div class="flex flex-col gap-3">
               <!-- Application Information -->
@@ -137,14 +147,15 @@
                 <div class="flex flex-wrap items-start justify-between gap-2">
                   <div class="min-w-0">
                     <h3
-                      class="text-base sm:text-lg font-semibold text-[#0F2742] leading-tight break-words"
+                      class="text-base sm:text-lg font-semibold leading-tight break-words"
+                      style="color: var(--text);"
                     >
                       {{ getEmployeeName(application.employee) }}
                     </h3>
 
-                    <p class="mt-0.5 text-sm text-slate-500 break-words">
+                    <p class="mt-0.5 text-sm break-words" style="color: var(--text-muted);">
                       {{ application.employee?.department_name ?? "Not available" }}
-                      <span class="mx-1 text-slate-300" aria-hidden="true">&bull;</span>
+                      <span class="mx-1" style="color: var(--border);" aria-hidden="true">&bull;</span>
                       {{ getEmployeePosition(application.employee) }}
                     </p>
                   </div>
@@ -152,8 +163,8 @@
                   <span
                     :class="[
                       'px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap capitalize',
-                      getStatusClass(application.final_status),
                     ]"
+                    :style="getStatusStyle(application.final_status)"
                   >
                     {{ application.final_status }}
                   </span>
@@ -161,40 +172,41 @@
 
                 <!-- Application Details -->
                 <dl
-                  class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm"
+                  class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 rounded-lg border px-3 py-2.5 text-sm"
+                  style="border-color: var(--border); background: var(--surface-muted);"
                 >
                   <div class="min-w-0">
-                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide" style="color: var(--text-muted);">
                       Leave Type
                     </dt>
-                    <dd class="mt-0.5 font-medium text-[#0F2742] break-words">
+                    <dd class="mt-0.5 font-medium break-words" style="color: var(--text);">
                       {{ getLeaveType(application.leave_type) }}
                     </dd>
                   </div>
 
                   <div class="min-w-0">
-                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide" style="color: var(--text-muted);">
                       Days Applied
                     </dt>
-                    <dd class="mt-0.5 font-medium text-[#0F2742]">
+                    <dd class="mt-0.5 font-medium" style="color: var(--text);">
                       {{ application.number_of_days }}
                     </dd>
                   </div>
 
                   <div class="min-w-0">
-                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide" style="color: var(--text-muted);">
                       Date Filed
                     </dt>
-                    <dd class="mt-0.5 font-medium text-[#0F2742] break-words">
+                    <dd class="mt-0.5 font-medium break-words" style="color: var(--text);">
                       {{ formatDate(application.date_filed) }}
                     </dd>
                   </div>
 
                   <div class="min-w-0">
-                    <dt class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    <dt class="text-[11px] font-semibold uppercase tracking-wide" style="color: var(--text-muted);">
                       Application ID
                     </dt>
-                    <dd class="mt-0.5 font-medium text-slate-500">
+                    <dd class="mt-0.5 font-medium" style="color: var(--text-muted);">
                       #{{ application.leave_id }}
                     </dd>
                   </div>
@@ -208,7 +220,7 @@
                   "
                   class="mt-3"
                 >
-                  <span class="text-sm font-medium text-white">
+                  <span class="text-sm font-medium" style="color: var(--text);">
                     Attachments:
                   </span>
 
@@ -216,7 +228,8 @@
                     <span
                       v-for="(attachment, index) in application.attachments"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full max-w-full break-all"
+                      class="inline-flex items-center px-2 py-1 text-xs rounded-full max-w-full break-all"
+                      style="background: var(--surface-muted); color: var(--text);"
                     >
                       <svg
                         class="w-3 h-3 mr-1 flex-shrink-0"
@@ -235,7 +248,8 @@
                       {{ attachment.file_name || attachment.name }}
                       <button
                         type="button"
-                        class="ml-2 text-blue-700 underline"
+                        class="ml-2 underline"
+                        style="color: var(--primary);"
                         @click.stop="openSupportingDocument(application, attachment)"
                       >
                         View
@@ -245,11 +259,11 @@
                 </div>
 
                 <div v-if="application.document_requirements_snapshot?.length" class="mt-4">
-                  <h4 class="text-sm font-semibold text-white">Supporting Documents</h4>
+                  <h4 class="text-sm font-semibold" style="color: var(--text);">Supporting Documents</h4>
                   <div class="overflow-x-auto mt-2">
-                    <table class="w-full text-sm text-white">
+                    <table class="w-full text-sm" style="color: var(--text);">
                       <thead>
-                        <tr class="border-b border-slate-500 text-left">
+                        <tr class="border-b text-left" style="border-color: var(--border);">
                           <th class="py-2 pr-4">Requirement</th>
                           <th class="py-2 pr-4">Status</th>
                           <th class="py-2">File</th>
@@ -259,20 +273,22 @@
                         <tr
                           v-for="requirement in application.document_requirements_snapshot"
                           :key="requirement.id"
-                          class="border-b border-slate-600"
+                          class="border-b"
+                          style="border-color: var(--border);"
                         >
                           <td class="py-2 pr-4">{{ requirement.document_name }}</td>
                           <td class="py-2 pr-4">
-                            <span v-if="attachmentForRequirement(application, requirement.id)" class="text-emerald-300">Uploaded</span>
-                            <span v-else-if="requirement.required" class="text-red-300">Missing</span>
-                            <span v-else-if="requirement.status === 'optional'" class="text-slate-300">Optional</span>
-                            <span v-else class="text-slate-300">Not Required</span>
+                            <span v-if="attachmentForRequirement(application, requirement.id)" style="color: var(--success);">Uploaded</span>
+                            <span v-else-if="requirement.required" style="color: var(--danger);">Missing</span>
+                            <span v-else-if="requirement.status === 'optional'" style="color: var(--text-muted);">Optional</span>
+                            <span v-else style="color: var(--text-muted);">Not Required</span>
                           </td>
                           <td class="py-2">
                             <button
                               v-if="attachmentForRequirement(application, requirement.id)"
                               type="button"
-                              class="text-blue-300 underline break-all"
+                              class="underline break-all"
+                              style="color: var(--primary);"
                               @click="openSupportingDocument(application, attachmentForRequirement(application, requirement.id))"
                             >
                               {{ attachmentForRequirement(application, requirement.id)?.file_name }}
@@ -288,14 +304,16 @@
 
               <!-- Action Buttons -->
               <div
-                class="card-actions flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-200"
+                class="card-actions flex flex-wrap items-center justify-between gap-2 pt-3 border-t"
+                style="border-color: var(--border);"
               >
                 <template v-if="activeTab !== 'deleted'">
                   <div class="flex flex-wrap gap-2">
                     <!-- View Details -->
                     <button
                       @click="viewDetails(application)"
-                      class="btn-action bg-blue-600 hover:bg-blue-700"
+                      class="btn-action"
+                      style="background: var(--primary);"
                     >
                       View Details
                     </button>
@@ -303,7 +321,8 @@
                     <!-- View Form -->
                     <button
                       @click="viewForm(application)"
-                      class="btn-action bg-amber-600 hover:bg-amber-700"
+                      class="btn-action"
+                      style="background: var(--warning);"
                     >
                       View Form
                     </button>
@@ -314,7 +333,8 @@
                     <button
                       v-if="application.final_status?.toLowerCase() === 'pending'"
                       @click="openApprovalModal(application)"
-                      class="btn-action bg-green-600 hover:bg-green-700"
+                      class="btn-action"
+                      style="background: var(--success);"
                     >
                       Approve
                     </button>
@@ -323,7 +343,8 @@
                     <button
                       v-if="application.final_status?.toLowerCase() === 'pending'"
                       @click="openRejectModal(application.leave_id)"
-                      class="btn-action bg-red-600 hover:bg-red-700"
+                      class="btn-action"
+                      style="background: var(--danger);"
                     >
                       Reject
                     </button>
@@ -331,7 +352,8 @@
                     <!-- Delete -->
                     <button
                       @click="deleteLeaveApplicationById(application.leave_id)"
-                      class="btn-action bg-gray-600 hover:bg-gray-700"
+                      class="btn-action"
+                      style="background: var(--text-muted);"
                     >
                       Delete
                     </button>
@@ -342,7 +364,8 @@
                   <div class="flex flex-wrap gap-2">
                     <button
                       @click="restoreLeaveApplicationById(application.leave_id)"
-                      class="btn-action bg-green-600 hover:bg-green-700"
+                      class="btn-action"
+                      style="background: var(--success);"
                     >
                       Restore
                     </button>
@@ -355,19 +378,20 @@
           <!-- Pagination -->
           <div
             v-if="filteredApplications.length > 0"
-            class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t border-slate-700"
+            class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-5 border-t"
+            style="border-color: var(--border);"
           >
-            <div class="text-sm text-gray-400 text-center sm:text-left">
+            <div class="text-sm text-center sm:text-left" style="color: var(--text-muted);">
               Showing
-              <span class="font-medium text-white">
-                {{ paginationStart }}
+              <span class="font-medium" style="color: var(--text);">
+                {{ startIndex + 1 }}
               </span>
               -
-              <span class="font-medium text-white">
-                {{ paginationEnd }}
+              <span class="font-medium" style="color: var(--text);">
+                {{ Math.min(endIndex, filteredApplications.length) }}
               </span>
               of
-              <span class="font-medium text-white">
+              <span class="font-medium" style="color: var(--text);">
                 {{ filteredApplications.length }}
               </span>
               applications
@@ -375,20 +399,18 @@
 
             <div class="flex items-center gap-2 flex-shrink-0">
               <button
-                @click="previousPage"
+                @click="prevPage"
                 :disabled="currentPage === 1"
-                class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
-                :class="
-                  currentPage === 1
-                    ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
-                    : 'text-[#0F2742] bg-white border-gray-300 hover:bg-gray-100'
-                "
+                class="px-4 py-2 text-sm font-medium border rounded-lg transition-colors"
+                style="border-color: var(--border); color: var(--text);"
+                :style="currentPage === 1 ? 'opacity: 0.5;' : ''"
               >
-                &lt;
+                Previous
               </button>
 
               <span
-                class="w-8 h-8 flex items-center justify-center text-xs font-medium text-white bg-blue-600 rounded-full"
+                class="w-8 h-8 flex items-center justify-center text-xs font-medium text-white rounded-full"
+ style="background: var(--primary);"
               >
                 {{ currentPage }}
               </span>
@@ -397,11 +419,7 @@
                 @click="nextPage"
                 :disabled="currentPage === totalPages"
                 class="w-8 h-8 flex items-center justify-center text-xs rounded-full border transition"
-                :class="
-                  currentPage === totalPages
-                    ? 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'
-                    : 'text-[#0F2742] bg-white border-gray-300 hover:bg-gray-100'
-                "
+                :style="currentPage === totalPages ? 'opacity: 0.5; background: var(--surface-muted); color: var(--text-muted);' : 'background: var(--surface); color: var(--text); border-color: var(--border);'"
               >
                 &gt;
               </button>
@@ -1448,7 +1466,24 @@ const getTabCount = (tabKey: string) => {
 };
 
 /* =========================================================
-   STATUS CLASS
+   STATUS STYLE
+========================================================= */
+
+const getStatusStyle = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case "pending":
+      return { background: 'rgba(217, 145, 23, 0.12)', color: '#D99117' };
+    case "approved":
+      return { background: 'rgba(22, 134, 91, 0.12)', color: '#16865B' };
+    case "disapproved":
+      return { background: 'rgba(214, 69, 69, 0.12)', color: '#D64545' };
+    default:
+      return { background: 'rgba(102, 117, 134, 0.12)', color: '#66758A' };
+  }
+};
+
+/* =========================================================
+   STATUS CLASS (for backward compatibility in modals)
 ========================================================= */
 
 const getStatusClass = (status: string) => {

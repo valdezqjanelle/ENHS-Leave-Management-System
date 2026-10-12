@@ -12,37 +12,42 @@ const props = defineProps<{
   hint?: string;
 }>();
 
-const tones: Record<string, string> = {
-  blue: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  amber: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-  green: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  indigo: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
-  red: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+const tones: Record<string, { bg: string; text: string }> = {
+  blue: { bg: 'rgba(22, 135, 232, 0.12)', text: '#1687E8' },
+  amber: { bg: 'rgba(217, 145, 23, 0.12)', text: '#D99117' },
+  green: { bg: 'rgba(22, 134, 91, 0.12)', text: '#16865B' },
+  indigo: { bg: 'rgba(99, 102, 241, 0.12)', text: '#6366F1' },
+  red: { bg: 'rgba(214, 69, 69, 0.12)', text: '#D64545' },
 };
 
-const toneClass = computed(() => tones[props.tone ?? "blue"]);
+const toneStyle = computed(() => {
+  const t = tones[props.tone ?? 'blue'];
+  if (!t) return { background: 'rgba(22, 135, 232, 0.12)', color: '#1687E8' };
+  return { background: t.bg, color: t.text };
+});
 </script>
 
 <template>
   <component
     :is="to ? 'router-link' : 'div'"
     :to="to"
-    class="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition dark:border-slate-700 dark:bg-slate-800"
-    :class="to ? 'hover:border-blue-400 hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500' : ''"
+    class="group flex items-center gap-4 rounded-lg border p-4 transition"
+    style="border-color: var(--border); background: var(--surface);"
+    :class="to ? 'hover:border-[var(--primary)] hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]' : ''"
     :aria-label="`${label}: ${loading ? 'loading' : error ? 'unavailable' : value}`"
   >
-    <div class="rounded-lg p-3" :class="toneClass">
+    <div class="rounded-lg p-3" :style="toneStyle">
       <component :is="icon" class="h-6 w-6" aria-hidden="true" />
     </div>
 
     <div class="min-w-0">
-      <p class="truncate text-sm text-slate-500 dark:text-slate-300">{{ label }}</p>
+      <p class="truncate text-sm" style="color: var(--text-muted);">{{ label }}</p>
 
-      <div v-if="loading" class="mt-1 h-7 w-12 animate-pulse rounded bg-slate-200 dark:bg-slate-600" />
-      <p v-else-if="error || value === null" class="text-2xl font-semibold text-slate-400">—</p>
-      <p v-else class="text-2xl font-semibold text-slate-900 dark:text-white">{{ value }}</p>
+      <div v-if="loading" class="mt-1 h-7 w-12 animate-pulse rounded" style="background: var(--surface-muted);" />
+      <p v-else-if="error || value === null" class="text-2xl font-semibold" style="color: var(--text-muted);">—</p>
+      <p v-else class="text-2xl font-semibold" style="color: var(--text);">{{ value }}</p>
 
-      <p v-if="hint" class="truncate text-xs text-slate-400">{{ hint }}</p>
+      <p v-if="hint" class="truncate text-xs" style="color: var(--text-muted);">{{ hint }}</p>
     </div>
   </component>
 </template>
