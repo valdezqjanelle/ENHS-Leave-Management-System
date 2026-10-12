@@ -237,6 +237,17 @@
           Profile
         </router-link>
 
+        <router-link
+          v-if="currentUser.role === 'admin'"
+          to="/admin-settings"
+          class="nav-item profile-item"
+        >
+          <span class="profile-avatar">
+            <UserCircle2 class="icon" />
+          </span>
+          Profile
+        </router-link>
+
         <button @click="logout" class="nav-item logout-item w-full">
           <LogOut class="icon" />
           Logout
