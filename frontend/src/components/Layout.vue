@@ -268,7 +268,10 @@
           </button>
 
           <div class="user-summary" aria-label="Current user">
-            <span class="user-avatar">{{ currentUser.name.charAt(0).toUpperCase() }}</span>
+            <span class="user-avatar">
+              <img v-if="headerPhoto && !headerPhotoFailed" :src="headerPhoto" alt="" class="header-photo" @error="headerPhotoFailed = true" />
+              <span v-else>{{ currentUser.name.charAt(0).toUpperCase() }}</span>
+            </span>
             <span class="hidden sm:block">
               <strong>{{ currentUser.name }}</strong>
               <small>{{ currentUser.role }}</small>
@@ -310,7 +313,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { logout as logoutService } from "@/services/auth";
 import api from "@/services/api";
@@ -454,6 +457,9 @@ const currentUser = ref<HeaderUser>({
   role: storedUser?.role || "",
 });
 
+const headerPhoto = ref('');
+const headerPhotoFailed = ref(false);
+
 const refreshHeaderName = async () => {
   const token = localStorage.getItem("token");
   if (!token) return;
@@ -464,6 +470,8 @@ const refreshHeaderName = async () => {
     if (localStorage.getItem("token") !== token) return;
     const body = response.data;
     const profile = body?.profile ?? body?.data?.profile ?? body?.data ?? body;
+    headerPhoto.value = profile?.photo_url || '';
+    headerPhotoFailed.value = false;
     const name = profileName(profile);
     if (!name) return;
     currentUser.value.name = name;
@@ -479,7 +487,18 @@ const refreshHeaderName = async () => {
     // Keep the last known name if profile loading temporarily fails.
   }
 };
-onMounted(refreshHeaderName);
+let photoRefreshTimer: ReturnType<typeof setInterval> | undefined;
+const refreshPhoto = () => { void refreshHeaderName(); };
+onMounted(() => {
+  refreshPhoto();
+  window.addEventListener('els-profile-photo-updated', refreshPhoto);
+  // Renew the signed URL while the authenticated layout remains open.
+  photoRefreshTimer = setInterval(refreshPhoto, 30 * 60 * 1000);
+});
+onUnmounted(() => {
+  window.removeEventListener('els-profile-photo-updated', refreshPhoto);
+  if (photoRefreshTimer !== undefined) clearInterval(photoRefreshTimer);
+});
 watch(() => route.path, () => { void refreshHeaderName(); });
 
 const pageTitle = computed(() => {
@@ -528,6 +547,8 @@ const logout = async () => {
 </script>
 
 <style scoped>
+.header-photo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+
 .enhancement-notice {
   display: flex;
   align-items: flex-start;

@@ -3,123 +3,81 @@ import axios from "axios";
 const API = "https://enhs-leave-management-system.onrender.com/api";
 
 const authHeader = () => ({
-    headers:{
-        Authorization:`Bearer ${localStorage.getItem("token")}`
-    }
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
 });
 // Get all employees
 export const getEmployees = async () => {
-  const response = await axios.get(
-    `${API}/employees`,
-    authHeader()
-  );
-
+  const response = await axios.get(`${API}/employees`, authHeader());
   return response.data;
 };
 
 // Get all positions (for dropdown)
 export const getPositions = async () => {
-  const response = await axios.get(
-    `${API}/positions`,
-    authHeader()
-  );
-
+  const response = await axios.get(`${API}/positions`, authHeader());
   return response.data;
 };
 
 // Create employee
 export const createEmployee = async (data: any) => {
-  const response = await axios.post(
-    `${API}/employees`,
-    data,
-    authHeader()
-  );
-
+  const response = await axios.post(`${API}/employees`, data, authHeader());
   return response.data;
 };
 
 // Update employee
 export const updateEmployee = async (id: number, data: any) => {
-
   const response = await axios.put(
     `${API}/employees/${id}`,
     data,
-    authHeader()
+    authHeader(),
   );
-
   return response.data;
 };
 
 export const getMyProfile = async () => {
-  const response = await axios.get(
-    `${API}/profile`,
-    authHeader()
-  );
-
+  const response = await axios.get(`${API}/profile`, authHeader());
   return response.data;
 };
 
 // Update own profile
 export const updateMyProfile = async (data: any) => {
-
-    const response = await axios.put(
-        `${API}/profile`,
-        data,
-        authHeader()
-    );
-
-    return response.data;
+  const response = await axios.put(`${API}/profile`, data, authHeader());
+  return response.data;
 };
-
 
 // Update email
 export const updateEmail = async (email: string) => {
-
-    const response = await axios.put(
-        `${API}/profile/email`,
-        {
-            email
-        },
-        authHeader()
-    );
-
-    return response.data;
+  const response = await axios.put(
+    `${API}/profile/email`,
+    { email },
+    authHeader(),
+  );
+  return response.data;
 };
-
 
 // Update password
 export const updatePassword = async (data: any) => {
-
-    const response = await axios.put(
-        `${API}/profile/password`,
-        data,
-        authHeader()
-    );
-
-    return response.data;
+  const response = await axios.put(
+    `${API}/profile/password`,
+    data,
+    authHeader(),
+  );
+  return response.data;
 };
-
 
 // Update phone
 export const updatePhone = async (contact_number: string) => {
-
-    const response = await axios.put(
-        `${API}/profile/phone`,
-        {
-            contact_number
-        },
-        authHeader()
-    );
-
-    return response.data;
+  const response = await axios.put(
+    `${API}/profile/phone`,
+    { contact_number },
+    authHeader(),
+  );
+  return response.data;
 };
 
 export const deleteEmployee = async (id: number) => {
-  const response = await axios.delete(
-    `${API}/employees/${id}`,
-    authHeader()
-  );
-
+  const response = await axios.delete(`${API}/employees/${id}`, authHeader());
   return response.data;
 };
 
@@ -127,22 +85,20 @@ export const resetEmployeePassword = async (id: number) => {
   const response = await axios.post(
     `${API}/employees/${id}/reset-password`,
     {},
-    authHeader()
+    authHeader(),
   );
-
   return response.data;
 };
 
 export const applyBulkEmployeeAction = async (
   ids: number[],
-  action: "activate" | "deactivate" | "delete"
+  action: "activate" | "deactivate" | "delete",
 ) => {
   const response = await axios.post(
     `${API}/employees/bulk`,
     { ids, action },
-    authHeader()
+    authHeader(),
   );
-
   return response.data;
 };
 
@@ -150,38 +106,48 @@ export const restoreEmployee = async (id: number) => {
   const response = await axios.post(
     `${API}/employees/${id}/restore`,
     {},
-    authHeader()
+    authHeader(),
   );
-
   return response.data;
 };
 
 export const getDeletedEmployees = async () => {
-  const response = await axios.get(
-    `${API}/employees/deleted`,
-    authHeader()
-  );
-
+  const response = await axios.get(`${API}/employees/deleted`, authHeader());
   return response.data;
 };
 
 export const permanentlyDeleteEmployee = async (id: number) => {
   const response = await axios.delete(
     `${API}/employees/${id}/force`,
-    authHeader()
+    authHeader(),
   );
-
   return response.data;
 };
 
 export const getDepartments = async (level?: string) => {
-  const response = await axios.get(
-    `${API}/departments`,
-    {
-      ...authHeader(),
-      params: level ? { level } : {}
-    }
-  );
+  const response = await axios.get(`${API}/departments`, {
+    ...authHeader(),
+    params: level ? { level } : {},
+  });
+  return response.data;
+};
 
+// NEW: Upload or replace your own profile photo.
+export const uploadProfilePhoto = async (photo: File) => {
+  const formData = new FormData();
+  formData.append("photo", photo);
+
+  // The browser supplies the multipart Content-Type and boundary.
+  const response = await axios.post(
+    `${API}/profile/photo`,
+    formData,
+    authHeader(),
+  );
+  return response.data;
+};
+
+// NEW: Remove your own profile photo.
+export const removeProfilePhoto = async () => {
+  const response = await axios.delete(`${API}/profile/photo`, authHeader());
   return response.data;
 };
