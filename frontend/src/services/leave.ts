@@ -259,3 +259,8 @@ export const rejectLeaveApplication = async (
 
   return response.data;
 };
+
+// Edit only your own pending application. Multipart supports required documents.
+export const updateMyLeave = async (id: number, payload: FormData) => {
+  return (await api.post(`/my-leave-applications/${id}/edit`, payload)).data;
+};

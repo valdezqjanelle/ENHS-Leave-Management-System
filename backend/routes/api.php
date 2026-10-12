@@ -103,6 +103,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // EMPLOYEE ONLY
 
     Route::middleware('role:employee')->group(function () {
+        Route::post('/my-leave-applications/{id}/edit', [LeaveController::class, 'updateMyLeave'])->whereNumber('id');
 
         // Employee profile photo — authenticated employee's own record.
         Route::post('/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'store'])

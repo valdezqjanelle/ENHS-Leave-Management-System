@@ -341,6 +341,111 @@ class LeaveController extends Controller
             ->firstOrFail();
     }
 
+    public function updateMyLeave(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'leave_type_id' => 'required|exists:leave_types,leave_type_id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'reason' => 'required|string|max:5000',
+            'commutation' => 'nullable|in:requested,not requested,not_requested',
+            'vacation_location_type' => 'nullable|in:within_philippines,abroad',
+            'vacation_location' => 'nullable|string|max:500',
+            'sick_type' => 'nullable|in:in_hospital,out_patient',
+            'illness' => 'nullable|string|max:1000',
+            'masters_degree' => 'required|boolean',
+            'board_exam_review' => 'required|boolean',
+            'monetization' => 'required|boolean',
+            'terminal_leave' => 'required|boolean',
+            'other_purpose' => 'nullable|string|max:1000',
+            'confirm_changes' => 'accepted',
+            'original_updated_at' => 'required|date',
+            'document_attachments' => 'nullable|array|max:10',
+            'document_attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240',
+        ]);
+        $storedPaths = [];
+        try {
+            return DB::transaction(function () use ($request, $id, $validated, &$storedPaths) {
+                // Same order as approval: employee, then application. Approval also
+                // takes the school-year lock first; this operation never needs it.
+                $employee = EmployeeRecord::where('user_id', $request->user()->user_id)->lockForUpdate()->firstOrFail();
+                $leave = LeaveApplication::where('employee_id', $employee->employee_id)->whereKey($id)->lockForUpdate()->firstOrFail();
+                abort_unless(strtolower((string) $leave->final_status) === 'pending' && !$leave->reviewed_at && !$leave->signatory_snapshot_locked, 409, 'This application has already been processed and can no longer be edited.');
+                abort_unless(\Carbon\Carbon::parse($validated['original_updated_at'])->equalTo($leave->updated_at), 409, 'This application changed while you were editing. Close and reopen the details before trying again.');
+                $summary = app(WorkingDayCalculator::class)->calculate($validated['start_date'], $validated['end_date']);
+                $days = (int) $summary['working_days'];
+                if ($days < 1) throw \Illuminate\Validation\ValidationException::withMessages(['end_date' => 'Select dates containing at least one chargeable working day.']);
+                $type = LeaveType::findOrFail($validated['leave_type_id']);
+                $name = strtolower($type->leave_type_name);
+                $vacation = str_contains($name, 'vacation');
+                $sick = str_contains($name, 'sick');
+                $study = str_contains($name, 'study');
+                if ($vacation && (!$request->filled('vacation_location_type') || !$request->filled('vacation_location'))) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['vacation_location' => 'Specify your vacation location.']);
+                }
+                if ($sick && (!$request->filled('sick_type') || !$request->filled('illness'))) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['illness' => 'Specify treatment and illness.']);
+                }
+                if ($study && !$request->boolean('masters_degree') && !$request->boolean('board_exam_review')) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['masters_degree' => 'Select a study purpose.']);
+                }
+                if ((int) $request->boolean('monetization') + (int) $request->boolean('terminal_leave') + (int) $request->filled('other_purpose') > 1) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['other_purpose' => 'Select only one other purpose.']);
+                }
+                $requirements = LeaveDocumentRequirement::where('leave_type_id', $type->leave_type_id)->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
+                $files = $request->file('document_attachments', []);
+                $validIds = $requirements->pluck('id')->map(fn ($value) => (int) $value)->all();
+                foreach ($files as $key => $file) {
+                    if (!in_array((int) $key, $validIds, true)) throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => 'Invalid document requirement.']);
+                }
+                $existingIds = $leave->attachments()->pluck('leave_document_requirement_id')->map(fn ($value) => (int) $value)->all();
+                $advance = \Carbon\Carbon::parse($validated['start_date'])->isAfter($leave->date_filed);
+                foreach ($requirements as $requirement) {
+                    if ($requirement->isRequiredForDays($days, $advance) && !in_array((int) $requirement->id, $existingIds, true) && !isset($files[$requirement->id])) {
+                        throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => "{$requirement->document_name} is required. Upload it before saving."]);
+                    }
+                }
+                if ($leave->attachments()->count() + count($files) > 10) throw \Illuminate\Validation\ValidationException::withMessages(['document_attachments' => 'Maximum 10 attachments per application.']);
+                $validated['commutation'] = ($validated['commutation'] ?? null) === 'not_requested' ? 'not requested' : ($validated['commutation'] ?? null);
+                $leave->fill(collect($validated)->only(['leave_type_id', 'start_date', 'end_date', 'reason', 'commutation', 'monetization', 'terminal_leave', 'other_purpose'])->all());
+                $leave->vacation_location_type = $vacation ? ($validated['vacation_location_type'] ?? null) : null;
+                $leave->vacation_location = $vacation ? ($validated['vacation_location'] ?? null) : null;
+                $leave->sick_type = $sick ? ($validated['sick_type'] ?? null) : null;
+                $leave->illness = $sick ? ($validated['illness'] ?? null) : null;
+                $leave->masters_degree = $study && $request->boolean('masters_degree');
+                $leave->board_exam_review = $study && $request->boolean('board_exam_review');
+                $leave->number_of_days = $days;
+                $leave->vacation_less_application = $vacation ? $days : null;
+                $leave->sick_less_application = $sick ? $days : null;
+                $leave->document_requirements_snapshot = $requirements->map(fn ($item) => [
+                    'id' => $item->id, 'document_name' => $item->document_name, 'description' => $item->description,
+                    'is_required' => $item->is_required, 'requirement_type' => $item->requirement_type,
+                    'condition_days' => $item->condition_days, 'required' => $item->isRequiredForDays($days, $advance),
+                    'status' => $item->isRequiredForDays($days, $advance) ? 'required' : ($item->is_required ? 'not_required' : 'optional'),
+                ])->all();
+                $leave->save();
+                foreach ($files as $requirementId => $file) {
+                    $path = $file->store('leave_attachments', 'supabase');
+                    if (!$path) throw new \RuntimeException('Unable to store document.');
+                    $storedPaths[] = $path;
+                    LeaveAttachment::create([
+                        'leave_id' => $leave->leave_id, 'leave_document_requirement_id' => (int) $requirementId,
+                        'file_name' => $file->getClientOriginalName(), 'file_path' => $path,
+                        'stored_filename' => basename($path), 'file_type' => $file->getMimeType(),
+                        'file_size' => $file->getSize(), 'uploaded_at' => now(),
+                    ]);
+                }
+                AuditLogger::log('Leave application edited', "Employee #{$employee->employee_id} edited pending application #{$leave->leave_id}; dates {$validated['start_date']} to {$validated['end_date']}; {$days} working day(s).");
+                return response()->json(['message' => 'Application updated. Please reprint your leave form if needed.', 'data' => $leave->fresh()->load('employee', 'leaveType', 'attachments.documentRequirement')]);
+            });
+        } catch (\Throwable $error) {
+            foreach ($storedPaths as $path) {
+                try { Storage::disk('supabase')->delete($path); } catch (\Throwable $cleanup) { report($cleanup); }
+            }
+            throw $error;
+        }
+    }
+
     public function addAttachments(Request $request, $id)
     {
         $request->validate([
