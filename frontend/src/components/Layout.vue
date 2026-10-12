@@ -313,6 +313,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { logout as logoutService } from "@/services/auth";
+import api from "@/services/api";
 
 import {
   LayoutDashboard,
@@ -430,14 +431,56 @@ watch(
   },
   { immediate: true },
 );
-// Logged-in user
-const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-const currentUser = ref({
-  name: user.email ? user.email.split("@")[0] : "User",
-  email: user.email || "",
-  role: user.role || "",
+// Header uses profile names, never the email username.
+interface HeaderUser {
+  name: string;
+  email: string;
+  role: string;
+}
+const profileName = (value: any): string => {
+  const first = typeof value?.first_name === "string" ? value.first_name.trim() : "";
+  const last = typeof value?.last_name === "string" ? value.last_name.trim() : "";
+  return [first, last].filter(Boolean).join(" ");
+};
+let storedUser: any = {};
+try {
+  storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+} catch {
+  // A malformed cached value should not crash the layout.
+}
+const currentUser = ref<HeaderUser>({
+  name: profileName(storedUser) || "User",
+  email: storedUser?.email || "",
+  role: storedUser?.role || "",
 });
+
+const refreshHeaderName = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  try {
+    // Reuse existing profile endpoints to update already logged-in users too.
+    const endpoint = currentUser.value.role === "admin" ? "/admin/profile" : "/profile";
+    const response = await api.get(endpoint);
+    if (localStorage.getItem("token") !== token) return;
+    const body = response.data;
+    const profile = body?.profile ?? body?.data?.profile ?? body?.data ?? body;
+    const name = profileName(profile);
+    if (!name) return;
+    currentUser.value.name = name;
+    let saved: any = {};
+    try { saved = JSON.parse(localStorage.getItem("user") || "{}"); } catch {}
+    localStorage.setItem("user", JSON.stringify({
+      ...saved,
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+      name,
+    }));
+  } catch {
+    // Keep the last known name if profile loading temporarily fails.
+  }
+};
+onMounted(refreshHeaderName);
+watch(() => route.path, () => { void refreshHeaderName(); });
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
@@ -650,7 +693,7 @@ const logout = async () => {
   align-items: center;
   gap: 0.65rem;
   color: var(--text);
-  text-transform: capitalize;
+
 }
 
 .user-avatar {
