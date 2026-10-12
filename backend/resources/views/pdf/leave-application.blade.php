@@ -108,7 +108,7 @@
     <tr>
         <td colspan="2" class="header" style="border-top:none; padding-top:0;">
             <div class="republic">Republic of the Philippines</div>
-            <div class="dept">Department of Education</div>
+            <div class="dept">Department of Educ</div>
             <div class="region">
                 Region 02 - Cagayan Valley<br>
                 <span class="bold">SCHOOLS DIVISION OFFICE OF ISABELA</span>
