@@ -277,6 +277,30 @@
         </div>
       </header>
 
+      <!-- Shared notice for Admin and Employee pages -->
+      <section
+        v-if="showEnhancementNotice"
+        class="enhancement-notice"
+        aria-labelledby="enhancement-notice-title"
+      >
+        <div class="enhancement-notice-copy">
+          <h3 id="enhancement-notice-title">System Enhancement Notice</h3>
+          <p>
+            We are continuously improving the system through interface refinements
+            and additional features. You may continue using the available features
+            while these enhancements are in progress.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="enhancement-notice-close"
+          aria-label="Dismiss system enhancement notice"
+          @click="dismissEnhancementNotice"
+        >
+          <X class="w-5 h-5" aria-hidden="true" />
+        </button>
+      </section>
+
       <!-- CONTENT -->
       <main class="content-panel flex-1 overflow-auto p-6 w-full">
         <router-view />
@@ -313,6 +337,29 @@ import {
 
 const route = useRoute();
 const router = useRouter();
+
+// Dismissal persists across page navigation and refresh in this browser tab.
+// Logout clears it so the notice appears again on the next login.
+const enhancementNoticeKey = "els-enhancement-notice-dismissed";
+const noticeDismissed = ref(false);
+try {
+  noticeDismissed.value = sessionStorage.getItem(enhancementNoticeKey) === "true";
+} catch {
+  // In-memory dismissal still works when browser storage is unavailable.
+}
+
+const showEnhancementNotice = computed(() => {
+  return Boolean(localStorage.getItem("token")) && !noticeDismissed.value;
+});
+
+const dismissEnhancementNotice = () => {
+  noticeDismissed.value = true;
+  try {
+    sessionStorage.setItem(enhancementNoticeKey, "true");
+  } catch {
+    // Keep the notice dismissed for the current mounted layout.
+  }
+};
 
 const sidebarOpen = ref(false);
 const personnelMenuOpen = ref(false);
@@ -423,6 +470,13 @@ const logout = async () => {
     console.log("Logout API failed:", error);
   }
 
+  try {
+    sessionStorage.removeItem(enhancementNoticeKey);
+  } catch {
+    // Logout must continue even when browser storage is unavailable.
+  }
+  noticeDismissed.value = false;
+
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 
@@ -431,6 +485,72 @@ const logout = async () => {
 </script>
 
 <style scoped>
+.enhancement-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+}
+
+.enhancement-notice-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.enhancement-notice h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.enhancement-notice p {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.enhancement-notice-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.enhancement-notice-close:hover {
+  background: var(--surface-muted);
+}
+
+.enhancement-notice-close:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .enhancement-notice {
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+  }
+}
+
+@media print {
+  .enhancement-notice {
+    display: none;
+  }
+}
+
 .app-shell {
   display: flex;
   height: 100vh;
