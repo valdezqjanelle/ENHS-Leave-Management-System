@@ -1,562 +1,708 @@
 <template>
   <div class="dashboard-shell min-h-screen p-6 space-y-6">
-
-   
-
-<!-- =============================== -->
-<!-- FILTER AND SEARCH -->
-<!-- =============================== -->
-
-<div class="p-5 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
-  <div class="flex flex-col lg:flex-row gap-4">
-
-    <!-- Search Input -->
-    <div class="flex-1">
-      <div class="relative">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none z-10" style="color: var(--text-muted);" />
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="Search ID, leave type, status, date..."
-          class="w-full !pl-10 py-2 border rounded-lg"
-          style="border-color: var(--border); background: var(--surface); color: var(--text);"
-        />
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="flex flex-col sm:flex-row gap-3">
-      <select v-model="filterStatus" class="sm:w-44 border rounded-lg" style="border-color: var(--border); background: var(--surface); color: var(--text);">
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="disapproved">Disapproved</option>
-      </select>
-
-      <select v-model="filterType" class="sm:w-48 border rounded-lg" style="border-color: var(--border); background: var(--surface); color: var(--text);">
-        <option value="">All Types</option>
-        <option value="vacation">Vacation Leave</option>
-        <option value="sick">Sick Leave</option>
-        <option value="study">Study Leave</option>
-        <option value="special">Special Leave</option>
-        <option value="mandatory">Mandatory/Forced Leave</option>
-      </select>
-
-      <button 
-        @click="clearFilters"
-        class="px-4 py-2 text-sm border rounded-lg transition"
-        style="border-color: var(--border); color: var(--text);"
-      >
-        Clear
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<!-- Search Result Counter -->
-<div v-if="searchQuery || filterStatus || filterType" class="mt-3 text-sm" style="color: var(--text-muted);">
-  {{ filteredApplications.length }} application(s) found
-</div>
-
-
-  <!-- =============================== -->
-  <!-- APPLICATION HISTORY -->
-  <!-- =============================== -->
-
-  <div class="overflow-hidden rounded-lg border" style="border-color: var(--border); background: var(--surface);">
+    <!-- =============================== -->
+    <!-- FILTER AND SEARCH -->
+    <!-- =============================== -->
 
     <div
-      class="px-6 py-5 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-      style="border-color: var(--border);"
+      class="p-5 rounded-lg border"
+      style="border-color: var(--border); background: var(--surface)"
     >
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Search Input -->
+        <div class="flex-1">
+          <div class="relative">
+            <Search
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none z-10"
+              style="color: var(--text-muted)"
+            />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search ID, leave type, status, date..."
+              class="w-full !pl-10 py-2 border rounded-lg"
+              style="
+                border-color: var(--border);
+                background: var(--surface);
+                color: var(--text);
+              "
+            />
+          </div>
+        </div>
 
-      <div>
-        <h3 class="text-lg font-semibold" style="color: var(--text);">
-          Application History
-        </h3>
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <select
+            v-model="filterStatus"
+            class="sm:w-44 border rounded-lg"
+            style="
+              border-color: var(--border);
+              background: var(--surface);
+              color: var(--text);
+            "
+          >
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="disapproved">Disapproved</option>
+          </select>
 
-        <p class="text-sm mt-1" style="color: var(--text-muted);">
-          Showing {{ displayedApplications.length }} of
-          {{ filteredApplications.length }} application(s)
-        </p>
+          <select
+            v-model="filterType"
+            class="sm:w-48 border rounded-lg"
+            style="
+              border-color: var(--border);
+              background: var(--surface);
+              color: var(--text);
+            "
+          >
+            <option value="">All Types</option>
+            <option value="vacation">Vacation Leave</option>
+            <option value="sick">Sick Leave</option>
+            <option value="study">Study Leave</option>
+            <option value="special">Special Leave</option>
+            <option value="mandatory">Mandatory/Forced Leave</option>
+          </select>
+
+          <button
+            @click="clearFilters"
+            class="px-4 py-2 text-sm border rounded-lg transition"
+            style="border-color: var(--border); color: var(--text)"
+          >
+            Clear
+          </button>
+        </div>
       </div>
+    </div>
 
-      <button v-if="applications.length > 15" @click="showAllApplications = !showAllApplications"
-        class="px-4 py-2 text-sm border rounded-lg transition"
-        style="border-color: var(--primary); color: var(--primary);"
+    <!-- Search Result Counter -->
+    <div
+      v-if="searchQuery || filterStatus || filterType"
+      class="mt-3 text-sm"
+      style="color: var(--text-muted)"
+    >
+      {{ filteredApplications.length }} application(s) found
+    </div>
+
+    <!-- =============================== -->
+    <!-- APPLICATION HISTORY -->
+    <!-- =============================== -->
+
+    <div
+      class="overflow-hidden rounded-lg border"
+      style="border-color: var(--border); background: var(--surface)"
+    >
+      <div
+        class="px-6 py-5 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+        style="border-color: var(--border)"
       >
-        {{
-          showAllApplications
-            ? "Show Recent 15"
-            : `Show All Applications (${filteredApplications.length})`
-        }}
-      </button>
-
-    </div>
-
-
-    <div class="overflow-x-auto">
-
-      <table class="w-full">
-
-        <!-- Table Header -->
-        <thead class="text-left font-semibold" style="background: var(--surface-muted); color: var(--text);">
-
-          <tr>
-
-            <th class="table-header">
-              Leave Type
-            </th>
-
-            <th class="table-header">
-              Duration
-            </th>
-
-            <th class="table-header">
-              Filed Date
-            </th>
-
-            <th class="table-header">
-              Status
-            </th>
-
-            <th class="table-header">
-              Actions
-            </th>
-
-          </tr>
-
-        </thead>
-
-
-        <!-- Table Body -->
-        <tbody class="divide-y" style="border-color: var(--border);">
-
-          <tr v-for="application in displayedApplications" :key="application.leave_id"
-            class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-
-            
-
-
-            <!-- Leave Type -->
-            <td class="table-cell" style="color: var(--text);">
-              {{ application.leave_type.leave_type_name }}
-            </td>
-
-
-            <!-- Duration -->
-            <td class="table-cell" style="color: var(--text);">
-              {{
-                formatDateRange(
-                  application.start_date,
-                  application.end_date
-                )
-              }}
-            </td>
-
-
-            <!-- Filed -->
-            <td class="table-cell" style="color: var(--text);">
-              {{ formatDate(application.date_filed) }}
-            </td>
-
-
-            <!-- Status -->
-            <td class="table-cell">
-
-              <span class="px-3 py-1.5 text-xs font-semibold rounded-full"
-                :class="getStatusClass(application.final_status)">
-                {{ application.final_status }}
-              </span>
-
-            </td>
-
-
-            <!-- Actions -->
-            <td class="table-cell">
-
-              <div class="flex items-center gap-3 flex-wrap">
-
-                <button @click="viewDetails(application)"
-                  class="btn-action" style="background: var(--primary);">
-                  View Details
-                </button>
-
-                <button @click="viewForm(application)"
-                  class="btn-action" style="background: var(--warning);">
-                  View Form
-                </button>
-                <button v-if="isEditableApplication(application)" @click="editForm(application)" class="btn-action" style="background: #16a34a;">Edit Form</button>
-
-              </div>
-
-            </td>
-
-          </tr>
-
-
-          <!-- Empty State -->
-          <tr v-if="displayedApplications.length === 0">
-
-            <td colspan="6" class="px-6 py-12 text-center">
-
-              <FileText class="w-10 h-10 mx-auto mb-3" style="color: var(--text-muted);" />
-
-              <p style="color: var(--text-muted);">
-                No leave applications found.
-              </p>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-
-  <!-- =============================== -->
-  <!-- APPLICATION DETAILS MODAL -->
-  <!-- =============================== -->
-
-  <div v-if="application"
-    class="detail-modal-backdrop fixed inset-0 overflow-y-auto w-full h-full z-50 p-2 sm:p-4">
-
-    <div class="employee-detail-modal relative mx-auto my-1 sm:my-3 w-full max-w-3xl shadow-lg rounded-lg neo-card flex flex-col max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)]">
-
-      <!-- Modal Header -->
-      <div class="flex justify-between items-start gap-3 px-4 pt-3 pb-2 border-b border-gray-200">
-
         <div>
-
-          <h3 class="text-xl font-semibold text-white">
-            Application Details
+          <h3 class="text-lg font-semibold" style="color: var(--text)">
+            Application History
           </h3>
 
-          <p class="text-sm text-slate-400 mt-1">
-            Application #{{ application.leave_id }}
+          <p class="text-sm mt-1" style="color: var(--text-muted)">
+            Showing {{ displayedApplications.length }} of
+            {{ filteredApplications.length }} application(s)
           </p>
-
         </div>
 
-
-        <button @click="application = null" class="text-slate-500 hover:text-white transition">
-          <X class="w-6 h-6" />
+        <button
+          v-if="applications.length > 15"
+          @click="showAllApplications = !showAllApplications"
+          class="px-4 py-2 text-sm border rounded-lg transition"
+          style="border-color: var(--primary); color: var(--primary)"
+        >
+          {{
+            showAllApplications
+              ? "Show Recent 15"
+              : `Show All Applications (${filteredApplications.length})`
+          }}
         </button>
-
       </div>
 
-
-      <!-- Modal Body -->
-      <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
-
-
-        <!-- Application Information -->
-        <div class="modal-section">
-
-          <h4 class="modal-title">
-            Application Information
-          </h4>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-            <div>
-              <p class="modal-label">
-                Leave Type
-              </p>
-
-              <p class="modal-value">
-                {{ application.leave_type.leave_type_name }}
-              </p>
-            </div>
-
-
-            <div>
-              <p class="modal-label">
-                Duration
-              </p>
-
-              <p class="modal-value">
-                {{
-                  formatDateRange(
-                    application.start_date,
-                    application.end_date
-                  )
-                }}
-              </p>
-            </div>
-
-
-            <div>
-              <p class="modal-label">
-                Filed Date
-              </p>
-
-              <p class="modal-value">
-                {{ formatDate(application.date_filed) }}
-              </p>
-            </div>
-
-
-            <div>
-              <p class="modal-label">
-                Status
-              </p>
-
-              <span class="px-3 py-1.5 text-xs font-semibold rounded-full inline-block"
-                :class="getStatusClass(application.final_status)">
-                {{ application.final_status }}
-              </span>
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="modal-section">
-          <h4 class="modal-title">Leave Details and Recorded Decision</h4>
-          <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div v-for="row in leaveDetailRows(application)" :key="row.label + row.value"><dt class="modal-label">{{ row.label }}</dt><dd class="modal-value whitespace-pre-line">{{ row.value }}</dd></div>
-          </dl>
-        </div>
-
-        <!-- Supporting Documents -->
-        <div class="modal-section">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <div>
-              <h4 class="text-base font-semibold text-white">
-                Supporting Documents
-              </h4>
-              <p class="text-xs text-slate-400 mt-1">
-                PDF, JPG, PNG, DOC, or DOCX; up to 10 MB per file.
-              </p>
-            </div>
-
-            <button
-              v-if="canAddAttachments"
-              @click="toggleAttachmentForm"
-              type="button"
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-            >
-              {{ showAttachmentForm ? "Cancel Upload" : "+ Add Documents" }}
-            </button>
-          </div>
-
-          <div
-            v-if="application.attachments?.length"
-            class="space-y-2"
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <!-- Table Header -->
+          <thead
+            class="text-left font-semibold"
+            style="background: var(--surface-muted); color: var(--text)"
           >
-            <div
-              v-for="file in application.attachments"
-              :key="file.attachment_id"
-              class="flex items-center justify-between gap-3 p-3 bg-[#0F1A2A] border border-slate-700 rounded-lg"
+            <tr>
+              <th class="table-header">Leave Type</th>
+
+              <th class="table-header">Duration</th>
+
+              <th class="table-header">Filed Date</th>
+
+              <th class="table-header">Status</th>
+
+              <th class="table-header">Actions</th>
+            </tr>
+          </thead>
+
+          <!-- Table Body -->
+          <tbody class="divide-y" style="border-color: var(--border)">
+            <tr
+              v-for="application in displayedApplications"
+              :key="application.leave_id"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
             >
-              <div class="flex items-center min-w-0">
-                <FileText class="w-5 h-5 text-slate-500 mr-3 flex-shrink-0" />
-                <span class="text-sm text-slate-300 truncate">
-                  {{ file.file_name || file.name || "Supporting Document" }}
+              <!-- Leave Type -->
+              <td class="table-cell" style="color: var(--text)">
+                {{ application.leave_type.leave_type_name }}
+              </td>
+
+              <!-- Duration -->
+              <td class="table-cell" style="color: var(--text)">
+                {{
+                  formatDateRange(application.start_date, application.end_date)
+                }}
+              </td>
+
+              <!-- Filed -->
+              <td class="table-cell" style="color: var(--text)">
+                {{ formatDate(application.date_filed) }}
+              </td>
+
+              <!-- Status -->
+              <td class="table-cell">
+                <span
+                  class="px-3 py-1.5 text-xs font-semibold rounded-full"
+                  :class="getStatusClass(application.final_status)"
+                >
+                  {{ application.final_status }}
                 </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="table-cell">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button
+                    @click="viewDetails(application)"
+                    class="btn-action"
+                    style="background: var(--primary)"
+                  >
+                    View Details
+                  </button>
+
+                  <button
+                    @click="viewForm(application)"
+                    class="btn-action"
+                    style="background: var(--warning)"
+                  >
+                    View Form
+                  </button>
+                  <button
+                    v-if="isEditableApplication(application)"
+                    @click="editForm(application)"
+                    class="btn-action"
+                    style="background: #16a34a"
+                  >
+                    Edit Form
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr v-if="displayedApplications.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <FileText
+                  class="w-10 h-10 mx-auto mb-3"
+                  style="color: var(--text-muted)"
+                />
+
+                <p style="color: var(--text-muted)">
+                  No leave applications found.
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- APPLICATION DETAILS MODAL -->
+    <!-- =============================== -->
+
+    <div
+      v-if="application"
+      class="detail-modal-backdrop fixed inset-0 overflow-y-auto w-full h-full z-50 p-2 sm:p-4"
+    >
+      <div
+        class="relative mx-auto my-1 sm:my-3 w-full max-w-3xl shadow-lg rounded-lg bg-white neo-card employee-detail-modal flex flex-col max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)]"
+      >
+        <!-- Header -->
+        <div
+          class="flex justify-between items-start gap-3 px-4 pt-3 pb-2 border-b border-gray-200"
+        >
+          <div>
+            <h3 class="text-lg font-semibold text-white leading-tight">
+              Application Details
+            </h3>
+            <p class="text-xs text-gray-400 mt-0.5">
+              Application #{{ application.leave_id }}
+            </p>
+          </div>
+
+          <button
+            @click="closeEmployeeDetails"
+            class="text-white hover:text-gray-600 flex-shrink-0"
+            aria-label="Close"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Scrollable body -->
+        <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
+          <!-- Application Information -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
+              Application Information
+            </h4>
+
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white"
+            >
+              <div class="break-words">
+                <strong>Employee:</strong>
+                {{ getEmployeeName(application.employee) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Office:</strong>
+                {{ application.employee?.department_name ?? "Not available" }}
+              </div>
+
+              <div class="break-words">
+                <strong>Position:</strong>
+                {{ getEmployeePosition(application.employee) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Filed Date:</strong>
+                {{ formatDate(application.date_filed) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Status:</strong>
+                <span
+                  :class="[
+                    'px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap',
+                    getStatusClass(application.final_status),
+                  ]"
+                >
+                  {{ application.final_status }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leave Details -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">Leave Details</h4>
+
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white"
+            >
+              <div class="break-words">
+                <strong>Leave Type:</strong>
+                {{ getLeaveType(application.leave_type) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Duration:</strong>
+                {{ formatDate(application.start_date) }}
+                -
+                {{ formatDate(application.end_date) }}
+              </div>
+
+              <div class="break-words">
+                <strong>Days Applied:</strong>
+                {{ application.number_of_days }}
+              </div>
+
+              <div class="break-words">
+                <strong>Commutation:</strong>
+                {{
+                  application.commutation === "requested"
+                    ? "Requested"
+                    : "Not Requested"
+                }}
+              </div>
+
+              <div
+                v-for="row in getLeaveDetailRows(application)"
+                :key="row.label + row.value"
+                class="break-words"
+              >
+                <strong>{{ row.label }}:</strong>
+                {{ row.value }}
+              </div>
+
+              <div class="break-words whitespace-pre-line sm:col-span-2">
+                <strong>Reason for Leave:</strong>
+                {{ application.reason || "Not provided" }}
+              </div>
+
+              <div
+                v-if="
+                  application.final_status?.toLowerCase() === 'disapproved' &&
+                  application.disapproval_reason
+                "
+                class="break-words sm:col-span-2"
+              >
+                <strong>Reason for Disapproval:</strong>
+                {{ application.disapproval_reason }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Leave Credits Snapshot -->
+          <div
+            v-if="hasCreditsSnapshot(application)"
+            class="border border-gray-300 p-3 min-w-0 modal-section"
+          >
+            <h4 class="text-sm font-bold mb-1.5 text-white">
+              Leave Credits
+              <span
+                v-if="application.certification_as_of"
+                class="text-xs font-normal text-gray-400 ml-1"
+              >
+                (as of {{ formatDate(application.certification_as_of) }})
+              </span>
+            </h4>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-white">
+                <thead>
+                  <tr class="border-b border-slate-500 text-left">
+                    <th class="py-1 pr-4"></th>
+                    <th class="py-1 pr-4">Total Earned</th>
+                    <th class="py-1 pr-4">Less this Application</th>
+                    <th class="py-1">Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-slate-600">
+                    <td class="py-1 pr-4 font-medium">Vacation Leave</td>
+                    <td class="py-1 pr-4">
+                      {{ formatCredit(application.vacation_total_earned) }}
+                    </td>
+                    <td class="py-1 pr-4">
+                      {{ formatCredit(application.vacation_less_application) }}
+                    </td>
+                    <td class="py-1">
+                      {{ formatCredit(application.vacation_balance) }}
+                    </td>
+                  </tr>
+                  <tr class="border-b border-slate-600">
+                    <td class="py-1 pr-4 font-medium">Sick Leave</td>
+                    <td class="py-1 pr-4">
+                      {{ formatCredit(application.sick_total_earned) }}
+                    </td>
+                    <td class="py-1 pr-4">
+                      {{ formatCredit(application.sick_less_application) }}
+                    </td>
+                    <td class="py-1">
+                      {{ formatCredit(application.sick_balance) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recommendation and Approval -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">
+              Recommendation and Approval
+            </h4>
+
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-white"
+            >
+              <div class="break-words">
+                <strong>Recommendation:</strong>
+                {{
+                  formatLabel(application.recommendation_status) || "Pending"
+                }}
+              </div>
+
+              <div
+                v-if="hasValue(application.recommendation_reason)"
+                class="break-words"
+              >
+                <strong>Recommendation Reason:</strong>
+                {{ application.recommendation_reason }}
+              </div>
+
+              <div
+                v-if="hasValue(application.days_with_pay)"
+                class="break-words"
+              >
+                <strong>Days with Pay:</strong>
+                {{ application.days_with_pay }}
+              </div>
+
+              <div
+                v-if="hasValue(application.days_without_pay)"
+                class="break-words"
+              >
+                <strong>Days without Pay:</strong>
+                {{ application.days_without_pay }}
+              </div>
+
+              <div
+                v-if="hasValue(application.other_approval)"
+                class="break-words"
+              >
+                <strong>Others:</strong>
+                {{ application.other_approval }}
+              </div>
+
+              <div
+                v-if="hasValue(application.admin_remarks)"
+                class="break-words sm:col-span-2"
+              >
+                <strong>Admin Remarks:</strong>
+                {{ application.admin_remarks }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Supporting Documents -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-1.5"
+            >
+              <div>
+                <h4 class="text-sm font-bold text-white">
+                  Supporting Documents
+                </h4>
+                <p class="text-xs text-gray-400 mt-1">
+                  PDF, JPG, PNG, DOC, or DOCX; up to 10 MB per file.
+                </p>
               </div>
 
               <button
-                @click="viewAttachment(file)"
+                v-if="canAddAttachments"
+                @click="toggleAttachmentForm"
                 type="button"
-                class="text-blue-400 hover:text-blue-300 text-sm font-medium ml-4"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
               >
-                View
+                {{ showAttachmentForm ? "Cancel Upload" : "+ Add Documents" }}
               </button>
             </div>
-          </div>
 
-          <p v-else class="text-sm text-slate-400 py-2">
-            No supporting documents attached yet.
-          </p>
-
-          <div
-            v-if="showAttachmentForm && canAddAttachments"
-            class="mt-4 p-4 border border-dashed border-slate-600 rounded-xl bg-[#0B1420]"
-          >
-            <input
-              ref="attachmentInput"
-              @change="handleAttachmentSelection"
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              multiple
-              class="block w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-            />
-
-            <div v-if="selectedFiles.length" class="mt-4 space-y-2">
+            <div v-if="application.attachments?.length" class="space-y-1.5">
               <div
-                v-for="(file, index) in selectedFiles"
-                :key="`${file.name}-${file.lastModified}`"
-                class="flex items-center justify-between gap-3 text-sm text-slate-300"
+                v-for="file in application.attachments"
+                :key="file.attachment_id"
+                class="flex items-center justify-between gap-3 px-3 py-1.5 bg-white border border-gray-300 rounded-lg"
               >
-                <span class="truncate">
-                  {{ file.name }} ({{ formatFileSize(file.size) }})
-                </span>
+                <div class="flex items-center min-w-0">
+                  <FileText class="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+                  <span class="text-sm text-white truncate">
+                    {{ file.file_name || file.name || "Supporting Document" }}
+                  </span>
+                </div>
+
                 <button
-                  @click="removeSelectedFile(index)"
+                  @click="viewAttachment(file)"
                   type="button"
-                  class="text-red-400 hover:text-red-300"
+                  class="text-blue-400 hover:text-blue-300 text-sm font-medium ml-4"
                 >
-                  Remove
+                  View
                 </button>
               </div>
             </div>
 
-            <p v-if="attachmentError" class="text-sm text-red-400 mt-3">
-              {{ attachmentError }}
+            <p v-else class="text-sm text-gray-400 py-2">
+              No supporting documents attached yet.
             </p>
 
-            <div class="flex justify-end mt-4">
-              <button
-                @click="uploadAdditionalAttachments"
-                :disabled="uploadingAttachments || selectedFiles.length === 0"
-                type="button"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
-              >
-                {{ uploadingAttachments ? "Uploading..." : "Upload Documents" }}
-              </button>
+            <div
+              v-if="showAttachmentForm && canAddAttachments"
+              class="mt-4 p-4 border border-dashed border-gray-300 rounded-xl bg-white"
+            >
+              <input
+                ref="attachmentInput"
+                @change="handleAttachmentSelection"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                multiple
+                class="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+              />
+
+              <div v-if="selectedFiles.length" class="mt-4 space-y-2">
+                <div
+                  v-for="(file, index) in selectedFiles"
+                  :key="`${file.name}-${file.lastModified}`"
+                  class="flex items-center justify-between gap-3 text-sm text-white"
+                >
+                  <span class="truncate">
+                    {{ file.name }} ({{ formatFileSize(file.size) }})
+                  </span>
+                  <button
+                    @click="removeSelectedFile(index)"
+                    type="button"
+                    class="text-red-400 hover:text-red-300"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <p v-if="attachmentError" class="text-sm text-red-400 mt-3">
+                {{ attachmentError }}
+              </p>
+
+              <div class="flex justify-end mt-4">
+                <button
+                  @click="uploadAdditionalAttachments"
+                  :disabled="uploadingAttachments || selectedFiles.length === 0"
+                  type="button"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
+                >
+                  {{
+                    uploadingAttachments ? "Uploading..." : "Upload Documents"
+                  }}
+                </button>
+              </div>
+            </div>
+
+            <p v-if="!canAddAttachments" class="text-xs text-gray-400 mt-4">
+              Additional documents can only be uploaded while the application is
+              pending.
+            </p>
+            <div
+              v-if="application.document_requirements_snapshot?.length"
+              class="overflow-x-auto mt-2"
+            >
+              <table class="w-full text-sm text-white">
+                <thead>
+                  <tr class="border-b border-slate-500 text-left">
+                    <th class="py-1 pr-4">Requirement</th>
+                    <th class="py-1">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="requirement in application.document_requirements_snapshot"
+                    :key="requirement.id"
+                    class="border-b border-slate-600"
+                  >
+                    <td class="py-1 pr-4">{{ requirement.document_name }}</td>
+                    <td class="py-1">
+                      <span
+                        v-if="
+                          attachmentForRequirement(application, requirement.id)
+                        "
+                        class="text-green-600"
+                        >Uploaded</span
+                      >
+                      <span
+                        v-else-if="requirement.required"
+                        class="text-red-600"
+                        >Missing</span
+                      >
+                      <span
+                        v-else-if="requirement.status === 'optional'"
+                        class="text-gray-400"
+                        >Optional</span
+                      >
+                      <span v-else class="text-gray-400">Not Required</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <p v-if="!canAddAttachments" class="text-xs text-slate-500 mt-4">
-            Additional documents can only be uploaded while the application is pending.
-          </p>
-        </div>
+          <!-- Status Timeline -->
+          <div class="border border-gray-300 p-3 min-w-0 modal-section">
+            <h4 class="text-sm font-bold mb-1.5 text-white">Status Timeline</h4>
 
-
-        <!-- Status Timeline -->
-        <div class="modal-section">
-
-          <h4 class="modal-title">
-            Status Timeline
-          </h4>
-
-
-          <div class="space-y-5">
-
-            <!-- Submitted -->
-            <div class="flex items-start">
-
-              <div class="w-3 h-3 bg-blue-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-
-              <div>
-
-                <p class="text-sm font-medium text-white">
-                  Application Submitted
-                </p>
-
-                <p class="text-xs text-slate-500 mt-1">
-                  {{ formatDate(application.date_filed) }}
-                </p>
-
+            <div class="flex flex-wrap gap-x-8 gap-y-2">
+              <div class="flex items-start">
+                <div
+                  class="w-2.5 h-2.5 bg-blue-600 rounded-full mt-1.5 mr-2 flex-shrink-0"
+                ></div>
+                <div>
+                  <p class="text-sm font-medium text-white leading-tight">
+                    Application Submitted
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    {{ formatDate(application.date_filed) }}
+                  </p>
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- Review -->
-            <div v-if="application.reviewed_at" class="flex items-start">
-
-              <div class="w-3 h-3 bg-yellow-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-
-              <div>
-
-                <p class="text-sm font-medium text-white">
-                  Recorded Decision
-                </p>
-
-                <p class="text-xs text-slate-500 mt-1">
-                  {{
-                    formatDate(
-                      application.reviewed_at
-                    )
-                  }}
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <!-- Approved -->
-            <div v-if="application.final_status === 'approved'" class="flex items-start">
-
-              <div class="w-3 h-3 bg-green-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-
-              <div>
-
-                <p class="text-sm font-medium text-white">
+              <div
+                v-if="application.final_status?.toLowerCase() === 'approved'"
+                class="flex items-start"
+              >
+                <div
+                  class="w-2.5 h-2.5 bg-green-600 rounded-full mt-1.5 mr-2 flex-shrink-0"
+                ></div>
+                <p class="text-sm font-medium text-white leading-tight">
                   Application Approved
                 </p>
-
-                <p class="text-xs text-slate-500 mt-1">
-                  {{
-                    formatDate(
-                      application.reviewed_at
-                    )
-                  }}
-                </p>
-
               </div>
 
-            </div>
-
-
-            <!-- Disapproved -->
-            <div v-if="application.final_status === 'disapproved'" class="flex items-start">
-
-              <div class="w-3 h-3 bg-red-500 rounded-full mt-1.5 mr-3 flex-shrink-0"></div>
-
-              <div>
-
-                <p class="text-sm font-medium text-white">
+              <div
+                v-if="application.final_status?.toLowerCase() === 'disapproved'"
+                class="flex items-start"
+              >
+                <div
+                  class="w-2.5 h-2.5 bg-red-600 rounded-full mt-1.5 mr-2 flex-shrink-0"
+                ></div>
+                <p class="text-sm font-medium text-white leading-tight">
                   Application Disapproved
                 </p>
-
-                <p class="text-xs text-slate-500 mt-1">
-                  {{
-                    formatDate(
-                      application.reviewed_at
-                    )
-                  }}
-                </p>
-
               </div>
-
             </div>
-
           </div>
-
         </div>
 
+        <!-- Footer (always visible) -->
+        <div
+          class="flex flex-col sm:flex-row justify-end gap-2 px-4 py-3 border-t border-gray-200"
+        >
+          <button
+            @click="viewForm(application)"
+            class="btn-action-lg bg-amber-600 hover:bg-amber-700"
+          >
+            View Form
+          </button>
+
+          <button
+            @click="closeEmployeeDetails"
+            class="btn-action-lg bg-gray-600 hover:bg-gray-700"
+          >
+            Close
+          </button>
+        </div>
       </div>
-
-
-      <!-- Modal Footer -->
-      <div class="px-6 py-4 border-t border-slate-700 flex justify-end">
-
-        <button @click="application = null"
-          class="px-5 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition text-sm">
-          Close
-        </button>
-
-      </div>
-
     </div>
-
-  </div>
-
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { notify } from "@/composables/useNotifications";
@@ -577,7 +723,6 @@ import {
   X,
 } from "lucide-vue-next";
 
-
 interface Application extends Record<string, any> {
   leave_id: string;
 
@@ -589,11 +734,7 @@ interface Application extends Record<string, any> {
   end_date: string;
   date_filed: string;
 
-  final_status:
-  | "pending"
-  | "approved"
-  | "disapproved"
-  | "on pr";
+  final_status: "pending" | "approved" | "disapproved" | "on pr";
 
   attachments?: Array<{
     attachment_id: number;
@@ -607,35 +748,135 @@ interface Application extends Record<string, any> {
   rejectedDate?: string;
 }
 
+const hasValue = (value: unknown) =>
+  value !== null && value !== undefined && String(value).trim() !== "";
 
-const leaveDetailRows = (record: Application): {label: string; value: string}[] => {
-  const rows: {label: string; value: string}[] = [];
-  const add = (label: string, value: any) => { if (value !== null && value !== undefined && value !== '') rows.push({label, value: String(value)}); };
-  add('Requested working days', record.number_of_days);
-  add('Reason', record.reason);
-  add('Commutation', record.commutation ? String(record.commutation).replace('_', ' ') : null);
-  add('Vacation location type', record.vacation_location_type?.replace('_', ' '));
-  add('Vacation location', record.vacation_location);
-  add('Treatment', record.sick_type?.replace('_', ' '));
-  add('Illness', record.illness);
-  if (record.masters_degree) add('Study purpose', "Completion of master’s degree");
-  if (record.board_exam_review) add('Study purpose', 'Board examination review');
-  if (record.monetization) add('Other purpose', 'Monetization');
-  if (record.terminal_leave) add('Other purpose', 'Terminal leave');
-  add('Other purpose', record.other_purpose);
-  add('Days with pay', record.days_with_pay);
-  add('Days without pay', record.days_without_pay);
-  add('Recommendation', record.recommendation_status);
-  add('Recommendation reason', record.recommendation_reason);
-  add('Other approval', record.other_approval);
-  add('Disapproval reason', record.disapproval_reason);
-  add('Recorded remarks', record.admin_remarks);
+const isTrue = (value: unknown) =>
+  value === true || value === 1 || value === "1";
+
+// "within_philippines" -> "Within Philippines"
+const formatLabel = (value?: string | null) =>
+  hasValue(value)
+    ? String(value)
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "";
+
+// Shows "-" instead of a misleading 0.000 when a credit value was not saved.
+const formatCredit = (value: unknown) =>
+  hasValue(value) && Number.isFinite(Number(value))
+    ? Number(value).toFixed(3)
+    : "-";
+
+const hasCreditsSnapshot = (application: Application) =>
+  [
+    application.vacation_total_earned,
+    application.vacation_less_application,
+    application.vacation_balance,
+    application.sick_total_earned,
+    application.sick_less_application,
+    application.sick_balance,
+  ].some(hasValue);
+
+// Only the details that apply to this application are returned.
+const getLeaveDetailRows = (application: Application) => {
+  const rows: Array<{ label: string; value: string }> = [];
+
+  if (hasValue(application.vacation_location_type)) {
+    rows.push({
+      label: "Vacation Location",
+      value: formatLabel(application.vacation_location_type),
+    });
+  }
+
+  if (hasValue(application.vacation_location)) {
+    rows.push({
+      label: "Specified Location",
+      value: String(application.vacation_location),
+    });
+  }
+
+  if (hasValue(application.sick_type)) {
+    rows.push({
+      label: "Sick Leave Type",
+      value: formatLabel(application.sick_type),
+    });
+  }
+
+  if (hasValue(application.illness)) {
+    rows.push({ label: "Illness", value: String(application.illness) });
+  }
+
+  if (isTrue(application.masters_degree)) {
+    rows.push({
+      label: "Study Leave",
+      value: "Completion of Master's Degree",
+    });
+  }
+
+  if (isTrue(application.board_exam_review)) {
+    rows.push({
+      label: "Study Leave",
+      value: "BAR/Board Examination Review",
+    });
+  }
+
+  if (isTrue(application.monetization)) {
+    rows.push({
+      label: "Other Purpose",
+      value: "Monetization of Leave Credits",
+    });
+  }
+
+  if (isTrue(application.terminal_leave)) {
+    rows.push({ label: "Other Purpose", value: "Terminal Leave" });
+  }
+
+  if (hasValue(application.other_purpose)) {
+    rows.push({
+      label: "Other Purpose",
+      value: String(application.other_purpose),
+    });
+  }
+
   return rows;
 };
 
-const isEditableApplication = (record: any) => record.final_status?.toLowerCase() === 'pending' && !record.reviewed_at && !record.signatory_snapshot_locked;
+const getLeaveType = (type: any) => type?.leave_type_name || "Not specified";
+const getEmployeeName = (employee: any) => {
+  if (!employee) return "Employee record unavailable";
+  const given = [employee.first_name, employee.middle_name]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    [employee.last_name, given].filter(Boolean).join(", ") ||
+    "Employee record unavailable"
+  );
+};
+const getEmployeePosition = (employee: any) =>
+  typeof employee?.position === "string"
+    ? employee.position
+    : employee?.position?.name || "Not available";
+const attachmentForRequirement = (record: Application, id: number) =>
+  record.attachments?.find(
+    (file: any) => Number(file.leave_document_requirement_id) === Number(id),
+  );
+const closeEmployeeDetails = () => {
+  if (!uploadingAttachments.value) {
+    resetAttachmentForm();
+    application.value = null;
+  }
+};
+const isEditableApplication = (record: any) =>
+  record.final_status?.toLowerCase() === "pending" &&
+  !record.reviewed_at &&
+  !record.signatory_snapshot_locked;
 const editForm = (record: any) => {
-  if (isEditableApplication(record)) router.push({ path: '/leave-application', query: { edit: record.leave_id } });
+  if (isEditableApplication(record))
+    router.push({
+      path: "/leave-application",
+      query: { edit: record.leave_id },
+    });
 };
 const router = useRouter();
 
@@ -647,12 +888,9 @@ const filterType = ref("");
 
 const showAllApplications = ref(false);
 
-const application =
-  ref<Application | null>(null);
+const application = ref<Application | null>(null);
 
-
-const applications =
-  ref<any[]>([]);
+const applications = ref<any[]>([]);
 
 const loading = ref(true);
 const showAttachmentForm = ref(false);
@@ -661,8 +899,8 @@ const uploadingAttachments = ref(false);
 const attachmentError = ref("");
 const attachmentInput = ref<HTMLInputElement | null>(null);
 
-const canAddAttachments = computed(() =>
-  application.value?.final_status?.toLowerCase() === "pending"
+const canAddAttachments = computed(
+  () => application.value?.final_status?.toLowerCase() === "pending",
 );
 
 const resetAttachmentForm = () => {
@@ -700,7 +938,7 @@ const handleAttachmentSelection = (event: Event) => {
   }
 
   const invalidFile = files.find(
-    (file) => !allowedExtensions.test(file.name) || file.size > maximumSize
+    (file) => !allowedExtensions.test(file.name) || file.size > maximumSize,
   );
 
   if (invalidFile) {
@@ -740,14 +978,14 @@ const uploadAdditionalAttachments = async () => {
   try {
     const response = await addMyLeaveAttachments(
       Number(application.value.leave_id),
-      selectedFiles.value
+      selectedFiles.value,
     );
 
     const updatedApplication = response.data;
     application.value.attachments = updatedApplication.attachments ?? [];
 
     const applicationIndex = applications.value.findIndex(
-      (item) => Number(item.leave_id) === Number(application.value?.leave_id)
+      (item) => Number(item.leave_id) === Number(application.value?.leave_id),
     );
 
     if (applicationIndex !== -1) {
@@ -764,7 +1002,9 @@ const uploadAdditionalAttachments = async () => {
 
     attachmentError.value =
       error.response?.data?.message ||
-      Object.values(validationErrors ?? {}).flat().join(" ") ||
+      Object.values(validationErrors ?? {})
+        .flat()
+        .join(" ") ||
       "Unable to upload supporting documents.";
   } finally {
     uploadingAttachments.value = false;
@@ -791,7 +1031,7 @@ const viewAttachment = async (file: {
   try {
     const blob = await downloadLeaveAttachment(
       Number(application.value.leave_id),
-      Number(file.attachment_id)
+      Number(file.attachment_id),
     );
     const url = URL.createObjectURL(blob);
     openedWindow.location.href = url;
@@ -817,27 +1057,14 @@ const viewForm = (application: any) => {
 };
 
 const loadApplications = async () => {
-
   try {
-
-    applications.value =
-      await getMyLeaves();
-
+    applications.value = await getMyLeaves();
   } catch (error) {
-
-    console.error(
-      "Failed loading applications",
-      error
-    );
-
+    console.error("Failed loading applications", error);
   } finally {
-
     loading.value = false;
-
   }
-
 };
-
 
 onMounted(async () => {
   // Deep links from the dashboard: ?status=pending or ?open=<leave_id>
@@ -858,63 +1085,40 @@ onMounted(async () => {
   }
 });
 
-
 const stats = computed(() => ({
+  total: applications.value.length,
 
-  total:
-    applications.value.length,
+  approved: applications.value.filter((app) => app.final_status === "approved")
+    .length,
 
-  approved:
-    applications.value.filter(
-      (app) =>
-        app.final_status === "approved"
-    ).length,
+  pending: applications.value.filter((app) => app.final_status === "pending")
+    .length,
 
-  pending:
-    applications.value.filter(
-      (app) =>
-        app.final_status === "pending"
-    ).length,
-
-  disapproved:
-    applications.value.filter(
-      (app) =>
-        app.final_status === "disapproved"
-    ).length,
-
+  disapproved: applications.value.filter(
+    (app) => app.final_status === "disapproved",
+  ).length,
 }));
 
-
 const filteredApplications = computed(() => {
-
   const search = searchQuery.value.trim().toLowerCase();
 
   return applications.value
     .filter((app) => {
+      const leaveType = app.leave_type?.leave_type_name?.toLowerCase() || "";
 
-      const leaveType =
-        app.leave_type?.leave_type_name?.toLowerCase() || "";
+      const status = app.final_status?.toLowerCase() || "";
 
-      const status =
-        app.final_status?.toLowerCase() || "";
+      const leaveId = String(app.leave_id || "").toLowerCase();
 
-      const leaveId =
-        String(app.leave_id || "").toLowerCase();
+      const reason = app.reason?.toLowerCase() || "";
 
-      const reason =
-        app.reason?.toLowerCase() || "";
+      const dateFiled = app.date_filed?.toLowerCase() || "";
 
-      const dateFiled =
-        app.date_filed?.toLowerCase() || "";
+      const startDate = app.start_date?.toLowerCase() || "";
 
-      const startDate =
-        app.start_date?.toLowerCase() || "";
+      const endDate = app.end_date?.toLowerCase() || "";
 
-      const endDate =
-        app.end_date?.toLowerCase() || "";
-
-      const vacationLocation =
-        app.vacation_location?.toLowerCase() || "";
+      const vacationLocation = app.vacation_location?.toLowerCase() || "";
 
       const matchesSearch =
         search === "" ||
@@ -936,28 +1140,21 @@ const filteredApplications = computed(() => {
         leaveType.includes(filterType.value.toLowerCase());
 
       return matchesSearch && matchesStatus && matchesType;
-
     })
     .sort((a, b) => {
       return (
-        new Date(b.date_filed).getTime() -
-        new Date(a.date_filed).getTime()
+        new Date(b.date_filed).getTime() - new Date(a.date_filed).getTime()
       );
     });
-
 });
 
-
 const displayedApplications = computed(() => {
-
   if (showAllApplications.value) {
     return filteredApplications.value;
   }
 
   return filteredApplications.value.slice(0, 15);
-
 });
-
 
 const clearFilters = () => {
   searchQuery.value = "";
@@ -965,13 +1162,8 @@ const clearFilters = () => {
   filterType.value = "";
 };
 
-
-const getStatusClass = (
-  status: string
-) => {
-
+const getStatusClass = (status: string) => {
   switch (status) {
-
     case "approved":
       return "status-approved";
 
@@ -986,88 +1178,74 @@ const getStatusClass = (
 
     default:
       return "status-default";
-
   }
-
 };
 
-
-const formatDate = (
-  dateString?: string | null
-) => {
-
+const formatDate = (dateString?: string | null) => {
   if (!dateString || Number.isNaN(new Date(dateString).getTime())) return "—";
-  return new Date(
-    dateString
-  ).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }
-  );
-
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 };
 
+const formatDateRange = (startDate: string, endDate: string) => {
+  const start = new Date(startDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 
-const formatDateRange = (
-  startDate: string,
-  endDate: string
-) => {
-
-  const start =
-    new Date(
-      startDate
-    ).toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-      }
-    );
-
-
-  const end =
-    new Date(
-      endDate
-    ).toLocaleDateString(
-      "en-US",
-      {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }
-    );
-
+  const end = new Date(endDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return `${start} - ${end}`;
-
 };
 
-
-const viewDetails = (
-  app: Application
-) => {
+const viewDetails = (app: Application) => {
   resetAttachmentForm();
   application.value = app;
-
 };
-
 </script>
 
-
 <style scoped>
-.detail-modal-backdrop { background: rgba(0,0,0,.7); backdrop-filter: blur(4px); }
-.employee-detail-modal { background: var(--surface); }
-.employee-detail-modal .text-white { color: var(--text); }
-.employee-detail-modal .text-slate-400,.employee-detail-modal .text-slate-500 { color: var(--text-muted); }
-.employee-detail-modal .modal-section { background: var(--surface); border: 1px solid var(--border); padding: .75rem; border-radius: .4rem; }
-.employee-detail-modal .modal-title { font-size: .875rem; font-weight: 700; margin-bottom: .4rem; }
-.employee-detail-modal button.text-white { color: #fff; }
-.employee-detail-modal .modal-label { color: var(--text-muted); }
-.employee-detail-modal .modal-value { color: var(--text); }
-
+.detail-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+.employee-detail-modal {
+  background: var(--surface);
+}
+.employee-detail-modal .text-white {
+  color: var(--text);
+}
+.employee-detail-modal .text-slate-400,
+.employee-detail-modal .text-slate-500 {
+  color: var(--text-muted);
+}
+.employee-detail-modal .modal-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  border-radius: 0.4rem;
+}
+.employee-detail-modal .modal-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.employee-detail-modal button.text-white {
+  color: #fff;
+}
+.employee-detail-modal .modal-label {
+  color: var(--text-muted);
+}
+.employee-detail-modal .modal-value {
+  color: var(--text);
+}
 
 /* =========================================
    DASHBOARD BACKGROUND
@@ -1078,7 +1256,6 @@ const viewDetails = (
   color: var(--text);
 }
 
-
 /* =========================================
    MAIN CARD
 ========================================= */
@@ -1088,13 +1265,14 @@ const viewDetails = (
   border: 1px solid var(--border);
   border-radius: 1.4rem;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .neo-card:hover {
   box-shadow: 0 14px 26px rgba(15, 23, 42, 0.2);
 }
-
 
 /* =========================================
    STATISTICS CARDS
@@ -1108,7 +1286,6 @@ const viewDetails = (
   border-radius: 0.9rem;
 }
 
-
 /* =========================================
    INPUTS
 ========================================= */
@@ -1121,7 +1298,10 @@ const viewDetails = (
   color: var(--text);
   font-size: 0.875rem;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .dark-input:focus {
@@ -1149,7 +1329,9 @@ const viewDetails = (
   color: #fff;
   border-radius: 9999px;
   white-space: nowrap;
-  transition: background-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .btn-action:active {
@@ -1189,7 +1371,6 @@ tbody tr:hover {
   background: var(--surface-muted);
 }
 
-
 /* =========================================
    STATUS BADGES
 ========================================= */
@@ -1224,7 +1405,6 @@ tbody tr:hover {
   border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
-
 /* =========================================
    MODAL SECTIONS
 ========================================= */
@@ -1255,7 +1435,6 @@ tbody tr:hover {
   font-weight: 500;
 }
 
-
 /* =========================================
    GENERAL TYPOGRAPHY
 ========================================= */
@@ -1267,13 +1446,11 @@ tbody tr:hover {
   letter-spacing: -0.01em;
 }
 
-
 /* =========================================
    RESPONSIVE
 ========================================= */
 
 @media (max-width: 640px) {
-
   .table-header {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -1283,6 +1460,42 @@ tbody tr:hover {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+}
 
+/* Match the Admin View Details modal, including its attachment rows. */
+.employee-detail-modal {
+  background: var(--surface);
+}
+.employee-detail-modal .modal-section {
+  background: #f8fafc;
+  border: 1px solid #d8e1eb;
+  border-radius: 0;
+  padding: 0.75rem;
+}
+.employee-detail-modal .text-white {
+  color: var(--text) !important;
+}
+.employee-detail-modal .text-gray-400 {
+  color: var(--text-muted) !important;
+}
+.employee-detail-modal button.bg-blue-600 {
+  color: #fff !important;
+}
+.employee-detail-modal .btn-action-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff !important;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+@media (min-width: 640px) {
+  .employee-detail-modal .btn-action-lg {
+    width: auto;
+  }
 }
 </style>
