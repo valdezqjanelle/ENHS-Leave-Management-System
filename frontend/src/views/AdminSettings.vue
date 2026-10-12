@@ -1,16 +1,16 @@
  
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
-    <div class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
-      <h1 class="text-2xl font-semibold" style="color: var(--text);">Admin Settings</h1>
+    <div class="neo-card p-6">
+      <h1 class="text-2xl font-bold text-[var(--text)]">Admin Settings</h1>
 
-      <p class="mt-2" style="color: var(--text-muted);">
+      <p class="text-[var(--text-muted)] mt-2">
         Manage system configuration and administration settings.
       </p>
     </div>
 
-    <div class="rounded-lg border" style="border-color: var(--border); background: var(--surface);">
-      <div class="border-b px-6" style="border-color: var(--border);">
+    <div class="neo-card">
+      <div class="border-b border-[#cbd8e8] px-6">
         <nav class="flex flex-wrap gap-6">
           <button
             v-for="tab in tabs"
@@ -19,10 +19,9 @@
             :class="[
               'py-4 text-sm font-medium transition',
               activeTab === tab.id
-                ? 'border-b-2'
-                : 'hover:text-[var(--text)]',
+                ? 'text-[#2563eb] border-b-2 border-[#2563eb]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text)]',
             ]"
-            :style="activeTab === tab.id ? 'color: var(--primary); border-color: var(--primary);' : 'color: var(--text-muted);'"
           >
             {{ tab.name }}
           </button>
@@ -30,43 +29,55 @@
       </div>
     </div>
 
-    <div v-if="activeTab === 'account'" class="p-6 rounded-lg border" style="border-color: var(--border); background: var(--surface);">
-      <h2 class="text-xl font-semibold mb-2" style="color: var(--text);">
+    <div v-if="activeTab === 'account'" class="neo-card p-6">
+      <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
         Account Settings
       </h2>
 
-      <p class="mb-6" style="color: var(--text-muted);">
+      <p class="text-[var(--text-muted)] mb-6">
         Manage administrator account information and security.
       </p>
 
-      <section class="photo-settings mb-6" aria-labelledby="photo-settings-title">
-        <h3 id="photo-settings-title" class="text-lg font-medium text-[var(--text)] mb-4">Profile Photo</h3>
-        <div class="photo-controls">
-          <div class="photo-preview">
-            <img v-if="photoSource" :src="photoSource" alt="Your profile photo" @error="photoFailed = true" />
-            <span v-else>{{ employeeName.charAt(0).toUpperCase() || 'U' }}</span>
-          </div>
-          <div class="photo-actions">
-            <label for="profile-photo-file" class="block text-sm font-medium text-[var(--text)] mb-2">Choose a photo</label>
-            <input id="profile-photo-file" ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp" :disabled="photoBusy" @change="selectPhoto" />
-            <p class="text-sm text-[var(--text-muted)] mt-2">JPG, PNG or WebP. Maximum 2 MB and 4096 × 4096 pixels.</p>
-            <div class="flex flex-wrap gap-2 mt-3">
-              <button type="button" :disabled="!selectedPhoto || photoBusy" @click="savePhoto" class="photo-save">{{ photoBusy ? 'Please wait…' : 'Save Photo' }}</button>
-              <button v-if="selectedPhoto" type="button" :disabled="photoBusy" @click="clearPhotoSelection" class="photo-cancel">Cancel</button>
-              <button v-if="hasPhoto" type="button" :disabled="photoBusy" @click="deletePhoto" class="photo-remove">Remove Photo</button>
-            </div>
-          </div>
+      <div class="admin-photo-header">
+        <div class="admin-photo-avatar">
+          <img v-if="photoSource" :src="photoSource" alt="Your profile photo" @error="photoFailed = true" />
+          <span v-else>{{ (adminProfile.first_name.charAt(0) + adminProfile.last_name.charAt(0)).toUpperCase() || 'U' }}</span>
         </div>
-        <p v-if="photoError" role="alert" class="text-red-600 mt-3">{{ photoError }}</p>
-      </section>
+        <button type="button" class="edit-photo-button" :aria-expanded="photoEditorOpen" aria-controls="admin-photo-editor" :disabled="photoBusy" @click="togglePhotoEditor">
+          <Pencil class="w-4 h-4" aria-hidden="true" /> Edit Photo
+        </button>
+      </div>
+    <section v-if="photoEditorOpen" id="admin-photo-editor" class="photo-editor mt-6" aria-labelledby="admin-photo-title">
+      <h3 id="admin-photo-title" class="text-lg font-semibold text-[var(--text)] mb-2">Profile Photo</h3>
+      <p class="text-sm text-[var(--text-muted)] mb-4">Choose a photo to preview above, then save it to your profile.</p>
+      <label for="admin-photo-file" class="block text-sm font-medium text-[var(--text)] mb-2">Choose a photo</label>
+      <input id="admin-photo-file" ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp" :disabled="photoBusy" @change="selectPhoto" class="photo-file-input" />
+      <p class="text-sm text-[var(--text-muted)] mt-2">JPG, PNG or WebP. Maximum 2 MB and 4096 × 4096 pixels.</p>
+      <div v-if="selectedPhoto" class="crop-controls">
+        <p class="text-sm text-[var(--text-muted)] mb-2">Drag the photo and adjust zoom. The area inside the circle will appear on your profile.</p>
+        <div class="crop-stage">
+          <canvas ref="cropCanvas" width="280" height="280" aria-label="Profile photo crop preview" @pointerdown="startCropDrag" @pointermove="moveCropDrag" @pointerup="endCropDrag" @pointercancel="endCropDrag"></canvas>
+          <div class="crop-circle" aria-hidden="true"></div>
+        </div>
+        <label for="admin-photo-zoom" class="crop-zoom-label">Zoom</label>
+        <input id="admin-photo-zoom" type="range" min="1" max="3" step="0.01" v-model.number="cropZoom" :disabled="photoBusy || !cropReady" @input="drawCrop" />
+        <button type="button" class="photo-cancel" :disabled="photoBusy || !cropReady" @click="resetCrop">Reset Position</button>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button type="button" :disabled="!selectedPhoto || !cropReady || photoBusy" @click="savePhoto" class="photo-save">{{ photoBusy ? 'Please wait…' : 'Save Photo' }}</button>
+        <button v-if="selectedPhoto" type="button" :disabled="photoBusy" @click="clearPhotoSelection" class="photo-cancel">Cancel</button>
+        <button v-if="hasPhoto" type="button" :disabled="photoBusy" @click="deletePhoto" class="photo-remove">Remove Photo</button>
+      </div>
+      <p v-if="photoError" role="alert" class="text-red-600 mt-3">{{ photoError }}</p>
+    </section>
 
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold" style="color: var(--text);">
+            <h3 class="text-lg font-semibold text-[var(--text)]">
               Administrator Profile
             </h3>
-            <p class="text-sm" style="color: var(--text-muted);">
+            <p class="text-sm text-[var(--text-muted)]">
               Update your administrator information.
             </p>
           </div>
@@ -75,8 +86,7 @@
             v-if="!isEditingProfile"
             @click="startEditProfile"
             type="button"
-            class="px-4 py-2 rounded-lg text-white"
-            style="background: var(--warning);"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
           >
             Edit Profile
           </button>
@@ -85,8 +95,7 @@
             <button
               @click="cancelEditProfile"
               type="button"
-              class="px-4 py-2 border rounded-lg"
-              style="border-color: var(--border); color: var(--text-muted);"
+              class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]"
             >
               Cancel
             </button>
@@ -94,8 +103,7 @@
             <button
               @click="saveAdminProfile"
               type="button"
-              class="px-4 py-2 rounded-lg text-white"
-              style="background: var(--primary);"
+              class="bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-lg"
             >
               Save Changes
             </button>
@@ -104,7 +112,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium" style="color: var(--text-muted);">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               First Name
             </label>
 
@@ -116,12 +124,11 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
-              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium" style="color: var(--text-muted);">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Middle Name
             </label>
 
@@ -133,12 +140,11 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
-              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium" style="color: var(--text-muted);">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Last Name
             </label>
 
@@ -150,12 +156,11 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
-              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             />
           </div>
 
           <div>
-            <label class="block text-sm font-medium" style="color: var(--text-muted);">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Sex
             </label>
 
@@ -166,7 +171,6 @@
                 'mt-1 w-full border rounded-lg px-3 py-2',
                 isEditingProfile ? 'field-editable' : 'field-readonly',
               ]"
-              style="border-color: var(--border); background: var(--surface); color: var(--text);"
             >
               <option value="">Select Sex</option>
               <option value="Male">Male</option>
@@ -175,7 +179,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium" style="color: var(--text-muted);">
+            <label class="block text-sm font-medium text-[var(--text-muted)]">
               Extension Name
             </label>
 
@@ -2050,7 +2054,8 @@
 
 <script setup lang="ts">
 import { confirmAction, notify } from "@/composables/useNotifications";
-import { onBeforeUnmount, onMounted, ref, computed, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, computed, watch, nextTick } from "vue";
+import { Pencil } from "lucide-vue-next";
 import { getAdminPhoto, uploadAdminPhoto, removeAdminPhoto } from "@/services/adminPhoto";
 import {
   getAdminProfile,
@@ -2424,6 +2429,11 @@ const loadPositions = async () => {
   }
 };
 
+const photoEditorOpen = ref(false)
+const togglePhotoEditor = () => {
+  photoEditorOpen.value = !photoEditorOpen.value
+  if (!photoEditorOpen.value) { clearPhotoSelection(); photoError.value = '' }
+}
 const savedPhoto = ref('')
 const hasPhoto = ref(false)
 const photoFailed = ref(false)
@@ -2431,16 +2441,68 @@ const selectedPhoto = ref<File | null>(null)
 const previewPhoto = ref('')
 const photoBusy = ref(false)
 const photoInput = ref<HTMLInputElement | null>(null)
-const employeeName = ref('')
 const photoSource = computed(() => previewPhoto.value || (photoFailed.value ? '' : savedPhoto.value))
 const photoError = ref('')
+const cropCanvas = ref<HTMLCanvasElement | null>(null)
+const cropZoom = ref(1)
+const cropReady = ref(false)
+let cropImage: HTMLImageElement | null = null
+let cropX = 0
+let cropY = 0
+let dragPoint: { x: number; y: number; pointer: number } | null = null
+let selectionVersion = 0
+const cropSize = 280
+const drawCrop = () => {
+  const canvas = cropCanvas.value
+  if (!canvas || !cropImage || !cropReady.value) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const scale = Math.max(cropSize / cropImage.naturalWidth, cropSize / cropImage.naturalHeight) * cropZoom.value
+  const width = cropImage.naturalWidth * scale
+  const height = cropImage.naturalHeight * scale
+  cropX = Math.max(-(width - cropSize) / 2, Math.min((width - cropSize) / 2, cropX))
+  cropY = Math.max(-(height - cropSize) / 2, Math.min((height - cropSize) / 2, cropY))
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, cropSize, cropSize)
+  ctx.drawImage(cropImage, (cropSize - width) / 2 + cropX, (cropSize - height) / 2 + cropY, width, height)
+  // Keep the round avatar above in sync with the crop preview.
+  previewPhoto.value = canvas.toDataURL('image/jpeg', .9)
+}
+const resetCrop = () => {
+  cropZoom.value = 1
+  cropX = 0
+  cropY = 0
+  drawCrop()
+}
+const startCropDrag = (event: PointerEvent) => {
+  if (photoBusy.value || !cropReady.value || (event.pointerType === 'mouse' && event.button !== 0)) return
+  cropCanvas.value?.setPointerCapture(event.pointerId)
+  dragPoint = { x: event.clientX, y: event.clientY, pointer: event.pointerId }
+}
+const moveCropDrag = (event: PointerEvent) => {
+  if (!dragPoint || dragPoint.pointer !== event.pointerId || photoBusy.value) return
+  const rect = cropCanvas.value?.getBoundingClientRect()
+  if (!rect || !rect.width) return
+  cropX += (event.clientX - dragPoint.x) * cropSize / rect.width
+  cropY += (event.clientY - dragPoint.y) * cropSize / rect.height
+  dragPoint.x = event.clientX
+  dragPoint.y = event.clientY
+  drawCrop()
+}
+const endCropDrag = (event: PointerEvent) => {
+  if (dragPoint?.pointer === event.pointerId) dragPoint = null
+}
 const clearPhotoSelection = () => {
+  selectionVersion += 1
+  cropReady.value = false
+  cropImage = null
+  dragPoint = null
   if (previewPhoto.value) URL.revokeObjectURL(previewPhoto.value)
   previewPhoto.value = ''
   selectedPhoto.value = null
   if (photoInput.value) photoInput.value.value = ''
 }
-const selectPhoto = (event: Event) => {
+const selectPhoto = async (event: Event) => {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   clearPhotoSelection()
@@ -2448,28 +2510,66 @@ const selectPhoto = (event: Event) => {
   if (!file) return
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
     photoError.value = 'Choose a JPG, PNG or WebP image up to 2 MB.'
-    input.value = ''
     return
   }
-  selectedPhoto.value = file
-  previewPhoto.value = URL.createObjectURL(file)
-  photoFailed.value = false
+  const version = selectionVersion
+  const url = URL.createObjectURL(file)
+  try {
+    const image = new Image()
+    image.src = url
+    await image.decode()
+    if (version !== selectionVersion) return
+    if (image.naturalWidth > 4096 || image.naturalHeight > 4096) {
+      photoError.value = 'Choose an image no larger than 4096 × 4096 pixels.'
+      return
+    }
+    selectedPhoto.value = file
+    cropImage = image
+    await nextTick()
+    if (version !== selectionVersion) return
+    cropReady.value = true
+    photoFailed.value = false
+    resetCrop()
+  } catch {
+    if (version === selectionVersion) photoError.value = 'Unable to read this image. Please choose another photo.'
+  } finally {
+    URL.revokeObjectURL(url)
+  }
 }
 const photoRequestError = (error: any) => {
   const validation = error.response?.data?.errors?.photo
   photoError.value = validation?.[0] || error.response?.data?.message || 'Unable to update your photo.'
 }
 const savePhoto = async () => {
-  if (!selectedPhoto.value || photoBusy.value) return
+  if (!selectedPhoto.value || !cropReady.value || photoBusy.value) return
   photoBusy.value = true
   photoError.value = ''
   try {
-    const data = await uploadAdminPhoto(selectedPhoto.value)
+    const canvas = cropCanvas.value
+    if (!canvas || !cropImage) throw new Error('Crop is unavailable.')
+    // Export the same square shown in the circle at a sharper resolution.
+    const output = document.createElement('canvas')
+    output.width = output.height = 512
+    const ctx = output.getContext('2d')
+    if (!ctx) throw new Error('Image editing is unavailable.')
+    const scale = Math.max(cropSize / cropImage.naturalWidth, cropSize / cropImage.naturalHeight) * cropZoom.value
+    const ratio = 512 / cropSize
+    const width = cropImage.naturalWidth * scale
+    const height = cropImage.naturalHeight * scale
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(0, 0, 512, 512)
+    ctx.drawImage(cropImage, ((cropSize - width) / 2 + cropX) * ratio, ((cropSize - height) / 2 + cropY) * ratio, width * ratio, height * ratio)
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      output.toBlob(value => value ? resolve(value) : reject(new Error('Unable to crop photo.')), 'image/jpeg', .9)
+    })
+    const croppedFile = new File([blob], 'profile-photo.jpg', { type: 'image/jpeg' })
+    const data = await uploadAdminPhoto(croppedFile)
     savedPhoto.value = data.photo_url || ''
     hasPhoto.value = data.has_photo
     photoFailed.value = false
     clearPhotoSelection()
     window.dispatchEvent(new Event('els-profile-photo-updated'))
+    photoEditorOpen.value = false
     notify('Profile photo saved successfully.')
   } catch (error) { photoRequestError(error) }
   finally { photoBusy.value = false }
@@ -2484,6 +2584,7 @@ const deletePhoto = async () => {
     hasPhoto.value = false
     clearPhotoSelection()
     window.dispatchEvent(new Event('els-profile-photo-updated'))
+    photoEditorOpen.value = false
     notify('Profile photo removed.')
   } catch (error) { photoRequestError(error) }
   finally { photoBusy.value = false }
@@ -2497,9 +2598,7 @@ onMounted(async () => {
     hasPhoto.value = Boolean(data.has_photo)
   } catch (error) { photoRequestError(error) }
 })
-watch(() => [adminProfile.value.first_name, adminProfile.value.last_name], () => {
-  employeeName.value = [adminProfile.value.first_name, adminProfile.value.last_name].filter(Boolean).join(' ')
-}, { immediate: true })
+
 
 const adminProfileBackup = ref({ ...adminProfile.value });
 
@@ -3497,6 +3596,22 @@ onBeforeUnmount(releaseSignatoryPreviewUrls);
 </script>
 
 <style scoped>
+.admin-photo-header { display: flex; flex-direction: column; align-items: center; gap: .5rem; width: fit-content; margin-bottom: 1.5rem; }
+.admin-photo-avatar { width: 112px; height: 112px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; font-size: 2rem; font-weight: 600; }
+.admin-photo-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.crop-controls { margin-top: 1rem; }
+.crop-stage { position: relative; width: 280px; max-width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: .75rem; background: #e2e8f0; }
+.crop-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.crop-stage canvas:active { cursor: grabbing; }
+.crop-circle { position: absolute; inset: 0; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 100px rgba(15,23,42,.5); pointer-events: none; }
+.crop-zoom-label { display: block; margin: .75rem 0 .25rem; color: var(--text); font-size: .875rem; }
+.crop-controls input[type=range] { display: block; width: 280px; max-width: 100%; margin-bottom: .75rem; accent-color: #2563eb; }
+
+.edit-photo-button { display: inline-flex; align-items: center; gap: .4rem; padding: .4rem .65rem; border: 1px solid var(--border); border-radius: .5rem; color: var(--primary); background: var(--surface); font-size: .8rem; font-weight: 600; }
+.edit-photo-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.photo-editor { padding-top: 1.25rem; border-top: 1px solid var(--border); }
+
+
 .photo-settings { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
 .photo-controls { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .photo-preview { width: 96px; height: 96px; flex-shrink: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; font-size: 2rem; font-weight: 700; }
