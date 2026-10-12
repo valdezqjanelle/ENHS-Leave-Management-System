@@ -71,15 +71,7 @@ const router = createRouter({
           },
         },
 
-        {
-          path: "/teaching-personnel",
-          name: "teaching-personnel",
-          component: () => import("../views/TeachingPersonnel.vue"),
-          meta: {
-            requiresAuth: true,
-            role: "admin",
-          },
-        },
+        
         {
           path: "/teaching-setup",
           name: "teaching-setup",
@@ -87,15 +79,7 @@ const router = createRouter({
           meta: { requiresAuth: true, role: "admin" },
         },
 
-        {
-          path: "/non-teaching-personnel",
-          name: "non-teaching-personnel",
-          component: () => import("../views/NonTeachingPersonnel.vue"),
-          meta: {
-            requiresAuth: true,
-            role: "admin",
-          },
-        },
+        
 
         {
           path: "/my-applications",
