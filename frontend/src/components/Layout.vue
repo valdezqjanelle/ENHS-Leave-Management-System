@@ -81,17 +81,13 @@
               Employees
             </router-link>
 
-            <router-link to="/teaching-personnel" class="nav-subitem">
-              Teaching Personnel
-            </router-link>
+            
 
             <router-link to="/teaching-setup" class="nav-subitem">
               Teaching Setup
             </router-link>
 
-            <router-link to="/non-teaching-personnel" class="nav-subitem">
-              Non-Teaching Personnel
-            </router-link>
+            
           </div>
         </div>
 
@@ -495,9 +491,9 @@ const pageTitle = computed(() => {
     "/dashboard": "Dashboard",
     "/admin-applications": "Applications",
     "/employees": "Employees",
-    "/teaching-personnel": "Teaching Personnel",
+
     "/teaching-setup": "Teaching Setup",
-    "/non-teaching-personnel": "Non-Teaching Personnel",
+    
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
