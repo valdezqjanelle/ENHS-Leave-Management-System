@@ -92,6 +92,11 @@ return [
     'sl_less_this_application' => ['x' => 240, 'y' => 599],
     'vl_balance'                => ['x' => 240, 'y' => 611],
     'sl_balance'                => ['x' => 165, 'y' => 611],
+    // Authorized Officer name: centred just above the 7.A signature line.
+    // 'y' is the Y of that line (it spans x 82-295 at y 643.5). The name's
+    // baseline sits a few points above it and the font shrinks (min 6pt) to
+    // fit 'width', which is centred on the 'x'..'x'+'width' box.
+    'authorized_officer_name'  => ['x' => 71, 'y' => 643.5, 'width' => 235],
 
     // ── Section 7.B: Recommendation ─────────────────────────────
     'chk_for_approval'         => ['x' => 325, 'y' => 566],
@@ -112,5 +117,12 @@ return [
     'disapproved_reason_l1' => ['x' => 337, 'y' => 678],
     'disapproved_reason_l2' => ['x' => 337, 'y' => 691],
     'disapproved_reason_l3' => ['x' => 337, 'y' => 702],
+
+    // ── School Division Superintendent ───────────────────────────
+    // Name centred just above the signature line at the bottom of 7.C/7.D.
+    // 'y' is the Y of that line (it spans x 224-359 at y 756.6). Centre of the
+    // box is x 291, matching the line; the box is wider than the line so long
+    // names can shrink less before they would collide with anything.
+    'school_division_superintendent_name' => ['x' => 161, 'y' => 756.6, 'width' => 260],
 
 ];

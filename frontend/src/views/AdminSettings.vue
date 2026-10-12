@@ -1,33 +1,6 @@
  
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
-    <div class="neo-card p-6">
-      <h1 class="text-2xl font-bold text-[var(--text)]">Admin Settings</h1>
-
-      <p class="text-[var(--text-muted)] mt-2">
-        Manage system configuration and administration settings.
-      </p>
-    </div>
-
-    <div class="neo-card">
-      <div class="border-b border-[#cbd8e8] px-6">
-        <nav class="flex flex-wrap gap-6">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            @click="activeTab = tab.id"
-            :class="[
-              'py-4 text-sm font-medium transition',
-              activeTab === tab.id
-                ? 'text-[#2563eb] border-b-2 border-[#2563eb]'
-                : 'text-[var(--text-muted)] hover:text-[var(--text)]',
-            ]"
-          >
-            {{ tab.name }}
-          </button>
-        </nav>
-      </div>
-    </div>
 
     <div v-if="activeTab === 'account'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
@@ -1426,6 +1399,26 @@
           </button>
         </div>
       </form>
+
+      <AuthorityNameCard
+        class="mt-6"
+        title="7.A Authorized Officer"
+        description="Printed above the “Authorized Officer” line in block 7.A (Certification of Leave Credits) of newly generated CS Form No. 6 documents. Forms already finalized keep the name they were approved with."
+        save-label="Save Authorized Officer"
+        id-prefix="authorized-officer"
+        :load="getAuthorizedOfficer"
+        :save="saveAuthorizedOfficer"
+      />
+
+      <AuthorityNameCard
+        class="mt-6"
+        title="School Division Superintendent"
+        description="Printed above the “School Division Superintendent” line at the bottom of blocks 7.C and 7.D of newly generated CS Form No. 6 documents. Forms already finalized keep the name they were approved with."
+        save-label="Save School Division Superintendent"
+        id-prefix="school-division-superintendent"
+        :load="getSchoolDivisionSuperintendent"
+        :save="saveSchoolDivisionSuperintendent"
+      />
     </div>
 
     <div v-if="activeTab === 'audit'" class="neo-card p-6">
@@ -2054,6 +2047,7 @@
 
 <script setup lang="ts">
 import { confirmAction, notify } from "@/composables/useNotifications";
+import { useRoute } from "vue-router";
 import { onBeforeUnmount, onMounted, ref, computed, watch, nextTick } from "vue";
 import { Pencil } from "lucide-vue-next";
 import { getAdminPhoto, uploadAdminPhoto, removeAdminPhoto } from "@/services/adminPhoto";
@@ -2097,6 +2091,13 @@ import {
   getAuthorizedSignatorySignature,
   saveAuthorizedSignatory,
 } from "@/services/authorizedSignatory";
+import AuthorityNameCard from "@/components/AuthorityNameCard.vue";
+import {
+  getAuthorizedOfficer,
+  saveAuthorizedOfficer,
+  getSchoolDivisionSuperintendent,
+  saveSchoolDivisionSuperintendent,
+} from "@/services/approvingAuthorities";
 
 import {
   createDatabaseBackup,
@@ -2113,7 +2114,18 @@ import {
 } from "@/services/holiday";
 import block7bImage from "@/assets/cs-form-6-block-7b.png";
 
-const activeTab = ref("account");
+const route = useRoute();
+const validSections = new Set(["account", "leave", "holidays", "approval", "system", "signatory", "audit", "backup"]);
+const activeTab = ref(validSections.has(String(route.query.section || "account")) ? String(route.query.section || "account") : "account");
+
+watch(
+  () => route.query.section,
+  (section) => {
+    const nextSection = String(section || "account");
+    activeTab.value = validSections.has(nextSection) ? nextSection : "account";
+  },
+  { immediate: true },
+);
 const signatoryForm = ref<{
   name: string;
   designation: string;
@@ -2349,41 +2361,7 @@ const formatAuditDate = (dateStr: string) => {
   });
 };
 
-const tabs = [
-  {
-    id: "account",
-    name: "Account Settings",
-  },
-  {
-    id: "leave",
-    name: "Leave Settings",
-  },
-  // hide muna this 
-  // {
-  //   id: "holidays",
-  //   name: "Holidays & Non-Working Days",
-  // },
-  // {
-  //   id: "approval",
-  //   name: "Approval Settings",
-  // },
-  // {
-  //   id: "system",
-  //   name: "System Settings",
-  // },
-  {
-    id: "signatory",
-    name: "Authorized Signatory",
-  },
-  {
-    id: "audit",
-    name: "Audit Logs",
-  },
-  {
-    id: "backup",
-    name: "Backup",
-  },
-];
+
 
 const adminEmail = ref("");
 const adminProfile = ref({

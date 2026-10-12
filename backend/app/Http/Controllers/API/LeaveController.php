@@ -15,6 +15,7 @@ use App\Models\LeaveType;
 use App\Models\LeaveDocumentRequirement;
 use App\Models\AuthorizedSignatory;
 use App\Services\WorkingDayCalculator;
+use App\Support\ApprovingAuthorities;
 use App\Support\AuditLogger;
 
 // use Barryvdh\DomPDF\Facade\Pdf;
@@ -1162,6 +1163,27 @@ foreach ($coords as $field => $point) {
         $pdf->SetFont('helvetica', '', 8);
     }
 
+    // 7.A Authorized Officer and School Division Superintendent: names only.
+    // Finalized forms print the names captured when they were approved;
+    // pending forms print the current Admin Settings values.
+    $this->printAuthorityName(
+        $pdf,
+        $coords,
+        'authorized_officer_name',
+        $leave->signatory_snapshot_locked
+            ? $leave->authorized_officer_name_snapshot
+            : ApprovingAuthorities::officerName()
+    );
+
+    $this->printAuthorityName(
+        $pdf,
+        $coords,
+        'school_division_superintendent_name',
+        $leave->signatory_snapshot_locked
+            ? $leave->school_division_superintendent_name_snapshot
+            : ApprovingAuthorities::superintendentName()
+    );
+
     $middleInitial = '';
 
 if (!empty($employee->middle_name)) {
@@ -1283,6 +1305,37 @@ $text(
         ]
     );
 }
+    /**
+     * Print a name centred just above a signature line. $coords[$key]['y'] is
+     * the line's Y; the text is bottom-aligned in a box that ends 1pt above it,
+     * so the position does not depend on the font size. The font shrinks
+     * (down to 6pt) when a long name would not fit the box width.
+     */
+    private function printAuthorityName($pdf, array $coords, string $key, $name): void
+    {
+        $name = trim((string) $name);
+
+        if ($name === '' || !isset($coords[$key])) {
+            return;
+        }
+
+        $c = $coords[$key];
+        $size = 8;
+        $boxHeight = 12;
+
+        $pdf->SetFont('times', 'B', $size);
+
+        while ($size > 6 && $pdf->GetStringWidth($name) > $c['width']) {
+            $size -= 0.25;
+            $pdf->SetFont('times', 'B', $size);
+        }
+
+        $pdf->SetXY($c['x'], $c['y'] - 1 - $boxHeight);
+        $pdf->Cell($c['width'], $boxHeight, $name, 0, 0, 'C', false, '', 0, false, 'T', 'B');
+
+        $pdf->SetFont('helvetica', '', 8);
+    }
+
     public function downloadAttachment(Request $request, $leave_id, $attachment_id)
     {
         $leave = LeaveApplication::findOrFail($leave_id);
@@ -1503,6 +1556,10 @@ $text(
             $updateData['signatory_signature_path_snapshot'] = ($signatory?->use_signature ?? true)
                 ? $signatory?->signature_path
                 : null;
+            $updateData['authorized_officer_name_snapshot'] =
+                ApprovingAuthorities::officerName() ?: null;
+            $updateData['school_division_superintendent_name_snapshot'] =
+                ApprovingAuthorities::superintendentName() ?: null;
         }
 
         if ($request->has('disapproval_reason')) {

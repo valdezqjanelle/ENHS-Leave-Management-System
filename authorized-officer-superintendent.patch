@@ -1,0 +1,767 @@
+diff --git a/backend/app/Http/Controllers/API/ApprovingAuthorityController.php b/backend/app/Http/Controllers/API/ApprovingAuthorityController.php
+new file mode 100644
+index 0000000..3737987
+--- /dev/null
++++ b/backend/app/Http/Controllers/API/ApprovingAuthorityController.php
+@@ -0,0 +1,89 @@
++<?php
++
++namespace App\Http\Controllers\API;
++
++use App\Http\Controllers\Controller;
++use App\Support\ApprovingAuthorities;
++use App\Support\AuditLogger;
++use Illuminate\Http\Request;
++
++/**
++ * Name-only settings for the CS Form No. 6 approving authorities that do not
++ * sign through the system: the 7.A Authorized Officer and the School Division
++ * Superintendent. Each role is read and saved on its own.
++ */
++class ApprovingAuthorityController extends Controller
++{
++    public function showOfficer()
++    {
++        return $this->show(ApprovingAuthorities::OFFICER_KEY);
++    }
++
++    public function updateOfficer(Request $request)
++    {
++        return $this->update(
++            $request,
++            ApprovingAuthorities::OFFICER_KEY,
++            '7.A Authorized Officer',
++            'Authorized officer name updated successfully.'
++        );
++    }
++
++    public function showSuperintendent()
++    {
++        return $this->show(ApprovingAuthorities::SUPERINTENDENT_KEY);
++    }
++
++    public function updateSuperintendent(Request $request)
++    {
++        return $this->update(
++            $request,
++            ApprovingAuthorities::SUPERINTENDENT_KEY,
++            'School Division Superintendent',
++            'School Division Superintendent name updated successfully.'
++        );
++    }
++
++    private function show(string $key)
++    {
++        return response()->json([
++            'name' => ApprovingAuthorities::get($key),
++        ]);
++    }
++
++    private function update(Request $request, string $key, string $label, string $message)
++    {
++        // Trim and collapse repeated whitespace before validating.
++        $name = $request->input('name');
++
++        if (is_string($name)) {
++            $request->merge([
++                'name' => trim((string) preg_replace('/\s+/u', ' ', $name)),
++            ]);
++        }
++
++        $validated = $request->validate([
++            'name' => ['required', 'string', 'max:255', 'not_regex:/[\x00-\x1F\x7F]/'],
++        ]);
++
++        $previous = ApprovingAuthorities::get($key);
++
++        if ($previous !== $validated['name']) {
++            ApprovingAuthorities::set($key, $validated['name']);
++
++            AuditLogger::log(
++                $label . ' updated',
++                'Updated the ' . $label . ' name' .
++                    ($previous !== '' ? ' from "' . $previous . '"' : '') .
++                    ' to "' . $validated['name'] . '".'
++            );
++        }
++
++        return response()->json([
++            'message' => $message,
++            'data' => [
++                'name' => $validated['name'],
++            ],
++        ]);
++    }
++}
+diff --git a/backend/app/Http/Controllers/API/LeaveController.php b/backend/app/Http/Controllers/API/LeaveController.php
+index 9bae7db..e26ba5e 100644
+--- a/backend/app/Http/Controllers/API/LeaveController.php
++++ b/backend/app/Http/Controllers/API/LeaveController.php
+@@ -15,6 +15,7 @@ use App\Models\LeaveType;
+ use App\Models\LeaveDocumentRequirement;
+ use App\Models\AuthorizedSignatory;
+ use App\Services\WorkingDayCalculator;
++use App\Support\ApprovingAuthorities;
+ use App\Support\AuditLogger;
+ 
+ // use Barryvdh\DomPDF\Facade\Pdf;
+@@ -1042,6 +1043,27 @@ foreach ($coords as $field => $point) {
+         $pdf->SetFont('helvetica', '', 8);
+     }
+ 
++    // 7.A Authorized Officer and School Division Superintendent: names only.
++    // Finalized forms print the names captured when they were approved;
++    // pending forms print the current Admin Settings values.
++    $this->printAuthorityName(
++        $pdf,
++        $coords,
++        'authorized_officer_name',
++        $leave->signatory_snapshot_locked
++            ? $leave->authorized_officer_name_snapshot
++            : ApprovingAuthorities::officerName()
++    );
++
++    $this->printAuthorityName(
++        $pdf,
++        $coords,
++        'school_division_superintendent_name',
++        $leave->signatory_snapshot_locked
++            ? $leave->school_division_superintendent_name_snapshot
++            : ApprovingAuthorities::superintendentName()
++    );
++
+     $middleInitial = '';
+ 
+ if (!empty($employee->middle_name)) {
+@@ -1163,6 +1185,37 @@ $text(
+         ]
+     );
+ }
++    /**
++     * Print a name centred just above a signature line. $coords[$key]['y'] is
++     * the line's Y; the text is bottom-aligned in a box that ends 1pt above it,
++     * so the position does not depend on the font size. The font shrinks
++     * (down to 6pt) when a long name would not fit the box width.
++     */
++    private function printAuthorityName($pdf, array $coords, string $key, $name): void
++    {
++        $name = trim((string) $name);
++
++        if ($name === '' || !isset($coords[$key])) {
++            return;
++        }
++
++        $c = $coords[$key];
++        $size = 8;
++        $boxHeight = 12;
++
++        $pdf->SetFont('times', 'B', $size);
++
++        while ($size > 6 && $pdf->GetStringWidth($name) > $c['width']) {
++            $size -= 0.25;
++            $pdf->SetFont('times', 'B', $size);
++        }
++
++        $pdf->SetXY($c['x'], $c['y'] - 1 - $boxHeight);
++        $pdf->Cell($c['width'], $boxHeight, $name, 0, 0, 'C', false, '', 0, false, 'T', 'B');
++
++        $pdf->SetFont('helvetica', '', 8);
++    }
++
+     public function downloadAttachment(Request $request, $leave_id, $attachment_id)
+     {
+         $leave = LeaveApplication::findOrFail($leave_id);
+@@ -1383,6 +1436,10 @@ $text(
+             $updateData['signatory_signature_path_snapshot'] = ($signatory?->use_signature ?? true)
+                 ? $signatory?->signature_path
+                 : null;
++            $updateData['authorized_officer_name_snapshot'] =
++                ApprovingAuthorities::officerName() ?: null;
++            $updateData['school_division_superintendent_name_snapshot'] =
++                ApprovingAuthorities::superintendentName() ?: null;
+         }
+ 
+         if ($request->has('disapproval_reason')) {
+diff --git a/backend/app/Models/LeaveApplication.php b/backend/app/Models/LeaveApplication.php
+index 3ee1550..3018580 100644
+--- a/backend/app/Models/LeaveApplication.php
++++ b/backend/app/Models/LeaveApplication.php
+@@ -78,6 +78,8 @@ class LeaveApplication extends Model
+         'signatory_designation_snapshot',
+         'signatory_signature_path_snapshot',
+         'signatory_snapshot_locked',
++        'authorized_officer_name_snapshot',
++        'school_division_superintendent_name_snapshot',
+         'document_requirements_snapshot',
+     ];
+ 
+diff --git a/backend/app/Support/ApprovingAuthorities.php b/backend/app/Support/ApprovingAuthorities.php
+new file mode 100644
+index 0000000..dee8370
+--- /dev/null
++++ b/backend/app/Support/ApprovingAuthorities.php
+@@ -0,0 +1,45 @@
++<?php
++
++namespace App\Support;
++
++use App\Models\SystemSetting;
++
++/**
++ * Names of the two CS Form No. 6 approving authorities that have no signature:
++ *   - 7.A  Authorized Officer
++ *   - School Division Superintendent
++ *
++ * They are stored as plain key/value rows in the existing `system_settings`
++ * table, independent of the School Principal's `authorized_signatories` record.
++ */
++class ApprovingAuthorities
++{
++    public const OFFICER_KEY = 'authorized_officer_name';
++
++    public const SUPERINTENDENT_KEY = 'school_division_superintendent_name';
++
++    public static function officerName(): string
++    {
++        return self::get(self::OFFICER_KEY);
++    }
++
++    public static function superintendentName(): string
++    {
++        return self::get(self::SUPERINTENDENT_KEY);
++    }
++
++    public static function get(string $key): string
++    {
++        return trim((string) SystemSetting::query()
++            ->where('setting_key', $key)
++            ->value('setting_value'));
++    }
++
++    public static function set(string $key, string $value): void
++    {
++        SystemSetting::query()->updateOrCreate(
++            ['setting_key' => $key],
++            ['setting_value' => $value]
++        );
++    }
++}
+diff --git a/backend/config/cs_form_6_coordinates.php b/backend/config/cs_form_6_coordinates.php
+index c8e8b67..b2643e1 100644
+--- a/backend/config/cs_form_6_coordinates.php
++++ b/backend/config/cs_form_6_coordinates.php
+@@ -91,7 +91,12 @@ return [
+     'vl_less_this_application' => ['x' => 165, 'y' => 599],
+     'sl_less_this_application' => ['x' => 240, 'y' => 599],
+     'vl_balance'                => ['x' => 240, 'y' => 611],
+     'sl_balance'                => ['x' => 165, 'y' => 611],
++    // Authorized Officer name: centred just above the 7.A signature line.
++    // 'y' is the Y of that line (it spans x 82-295 at y 643.5). The name's
++    // baseline sits a few points above it and the font shrinks (min 6pt) to
++    // fit 'width', which is centred on the 'x'..'x'+'width' box.
++    'authorized_officer_name'  => ['x' => 71, 'y' => 643.5, 'width' => 235],
+ 
+     // ── Section 7.B: Recommendation ─────────────────────────────
+     'chk_for_approval'         => ['x' => 325, 'y' => 566],
+@@ -113,4 +118,11 @@ return [
+     'disapproved_reason_l2' => ['x' => 337, 'y' => 691],
+     'disapproved_reason_l3' => ['x' => 337, 'y' => 702],
+ 
++    // ── School Division Superintendent ───────────────────────────
++    // Name centred just above the signature line at the bottom of 7.C/7.D.
++    // 'y' is the Y of that line (it spans x 224-359 at y 756.6). Centre of the
++    // box is x 291, matching the line; the box is wider than the line so long
++    // names can shrink less before they would collide with anything.
++    'school_division_superintendent_name' => ['x' => 161, 'y' => 756.6, 'width' => 260],
++
+ ];
+diff --git a/backend/database/migrations/2026_10_10_000000_add_authority_name_snapshots_to_leave_applications_table.php b/backend/database/migrations/2026_10_10_000000_add_authority_name_snapshots_to_leave_applications_table.php
+new file mode 100644
+index 0000000..d9b6c97
+--- /dev/null
++++ b/backend/database/migrations/2026_10_10_000000_add_authority_name_snapshots_to_leave_applications_table.php
+@@ -0,0 +1,30 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    public function up(): void
++    {
++        Schema::table('leave_applications', function (Blueprint $table) {
++            // Captured when an application leaves "pending", alongside the
++            // authorized signatory snapshot, so finalized forms keep the names
++            // they were approved with. Null = finalized before these settings
++            // existed (or no name was set), and the form prints the line blank.
++            $table->string('authorized_officer_name_snapshot')->nullable();
++            $table->string('school_division_superintendent_name_snapshot')->nullable();
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::table('leave_applications', function (Blueprint $table) {
++            $table->dropColumn([
++                'authorized_officer_name_snapshot',
++                'school_division_superintendent_name_snapshot',
++            ]);
++        });
++    }
++};
+diff --git a/backend/routes/api.php b/backend/routes/api.php
+index e394b5a..038d16b 100644
+--- a/backend/routes/api.php
++++ b/backend/routes/api.php
+@@ -21,6 +21,7 @@ use App\Http\Controllers\ApprovalSettingController;
+ use App\Http\Controllers\API\SystemSettingController;
+ use App\Http\Controllers\API\BackupController;
+ use App\Http\Controllers\API\AuthorizedSignatoryController;
++use App\Http\Controllers\API\ApprovingAuthorityController;
+ use App\Http\Controllers\API\LocationController;
+ use App\Http\Controllers\API\DepartmentController;
+ use App\Http\Controllers\API\TeachingPersonnelRecordController;
+@@ -162,6 +163,12 @@ Route::middleware('auth:sanctum')->group(function () {
+         Route::get('/admin/authorized-signatory/signature', [AuthorizedSignatoryController::class, 'signature']);
+         Route::post('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'update']);
+ 
++        // CS Form No. 6 approving authorities without a signature (name only)
++        Route::get('/admin/authorized-officer', [ApprovingAuthorityController::class, 'showOfficer']);
++        Route::put('/admin/authorized-officer', [ApprovingAuthorityController::class, 'updateOfficer']);
++        Route::get('/admin/school-division-superintendent', [ApprovingAuthorityController::class, 'showSuperintendent']);
++        Route::put('/admin/school-division-superintendent', [ApprovingAuthorityController::class, 'updateSuperintendent']);
++
+         Route::get('/leave-school-years', [LeaveSchoolYearController::class, 'index']);
+         Route::post('/leave-school-years/preview', [LeaveSchoolYearController::class, 'preview']);
+         Route::post('/leave-school-years/activate', [LeaveSchoolYearController::class, 'activate']);
+diff --git a/backend/tests/Feature/ApprovingAuthoritiesTest.php b/backend/tests/Feature/ApprovingAuthoritiesTest.php
+new file mode 100644
+index 0000000..329b2e4
+--- /dev/null
++++ b/backend/tests/Feature/ApprovingAuthoritiesTest.php
+@@ -0,0 +1,143 @@
++<?php
++
++namespace Tests\Feature;
++
++use App\Models\SystemSetting;
++use App\Models\User;
++use Illuminate\Foundation\Testing\RefreshDatabase;
++use Tests\TestCase;
++
++class ApprovingAuthoritiesTest extends TestCase
++{
++    use RefreshDatabase;
++
++    private const OFFICER_URL = '/api/admin/authorized-officer';
++
++    private const SUPERINTENDENT_URL = '/api/admin/school-division-superintendent';
++
++    private function admin(): User
++    {
++        return User::create([
++            'email' => 'admin@example.test',
++            'password' => 'password',
++            'role' => 'admin',
++        ]);
++    }
++
++    public function test_officer_and_superintendent_load_blank_then_save_independently(): void
++    {
++        $admin = $this->admin();
++
++        $this->actingAs($admin, 'sanctum')->getJson(self::OFFICER_URL)
++            ->assertOk()->assertExactJson(['name' => '']);
++        $this->actingAs($admin, 'sanctum')->getJson(self::SUPERINTENDENT_URL)
++            ->assertOk()->assertExactJson(['name' => '']);
++
++        // Saving the officer (input is trimmed and whitespace collapsed)...
++        $this->actingAs($admin, 'sanctum')
++            ->putJson(self::OFFICER_URL, ['name' => '  Maria   L. Santos  '])
++            ->assertOk()
++            ->assertJsonPath('data.name', 'Maria L. Santos');
++
++        // ...does not touch the superintendent.
++        $this->actingAs($admin, 'sanctum')->getJson(self::OFFICER_URL)
++            ->assertOk()->assertExactJson(['name' => 'Maria L. Santos']);
++        $this->actingAs($admin, 'sanctum')->getJson(self::SUPERINTENDENT_URL)
++            ->assertOk()->assertExactJson(['name' => '']);
++
++        $this->actingAs($admin, 'sanctum')
++            ->putJson(self::SUPERINTENDENT_URL, ['name' => 'Dr. Juan P. Dela Cruz, CESO V'])
++            ->assertOk()
++            ->assertJsonPath('data.name', 'Dr. Juan P. Dela Cruz, CESO V');
++
++        $this->actingAs($admin, 'sanctum')->getJson(self::OFFICER_URL)
++            ->assertOk()->assertExactJson(['name' => 'Maria L. Santos']);
++
++        $this->assertDatabaseHas('system_settings', [
++            'setting_key' => 'authorized_officer_name',
++            'setting_value' => 'Maria L. Santos',
++        ]);
++        $this->assertDatabaseHas('system_settings', [
++            'setting_key' => 'school_division_superintendent_name',
++            'setting_value' => 'Dr. Juan P. Dela Cruz, CESO V',
++        ]);
++
++        // The School Principal's authorized_signatories record is never created or changed.
++        $this->assertDatabaseCount('authorized_signatories', 0);
++
++        // Saving again updates the same row instead of adding a duplicate key.
++        $this->actingAs($admin, 'sanctum')
++            ->putJson(self::OFFICER_URL, ['name' => 'Ana B. Reyes'])
++            ->assertOk();
++
++        $this->assertSame(
++            1,
++            SystemSetting::where('setting_key', 'authorized_officer_name')->count()
++        );
++        $this->assertDatabaseHas('audit_logs', [
++            'user_id' => $admin->user_id,
++            'action' => '7.A Authorized Officer updated',
++        ]);
++    }
++
++    public function test_name_is_validated(): void
++    {
++        $admin = $this->admin();
++
++        foreach ([self::OFFICER_URL, self::SUPERINTENDENT_URL] as $url) {
++            $this->actingAs($admin, 'sanctum')->putJson($url, [])
++                ->assertStatus(422)->assertJsonValidationErrors('name');
++
++            $this->actingAs($admin, 'sanctum')->putJson($url, ['name' => '   '])
++                ->assertStatus(422)->assertJsonValidationErrors('name');
++
++            $this->actingAs($admin, 'sanctum')->putJson($url, ['name' => str_repeat('A', 256)])
++                ->assertStatus(422)->assertJsonValidationErrors('name');
++
++            $this->actingAs($admin, 'sanctum')->putJson($url, ['name' => "Bad\x07Name"])
++                ->assertStatus(422)->assertJsonValidationErrors('name');
++        }
++
++        $this->assertDatabaseCount('system_settings', 0);
++    }
++
++    public function test_only_administrators_can_read_or_change_the_names(): void
++    {
++        $employee = User::create([
++            'email' => 'faculty@example.test',
++            'password' => 'password',
++            'role' => 'employee',
++        ]);
++
++        // Guests first: once actingAs() is used it stays authenticated for the rest of the test.
++        foreach ([self::OFFICER_URL, self::SUPERINTENDENT_URL] as $url) {
++            $this->getJson($url)->assertUnauthorized();
++            $this->putJson($url, ['name' => 'Someone'])->assertUnauthorized();
++        }
++
++        foreach ([self::OFFICER_URL, self::SUPERINTENDENT_URL] as $url) {
++            $this->actingAs($employee, 'sanctum')->getJson($url)->assertForbidden();
++            $this->actingAs($employee, 'sanctum')
++                ->putJson($url, ['name' => 'Someone'])->assertForbidden();
++        }
++
++        $this->assertDatabaseCount('system_settings', 0);
++    }
++
++    public function test_endpoints_do_not_expose_other_system_settings(): void
++    {
++        SystemSetting::create(['setting_key' => 'school_name', 'setting_value' => 'ENHS']);
++
++        $admin = $this->admin();
++
++        $this->actingAs($admin, 'sanctum')->getJson(self::OFFICER_URL)
++            ->assertOk()->assertExactJson(['name' => '']);
++        $this->actingAs($admin, 'sanctum')
++            ->putJson(self::OFFICER_URL, ['name' => 'Maria L. Santos'])
++            ->assertOk()
++            ->assertExactJson([
++                'message' => 'Authorized officer name updated successfully.',
++                'data' => ['name' => 'Maria L. Santos'],
++            ]);
++    }
++}
+diff --git a/frontend/src/components/AuthorityNameCard.vue b/frontend/src/components/AuthorityNameCard.vue
+new file mode 100644
+index 0000000..697430f
+--- /dev/null
++++ b/frontend/src/components/AuthorityNameCard.vue
+@@ -0,0 +1,163 @@
++<template>
++  <form class="inner-card p-5 space-y-5" @submit.prevent="save">
++    <div>
++      <h3 class="text-lg font-semibold text-[var(--text)]">{{ title }}</h3>
++
++      <p v-if="description" class="text-sm text-[var(--text-muted)] mt-1">
++        {{ description }}
++      </p>
++    </div>
++
++    <div
++      v-if="feedback"
++      :role="feedback.type === 'success' ? 'status' : 'alert'"
++      class="rounded-lg border px-4 py-3 text-sm"
++      :class="
++        feedback.type === 'success'
++          ? 'border-green-200 bg-green-50 text-green-800'
++          : 'border-red-200 bg-red-50 text-red-800'
++      "
++    >
++      {{ feedback.message }}
++    </div>
++
++    <div>
++      <label
++        :for="`${idPrefix}-name`"
++        class="block text-sm font-medium text-[var(--text-muted)] mb-2"
++      >
++        Name
++      </label>
++
++      <input
++        :id="`${idPrefix}-name`"
++        v-model="name"
++        type="text"
++        maxlength="255"
++        required
++        autocomplete="off"
++        :disabled="loading"
++        class="w-full border rounded-lg px-3 py-2 field-editable"
++        :aria-invalid="Boolean(nameError)"
++        :aria-describedby="nameError ? `${idPrefix}-name-error` : undefined"
++      />
++
++      <p
++        v-if="nameError"
++        :id="`${idPrefix}-name-error`"
++        class="mt-1 text-sm text-red-600"
++      >
++        {{ nameError }}
++      </p>
++    </div>
++
++    <div class="flex justify-end">
++      <button
++        type="submit"
++        class="rounded-lg bg-[#2563eb] px-5 py-2 font-medium text-white hover:bg-[#1d4ed8] disabled:cursor-not-allowed disabled:opacity-60"
++        :disabled="saving || loading"
++      >
++        {{ saving ? "Saving..." : saveLabel }}
++      </button>
++    </div>
++  </form>
++</template>
++
++<script setup lang="ts">
++import { onMounted, ref } from "vue";
++import type {
++  AuthorityNameResponse,
++  AuthorityNameSaveResponse,
++} from "@/services/approvingAuthorities";
++
++const props = defineProps<{
++  title: string;
++  description?: string;
++  saveLabel: string;
++  /** Unique prefix for element ids, e.g. "authorized-officer". */
++  idPrefix: string;
++  load: () => Promise<AuthorityNameResponse>;
++  save: (payload: AuthorityNameResponse) => Promise<AuthorityNameSaveResponse>;
++}>();
++
++const name = ref("");
++const nameError = ref("");
++const loading = ref(true);
++const saving = ref(false);
++const feedback = ref<{ type: "success" | "error"; message: string } | null>(
++  null,
++);
++
++onMounted(async () => {
++  try {
++    const data = await props.load();
++    name.value = data.name || "";
++  } catch (error: any) {
++    console.error(`Failed to load ${props.title}:`, error.response?.data || error);
++    feedback.value = {
++      type: "error",
++      message: error.response?.data?.message || `Unable to load ${props.title}.`,
++    };
++  } finally {
++    loading.value = false;
++  }
++});
++
++const save = async () => {
++  nameError.value = "";
++  feedback.value = null;
++
++  const trimmed = name.value.replace(/\s+/g, " ").trim();
++
++  if (!trimmed) {
++    nameError.value = "Name is required.";
++    return;
++  }
++
++  saving.value = true;
++
++  try {
++    const result = await props.save({ name: trimmed });
++
++    name.value = result.data?.name ?? trimmed;
++    feedback.value = {
++      type: "success",
++      message: result.message || `${props.title} saved successfully.`,
++    };
++  } catch (error: any) {
++    console.error(`Failed to save ${props.title}:`, error.response?.data || error);
++    nameError.value = error.response?.data?.errors?.name?.[0] || "";
++    feedback.value = {
++      type: "error",
++      message:
++        error.response?.data?.message || `Failed to save ${props.title}.`,
++    };
++  } finally {
++    saving.value = false;
++  }
++};
++</script>
++
++<style scoped>
++.inner-card {
++  background: var(--surface-muted);
++  border: 1px solid #c8d8eb;
++  border-radius: 1.1rem;
++}
++
++.field-editable {
++  background: var(--surface-muted);
++  color: var(--text);
++  border-color: #c8d8eb;
++}
++
++.field-editable::placeholder {
++  color: #94a3b8;
++}
++
++.field-editable:focus {
++  outline: none;
++  border-color: #7aa7e8;
++  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
++}
++</style>
+diff --git a/frontend/src/services/approvingAuthorities.ts b/frontend/src/services/approvingAuthorities.ts
+new file mode 100644
+index 0000000..c986de1
+--- /dev/null
++++ b/frontend/src/services/approvingAuthorities.ts
+@@ -0,0 +1,60 @@
++import axios from "axios";
++
++const API = "https://enhs-leave-management-system.onrender.com/api";
++
++const authConfig = () => ({
++  headers: {
++    Authorization: `Bearer ${localStorage.getItem("token")}`,
++  },
++});
++
++export interface AuthorityNameResponse {
++  name: string;
++}
++
++export interface AuthorityNameSaveResponse {
++  message?: string;
++  data?: AuthorityNameResponse;
++}
++
++// 7.A Authorized Officer (name only)
++export const getAuthorizedOfficer = async (): Promise<AuthorityNameResponse> => {
++  const response = await axios.get(`${API}/admin/authorized-officer`, authConfig());
++
++  return response.data;
++};
++
++export const saveAuthorizedOfficer = async (
++  payload: AuthorityNameResponse,
++): Promise<AuthorityNameSaveResponse> => {
++  const response = await axios.put(
++    `${API}/admin/authorized-officer`,
++    payload,
++    authConfig(),
++  );
++
++  return response.data;
++};
++
++// School Division Superintendent (name only)
++export const getSchoolDivisionSuperintendent =
++  async (): Promise<AuthorityNameResponse> => {
++    const response = await axios.get(
++      `${API}/admin/school-division-superintendent`,
++      authConfig(),
++    );
++
++    return response.data;
++  };
++
++export const saveSchoolDivisionSuperintendent = async (
++  payload: AuthorityNameResponse,
++): Promise<AuthorityNameSaveResponse> => {
++  const response = await axios.put(
++    `${API}/admin/school-division-superintendent`,
++    payload,
++    authConfig(),
++  );
++
++  return response.data;
++};
+diff --git a/frontend/src/views/AdminSettings.vue b/frontend/src/views/AdminSettings.vue
+index 22c7128..6e42f3d 100644
+--- a/frontend/src/views/AdminSettings.vue
++++ b/frontend/src/views/AdminSettings.vue
+@@ -1393,6 +1393,26 @@
+           </button>
+         </div>
+       </form>
++
++      <AuthorityNameCard
++        class="mt-6"
++        title="7.A Authorized Officer"
++        description="Printed above the “Authorized Officer” line in block 7.A (Certification of Leave Credits) of newly generated CS Form No. 6 documents. Forms already finalized keep the name they were approved with."
++        save-label="Save Authorized Officer"
++        id-prefix="authorized-officer"
++        :load="getAuthorizedOfficer"
++        :save="saveAuthorizedOfficer"
++      />
++
++      <AuthorityNameCard
++        class="mt-6"
++        title="School Division Superintendent"
++        description="Printed above the “School Division Superintendent” line at the bottom of blocks 7.C and 7.D of newly generated CS Form No. 6 documents. Forms already finalized keep the name they were approved with."
++        save-label="Save School Division Superintendent"
++        id-prefix="school-division-superintendent"
++        :load="getSchoolDivisionSuperintendent"
++        :save="saveSchoolDivisionSuperintendent"
++      />
+     </div>
+ 
+     <div v-if="activeTab === 'audit'" class="neo-card p-6">
+@@ -2062,6 +2082,13 @@ import {
+   getAuthorizedSignatorySignature,
+   saveAuthorizedSignatory,
+ } from "@/services/authorizedSignatory";
++import AuthorityNameCard from "@/components/AuthorityNameCard.vue";
++import {
++  getAuthorizedOfficer,
++  saveAuthorizedOfficer,
++  getSchoolDivisionSuperintendent,
++  saveSchoolDivisionSuperintendent,
++} from "@/services/approvingAuthorities";
+ 
+ import {
+   createDatabaseBackup,

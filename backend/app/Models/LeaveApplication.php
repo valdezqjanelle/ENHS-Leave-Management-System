@@ -78,6 +78,8 @@ class LeaveApplication extends Model
         'signatory_designation_snapshot',
         'signatory_signature_path_snapshot',
         'signatory_snapshot_locked',
+        'authorized_officer_name_snapshot',
+        'school_division_superintendent_name_snapshot',
         'document_requirements_snapshot',
     ];
 

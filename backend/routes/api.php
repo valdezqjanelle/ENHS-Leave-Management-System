@@ -21,6 +21,7 @@ use App\Http\Controllers\ApprovalSettingController;
 use App\Http\Controllers\API\SystemSettingController;
 use App\Http\Controllers\API\BackupController;
 use App\Http\Controllers\API\AuthorizedSignatoryController;
+use App\Http\Controllers\API\ApprovingAuthorityController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\DepartmentController;
 use App\Http\Controllers\API\TeachingPersonnelRecordController;
@@ -183,6 +184,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'show']);
         Route::get('/admin/authorized-signatory/signature', [AuthorizedSignatoryController::class, 'signature']);
         Route::post('/admin/authorized-signatory', [AuthorizedSignatoryController::class, 'update']);
+
+        // CS Form No. 6 approving authorities without a signature (name only)
+        Route::get('/admin/authorized-officer', [ApprovingAuthorityController::class, 'showOfficer']);
+        Route::put('/admin/authorized-officer', [ApprovingAuthorityController::class, 'updateOfficer']);
+        Route::get('/admin/school-division-superintendent', [ApprovingAuthorityController::class, 'showSuperintendent']);
+        Route::put('/admin/school-division-superintendent', [ApprovingAuthorityController::class, 'updateSuperintendent']);
 
         Route::get('/leave-school-years', [LeaveSchoolYearController::class, 'index']);
         Route::post('/leave-school-years/preview', [LeaveSchoolYearController::class, 'preview']);

@@ -50,169 +50,130 @@
         class="sidebar-scroll mt-4 space-y-1 px-3 flex-1"
         @click="sidebarOpen = false"
       >
+        <p class="sidebar-section-label">OVERVIEW</p>
         <router-link to="/dashboard" class="nav-item">
           <LayoutDashboard class="icon" />
           Dashboard
         </router-link>
 
-        <div v-if="currentUser.role === 'admin'">
-          <button
-            @click.stop="togglePersonnelMenu"
-            class="nav-item w-full justify-between"
-            :class="{ 'router-link-active': isPersonnelRouteActive }"
+        <template v-if="currentUser.role === 'admin'">
+          <p class="sidebar-section-label">MANAGEMENT</p>
+          <router-link to="/employees" class="nav-item">
+            <Users class="icon" />
+            Employees
+          </router-link>
+          <router-link to="/teaching-setup" class="nav-item">
+            <GraduationCap class="icon" />
+            Teaching Setup
+          </router-link>
+          <router-link to="/admin-applications" class="nav-item">
+            <FileCheck class="icon" />
+            Leave Applications
+          </router-link>
+          <router-link to="/leave-credits" class="nav-item">
+            <Scale class="icon" />
+            Leave Credits
+          </router-link>
+          <router-link to="/leave-balances" class="nav-item">
+            <Calendar class="icon" />
+            Leave Balances
+          </router-link>
+          <router-link to="/reports" class="nav-item">
+            <BarChart class="icon" />
+            Reports
+          </router-link>
+
+          <p class="sidebar-section-label">MY LEAVE</p>
+          <router-link to="/leave-application" class="nav-item">
+            <FilePlus class="icon" />
+            Apply Leave
+          </router-link>
+          <router-link to="/my-applications" class="nav-item">
+            <FileCheck class="icon" />
+            My Applications
+          </router-link>
+
+          <p class="sidebar-section-label">SYSTEM</p>
+          <a
+            href="/admin-settings?section=leave"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'leave' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'leave' } })"
           >
-            <span class="flex items-center gap-3">
-              <Users class="icon" />
-              Employee Management
-            </span>
-
-            <ChevronDown
-              class="icon transition-transform duration-200"
-              :class="{ 'rotate-180': personnelMenuOpen }"
-            />
-          </button>
-
-          <!-- SUB-MENU -->
-          <div
-            v-show="personnelMenuOpen || isPersonnelRouteActive"
-            class="pl-4 space-y-1 mt-1"
+            <Settings class="icon" />
+            Leave Settings
+          </a>
+          <a
+            href="/admin-settings?section=signatory"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'signatory' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'signatory' } })"
           >
-            <router-link to="/employees" class="nav-subitem">
-              Employees
-            </router-link>
-
-            
-
-            <router-link to="/teaching-setup" class="nav-subitem">
-              Teaching Setup
-            </router-link>
-
-            
-          </div>
-        </div>
-
-        <!-- Leave Application Dropdown -->
-        <div v-if="currentUser.role === 'admin'">
-          <button
-            type="button"
-            @click.stop="toggleLeaveApplicationMenu"
-            class="nav-item w-full justify-between"
-            :class="{ 'router-link-active': isLeaveApplicationRouteActive }"
-            :aria-expanded="leaveApplicationMenuOpen"
-            aria-controls="leave-application-menu"
+            <FileCheck class="icon" />
+            Authorized Signatory
+          </a>
+          <a
+            href="/admin-settings?section=system"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'system' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'system' } })"
           >
-            <span class="flex items-center gap-3">
-              <FilePlus class="icon" />
-              Leave Application
-            </span>
-
-            <ChevronDown
-              class="icon transition-transform duration-200"
-              :class="{ 'rotate-180': leaveApplicationMenuOpen }"
-            />
-          </button>
-
-          <div
-            id="leave-application-menu"
-            v-show="leaveApplicationMenuOpen"
-            class="pl-4 space-y-1 mt-1"
+            <Settings class="icon" />
+            System Settings
+          </a>
+          <a
+            href="/admin-settings?section=holidays"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'holidays' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'holidays' } })"
           >
-            <router-link to="/leave-application" class="nav-subitem">
-              Apply Leave
-            </router-link>
-
-            <router-link to="/my-applications" class="nav-subitem">
-              My Applications
-            </router-link>
-          </div>
-        </div>
-
-        <!-- Leave Management Dropdown -->
-        <div v-if="currentUser.role === 'admin'">
-          <button
-            type="button"
-            @click.stop="toggleLeaveManagementMenu"
-            class="nav-item w-full justify-between"
-            :class="{ 'router-link-active': isLeaveManagementRouteActive }"
-            :aria-expanded="leaveManagementMenuOpen"
-            aria-controls="leave-management-menu"
+            <Calendar class="icon" />
+            Holidays
+          </a>
+          <a
+            href="/admin-settings?section=approval"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'approval' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'approval' } })"
           >
-            <span class="flex items-center gap-3">
-              <FileCheck class="icon" />
-              Leave Management
-            </span>
-
-            <ChevronDown
-              class="icon transition-transform duration-200"
-              :class="{ 'rotate-180': leaveManagementMenuOpen }"
-            />
-          </button>
-
-          <div
-            id="leave-management-menu"
-            v-show="leaveManagementMenuOpen"
-            class="pl-4 space-y-1 mt-1"
+            <FileCheck class="icon" />
+            Approval Settings
+          </a>
+          <a
+            href="/admin-settings?section=audit"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'audit' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'audit' } })"
           >
-            <router-link to="/admin-applications" class="nav-subitem">
-              Leave Applications
-            </router-link>
+            <Search class="icon" />
+            Audit Logs
+          </a>
+          <a
+            href="/admin-settings?section=backup"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'backup' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'backup' } })"
+          >
+            <Settings class="icon" />
+            Backup &amp; Restore
+          </a>
+        </template>
 
-            <router-link to="/leave-credits" class="nav-subitem">
-              Leave Credits
-            </router-link>
-
-            <router-link to="/leave-balances" class="nav-subitem">
-              Leave Balances
-            </router-link>
-          </div>
-        </div>
-
-        <router-link
-          v-if="currentUser.role === 'employee'"
-          to="/leave-application"
-          class="nav-item"
-        >
-          <FilePlus class="icon" />
-          Apply
-        </router-link>
-
-        <router-link
-          v-if="currentUser.role === 'employee'"
-          to="/my-applications"
-          class="nav-item"
-        >
-          <FileCheck class="icon" />
-          My Applications
-        </router-link>
-
-        
-
-        <router-link
-          v-if="currentUser.role === 'admin'"
-          to="/reports"
-          class="nav-item"
-        >
-          <BarChart class="icon" />
-          Reports
-        </router-link>
-
-        <router-link
-          v-if="currentUser.role === 'employee'"
-          to="/settings"
-          class="nav-item"
-        >
-          <Settings class="icon" />
-          Settings
-        </router-link>
-
-        <router-link
-          v-if="currentUser.role === 'admin'"
-          to="/admin-settings"
-          class="nav-item"
-        >
-          <Settings class="icon" />
-          Settings
-        </router-link>
+        <template v-else-if="currentUser.role === 'employee'">
+          <p class="sidebar-section-label">MY LEAVE</p>
+          <router-link to="/leave-application" class="nav-item">
+            <FilePlus class="icon" />
+            Apply Leave
+          </router-link>
+          <router-link to="/my-applications" class="nav-item">
+            <FileCheck class="icon" />
+            My Applications
+          </router-link>
+          <router-link to="/settings" class="nav-item">
+            <Settings class="icon" />
+            Settings
+          </router-link>
+        </template>
       </nav>
 
       <!--
@@ -381,9 +342,6 @@ const dismissEnhancementNotice = () => {
 };
 
 const sidebarOpen = ref(false);
-const personnelMenuOpen = ref(false);
-const leaveApplicationMenuOpen = ref(false);
-const leaveManagementMenuOpen = ref(false);
 
 // Dark mode
 const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
@@ -401,54 +359,6 @@ onMounted(() => {
   }
 });
 
-const togglePersonnelMenu = () => {
-  personnelMenuOpen.value = !personnelMenuOpen.value;
-};
-
-const toggleLeaveApplicationMenu = () => {
-  leaveApplicationMenuOpen.value = !leaveApplicationMenuOpen.value;
-};
-
-const toggleLeaveManagementMenu = () => {
-  leaveManagementMenuOpen.value = !leaveManagementMenuOpen.value;
-};
-
-const isPersonnelRouteActive = computed(() => {
-  return [
-    "/employees",
-    "/teaching-personnel",
-    "/teaching-setup",
-    "/non-teaching-personnel",
-  ].includes(route.path);
-});
-
-const isLeaveApplicationRouteActive = computed(() => {
-  return [
-    "/leave-application",
-    "/my-applications",
-  ].includes(route.path);
-});
-
-const isLeaveManagementRouteActive = computed(() => {
-  return [
-    "/admin-applications",
-    "/leave-credits",
-    "/leave-balances",
-  ].includes(route.path);
-});
-
-watch(
-  () => route.path,
-  () => {
-    if (isLeaveApplicationRouteActive.value) {
-      leaveApplicationMenuOpen.value = true;
-    }
-    if (isLeaveManagementRouteActive.value) {
-      leaveManagementMenuOpen.value = true;
-    }
-  },
-  { immediate: true },
-);
 // Header uses profile names, never the email username.
 interface HeaderUser {
   name: string;
@@ -682,6 +592,15 @@ const logout = async () => {
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: 0 2px 8px rgba(11, 31, 56, 0.06);
+}
+
+.sidebar-section-label {
+  padding: 0.85rem 1rem 0.3rem;
+  margin-top: 0.25rem;
+  color: rgba(203, 218, 233, 0.58);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .nav-item {
