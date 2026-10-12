@@ -39,6 +39,27 @@
         Manage administrator account information and security.
       </p>
 
+      <section class="photo-settings mb-6" aria-labelledby="photo-settings-title">
+        <h3 id="photo-settings-title" class="text-lg font-medium text-[var(--text)] mb-4">Profile Photo</h3>
+        <div class="photo-controls">
+          <div class="photo-preview">
+            <img v-if="photoSource" :src="photoSource" alt="Your profile photo" @error="photoFailed = true" />
+            <span v-else>{{ employeeName.charAt(0).toUpperCase() || 'U' }}</span>
+          </div>
+          <div class="photo-actions">
+            <label for="profile-photo-file" class="block text-sm font-medium text-[var(--text)] mb-2">Choose a photo</label>
+            <input id="profile-photo-file" ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp" :disabled="photoBusy" @change="selectPhoto" />
+            <p class="text-sm text-[var(--text-muted)] mt-2">JPG, PNG or WebP. Maximum 2 MB and 4096 × 4096 pixels.</p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <button type="button" :disabled="!selectedPhoto || photoBusy" @click="savePhoto" class="photo-save">{{ photoBusy ? 'Please wait…' : 'Save Photo' }}</button>
+              <button v-if="selectedPhoto" type="button" :disabled="photoBusy" @click="clearPhotoSelection" class="photo-cancel">Cancel</button>
+              <button v-if="hasPhoto" type="button" :disabled="photoBusy" @click="deletePhoto" class="photo-remove">Remove Photo</button>
+            </div>
+          </div>
+        </div>
+        <p v-if="photoError" role="alert" class="text-red-600 mt-3">{{ photoError }}</p>
+      </section>
+
       <div class="mb-8">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -2030,6 +2051,7 @@
 <script setup lang="ts">
 import { confirmAction, notify } from "@/composables/useNotifications";
 import { onBeforeUnmount, onMounted, ref, computed, watch } from "vue";
+import { getAdminPhoto, uploadAdminPhoto, removeAdminPhoto } from "@/services/adminPhoto";
 import {
   getAdminProfile,
   getAdminPositions,
@@ -2401,6 +2423,83 @@ const loadPositions = async () => {
     console.error("Failed to load positions:", error.response?.data || error);
   }
 };
+
+const savedPhoto = ref('')
+const hasPhoto = ref(false)
+const photoFailed = ref(false)
+const selectedPhoto = ref<File | null>(null)
+const previewPhoto = ref('')
+const photoBusy = ref(false)
+const photoInput = ref<HTMLInputElement | null>(null)
+const employeeName = ref('')
+const photoSource = computed(() => previewPhoto.value || (photoFailed.value ? '' : savedPhoto.value))
+const photoError = ref('')
+const clearPhotoSelection = () => {
+  if (previewPhoto.value) URL.revokeObjectURL(previewPhoto.value)
+  previewPhoto.value = ''
+  selectedPhoto.value = null
+  if (photoInput.value) photoInput.value.value = ''
+}
+const selectPhoto = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  clearPhotoSelection()
+  photoError.value = ''
+  if (!file) return
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+    photoError.value = 'Choose a JPG, PNG or WebP image up to 2 MB.'
+    input.value = ''
+    return
+  }
+  selectedPhoto.value = file
+  previewPhoto.value = URL.createObjectURL(file)
+  photoFailed.value = false
+}
+const photoRequestError = (error: any) => {
+  const validation = error.response?.data?.errors?.photo
+  photoError.value = validation?.[0] || error.response?.data?.message || 'Unable to update your photo.'
+}
+const savePhoto = async () => {
+  if (!selectedPhoto.value || photoBusy.value) return
+  photoBusy.value = true
+  photoError.value = ''
+  try {
+    const data = await uploadAdminPhoto(selectedPhoto.value)
+    savedPhoto.value = data.photo_url || ''
+    hasPhoto.value = data.has_photo
+    photoFailed.value = false
+    clearPhotoSelection()
+    window.dispatchEvent(new Event('els-profile-photo-updated'))
+    notify('Profile photo saved successfully.')
+  } catch (error) { photoRequestError(error) }
+  finally { photoBusy.value = false }
+}
+const deletePhoto = async () => {
+  if (photoBusy.value || !confirm('Remove your profile photo?')) return
+  photoBusy.value = true
+  photoError.value = ''
+  try {
+    await removeAdminPhoto()
+    savedPhoto.value = ''
+    hasPhoto.value = false
+    clearPhotoSelection()
+    window.dispatchEvent(new Event('els-profile-photo-updated'))
+    notify('Profile photo removed.')
+  } catch (error) { photoRequestError(error) }
+  finally { photoBusy.value = false }
+}
+onBeforeUnmount(clearPhotoSelection)
+
+onMounted(async () => {
+  try {
+    const data = await getAdminPhoto()
+    savedPhoto.value = data.photo_url || ''
+    hasPhoto.value = Boolean(data.has_photo)
+  } catch (error) { photoRequestError(error) }
+})
+watch(() => [adminProfile.value.first_name, adminProfile.value.last_name], () => {
+  employeeName.value = [adminProfile.value.first_name, adminProfile.value.last_name].filter(Boolean).join(' ')
+}, { immediate: true })
 
 const adminProfileBackup = ref({ ...adminProfile.value });
 
@@ -3398,6 +3497,20 @@ onBeforeUnmount(releaseSignatoryPreviewUrls);
 </script>
 
 <style scoped>
+.photo-settings { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.photo-controls { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.photo-preview { width: 96px; height: 96px; flex-shrink: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; font-size: 2rem; font-weight: 700; }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.photo-actions { min-width: 0; flex: 1; }
+.photo-actions input { width: 100%; color: var(--text); }
+.photo-save,.photo-cancel,.photo-remove { padding: .5rem 1rem; border-radius: .5rem; font-weight: 600; }
+.photo-save { background: #2563eb; color: #fff; }
+.photo-cancel { background: var(--surface-muted); color: var(--text); }
+.photo-remove { background: #dc2626; color: #fff; }
+.photo-actions button:disabled { opacity: .5; cursor: not-allowed; }
+.photo-actions button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+
 .settings-shell {
   background: var(--app-bg);
 }

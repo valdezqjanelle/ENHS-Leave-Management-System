@@ -384,11 +384,11 @@
             <div class="text-sm text-center sm:text-left" style="color: var(--text-muted);">
               Showing
               <span class="font-medium" style="color: var(--text);">
-                {{ startIndex + 1 }}
+                {{ paginationStart }}
               </span>
               -
               <span class="font-medium" style="color: var(--text);">
-                {{ Math.min(endIndex, filteredApplications.length) }}
+                {{ paginationEnd }}
               </span>
               of
               <span class="font-medium" style="color: var(--text);">
@@ -399,7 +399,7 @@
 
             <div class="flex items-center gap-2 flex-shrink-0">
               <button
-                @click="prevPage"
+                @click="previousPage"
                 :disabled="currentPage === 1"
                 class="px-4 py-2 text-sm font-medium border rounded-lg transition-colors"
                 style="border-color: var(--border); color: var(--text);"

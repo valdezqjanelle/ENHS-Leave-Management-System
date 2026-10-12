@@ -104,6 +104,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:employee')->group(function () {
 
+        // Employee profile photo — authenticated employee's own record.
+        Route::post('/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'store'])
+            ->middleware('throttle:10,1');
+        Route::delete('/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'destroy'])
+            ->middleware('throttle:10,1');
+
         // Dashboard
         Route::get(
             '/employee/dashboard',
@@ -145,6 +151,15 @@ Route::middleware('auth:sanctum')->group(function () {
             [AttendanceController::class, 'myAttendanceRecord']
         );
 
+    });
+
+    // Administrator profile photo — authenticated administrator's own profile.
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'show']);
+        Route::post('/admin/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'store'])
+            ->middleware('throttle:10,1');
+        Route::delete('/admin/profile/photo', [\App\Http\Controllers\API\ProfilePhotoController::class, 'destroy'])
+            ->middleware('throttle:10,1');
     });
 
     // ADMIN ONLY

@@ -396,6 +396,8 @@ class EmployeeController extends Controller
         return response()->json([
             'employee_id' => $employee->employee_id,
             'employee_code' => $employee->employee_code,
+            'photo_url' => \App\Support\ProfilePhotoStorage::url($employee->profile_photo_path),
+            'has_photo' => (bool) $employee->profile_photo_path,
             'first_name' => $employee->first_name,
             'middle_name' => $employee->middle_name,
             'last_name' => $employee->last_name,
@@ -625,6 +627,7 @@ class EmployeeController extends Controller
                 $employeeName = trim($employee->first_name . ' ' . $employee->last_name);
                 $leaveIds = DB::table('leave_applications')->where('employee_id', $employee->employee_id)->pluck('leave_id');
                 $attachmentPaths = DB::table('leave_attachments')->whereIn('leave_id', $leaveIds)->pluck('file_path')->all();
+                if ($employee->profile_photo_path) $attachmentPaths[] = $employee->profile_photo_path;
 
                 // Raw queries include soft-deleted records. Deleting with Eloquent's
                 // default scope would leave archived credits blocking the foreign key.
