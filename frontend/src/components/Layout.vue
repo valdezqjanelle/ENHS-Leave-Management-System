@@ -62,10 +62,10 @@
             <Users class="icon" />
             Employees
           </router-link>
-          <router-link to="/teaching-setup" class="nav-item">
+          <!-- <router-link to="/teaching-setup" class="nav-item">
             <GraduationCap class="icon" />
             Teaching Setup
-          </router-link>
+          </router-link> -->
           <router-link to="/admin-applications" class="nav-item">
             <FileCheck class="icon" />
             Leave Applications
@@ -113,15 +113,6 @@
             Authorized Signatory
           </a>
           <a
-            href="/admin-settings?section=system"
-            class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'system' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'system' } })"
-          >
-            <Settings class="icon" />
-            System Settings
-          </a>
-          <a
             href="/admin-settings?section=holidays"
             class="nav-item"
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'holidays' }"
@@ -131,6 +122,15 @@
             Holidays
           </a>
           <a
+            href="/admin-settings?section=system"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'system' }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'system' } })"
+          >
+            <Settings class="icon" />
+            System Settings
+          </a>
+          <!-- <a
             href="/admin-settings?section=approval"
             class="nav-item"
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'approval' }"
@@ -138,7 +138,7 @@
           >
             <FileCheck class="icon" />
             Approval Settings
-          </a>
+          </a> -->
           <a
             href="/admin-settings?section=audit"
             class="nav-item"
@@ -432,7 +432,7 @@ const pageTitle = computed(() => {
     "/admin-applications": "Applications",
     "/employees": "Employees",
 
-    "/teaching-setup": "Teaching Setup",
+    // "/teaching-setup": "Teaching Setup",
     
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
