@@ -862,6 +862,7 @@
 
           <input
             v-model.number="serviceCreditsDeductDays"
+            :disabled="isApproving"
             type="number"
             min="0"
             :max="approvalApplication?.number_of_days"
@@ -882,6 +883,7 @@
 
           <input
             v-model.number="vacationDeductDays"
+            :disabled="isApproving"
             type="number"
             min="0"
             :max="approvalApplication?.number_of_days"
@@ -902,6 +904,7 @@
 
           <input
             v-model.number="sickDeductDays"
+            :disabled="isApproving"
             type="number"
             min="0"
             :max="approvalApplication?.number_of_days"
@@ -957,7 +960,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
         <button
           @click="confirmApproval"
-          :disabled="(vacationDeductDays + sickDeductDays + serviceCreditsDeductDays) === 0"
+          :disabled="isApproving || isLoadingBalance || !!balanceLoadError || (vacationDeductDays + sickDeductDays + serviceCreditsDeductDays) === 0"
           class="btn-action-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Approve with Deduction
@@ -965,6 +968,7 @@
 
         <button
           @click="approveWithoutDeduction"
+          :disabled="isApproving"
           class="btn-action-lg bg-blue-600 hover:bg-blue-700"
         >
           Approve Without Deduction
@@ -972,6 +976,7 @@
 
         <button
           @click="closeApprovalModals"
+          :disabled="isApproving"
           class="btn-action-lg bg-gray-600 hover:bg-gray-700"
         >
           Cancel
@@ -1194,6 +1199,7 @@ const approvalApplication = ref<LeaveApplication | null>(null);
 ========================================================= */
 
 const deductBalance = ref<"yes" | "no">("yes");
+const isApproving = ref(false);
 
 const vacationDeductDays = ref(0);
 const sickDeductDays = ref(0);
@@ -1833,6 +1839,7 @@ const resetDeductionValues = (application?: LeaveApplication) => {
 const openApprovalModal = async (
   application: LeaveApplication,
 ) => {
+  if (isApproving.value) return;
   approvalApplication.value = application;
 
   resetDeductionValues(application);
@@ -1862,6 +1869,7 @@ const openSplitDeduction = () => {
 ========================================================= */
 
 const closeApprovalModals = () => {
+  if (isApproving.value) return;
   showApprovalModal.value = false;
   approvalApplication.value = null;
 };
@@ -1892,15 +1900,7 @@ const approvePrimaryWithDeduction = async () => {
 ========================================================= */
 
 const approveWithoutDeduction = async () => {
-  if (!approvalApplication.value) return;
-
-  await updateStatus(
-    approvalApplication.value.leave_id,
-    "approved",
-    {
-      deduct_balance: false,
-    },
-  );
+  await requestApprovalConfirmation(false);
 };
 
 /* =========================================================
@@ -1958,6 +1958,7 @@ const updateStatus = async (
     showApprovalModal.value = false;
 
     await loadApplications();
+    return true;
   } catch (error: any) {
     console.error(error);
 
@@ -1965,6 +1966,7 @@ const updateStatus = async (
       error.response?.data?.message ??
         "Failed to update leave application.",
     );
+    return false;
   }
 };
 
@@ -2052,81 +2054,73 @@ const confirmReject = async () => {
    CONFIRM APPROVAL
 ========================================================= */
 
-const confirmApproval = async () => {
-  if (!approvalApplication.value) {
-    return;
+const requestApprovalConfirmation = async (withDeduction: boolean) => {
+  if (isApproving.value || !approvalApplication.value) return;
+  const application = approvalApplication.value;
+  const allocations = [
+    { label: "Local Credits", days: Number(serviceCreditsDeductDays.value), balance: Number(employeeBalance.value.service_credits) },
+    { label: "Vacation Balance", days: Number(vacationDeductDays.value), balance: Number(employeeBalance.value.vacation_balance) },
+    { label: "Sick Balance", days: Number(sickDeductDays.value), balance: Number(employeeBalance.value.sick_balance) },
+  ];
+  const total = allocations.reduce((sum, item) => sum + item.days, 0);
+  if (withDeduction) {
+    if (isLoadingBalance.value || balanceLoadError.value) {
+      notify("Please load the current employee balances before approving with deduction.");
+      return;
+    }
+    if (allocations.some(item => !Number.isFinite(item.days) || item.days < 0)) {
+      notify("Deduction days must be valid numbers greater than or equal to zero.");
+      return;
+    }
+    if (total <= 0) { notify("Please enter at least one day to deduct."); return; }
+    if (total > Number(application.number_of_days) + 0.000001) {
+      notify("The total deduction cannot be greater than the number of days applied.");
+      return;
+    }
+    const insufficient = allocations.find(item => item.days > 0 && (!Number.isFinite(item.balance) || item.days > item.balance + 0.000001));
+    if (insufficient) { notify(`The deduction exceeds the available ${insufficient.label}.`); return; }
   }
 
-  const application =
-    approvalApplication.value;
+  const summary = [
+    `Employee: ${getEmployeeName(application.employee)}`,
+    `Leave type: ${getLeaveType(application.leave_type)}`,
+    `Days applied: ${formatBalance(application.number_of_days)}`,
+  ];
+  if (withDeduction) {
+    summary.push(`Total deduction: ${formatBalance(total)} days`);
+    allocations.filter(item => item.days > 0).forEach(item => {
+      summary.push(`\n${item.label}\nCurrent: ${formatBalance(item.balance)} days\nDeduction: ${formatBalance(item.days)} days\nRemaining: ${formatBalance(item.balance - item.days)} days`);
+    });
+    summary.push("\nConfirm approval and apply these deductions?");
+  } else {
+    summary.push("\nNo days will be deducted from the employee's leave balances.\n\nConfirm approval without deduction?");
+  }
 
-  if (deductBalance.value === "yes") {
-    const serviceCreditsDays =
-      Number(
-        serviceCreditsDeductDays.value,
-      ) || 0;
-
-    const vacationDays =
-      Number(
-        vacationDeductDays.value,
-      ) || 0;
-
-    const sickDays =
-      Number(
-        sickDeductDays.value,
-      ) || 0;
-
-    const totalDeduction =
-      vacationDays +
-      sickDays +
-      serviceCreditsDays;
-
-    if (totalDeduction <= 0) {
-      notify(
-        "Please enter at least one day to deduct.",
-      );
-
-      return;
-    }
-
-    if (
-      totalDeduction >
-      application.number_of_days
-    ) {
-      notify(
-        "The total deduction cannot be greater than the number of days applied.",
-      );
-
-      return;
-    }
-
-    await updateStatus(
-      application.leave_id,
-      "approved",
-      {
-        deduct_balance: true,
-
-        service_credits_deduct_days:
-          serviceCreditsDays,
-
-        vacation_deduct_days:
-          vacationDays,
-
-        sick_deduct_days:
-          sickDays,
+  isApproving.value = true;
+  try {
+    await confirmAction({
+      title: withDeduction ? "Confirm approval with deduction" : "Confirm approval without deduction",
+      message: summary.join("\n"),
+      confirmLabel: "Confirm Approval",
+      cancelLabel: "Cancel",
+      busyLabel: "Saving approval…",
+      variant: "primary",
+      onConfirm: async () => {
+        const saved = await updateStatus(application.leave_id, "approved", withDeduction ? {
+          deduct_balance: true,
+          service_credits_deduct_days: allocations[0]!.days,
+          vacation_deduct_days: allocations[1]!.days,
+          sick_deduct_days: allocations[2]!.days,
+        } : { deduct_balance: false });
+        if (!saved) throw new Error("Approval was not saved.");
+        notify("Leave application approved successfully.");
       },
-    );
+    });
+  } finally { isApproving.value = false; }
+};
 
-    return;
-  }
-
-  await updateStatus(
-    application.leave_id,
-    "approved",
-    {
-      deduct_balance: false,
-    },
-  );
+const confirmApproval = async () => {
+  await requestApprovalConfirmation(deductBalance.value === "yes");
 };
 
 /* =========================================================

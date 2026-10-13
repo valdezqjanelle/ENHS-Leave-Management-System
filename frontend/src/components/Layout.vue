@@ -23,13 +23,11 @@
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       "
     >
-      <div class="p-5 flex items-center justify-between border-b border-white/10">
+      <div
+        class="p-5 flex items-center justify-between border-b border-white/10"
+      >
         <div class="brand-block flex items-center gap-3">
-          <img
-            src="@/assets/logo.png"
-            alt="ENHS Logo"
-            class="brand-logo"
-          />
+          <img src="@/assets/logo.png" alt="ENHS Logo" class="brand-logo" />
           <div>
             <h1 class="text-lg font-bold text-white tracking-tight">ENHS</h1>
             <p class="text-xs text-white/70 font-medium">Leave Management</p>
@@ -97,8 +95,17 @@
           <a
             href="/admin-settings?section=leave"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'leave' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'leave' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'leave',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'leave' },
+              })
+            "
           >
             <SlidersHorizontal class="icon" />
             Leave Settings
@@ -106,8 +113,17 @@
           <a
             href="/admin-settings?section=signatory"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'signatory' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'signatory' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'signatory',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'signatory' },
+              })
+            "
           >
             <PenLine class="icon" />
             Authorized Signatory
@@ -115,8 +131,17 @@
           <a
             href="/admin-settings?section=holidays"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'holidays' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'holidays' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'holidays',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'holidays' },
+              })
+            "
           >
             <CalendarHeart class="icon" />
             Holidays
@@ -124,8 +149,17 @@
           <a
             href="/admin-settings?section=system"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'system' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'system' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'system',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'system' },
+              })
+            "
           >
             <Settings class="icon" />
             System Settings
@@ -142,8 +176,17 @@
           <a
             href="/admin-settings?section=audit"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'audit' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'audit' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'audit',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'audit' },
+              })
+            "
           >
             <ScrollText class="icon" />
             Audit Logs
@@ -151,8 +194,17 @@
           <a
             href="/admin-settings?section=backup"
             class="nav-item"
-            :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'backup' }"
-            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'backup' } })"
+            :class="{
+              'router-link-active':
+                route.path === '/admin-settings' &&
+                route.query.section === 'backup',
+            }"
+            @click.prevent="
+              router.push({
+                path: '/admin-settings',
+                query: { section: 'backup' },
+              })
+            "
           >
             <DatabaseBackup class="icon" />
             Backup &amp; Restore
@@ -219,15 +271,24 @@
     <!-- MAIN -->
     <div class="main-shell flex flex-col flex-1 w-full min-w-0 overflow-hidden">
       <!-- HEADER -->
-      <header class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6">
+      <header
+        class="topbar flex items-center justify-between px-6 py-4 pl-16 lg:pl-6"
+      >
         <div>
-          <h2 class="font-semibold text-lg tracking-tight" style="color: var(--text);">
+          <h2
+            class="font-semibold text-lg tracking-tight"
+            style="color: var(--text)"
+          >
             {{ pageTitle }}
           </h2>
-          <p v-if="currentUser.role === 'admin'" class="text-sm" style="color: var(--text-muted);">
+          <p
+            v-if="currentUser.role === 'admin'"
+            class="text-sm"
+            style="color: var(--text-muted)"
+          >
             Administrative Portal
           </p>
-          <p v-else class="text-sm" style="color: var(--text-muted);">
+          <p v-else class="text-sm" style="color: var(--text-muted)">
             Faculty Portal
           </p>
         </div>
@@ -239,13 +300,19 @@
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
           >
-            <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text);" />
-            <Moon v-else class="w-5 h-5" style="color: var(--text-muted);" />
+            <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text)" />
+            <Moon v-else class="w-5 h-5" style="color: var(--text-muted)" />
           </button>
 
           <div class="user-summary" aria-label="Current user">
             <span class="user-avatar">
-              <img v-if="headerPhoto && !headerPhotoFailed" :src="headerPhoto" alt="" class="header-photo" @error="headerPhotoFailed = true" />
+              <img
+                v-if="headerPhoto && !headerPhotoFailed"
+                :src="headerPhoto"
+                alt=""
+                class="header-photo"
+                @error="headerPhotoFailed = true"
+              />
               <span v-else>{{ currentUser.name.charAt(0).toUpperCase() }}</span>
             </span>
             <span class="hidden sm:block">
@@ -262,12 +329,17 @@
         class="enhancement-notice"
         aria-labelledby="enhancement-notice-title"
       >
+        <span class="enhancement-notice-icon" aria-hidden="true">
+          <ShieldAlert class="w-5 h-5" />
+        </span>
         <div class="enhancement-notice-copy">
           <h3 id="enhancement-notice-title">System Enhancement Notice</h3>
           <p>
-            We are continuously improving the system through interface refinements
-            and additional features. You may continue using the available features
-            while these enhancements are in progress.
+            We are enhancing the system’s
+            <strong class="enhancement-security">security</strong>
+            and refining the user interface. Additional improvements are
+            underway. You may continue using the available features during this
+            period.
           </p>
         </div>
         <button
@@ -308,6 +380,7 @@ import {
   ScrollText,
   DatabaseBackup,
   Bell,
+  ShieldAlert,
   LogOut,
   Menu,
   X,
@@ -327,7 +400,8 @@ const router = useRouter();
 const enhancementNoticeKey = "els-enhancement-notice-dismissed";
 const noticeDismissed = ref(false);
 try {
-  noticeDismissed.value = sessionStorage.getItem(enhancementNoticeKey) === "true";
+  noticeDismissed.value =
+    sessionStorage.getItem(enhancementNoticeKey) === "true";
 } catch {
   // In-memory dismissal still works when browser storage is unavailable.
 }
@@ -348,18 +422,18 @@ const dismissEnhancementNotice = () => {
 const sidebarOpen = ref(false);
 
 // Dark mode
-const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
+const isDarkMode = ref(localStorage.getItem("darkMode") === "true");
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('darkMode', isDarkMode.value.toString());
-  document.documentElement.classList.toggle('dark', isDarkMode.value);
+  localStorage.setItem("darkMode", isDarkMode.value.toString());
+  document.documentElement.classList.toggle("dark", isDarkMode.value);
 };
 
 // Initialize dark mode on mount
 onMounted(() => {
   if (isDarkMode.value) {
-    document.documentElement.classList.add('dark');
+    document.documentElement.classList.add("dark");
   }
 });
 
@@ -370,8 +444,10 @@ interface HeaderUser {
   role: string;
 }
 const profileName = (value: any): string => {
-  const first = typeof value?.first_name === "string" ? value.first_name.trim() : "";
-  const last = typeof value?.last_name === "string" ? value.last_name.trim() : "";
+  const first =
+    typeof value?.first_name === "string" ? value.first_name.trim() : "";
+  const last =
+    typeof value?.last_name === "string" ? value.last_name.trim() : "";
   return [first, last].filter(Boolean).join(" ");
 };
 let storedUser: any = {};
@@ -386,7 +462,7 @@ const currentUser = ref<HeaderUser>({
   role: storedUser?.role || "",
 });
 
-const headerPhoto = ref('');
+const headerPhoto = ref("");
 const headerPhotoFailed = ref(false);
 
 const refreshHeaderName = async () => {
@@ -394,41 +470,54 @@ const refreshHeaderName = async () => {
   if (!token) return;
   try {
     // Reuse existing profile endpoints to update already logged-in users too.
-    const endpoint = currentUser.value.role === "admin" ? "/admin/profile" : "/profile";
+    const endpoint =
+      currentUser.value.role === "admin" ? "/admin/profile" : "/profile";
     const response = await api.get(endpoint);
     if (localStorage.getItem("token") !== token) return;
     const body = response.data;
     const profile = body?.profile ?? body?.data?.profile ?? body?.data ?? body;
-    headerPhoto.value = profile?.photo_url || '';
+    headerPhoto.value = profile?.photo_url || "";
     headerPhotoFailed.value = false;
     const name = profileName(profile);
     if (!name) return;
     currentUser.value.name = name;
     let saved: any = {};
-    try { saved = JSON.parse(localStorage.getItem("user") || "{}"); } catch {}
-    localStorage.setItem("user", JSON.stringify({
-      ...saved,
-      first_name: profile.first_name,
-      last_name: profile.last_name,
-      name,
-    }));
+    try {
+      saved = JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {}
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        ...saved,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        name,
+      }),
+    );
   } catch {
     // Keep the last known name if profile loading temporarily fails.
   }
 };
 let photoRefreshTimer: ReturnType<typeof setInterval> | undefined;
-const refreshPhoto = () => { void refreshHeaderName(); };
+const refreshPhoto = () => {
+  void refreshHeaderName();
+};
 onMounted(() => {
   refreshPhoto();
-  window.addEventListener('els-profile-photo-updated', refreshPhoto);
+  window.addEventListener("els-profile-photo-updated", refreshPhoto);
   // Renew the signed URL while the authenticated layout remains open.
   photoRefreshTimer = setInterval(refreshPhoto, 30 * 60 * 1000);
 });
 onUnmounted(() => {
-  window.removeEventListener('els-profile-photo-updated', refreshPhoto);
+  window.removeEventListener("els-profile-photo-updated", refreshPhoto);
   if (photoRefreshTimer !== undefined) clearInterval(photoRefreshTimer);
 });
-watch(() => route.path, () => { void refreshHeaderName(); });
+watch(
+  () => route.path,
+  () => {
+    void refreshHeaderName();
+  },
+);
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
@@ -437,7 +526,7 @@ const pageTitle = computed(() => {
     "/employees": "Employees",
 
     // "/teaching-setup": "Teaching Setup",
-    
+
     "/leave-credits": "Leave Credits",
     "/leave-balances": "Leave Balances",
     "/leave-application": "Apply Leave",
@@ -445,7 +534,7 @@ const pageTitle = computed(() => {
     "/admin-settings": "Settings",
 
     "/attendance": "Attendance",
-   
+
     "/reports": "Reports",
     "/settings": "Settings",
     "/profile": "Profile",
@@ -476,38 +565,69 @@ const logout = async () => {
 </script>
 
 <style scoped>
-.header-photo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-
-.enhancement-notice {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-shrink: 0;
-  padding: 1rem 1.5rem;
-  background: var(--surface);
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
-  border-left: 4px solid var(--primary);
+.header-photo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
+.enhancement-notice {
+  --notice-background: #fff1f2;
+  --notice-background-pulse: #ffe4e6;
+  --notice-border: #fda4af;
+  --notice-accent: #be123c;
+  --notice-text: #881337;
+  --notice-glow: rgba(225, 29, 72, 0.12);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  background: var(--notice-background);
+  color: var(--notice-text);
+  border-bottom: 1px solid var(--notice-border);
+  border-left: 4px solid var(--notice-accent);
+  animation: enhancement-notice-pulse 1s ease-in-out infinite;
+}
+.enhancement-notice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--notice-accent);
+  background: var(--notice-background-pulse);
+  border: 1px solid var(--notice-border);
+  animation: enhancement-icon-motion 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
 .enhancement-notice-copy {
   flex: 1;
   min-width: 0;
 }
-
 .enhancement-notice h3 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.35rem;
   font-size: 0.875rem;
   font-weight: 700;
+  color: var(--notice-accent);
 }
-
 .enhancement-notice p {
   margin: 0;
   font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--text-muted);
+  line-height: 1.65;
+  color: var(--notice-text);
 }
-
+.enhancement-security {
+  display: inline;
+  padding: 0.05rem 0.3rem;
+  border-radius: 0.25rem;
+  background: var(--notice-background-pulse);
+  color: var(--notice-accent);
+  font-weight: 800;
+}
 .enhancement-notice-close {
   display: inline-flex;
   align-items: center;
@@ -515,29 +635,84 @@ const logout = async () => {
   flex-shrink: 0;
   min-width: 36px;
   min-height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--notice-border);
   border-radius: 0.5rem;
-  color: var(--text);
+  color: var(--notice-accent);
   background: transparent;
   cursor: pointer;
 }
-
 .enhancement-notice-close:hover {
-  background: var(--surface-muted);
+  background: var(--notice-background-pulse);
 }
-
 .enhancement-notice-close:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--notice-accent);
   outline-offset: 2px;
 }
-
+@keyframes enhancement-icon-motion {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  20% {
+    transform: scale(1.25) rotate(-12deg);
+  }
+  35% {
+    transform: scale(1.25) rotate(12deg);
+  }
+  50% {
+    transform: scale(1.25) rotate(-10deg);
+  }
+  65% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  80% {
+    transform: scale(1.1) rotate(0deg);
+  }
+}
+:global(.dark) .enhancement-notice {
+  --notice-background: #301a23;
+  --notice-background-pulse: #3c1e2a;
+  --notice-border: #9f3651;
+  --notice-accent: #fda4af;
+  --notice-text: #ffe4e6;
+  --notice-glow: rgba(251, 113, 133, 0.18);
+}
+@media (prefers-reduced-motion: reduce) {
+  .enhancement-notice,
+  .enhancement-notice-icon {
+    animation: none;
+  }
+}
 @media (max-width: 640px) {
   .enhancement-notice {
     padding: 0.75rem 1rem;
-    gap: 0.5rem;
+    gap: 0.6rem;
+  }
+  .enhancement-notice-icon {
+    width: 30px;
+    height: 30px;
   }
 }
 
+@keyframes enhancement-icon-motion {
+  0%,
+  65%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  72% {
+    transform: scale(1.08) rotate(-7deg);
+  }
+  79% {
+    transform: scale(1.08) rotate(7deg);
+  }
+  86% {
+    transform: scale(1.08) rotate(-4deg);
+  }
+  93% {
+    transform: scale(1.04) rotate(4deg);
+  }
+}
 @media print {
   .enhancement-notice {
     display: none;
@@ -579,7 +754,9 @@ const logout = async () => {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 1px 3px rgba(11, 31, 56, 0.04);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .topbar h2 {
@@ -669,7 +846,11 @@ const logout = async () => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-hover) 100%
+  );
   color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
