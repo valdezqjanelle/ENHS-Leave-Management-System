@@ -574,7 +574,7 @@ const logout = async () => {
 
 .enhancement-notice {
   --notice-background: #fff1f2;
-  --notice-background-pulse: #ffe4e6;
+  --notice-background-pulse: #fecdd3;
   --notice-border: #fda4af;
   --notice-accent: #be123c;
   --notice-text: #881337;
@@ -648,6 +648,19 @@ const logout = async () => {
   outline: 2px solid var(--notice-accent);
   outline-offset: 2px;
 }
+@keyframes enhancement-notice-pulse {
+  0%, 100% {
+    opacity: 1;
+    background-color: var(--notice-background);
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+  50% {
+    opacity: 0.8;
+    background-color: var(--notice-background-pulse);
+    box-shadow: inset 0 0 0 2px var(--notice-glow);
+  }
+}
+
 @keyframes enhancement-icon-motion {
   0%,
   100% {
@@ -671,7 +684,7 @@ const logout = async () => {
 }
 :global(.dark) .enhancement-notice {
   --notice-background: #301a23;
-  --notice-background-pulse: #3c1e2a;
+  --notice-background-pulse: #512437;
   --notice-border: #9f3651;
   --notice-accent: #fda4af;
   --notice-text: #ffe4e6;
