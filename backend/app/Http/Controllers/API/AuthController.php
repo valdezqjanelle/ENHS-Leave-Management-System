@@ -57,6 +57,7 @@ class AuthController extends Controller
     {
         return response()->json($this->userWithName($request->user()));
     }
+
     private function userWithName(User $user): array
     {
         $profile = $user->role === 'admin'

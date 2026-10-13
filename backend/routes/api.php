@@ -32,7 +32,9 @@ use App\Http\Controllers\API\DashboardOverviewController;
 
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/locations/search', [LocationController::class, 'search']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:verification-login');
+Route::post('/email-verification/resend', [\App\Http\Controllers\API\EmailVerificationController::class, 'resend'])->middleware('throttle:email-verification');
+Route::post('/email-verification/verify', [\App\Http\Controllers\API\EmailVerificationController::class, 'verify'])->middleware('throttle:email-verification');
 
 // Public recovery endpoints: no login required; throttle limits requests per IP.
 Route::post('/forgot-password', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'sendCode'])->middleware('throttle:5,1');
@@ -40,7 +42,7 @@ Route::post('/forgot-password/verify', [\App\Http\Controllers\API\PasswordRecove
 Route::post('/reset-password', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'resetPassword'])->middleware('throttle:10,1');
 
 
-Route::middleware(['auth:sanctum', 'session.idle'])->group(function () {
+Route::middleware(['auth:sanctum', 'email.verified', 'session.idle'])->group(function () {
     Route::post('/session/activity', fn () => response()->json(['message' => 'Session active.']));
     Route::get('/leave-school-year/current', [LeaveSchoolYearController::class, 'current']);
 

@@ -200,6 +200,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '@/services/auth'
 import { startSession } from '@/services/sessionTimeout'
+import { beginEmailVerification, clearEmailVerification } from '@/services/emailVerification'
 import {
   Mail,
   Lock,
@@ -231,6 +232,13 @@ const handleLogin = async () => {
       loginForm.value.password
     )
 
+    if (data.verification_required) {
+      beginEmailVerification(data)
+      loginForm.value.password = ''
+      await router.push('/verify-email')
+      return
+    }
+    clearEmailVerification()
     startSession(data.token, data.user)
 
     // Redirect based on role
@@ -250,7 +258,7 @@ const handleLogin = async () => {
 
     } else {
 
-      errorMessage.value =
+      errorMessage.value = error.response?.data?.message ||
         'Unable to connect to the server.'
 
     }

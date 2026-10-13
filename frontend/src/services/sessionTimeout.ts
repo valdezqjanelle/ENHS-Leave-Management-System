@@ -34,6 +34,7 @@ export function hasExpiredNotice(): boolean {
   return Boolean(localStorage.getItem(REASON_KEY))
 }
 export function expiredSessionMessage(): string {
+  if (localStorage.getItem(REASON_KEY) === 'verification') return 'Email verification is now required. Please sign in again to verify your registered email address.'
   return localStorage.getItem(REASON_KEY) === 'invalid'
     ? 'Your session is no longer valid. Please sign in again to continue.'
     : 'You have been signed out after 10 minutes of inactivity. Please sign in again to continue.'
@@ -82,7 +83,7 @@ export function installSessionInterceptors(client: AxiosInstance): void {
   client.interceptors.response.use(response => response, error => {
     const header = String(error.config?.headers?.Authorization || '')
     if (error.response?.status === 401 && header.startsWith('Bearer ')) {
-      expireSession(header.slice(7), error.response?.data?.code === 'SESSION_EXPIRED' ? '1' : 'invalid')
+      expireSession(header.slice(7), error.response?.data?.code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verification' : error.response?.data?.code === 'SESSION_EXPIRED' ? '1' : 'invalid')
     }
     return Promise.reject(error)
   })
@@ -103,7 +104,7 @@ function scheduleHeartbeat(): void {
   pendingHeartbeat = setTimeout(() => {
     pendingHeartbeat = undefined
     sendHeartbeat()
-  }, Math.max(0, 15000 - (Date.now() - lastHeartbeat)))
+  }, Math.max(heartbeatBusy ? 1000 : 0, 15000 - (Date.now() - lastHeartbeat)))
 }
 
 function sendHeartbeat(): void {
@@ -122,7 +123,7 @@ function sendHeartbeat(): void {
   }).then(async response => {
     if (response.status === 401) {
       const data = await response.json().catch(() => ({}))
-      expireSession(token, data.code === 'SESSION_EXPIRED' ? '1' : 'invalid')
+      expireSession(token, data.code === 'EMAIL_VERIFICATION_REQUIRED' ? 'verification' : data.code === 'SESSION_EXPIRED' ? '1' : 'invalid')
     }
     else if (!response.ok) lastHeartbeat = 0
   }).catch(() => { lastHeartbeat = 0 }).finally(() => { heartbeatBusy = false })

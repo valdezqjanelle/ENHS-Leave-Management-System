@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders([\App\Providers\EmailVerificationServiceProvider::class])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'session.idle' => \App\Http\Middleware\EnsureSessionIsActive::class,
+            'email.verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
         // Laravel built-in CORS middleware
