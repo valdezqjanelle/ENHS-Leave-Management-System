@@ -1,4 +1,5 @@
 import api from './api'
+import { clearSession } from './sessionTimeout'
 
 export const login = async (email: string, password: string) => {
   const response = await api.post('/login', {
@@ -10,9 +11,11 @@ export const login = async (email: string, password: string) => {
 }
 
 export const logout = async () => {
-  const response = await api.post('/logout')
-
-  return response.data
+  try {
+    return (await api.post('/logout')).data
+  } finally {
+    clearSession()
+  }
 }
 export const requestPasswordCode = async (email: string) => {
   return (await api.post('/forgot-password', { email })).data

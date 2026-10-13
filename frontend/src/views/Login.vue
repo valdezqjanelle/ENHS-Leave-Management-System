@@ -169,7 +169,7 @@
       <div class="text-center text-sm text-white mt-6 drop-shadow">
 
         <p>
-          © 2026 E-LMS System. All rights reserved.
+          © 2026 ELS System. All rights reserved.
         </p>
 
         <div class="mt-2 flex justify-center gap-4">
@@ -199,6 +199,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { login } from '@/services/auth'
+import { startSession } from '@/services/sessionTimeout'
 import {
   Mail,
   Lock,
@@ -230,14 +231,7 @@ const handleLogin = async () => {
       loginForm.value.password
     )
 
-    // Save token
-    localStorage.setItem('token', data.token)
-
-    // Save logged-in user
-    localStorage.setItem(
-      'user',
-      JSON.stringify(data.user)
-    )
+    startSession(data.token, data.user)
 
     // Redirect based on role
     if (data.user.role === 'admin') {

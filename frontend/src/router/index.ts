@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { checkSession } from "@/services/sessionTimeout";
 import LeaveApplicationPrint from "../views/LeaveApplicationPrint.vue";
 
 const router = createRouter({
@@ -25,6 +26,7 @@ const router = createRouter({
     {
       path: "/",
       component: () => import("../components/Layout.vue"),
+      meta: { requiresAuth: true },
 
       children: [
         {
@@ -174,10 +176,12 @@ const router = createRouter({
 
 // Authentication Guard
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
+  checkSession();
   const token = localStorage.getItem("token");
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  let user: { role?: string } = {};
+  try { user = JSON.parse(localStorage.getItem("user") || "{}") || {}; } catch {}
 
   // Need login
   if (to.meta.requiresAuth && !token) {

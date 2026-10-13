@@ -28,7 +28,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('els_token')->plainTextToken;
+        $issuedToken = $user->createToken('els_token');
+        $issuedToken->accessToken->forceFill(['last_activity_at' => now()])->save();
+        $token = $issuedToken->plainTextToken;
 
         AuditLogger::log('Login', "{$user->email} logged in", $user->user_id);
 

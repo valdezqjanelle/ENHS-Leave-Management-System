@@ -40,7 +40,8 @@ Route::post('/forgot-password/verify', [\App\Http\Controllers\API\PasswordRecove
 Route::post('/reset-password', [\App\Http\Controllers\API\PasswordRecoveryController::class, 'resetPassword'])->middleware('throttle:10,1');
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'session.idle'])->group(function () {
+    Route::post('/session/activity', fn () => response()->json(['message' => 'Session active.']));
     Route::get('/leave-school-year/current', [LeaveSchoolYearController::class, 'current']);
 
 // AUTHENTICATION

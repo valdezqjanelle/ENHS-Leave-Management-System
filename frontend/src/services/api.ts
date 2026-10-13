@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { installSessionInterceptors } from './sessionTimeout'
 
 const api = axios.create({
   baseURL: 'https://enhs-leave-management-system.onrender.com/api',
@@ -6,6 +7,8 @@ const api = axios.create({
     Accept: 'application/json',
   },
 })
+installSessionInterceptors(api)
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
 
