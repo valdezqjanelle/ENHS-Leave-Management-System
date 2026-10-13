@@ -131,6 +131,29 @@
             </tbody>
           </table>
         </div>
+
+        <div class="balance-pagination">
+          <p class="pagination-summary" role="status" aria-live="polite" aria-atomic="true">
+            <template v-if="balancesLoading">Loading leave balances…</template>
+            <template v-else>
+              Showing {{ paginationStart }}–{{ paginationEnd }} of {{ totalResults }} employees
+              <span v-if="searchQuery.trim()"> (filtered from {{ balances.length }})</span>
+            </template>
+          </p>
+          <nav class="pagination-controls" aria-label="Leave balances pagination">
+            <button type="button" class="pagination-button" @click="previousPage"
+              :disabled="balancesLoading || currentPage <= 1" aria-label="Previous page">
+              Previous
+            </button>
+            <span class="pagination-page">
+              {{ totalResults ? `Page ${currentPage} of ${totalPages}` : 'No results' }}
+            </span>
+            <button type="button" class="pagination-button" @click="nextPage"
+              :disabled="balancesLoading || currentPage >= totalPages" aria-label="Next page">
+              Next
+            </button>
+          </nav>
+        </div>
       </div>
 
       <!-- EDIT MODAL -->
@@ -214,7 +237,7 @@
 
 <script setup lang="ts">
 import { confirmAction, notify } from "@/composables/useNotifications";
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import SchoolYearManager from "@/components/SchoolYearManager.vue";
 import { deleteBalance as deleteLeaveBalance } from "@/services/leaveBalance";
@@ -242,6 +265,8 @@ const balancesLoading = ref(false);
 const balancesError = ref("");
 const arranged = ref(false);
 const searchQuery = ref("");
+const pageSize = 10;
+const currentPage = ref(1);
 const adjustmentReason = ref("");
 const historyEmployee = ref<Employee | null>(null);
 const balanceHistory = ref<any[]>([]);
@@ -251,7 +276,7 @@ const toggleSort = () => {
   arranged.value = !arranged.value;
 };
 
-const displayedBalances = computed(() => {
+const filteredBalances = computed(() => {
   const terms = searchQuery.value.trim().toLowerCase().split(/[\s,]+/).filter(Boolean);
   const filtered = balances.value.filter((balance) => {
     const name = `${balance.employee?.first_name || ""} ${balance.employee?.last_name || ""}`.toLowerCase();
@@ -271,6 +296,27 @@ const displayedBalances = computed(() => {
     return aName.localeCompare(bName);
   });
 });
+
+
+const totalResults = computed(() => filteredBalances.value.length);
+const totalPages = computed(() => Math.max(1, Math.ceil(totalResults.value / pageSize)));
+const displayedBalances = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return filteredBalances.value.slice(start, start + pageSize);
+});
+const paginationStart = computed(() => totalResults.value === 0 ? 0 : (currentPage.value - 1) * pageSize + 1);
+const paginationEnd = computed(() => Math.min(currentPage.value * pageSize, totalResults.value));
+const previousPage = () => {
+  if (!balancesLoading.value && currentPage.value > 1) currentPage.value--;
+};
+const nextPage = () => {
+  if (!balancesLoading.value && currentPage.value < totalPages.value) currentPage.value++;
+};
+
+// Search the full dataset first, then show at most ten matching employees.
+watch([searchQuery, arranged], () => { currentPage.value = 1; });
+// Keep the current page valid when a refresh changes the number of records.
+watch(totalPages, (pages) => { currentPage.value = Math.min(currentPage.value, pages); });
 
 const showModal = ref(false);
 
@@ -329,6 +375,9 @@ const loadBalances = async () => {
       "Failed loading balances:",
       error.response?.data || error
     );
+    balancesError.value = "Unable to load leave balances. Use Refresh to try again.";
+  } finally {
+    balancesLoading.value = false;
   }
 };
 
@@ -521,6 +570,38 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+
+.balance-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.pagination-summary { color: var(--text-muted); font-size: .85rem; line-height: 1.5; }
+.pagination-controls { display: flex; align-items: center; gap: .75rem; }
+.pagination-page { color: var(--text-muted); font-size: .8rem; white-space: nowrap; }
+.pagination-button {
+  padding: .55rem .85rem;
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pagination-button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.pagination-button:disabled { opacity: .45; cursor: not-allowed; }
+.pagination-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .balance-pagination { padding: 1rem; flex-direction: column; align-items: stretch; }
+  .pagination-controls { justify-content: space-between; }
+}
+
 .balance-search {
   color: var(--text);
   background: var(--surface-muted);
