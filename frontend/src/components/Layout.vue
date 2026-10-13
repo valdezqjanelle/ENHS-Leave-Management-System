@@ -100,7 +100,7 @@
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'leave' }"
             @click.prevent="router.push({ path: '/admin-settings', query: { section: 'leave' } })"
           >
-            <Settings class="icon" />
+            <SlidersHorizontal class="icon" />
             Leave Settings
           </a>
           <a
@@ -109,7 +109,7 @@
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'signatory' }"
             @click.prevent="router.push({ path: '/admin-settings', query: { section: 'signatory' } })"
           >
-            <FileCheck class="icon" />
+            <PenLine class="icon" />
             Authorized Signatory
           </a>
           <a
@@ -118,7 +118,7 @@
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'holidays' }"
             @click.prevent="router.push({ path: '/admin-settings', query: { section: 'holidays' } })"
           >
-            <Calendar class="icon" />
+            <CalendarHeart class="icon" />
             Holidays
           </a>
           <a
@@ -145,7 +145,7 @@
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'audit' }"
             @click.prevent="router.push({ path: '/admin-settings', query: { section: 'audit' } })"
           >
-            <Search class="icon" />
+            <ScrollText class="icon" />
             Audit Logs
           </a>
           <a
@@ -154,7 +154,7 @@
             :class="{ 'router-link-active': route.path === '/admin-settings' && route.query.section === 'backup' }"
             @click.prevent="router.push({ path: '/admin-settings', query: { section: 'backup' } })"
           >
-            <Settings class="icon" />
+            <DatabaseBackup class="icon" />
             Backup &amp; Restore
           </a>
         </template>
@@ -302,7 +302,11 @@ import {
   Users,
   BarChart,
   Settings,
-  Search,
+  SlidersHorizontal,
+  PenLine,
+  CalendarHeart,
+  ScrollText,
+  DatabaseBackup,
   Bell,
   LogOut,
   Menu,
