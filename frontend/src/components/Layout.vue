@@ -305,7 +305,7 @@
           </button>
 
           <div class="user-summary" aria-label="Current user">
-            <span class="user-avatar">
+            <span class="user-avatar" :class="{ 'user-avatar-fallback': !headerPhoto || headerPhotoFailed }">
               <img
                 v-if="headerPhoto && !headerPhotoFailed"
                 :src="headerPhoto"
@@ -579,10 +579,12 @@ const logout = async () => {
 
 <style scoped>
 .header-photo {
-  width: 38px;
-  height: 38px;
+  display: block;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  background: transparent;
 }
 
 .enhancement-notice {
@@ -867,19 +869,20 @@ const logout = async () => {
 
 .user-avatar {
   display: inline-flex;
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: linear-gradient(
-    135deg,
-    var(--primary) 0%,
-    var(--primary-hover) 100%
-  );
-  color: #ffffff;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 1rem;
+}
+.user-avatar-fallback {
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: #ffffff;
 }
 
 .user-summary strong,
