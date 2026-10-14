@@ -2615,7 +2615,7 @@ const restoreEmployeeRecord = async (employee: Employee) => {
 const permanentlyDeleteEmployeeRecord = async (employee: Employee) => {
   await confirmAction({
     title: "Permanently delete employee?",
-    message: `Permanently delete ${employee.first_name} ${employee.last_name}? This cannot be undone. Their leave applications, credits, balances, attendance, and personnel records will be removed, and login access will be revoked. Historical audit and school-year records remain.`,
+    message: `Permanently delete ${employee.first_name} ${employee.last_name}? This cannot be undone. Their login account, leave applications, attachments, credits, balances, attendance, personnel records, and employee-owned history will be permanently removed. Records belonging to other employees will remain.`,
     confirmLabel: "Permanently delete",
     busyLabel: "Deleting permanently...",
     onConfirm: async () => {

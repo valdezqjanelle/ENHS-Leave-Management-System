@@ -608,7 +608,6 @@ class EmployeeController extends Controller
         $attachmentPaths = [];
         try {
             $result = DB::transaction(function () use ($id, &$attachmentPaths) {
-                // Use the same lock as school-year processing before locking employees.
                 if (Schema::hasTable('leave_year_control')) {
                     DB::table('leave_year_control')->where('id', 1)->lockForUpdate()->first();
                 }
@@ -626,73 +625,97 @@ class EmployeeController extends Controller
                     409,
                     'This login account is linked to another employee record.'
                 );
-
+                $employeeId = $employee->employee_id;
                 $employeeName = trim($employee->first_name . ' ' . $employee->last_name);
-                $leaveIds = DB::table('leave_applications')->where('employee_id', $employee->employee_id)->pluck('leave_id');
-                $attachmentPaths = DB::table('leave_attachments')->whereIn('leave_id', $leaveIds)->pluck('file_path')->all();
+                $leaveIds = Schema::hasTable('leave_applications')
+                    ? DB::table('leave_applications')->where('employee_id', $employeeId)->pluck('leave_id')->all()
+                    : [];
+                if (Schema::hasColumn('leave_attachments', 'file_path')) {
+                    $attachmentPaths = DB::table('leave_attachments')->whereIn('leave_id', $leaveIds)->pluck('file_path')->all();
+                }
                 if ($employee->profile_photo_path) $attachmentPaths[] = $employee->profile_photo_path;
+                if ($user && Schema::hasColumn('admin_profiles', 'profile_photo_path')) {
+                    $attachmentPaths = array_merge($attachmentPaths,
+                        DB::table('admin_profiles')->where('user_id', $user->user_id)->pluck('profile_photo_path')->all());
+                }
 
-                // Raw queries include soft-deleted records. Deleting with Eloquent's
-                // default scope would leave archived credits blocking the foreign key.
-                DB::table('leave_credits')->where('employee_id', $employee->employee_id)->delete();
-                // Applications, attachments, balances, attendance and personnel records
-                // cascade from employee_records in the supplied migrations.
-                $employee->forceDelete();
-
-                $userRetained = false;
-                if ($user) {
-                    $user->tokens()->delete();
-                    // Keep the author identity when other records still refer to it.
-                    $references = [
-                        ['audit_logs', 'user_id'],
-                        ['reports', 'generated_by'],
-                        ['backups', 'created_by'],
-                        ['leave_credits', 'recorded_by'],
-                        ['leave_credits', 'revoked_by'],
-                        ['employee_records', 'created_by'],
-                        ['leave_school_years', 'processed_by'],
-                    ];
-                    foreach ($references as [$table, $column]) {
-                        if (Schema::hasColumn($table, $column) && DB::table($table)->where($column, $user->user_id)->exists()) {
-                            $userRetained = true;
-                            break;
-                        }
-                    }
-                    if ($userRetained) {
-                        // No known password remains and all Sanctum tokens are revoked.
-                        $user->password = Hash::make(Str::random(64));
-                        if (Schema::hasColumn('users', 'remember_token')) {
-                            $user->remember_token = null;
-                        }
-                        $user->save();
-                    } else {
-                        $user->delete();
-                    }
-                    if (Schema::hasColumn('sessions', 'user_id')) {
-                        DB::table('sessions')->where('user_id', $user->user_id)->delete();
+                // Delete owned children explicitly, including soft-deleted rows.
+                // Do not assume the deployed database has the same cascade rules.
+                if (Schema::hasTable('leave_attachments')) {
+                    DB::table('leave_attachments')->whereIn('leave_id', $leaveIds)->delete();
+                }
+                if (Schema::hasTable('teaching_personnel_records') && Schema::hasTable('teaching_assignments')) {
+                    $teachingIds = DB::table('teaching_personnel_records')->where('employee_id', $employeeId)->pluck('teaching_record_id');
+                    DB::table('teaching_assignments')->whereIn('teaching_record_id', $teachingIds)->delete();
+                }
+                foreach ([
+                    'leave_balance_adjustments', 'leave_school_year_entries',
+                    'leave_credits', 'leave_applications', 'leave_balances',
+                    'attendance_records', 'teaching_personnel_records', 'non_teaching_personnel_records',
+                ] as $table) {
+                    if (Schema::hasColumn($table, 'employee_id')) {
+                        DB::table($table)->where('employee_id', $employeeId)->delete();
                     }
                 }
-                AuditLogger::log(
-                    'Employee permanently deleted',
-                    "Permanently deleted employee #{$id} {$employeeName}; " .
-                        ($userRetained ? 'login disabled; author identity retained for history.' : 'login account removed.')
-                );
-                return ['user_retained_for_history' => $userRetained];
+
+                // Other employees survive; remove only their supervisor reference.
+                if (Schema::hasColumn('employee_records', 'supervisor_id')) {
+                    DB::table('employee_records')->where('supervisor_id', $employeeId)->update(['supervisor_id' => null]);
+                }
+                if ($user) {
+                    // Keep agency records authored by this account for OTHER people.
+                    // Preserve the attribution as text and detach only the account FK.
+                    foreach ([
+                        ['employee_records', 'created_by', 'created_by_name'],
+                        ['leave_credits', 'recorded_by', 'recorded_by_name'],
+                        ['leave_credits', 'revoked_by', 'revoked_by_name'],
+                        ['leave_balance_adjustments', 'admin_user_id', 'admin_user_name'],
+                        ['reports', 'generated_by', 'generated_by_name'],
+                        ['backups', 'created_by', 'created_by_name'],
+                        ['leave_school_years', 'processed_by', 'processed_by_name'],
+                    ] as [$table, $column, $snapshot]) {
+                        if (!Schema::hasColumn($table, $column)) continue;
+                        $values = [$column => null];
+                        if (Schema::hasColumn($table, $snapshot)) $values[$snapshot] = mb_substr($employeeName, 0, 255);
+                        DB::table($table)->where($column, $user->user_id)->update($values);
+                    }
+                    $user->tokens()->delete();
+                    foreach (['password_recovery_codes', 'email_verification_codes', 'sessions', 'admin_profiles', 'audit_logs'] as $table) {
+                        if (Schema::hasColumn($table, 'user_id')) {
+                            DB::table($table)->where('user_id', $user->user_id)->delete();
+                        }
+                    }
+                }
+                $employee->forceDelete();
+                if ($user) $user->delete();
+
+                // This final audit entry belongs to the admin performing deletion.
+                AuditLogger::log('Employee permanently deleted',
+                    "Permanently deleted employee #{$id} {$employeeName}, the login account and owned records.");
+                return ['user_retained_for_history' => false, 'login_account_removed' => true];
             });
         } catch (QueryException $exception) {
             report($exception);
-            $sqlState = $exception->errorInfo[0] ?? $exception->getCode();
-            if ($sqlState === '23503' || ($sqlState === '23000' && in_array((int) ($exception->errorInfo[1] ?? 0), [1451, 1452], true))) {
-                return response()->json(['message' => 'Deletion was cancelled because another linked record still requires this employee or account. No records were deleted.'], 409);
+            $sqlState = (string) ($exception->errorInfo[0] ?? $exception->getCode());
+            if ($sqlState === '23503' || ($sqlState === '23000' && (in_array((int) ($exception->errorInfo[1] ?? 0), [1451, 1452], true) || str_contains(strtolower($exception->getMessage()), 'foreign key constraint failed')))) {
+                $constraint = null;
+                if (preg_match('/(?:foreign key )?constraint ["`]([a-zA-Z0-9_]+)["`]/i', $exception->getMessage(), $match)) {
+                    $constraint = $match[1];
+                }
+                return response()->json([
+                    'message' => 'Another database relationship blocked deletion' .
+                        ($constraint ? " ({$constraint})" : '') . '. No records were deleted.',
+                    'blocking_constraint' => $constraint,
+                ], 409);
             }
-            return response()->json(['message' => 'Permanent deletion could not be completed. The database changes were rolled back.'], 500);
+            return response()->json([
+                'message' => 'Permanent deletion could not be completed. The database changes were rolled back. Ensure the latest deletion migration has been applied.',
+            ], 500);
         }
 
-        // Storage cannot participate in the database transaction. Remove files only
-        // after commit; a storage failure must not report a successful DB delete as failed.
+        // Only committed deletions may remove storage objects.
         $cleanupWarning = false;
-        foreach (array_unique($attachmentPaths) as $path) {
-            if (!$path) continue;
+        foreach (array_unique(array_filter($attachmentPaths)) as $path) {
             try {
                 if (!Storage::disk('supabase')->delete($path)) $cleanupWarning = true;
             } catch (\Throwable $exception) {
@@ -701,11 +724,11 @@ class EmployeeController extends Controller
             }
         }
         return response()->json([
-            'message' => 'Employee permanently deleted.' .
-                ($result['user_retained_for_history'] ? ' Login access was removed; account identity was retained for historical records.' : '') .
+            'message' => 'Employee, login account and owned records permanently deleted.' .
                 ($cleanupWarning ? ' Some attachment files could not be removed from storage.' : ''),
             'data' => $result,
             'attachment_cleanup_pending' => $cleanupWarning,
         ]);
     }
+
 }
