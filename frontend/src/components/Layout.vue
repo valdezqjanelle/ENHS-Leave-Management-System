@@ -308,13 +308,14 @@
         <div class="flex items-center gap-3">
           <!-- Dark Mode Toggle -->
           <button
-            @click="toggleDarkMode"
-            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-          >
-            <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text)" />
-            <Moon v-else class="w-5 h-5" style="color: var(--text-muted)" />
-          </button>
+    @click="toggleDarkMode"
+    class="p-2 rounded-lg transition-colors"
+    style="background: var(--surface-muted); border: 1px solid var(--border);"
+    :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+  >
+    <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text)" />
+    <Moon v-else class="w-5 h-5" style="color: var(--text)" />
+  </button>
 
           <div class="user-summary" aria-label="Current user">
             <span class="user-avatar" :class="{ 'user-avatar-fallback': !headerPhoto || headerPhotoFailed }">
