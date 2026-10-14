@@ -762,10 +762,15 @@ const logout = async () => {
   }
 }
 
+/* Pinned to the viewport so the document itself never scrolls.
+   (100vw includes the scrollbar width and caused the horizontal overflow;
+   100vh + any body margin caused the vertical document scroll.) */
 .app-shell {
+  position: fixed;
+  inset: 0;
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--app-bg);
   transition: background 0.3s ease;
