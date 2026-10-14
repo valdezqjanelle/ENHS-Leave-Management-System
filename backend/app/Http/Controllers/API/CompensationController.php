@@ -52,11 +52,13 @@ class CompensationController extends Controller
     }
     public function updatePosition(Request $request, int $id)
     {
-        $data = $this->positionData($request, $id);
-        $position = DB::transaction(function () use ($data, $id) {
+        // Table status actions change only is_active, not stale copies of other fields.
+        $statusOnly = array_keys($request->all()) === ['is_active'];
+        $data = $statusOnly ? $request->validate(['is_active' => 'required|boolean']) : $this->positionData($request, $id);
+        $position = DB::transaction(function () use ($data, $id, $statusOnly) {
             $this->lock();
             $position = Position::lockForUpdate()->findOrFail($id);
-            if ($this->positionUsage($id) > 0 && ($position->type !== $data['type']
+            if (!$statusOnly && $this->positionUsage($id) > 0 && ($position->type !== $data['type']
                 || (string) $position->salary_grade !== (string) ($data['salary_grade'] ?? ''))) {
                 throw ValidationException::withMessages(['salary_grade' => 'This position is already assigned. Create a new position to change its personnel type or salary grade, then update the affected employee records.']);
             }
@@ -132,7 +134,7 @@ class CompensationController extends Controller
             'rates' => 'present|array|max:264',
             'rates.*.salary_grade' => 'required|integer|min:1|max:33',
             'rates.*.step' => 'required|integer|min:1|max:8',
-            'rates.*.salary' => ['required', 'numeric', 'min:0.01', 'max:99999999.99', 'regex:/^\d{1,8}(\.\d{1,2})?$/'],
+            'rates.*.salary' => ['present', 'nullable', 'numeric', 'min:0.01', 'max:99999999.99', 'regex:/^\d{1,8}(\.\d{1,2})?$/'],
         ]);
         $keys = array_map(fn($rate) => $rate['salary_grade'] . '-' . $rate['step'], $data['rates']);
         if (count($keys) !== count(array_unique($keys))) throw ValidationException::withMessages(['rates' => 'Each salary grade and step may appear only once.']);
@@ -152,7 +154,7 @@ class CompensationController extends Controller
                     'schedule_id' => $id,
                     'salary_grade' => $rate['salary_grade'],
                     'step' => $rate['step'],
-                    'salary' => number_format((float) $rate['salary'], 2, '.', ''),
+                    'salary' => $rate['salary'] === null ? null : number_format((float) $rate['salary'], 2, '.', ''),
                 ], $chunk));
             }
             AuditLogger::log('Salary schedule updated', "Updated draft salary schedule #{$id}");
@@ -171,7 +173,7 @@ class CompensationController extends Controller
         $rates = DB::table('salary_schedule_rates')->where('schedule_id', $schedule->id)->orderBy('salary_grade')->orderBy('step')->get();
         $errors = [];
         if ($rates->isEmpty()) $errors[] = 'Add salary rates before activation.';
-        if ($rates->contains(fn($rate) => (float) $rate->salary <= 0 || (float) $rate->salary > 99999999.99)) $errors[] = 'All salary rates must be positive and within the supported amount range.';
+        if ($rates->contains(fn($rate) => $rate->salary === null || (float) $rate->salary <= 0 || (float) $rate->salary > 99999999.99)) $errors[] = 'Complete every salary step with a positive amount before activation. Incomplete drafts may be saved, but cannot be activated.';
         foreach ($rates->groupBy('salary_grade') as $grade => $rows) {
             if ($rows->pluck('step')->map(fn($step) => (int) $step)->sort()->values()->all() !== range(1, 8)) $errors[] = "Salary Grade {$grade} needs all eight steps.";
         }

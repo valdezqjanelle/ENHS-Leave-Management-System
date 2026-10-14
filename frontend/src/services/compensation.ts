@@ -20,7 +20,7 @@ export interface ScheduleHeader {
 export interface ScheduleRate {
   salary_grade: number;
   step: number;
-  salary: string | number;
+  salary: string | number | null;
 }
 export interface ScheduleDetails {
   schedule: ScheduleHeader;
@@ -84,3 +84,7 @@ export function compensationError(error: any): string {
     : error.response?.data?.message ||
         "Unable to complete the request. Please try again.";
 }
+
+// Status-only update: preserve the position's current name, code, type and grade.
+export const setPositionStatus = async (id: number, is_active: boolean): Promise<{ message: string; data: ManagedPosition }> =>
+  (await api.put(`/admin/position-management/${id}`, { is_active })).data;
