@@ -24,8 +24,8 @@
             <button
               @click="toggleSort"
               type="button"
-              class="w-full sm:w-auto flex-shrink-0 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
-              style="background: var(--text-muted);"
+              class="w-full sm:w-auto px-4 py-2 text-xs font-medium border rounded-full transition whitespace-nowrap"
+style="border-color: var(--border); color: var(--text);"
               :title="arranged ? 'Unsort employees' : 'Sort employees alphabetically (A to Z)'"
             >
               Sort
