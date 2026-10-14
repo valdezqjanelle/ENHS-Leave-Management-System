@@ -465,51 +465,64 @@ const currentUser = ref<HeaderUser>({
 const headerPhoto = ref("");
 const headerPhotoFailed = ref(false);
 
+let headerRefreshVersion = 0;
 const refreshHeaderName = async () => {
   const token = localStorage.getItem("token");
   if (!token) return;
-  try {
-    // Reuse existing profile endpoints to update already logged-in users too.
-    const endpoint =
-      currentUser.value.role === "admin" ? "/admin/profile" : "/profile";
-    const response = await api.get(endpoint);
-    if (localStorage.getItem("token") !== token) return;
-    const body = response.data;
-    const profile = body?.profile ?? body?.data?.profile ?? body?.data ?? body;
-    headerPhoto.value = profile?.photo_url || "";
-    headerPhotoFailed.value = false;
-    const name = profileName(profile);
-    if (!name) return;
-    currentUser.value.name = name;
-    let saved: any = {};
-    try {
-      saved = JSON.parse(localStorage.getItem("user") || "{}");
-    } catch {}
-    localStorage.setItem(
-      "user",
-      JSON.stringify({
-        ...saved,
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        name,
-      }),
-    );
-  } catch {
-    // Keep the last known name if profile loading temporarily fails.
+  const version = ++headerRefreshVersion;
+  const isAdmin = currentUser.value.role === "admin";
+  const endpoint = isAdmin ? "/admin/profile" : "/profile";
+  // Admin settings stores photos separately from the admin profile response.
+  // Fetch each independently so a photo failure does not lose the user's name.
+  const [profileResult, photoResult] = await Promise.allSettled([
+    api.get(endpoint),
+    ...(isAdmin ? [api.get("/admin/profile/photo")] : []),
+  ]);
+  if (localStorage.getItem("token") !== token || version !== headerRefreshVersion) return;
+
+  let profile: any = null;
+  if (profileResult?.status === "fulfilled") {
+    const body = profileResult.value.data;
+    profile = body?.profile ?? body?.data?.profile ?? body?.data ?? body;
   }
+  if (isAdmin && photoResult?.status === "fulfilled") {
+    const body = photoResult.value.data;
+    const photo = body?.data ?? body;
+    headerPhoto.value = typeof photo?.photo_url === "string" ? photo.photo_url : "";
+    headerPhotoFailed.value = false;
+  } else if (profile && (!isAdmin || typeof profile.photo_url === "string")) {
+    headerPhoto.value = profile.photo_url || "";
+    headerPhotoFailed.value = false;
+  }
+  const name = profileName(profile);
+  if (!name) return;
+  currentUser.value.name = name;
+  let saved: any = {};
+  try { saved = JSON.parse(localStorage.getItem("user") || "{}"); } catch {}
+  localStorage.setItem("user", JSON.stringify({
+    ...saved,
+    first_name: profile.first_name,
+    last_name: profile.last_name,
+    name,
+  }));
 };
 let photoRefreshTimer: ReturnType<typeof setInterval> | undefined;
+const handleHeaderVisibility = () => {
+  if (document.visibilityState === "visible") refreshPhoto();
+};
 const refreshPhoto = () => {
   void refreshHeaderName();
 };
 onMounted(() => {
   refreshPhoto();
   window.addEventListener("els-profile-photo-updated", refreshPhoto);
+  document.addEventListener("visibilitychange", handleHeaderVisibility);
   // Renew the signed URL while the authenticated layout remains open.
   photoRefreshTimer = setInterval(refreshPhoto, 30 * 60 * 1000);
 });
 onUnmounted(() => {
   window.removeEventListener("els-profile-photo-updated", refreshPhoto);
+  document.removeEventListener("visibilitychange", handleHeaderVisibility);
   if (photoRefreshTimer !== undefined) clearInterval(photoRefreshTimer);
 });
 watch(

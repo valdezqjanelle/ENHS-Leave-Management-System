@@ -2564,6 +2564,8 @@ const loadEmployees = async () => {
     const result = await getEmployees();
 
     employees.value = Array.isArray(result) ? result : [];
+    // A renewed signed URL must be allowed to load after an earlier image error.
+    failedEmployeePhotos.value.clear();
     const existingIds = new Set(employees.value.map((employee) => employee.employee_id));
     selectedEmployeeIds.value = selectedEmployeeIds.value.filter((id) => existingIds.has(id));
   } catch (error) {
@@ -2698,6 +2700,21 @@ const saveEmployee = async () => {
     }
   }
 };
+
+let employeePhotoRefreshTimer: ReturnType<typeof setInterval> | undefined;
+const refreshEmployeePhotos = () => {
+  if (localStorage.getItem("token") && document.visibilityState === "visible") void loadEmployees();
+};
+onMounted(() => {
+  window.addEventListener("els-profile-photo-updated", refreshEmployeePhotos);
+  document.addEventListener("visibilitychange", refreshEmployeePhotos);
+  employeePhotoRefreshTimer = setInterval(refreshEmployeePhotos, 30 * 60 * 1000);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("els-profile-photo-updated", refreshEmployeePhotos);
+  document.removeEventListener("visibilitychange", refreshEmployeePhotos);
+  if (employeePhotoRefreshTimer !== undefined) clearInterval(employeePhotoRefreshTimer);
+});
 
 onMounted(async () => {
   // Deep link from the dashboard: /employees?status=active

@@ -182,8 +182,19 @@ class EmployeeController extends Controller
             ->latest()
             ->get();
 
-        return response()->json($employees->map(function (EmployeeRecord $employee) {
-            $employee->setAttribute('photo_url', \App\Support\ProfilePhotoStorage::url($employee->profile_photo_path));
+        // Employee accounts save photos in employee_records; admin accounts
+        // save them in admin_profiles. Resolve all admin paths in one query.
+        $adminUserIds = $employees->filter(fn (EmployeeRecord $employee) => $employee->user?->role === 'admin')
+            ->pluck('user_id')->unique()->values();
+        $adminPhotoPaths = $adminUserIds->isEmpty()
+            ? collect()
+            : \App\Models\AdminProfile::whereIn('user_id', $adminUserIds)->pluck('profile_photo_path', 'user_id');
+
+        return response()->json($employees->map(function (EmployeeRecord $employee) use ($adminPhotoPaths) {
+            $photoPath = $employee->user?->role === 'admin'
+                ? $adminPhotoPaths->get($employee->user_id)
+                : $employee->profile_photo_path;
+            $employee->setAttribute('photo_url', \App\Support\ProfilePhotoStorage::url($photoPath));
             return $employee;
         }));
     }
