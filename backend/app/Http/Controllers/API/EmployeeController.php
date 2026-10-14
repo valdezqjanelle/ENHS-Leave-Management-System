@@ -53,6 +53,7 @@ class EmployeeController extends Controller
         ]);
 
         $position = Position::findOrFail($request->position_id);
+        abort_unless($position->is_active, 422, 'This position is inactive. Select an active position.');
 
         if (!$position->salary_grade) {
             return response()->json([
@@ -316,6 +317,7 @@ class EmployeeController extends Controller
         ]);
 
         $position = Position::findOrFail($request->position_id);
+        abort_if(!$position->is_active && (int) $employee->position_id !== (int) $position->id, 422, 'This position is inactive. Select an active position.');
 
         if (!$position->salary_grade) {
             return response()->json([

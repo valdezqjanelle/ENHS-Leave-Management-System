@@ -1,6 +1,7 @@
  
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
+    <CompensationManagement v-if="activeTab === 'compensation'" @positions-changed="loadPositions" />
 
     <div v-if="activeTab === 'account'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)] mb-2">
@@ -336,7 +337,7 @@
               <option :value="null">Select Position</option>
 
               <option
-                v-for="position in positions"
+                v-for="position in availableAdminPositions"
                 :key="position.id"
                 :value="Number(position.id)"
               >
@@ -2047,6 +2048,7 @@
 
 <script setup lang="ts">
 import { confirmAction, notify } from "@/composables/useNotifications";
+import CompensationManagement from '@/views/CompensationManagement.vue';
 import { useRoute } from "vue-router";
 import { onBeforeUnmount, onMounted, ref, computed, watch, nextTick } from "vue";
 import { Pencil } from "lucide-vue-next";
@@ -2115,14 +2117,18 @@ import {
 import block7bImage from "@/assets/cs-form-6-block-7b.png";
 
 const route = useRoute();
-const validSections = new Set(["account", "leave", "holidays", "approval", "system", "signatory", "audit", "backup"]);
-const activeTab = ref(validSections.has(String(route.query.section || "account")) ? String(route.query.section || "account") : "account");
+const validSections = new Set(["account", "leave", "holidays", "approval", "system", "signatory", "audit", "backup", "compensation"]);
+const normalizeSection = (section: unknown) => {
+  const value = String(section || "account");
+  if (value === "positions" || value === "salary") return "compensation";
+  return validSections.has(value) ? value : "account";
+};
+const activeTab = ref(normalizeSection(route.query.section));
 
 watch(
   () => route.query.section,
   (section) => {
-    const nextSection = String(section || "account");
-    activeTab.value = validSections.has(nextSection) ? nextSection : "account";
+    activeTab.value = normalizeSection(section);
   },
   { immediate: true },
 );
@@ -2386,6 +2392,7 @@ const adminProfile = ref({
 });
 
 const positions = ref<any[]>([]);
+const availableAdminPositions = computed(() => positions.value.filter(p => p.is_active !== false || Number(p.id) === Number(adminProfile.value.position_id)));
 
 const departments = ref<any[]>([]);
 

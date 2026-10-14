@@ -171,6 +171,18 @@ Route::middleware(['auth:sanctum', 'email.verified', 'session.idle'])->group(fun
     // ADMIN ONLY
 
     Route::middleware('role:admin')->group(function () {
+
+        // Admin configuration: Positions and versioned Salary Schedules.
+        Route::get('/admin/position-management', [\App\Http\Controllers\API\CompensationController::class, 'positions']);
+        Route::post('/admin/position-management', [\App\Http\Controllers\API\CompensationController::class, 'storePosition']);
+        Route::put('/admin/position-management/{id}', [\App\Http\Controllers\API\CompensationController::class, 'updatePosition'])->whereNumber('id');
+        Route::get('/admin/salary-schedules', [\App\Http\Controllers\API\CompensationController::class, 'schedules']);
+        Route::post('/admin/salary-schedules', [\App\Http\Controllers\API\CompensationController::class, 'storeSchedule']);
+        Route::get('/admin/salary-schedules/{id}', [\App\Http\Controllers\API\CompensationController::class, 'showSchedule'])->whereNumber('id');
+        Route::put('/admin/salary-schedules/{id}', [\App\Http\Controllers\API\CompensationController::class, 'updateSchedule'])->whereNumber('id');
+        Route::post('/admin/salary-schedules/{id}/preview', [\App\Http\Controllers\API\CompensationController::class, 'previewSchedule'])->whereNumber('id');
+        Route::post('/admin/salary-schedules/{id}/activate', [\App\Http\Controllers\API\CompensationController::class, 'activateSchedule'])->whereNumber('id');
+        Route::delete('/admin/salary-schedules/{id}', [\App\Http\Controllers\API\CompensationController::class, 'destroySchedule'])->whereNumber('id');
         Route::get(
             '/admin/leave-types/{leaveTypeId}/document-requirements',
             [LeaveDocumentRequirementController::class, 'index']

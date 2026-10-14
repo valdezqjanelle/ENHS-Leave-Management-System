@@ -561,7 +561,7 @@
                   :class="{ 'border-red-500': createFormErrors.position_id }">
                   <option :value="null">Select</option>
 
-                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">
+                  <option v-for="pos in createPositionOptions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
@@ -1278,7 +1278,7 @@
                   :class="{ 'border-red-500': editFormErrors.position_id }">
                   <option :value="null">Select</option>
 
-                  <option v-for="pos in positions" :key="pos.id" :value="pos.id">
+                  <option v-for="pos in editPositionOptions" :key="pos.id" :value="pos.id">
                     {{ pos.name }}
                   </option>
                 </select>
@@ -1521,6 +1521,7 @@ interface Employee {
     name: string;
     type: string;
     salary_grade: string | null;
+    is_active?: boolean;
   } | null;
 
   supervisor_id?: number | null;
@@ -1770,8 +1771,12 @@ const positions = ref<
     name: string;
     type: string;
     salary_grade: string | null;
+    is_active?: boolean;
   }[]
 >([]);
+
+const createPositionOptions = computed(() => positions.value.filter(p => p.is_active !== false));
+const editPositionOptions = computed(() => positions.value.filter(p => p.is_active !== false || Number(p.id) === Number(editForm.value.position_id)));
 
 const departments = ref<
   {

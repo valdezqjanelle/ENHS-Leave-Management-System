@@ -60,6 +60,15 @@
             <Users class="icon" />
             Employees
           </router-link>
+          <a
+            href="/admin-settings?section=compensation"
+            class="nav-item"
+            :class="{ 'router-link-active': route.path === '/admin-settings' && ['compensation', 'positions', 'salary'].includes(String(route.query.section || '')) }"
+            @click.prevent="router.push({ path: '/admin-settings', query: { section: 'compensation' } })"
+          >
+            <SlidersHorizontal class="icon" />
+            <span>Positions &amp; Salary Schedules</span>
+          </a>
           <!-- <router-link to="/teaching-setup" class="nav-item">
             <GraduationCap class="icon" />
             Teaching Setup
@@ -254,6 +263,9 @@
           v-if="currentUser.role === 'admin'"
           to="/admin-settings"
           class="nav-item profile-item"
+          active-class=""
+          exact-active-class=""
+          :class="{ 'router-link-active': route.path === '/admin-settings' && (!route.query.section || route.query.section === 'account') }"
         >
           <span class="profile-avatar">
             <UserCircle2 class="icon" />
@@ -533,6 +545,9 @@ watch(
 );
 
 const pageTitle = computed(() => {
+  if (route.path === '/admin-settings' && ['compensation', 'positions', 'salary'].includes(String(route.query.section || ''))) {
+    return 'Positions & Salary Schedules';
+  }
   const titles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/admin-applications": "Applications",

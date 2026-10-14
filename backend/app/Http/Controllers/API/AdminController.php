@@ -61,7 +61,8 @@ class AdminController extends Controller
                 'code',
                 'name',
                 'type',
-                'salary_grade'
+                'salary_grade',
+                'is_active'
             ])
         );
     }
@@ -107,6 +108,7 @@ class AdminController extends Controller
         ]);
 
         $position = Position::findOrFail($request->position_id);
+        abort_if(!$position->is_active && (int) $profile->position_id !== (int) $position->id, 422, 'This position is inactive. Select an active position.');
 
         if (!$position->salary_grade) {
             return response()->json([

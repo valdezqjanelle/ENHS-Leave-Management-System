@@ -9,12 +9,17 @@ class SalaryScheduleSeeder extends Seeder
 {
     public function run(): void
     {
+        // Seed only a fresh installation; never overwrite managed or imported rates.
+        $hasVersions = \Illuminate\Support\Facades\Schema::hasTable('salary_schedule_versions');
+        $baseline = $hasVersions ? DB::table('salary_schedule_versions')->where('name', 'Imported existing schedule')->where('status', 'active')->first() : null;
+        if ($hasVersions && (DB::table('salary_schedule_versions')->count() !== 1 || !$baseline
+            || DB::table('salary_schedule_rates')->exists() || DB::table('salary_schedules')->exists())) return;
         $salarySchedules = [
 
         [ 'salary_grade' => 1, 'steps' => [
                 14634,
                   14730,
-                14,849,
+                14849,
                   14968,
                   15089,
                   15211,
@@ -147,22 +152,29 @@ class SalaryScheduleSeeder extends Seeder
             ],
         ];
 
+        DB::transaction(function () use ($salarySchedules, $hasVersions, $baseline) {
+        if ($hasVersions) DB::table('salary_management_control')->where('id', 1)->lockForUpdate()->first();
         foreach ($salarySchedules as $schedule) {
 
             foreach ($schedule['steps'] as $index => $salary) {
 
-                DB::table('salary_schedules')->updateOrInsert(
-                    [
-                        'salary_grade' => $schedule['salary_grade'],
-                        'step' => $index + 1,
-                    ],
-                    [
-                        'salary' => $salary,
-                        'updated_at' => now(),
-                        'created_at' => now(),
-                    ]
-                );
+                DB::table('salary_schedules')->insertOrIgnore([
+                    'salary_grade' => $schedule['salary_grade'],
+                    'step' => $index + 1,
+                    'salary' => $salary,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
             }
         }
+        if ($hasVersions && $baseline) {
+            foreach (DB::table('salary_schedules')->get() as $rate) {
+                DB::table('salary_schedule_rates')->insertOrIgnore([
+                    'schedule_id' => $baseline->id, 'salary_grade' => $rate->salary_grade,
+                    'step' => $rate->step, 'salary' => $rate->salary,
+                ]);
+            }
+        }
+        });
     }
 }

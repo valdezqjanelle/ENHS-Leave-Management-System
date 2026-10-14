@@ -28,10 +28,7 @@ class PositionSeeder extends Seeder
         ];
 
         foreach ($positions as $position) {
-            DB::table('positions')->updateOrInsert(
-                ['code' => $position['code']],
-                array_merge($position, ['updated_at' => now(), 'created_at' => now()])
-            );
+            DB::table('positions')->insertOrIgnore(array_merge($position, ['updated_at' => now(), 'created_at' => now()]));
         }
     }
 }

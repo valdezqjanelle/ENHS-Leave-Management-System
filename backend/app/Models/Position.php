@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Position extends Model
 {
-    protected $fillable = ['code', 'name', 'type', 'salary_grade'];
+    protected $fillable = ['code', 'name', 'type', 'salary_grade', 'is_active'];
 
     public function employeeRecords()
     {
