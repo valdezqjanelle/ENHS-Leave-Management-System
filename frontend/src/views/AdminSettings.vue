@@ -648,13 +648,13 @@ and
               Leave Types
             </h3>
 
-            <p class="text-sm text-[var(--text-muted)]">
+            <p class="text-sm text-[var(--text)]">
               Manage the leave types available to employees.
             </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <label class="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+            <label class="flex items-center gap-2 text-sm text-[var(--text)]">
               Sort by
               <select
                 v-model="leaveTypeSort"
@@ -678,11 +678,11 @@ and
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[#cbd8e8] text-left">
-                <th class="px-4 py-3 text-[var(--text-muted)]">Code</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Leave Type</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Legal Basis</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Requirements</th>
-                <th class="px-4 py-3 text-[var(--text-muted)] text-right">
+                <th class="px-4 py-3 text-[var(--text)]">Code</th>
+                <th class="px-4 py-3 text-[var(--text)]">Leave Type</th>
+                <th class="px-4 py-3 text-[var(--text)]">Legal Basis</th>
+                <th class="px-4 py-3 text-[var(--text)]">Requirements</th>
+                <th class="px-4 py-3 text-[var(--text)] text-right">
                   Actions
                 </th>
               </tr>
@@ -706,11 +706,11 @@ and
                   {{ leave.leave_type_name }}
                 </td>
 
-                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
+                <td class="px-4 py-3 text-[var(--text)] max-w-md">
                   {{ leave.legal_basis || "No legal basis provided." }}
                 </td>
 
-                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
+                <td class="px-4 py-3 text-[var(--text)] max-w-md">
                   {{ leave.requirements || "No requirements provided." }}
                 </td>
 
@@ -744,7 +744,7 @@ and
               <tr v-if="leaveTypes.length === 0">
                 <td
                   colspan="5"
-                  class="px-4 py-8 text-center text-[var(--text-muted)]"
+                  class="px-4 py-8 text-center text-[var(--text)]"
                 >
                   No leave types found.
                 </td>
@@ -761,7 +761,7 @@ and
               Leave Rules
             </h3>
 
-            <p class="text-sm text-[var(--text-muted)]">
+            <p class="text-sm text-[var(--text)]">
               Configure general rules and requirements that employees should
               follow when filing leave.
             </p>
@@ -771,7 +771,7 @@ and
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Minimum Filing Notice
             </label>
@@ -798,7 +798,7 @@ and
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Supporting Documents
             </label>
@@ -811,14 +811,14 @@ and
               <option :value="true">Required</option>
             </select>
 
-            <p class="text-xs text-[var(--text-muted)] mt-1">
+            <p class="text-xs text-[var(--text)] mt-1">
               Determines whether employees must provide supporting documents.
             </p>
           </div>
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Maximum Consecutive Leave Days
             </label>
@@ -831,14 +831,14 @@ and
               placeholder="Example: 10"
             />
 
-            <p class="text-xs text-[var(--text-muted)] mt-1">
+            <p class="text-xs text-[var(--text)] mt-1">
               Maximum number of consecutive days allowed per application.
             </p>
           </div>
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               General Leave Policy
             </label>
