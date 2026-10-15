@@ -296,11 +296,11 @@
           <p
             v-if="currentUser.role === 'admin'"
             class="text-sm"
-            style="color: var(--text-muted)"
+            style="color: var(--text)"
           >
             Administrative Portal
           </p>
-          <p v-else class="text-sm" style="color: var(--text-muted)">
+          <p v-else class="text-sm" style="color: var(--text)">
             Faculty Portal
           </p>
         </div>

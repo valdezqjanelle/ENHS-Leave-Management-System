@@ -498,7 +498,7 @@ and
     <div v-if="activeTab === 'holidays'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Holidays &amp; Non-Working Days</h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage Philippine holidays and other configured non-working days that should be excluded from working-day calculations.
       </p>
 
@@ -506,7 +506,7 @@ and
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
           <div>
             <h3 class="text-lg font-semibold text-[var(--text)]">Holiday Calendar</h3>
-            <p class="text-sm text-[var(--text-muted)]">Search, filter, and maintain entries used in the working-day calculations.</p>
+            <p class="text-sm text-[var(--text )]">Search, filter, and maintain entries used in the working-day calculations.</p>
           </div>
 
           <button
@@ -554,12 +554,12 @@ and
 
           <form @submit.prevent="saveHoliday" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Date</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Date</label>
               <input v-model="holidayForm.date" type="date" required class="w-full border rounded-lg px-3 py-2 field-editable" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Type</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Type</label>
               <select v-model="holidayForm.type" required class="w-full border rounded-lg px-3 py-2 field-editable">
                 <option value="Regular Holiday">Regular Holiday</option>
                 <option value="Special Non-Working Day">Special Non-Working Day</option>
@@ -569,12 +569,12 @@ and
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Holiday Name</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Holiday Name</label>
               <input v-model="holidayForm.name" type="text" maxlength="255" required class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="e.g., Rizal Day" />
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Description / Remarks</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Description / Remarks</label>
               <textarea v-model="holidayForm.description" rows="3" class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="Optional remarks or notes"></textarea>
             </div>
 
@@ -588,7 +588,7 @@ and
             <p v-if="holidayFormError" class="md:col-span-2 text-sm text-red-600">{{ holidayFormError }}</p>
 
             <div class="md:col-span-2 flex justify-end gap-3">
-              <button type="button" @click="closeHolidayForm" class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]">Cancel</button>
+              <button type="button" @click="closeHolidayForm" class="px-4 py-2 border border-[#cbd8e8] text-[var(--text)] rounded-lg hover:bg-[#eef4fb]">Cancel</button>
               <button type="submit" class="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8]">{{ holidayForm.id ? 'Save Changes' : 'Add Holiday' }}</button>
             </div>
           </form>
@@ -598,11 +598,11 @@ and
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[#cbd8e8] text-left">
-                <th class="px-4 py-3 text-[var(--text-muted)]">Date</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday name</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday type</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Status</th>
-                <th class="px-4 py-3 text-[var(--text-muted)] text-right">Actions</th>
+                <th class="px-4 py-3 text-[var(--text)]">Date</th>
+                <th class="px-4 py-3 text-[var(--text)]">Holiday name</th>
+                <th class="px-4 py-3 text-[var(--text)]">Holiday type</th>
+                <th class="px-4 py-3 text-[var(--text)]">Status</th>
+                <th class="px-4 py-3 text-[var(--text)] text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -626,7 +626,7 @@ and
                 </td>
               </tr>
               <tr v-if="filteredHolidays.length === 0">
-                <td colspan="5" class="px-4 py-8 text-center text-[var(--text-muted)]">No holidays match the current filters.</td>
+                <td colspan="5" class="px-4 py-8 text-center text-[var(--text)]">No holidays match the current filters.</td>
               </tr>
             </tbody>
           </table>
@@ -1018,7 +1018,7 @@ and
         System Settings
       </h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage general system information and configuration.
       </p>
 
@@ -1028,7 +1028,7 @@ and
             System Information
           </h3>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
+          <p class="text-sm text-[var(--text)] mt-1">
             Configure the basic information displayed throughout the system.
           </p>
         </div>
@@ -1036,7 +1036,7 @@ and
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Name
             </label>
@@ -1051,7 +1051,7 @@ and
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               School Name
             </label>
@@ -1066,7 +1066,7 @@ and
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Version
             </label>
@@ -1081,7 +1081,7 @@ and
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Contact Email
             </label>
@@ -1096,7 +1096,7 @@ and
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Contact Number
             </label>
@@ -1111,7 +1111,7 @@ and
 
           <div class="md:col-span-2">
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Description
             </label>
@@ -1130,7 +1130,7 @@ and
         <div class="mb-5">
           <h3 class="text-lg font-semibold text-[var(--text)]">About Us</h3>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
+          <p class="text-sm text-[var(--text)] mt-1">
             Information about the leave management system that may be displayed
             to employees.
           </p>
@@ -1158,7 +1158,7 @@ and
       <h2 class="text-xl font-semibold text-[var(--text)]">
         Authorized Signatory
       </h2>
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage the name, designation, and signature printed in the approving
         authority block of newly generated CS Form No. 6 documents.
       </p>
@@ -1179,7 +1179,7 @@ and
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label for="signatory-name" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+            <label for="signatory-name" class="block text-sm font-medium text-[var(--text)] mb-2">
               Name
             </label>
             <input
@@ -1199,7 +1199,7 @@ and
           </div>
 
           <div>
-            <label for="signatory-designation" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+            <label for="signatory-designation" class="block text-sm font-medium text-[var(--text)] mb-2">
               Designation
             </label>
             <input
@@ -1221,7 +1221,7 @@ and
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div class="space-y-4">
             <fieldset>
-              <legend class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              <legend class="block text-sm font-medium text-[var(--text)] mb-2">
                 Signature on CS Form No. 6
               </legend>
               <div class="space-y-3">
@@ -1282,7 +1282,7 @@ and
             </fieldset>
 
             <div class="border-t border-[#cbd8e8] pt-4">
-              <label for="signatory-signature" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              <label for="signatory-signature" class="block text-sm font-medium text-[var(--text)] mb-2">
                 {{ hasSavedSignatorySignature ? "Replace signature image" : "Signature image" }}
               </label>
               <input
@@ -1290,12 +1290,12 @@ and
                 ref="signatoryFileInput"
                 type="file"
                 accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-                  class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#2563eb] file:px-3 file:py-2 file:font-medium file:text-white hover:file:bg-[#1d4ed8]"
+                  class="block w-full text-sm text-[var(--text)] file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#2563eb] file:px-3 file:py-2 file:font-medium file:text-white hover:file:bg-[#1d4ed8]"
                 :aria-invalid="Boolean(signatoryErrors.signature)"
                 :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
                 @change="selectSignatorySignature"
               />
-              <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text-muted)]">
+              <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text)]">
                 PNG or JPEG, up to 2 MB. The image is stored privately and only
                 served to administrators and in authorized CS Form No. 6 PDFs.
                 Switching to wet signature keeps the stored image.
@@ -1306,7 +1306,7 @@ and
               <button
                 v-if="selectedSignatorySignature"
                 type="button"
-                class="mt-2 text-sm font-medium text-[var(--text-muted)] underline underline-offset-2 hover:text-[var(--text)]"
+                class="mt-2 text-sm font-medium text-[var(--text)] underline underline-offset-2 hover:text-[var(--text)]"
                 @click="clearSelectedSignatorySignature"
               >
                 Discard selected image
@@ -1314,7 +1314,7 @@ and
             </div>
 
             <div v-if="hasSavedSignatorySignature" class="border-t border-[#cbd8e8] pt-4">
-              <p class="text-sm font-medium text-[var(--text-muted)] mb-2">
+              <p class="text-sm font-medium text-[var(--text)] mb-2">
                 Stored signature image
               </p>
               <div class="flex flex-wrap items-center gap-3">
@@ -1340,7 +1340,7 @@ and
 
           <div>
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-sm font-medium text-[var(--text-muted)]">
+              <p class="text-sm font-medium text-[var(--text)]">
                 Preview: block 7.B on a new CS Form No. 6
               </p>
               <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
@@ -1378,7 +1378,7 @@ and
                 </p>
               </div>
             </div>
-            <p class="mt-2 text-xs text-[var(--text-muted)]">
+            <p class="mt-2 text-xs text-[var(--text)]">
               {{
                 signatoryForm.signatureMode === "wet"
                   ? "The space above the name stays blank so the signatory can sign by hand after printing."
@@ -1425,27 +1425,27 @@ and
     <div v-if="activeTab === 'audit'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Audit Logs</h2>
 
-      <p class="text-[var(--text-muted)] mt-2">
+      <p class="text-[var(--text)] mt-2">
         Audit trail of admin and login activity.
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Logged events</p>
+          <p class="text-sm text-[var(--text)]">Logged events</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ auditTotal }}
           </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Showing</p>
+          <p class="text-sm text-[var(--text)]">Showing</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ auditLogs.length }}
           </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Last event</p>
+          <p class="text-sm text-[var(--text)]">Last event</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ lastEventComputed }}
           </p>
@@ -1493,19 +1493,19 @@ and
         <table class="min-w-full text-sm">
           <thead class="table-head">
             <tr>
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 User
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Action
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Description
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Date
               </th>
             </tr>
@@ -1515,7 +1515,7 @@ and
             <tr v-if="auditLoading">
               <td
                 colspan="4"
-                class="px-4 py-6 text-center text-[var(--text-muted)]"
+                class="px-4 py-6 text-center text-[var(--text)]"
               >
                 Loading...
               </td>
@@ -1524,7 +1524,7 @@ and
             <tr v-else-if="auditLogs.length === 0">
               <td
                 colspan="4"
-                class="px-4 py-6 text-center text-[var(--text-muted)]"
+                class="px-4 py-6 text-center text-[var(--text)]"
               >
                 No audit log entries yet.
               </td>
@@ -1548,12 +1548,12 @@ and
                 </span>
               </td>
 
-              <td class="px-4 py-3 text-[var(--text-muted)]">
+              <td class="px-4 py-3 text-[var(--text)]">
                 {{ log.description }}
               </td>
 
               <td
-                class="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap"
+                class="px-4 py-3 text-[var(--text)] whitespace-nowrap"
               >
                 {{ formatAuditDate(log.created_at) }}
               </td>
@@ -1563,7 +1563,7 @@ and
       </div>
 
       <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-[var(--text-muted)]">
+        <p class="text-sm text-[var(--text)]">
           Showing {{ auditFrom }}-{{ auditTo }} of {{ auditTotal }}
         </p>
 
@@ -1571,7 +1571,7 @@ and
           <button
             :disabled="auditPage <= 1"
             @click="loadAuditLogs(auditPage - 1)"
-            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Prev
           </button>
@@ -1579,7 +1579,7 @@ and
           <button
             :disabled="auditPage >= auditLastPage"
             @click="loadAuditLogs(auditPage + 1)"
-            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Next
           </button>
