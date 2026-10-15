@@ -31,7 +31,7 @@ const toneStyle = computed(() => {
   <component
     :is="to ? 'router-link' : 'div'"
     :to="to"
-    class="group flex items-center gap-4 rounded-lg border p-4 transition"
+    class="group flex items-center gap-4 rounded-lg border text-[var(--text)] p-4 transition"
     style="border-color: var(--border); background: var(--surface);"
     :class="to ? 'hover:border-[var(--primary)] hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]' : ''"
     :aria-label="`${label}: ${loading ? 'loading' : error ? 'unavailable' : value}`"
@@ -41,13 +41,13 @@ const toneStyle = computed(() => {
     </div>
 
     <div class="min-w-0">
-      <p class="truncate text-sm" style="color: var(--text-muted);">{{ label }}</p>
+      <p class="truncate text-sm" style="color: var(--text);">{{ label }}</p>
 
       <div v-if="loading" class="mt-1 h-7 w-12 animate-pulse rounded" style="background: var(--surface-muted);" />
-      <p v-else-if="error || value === null" class="text-2xl font-semibold" style="color: var(--text-muted);">—</p>
+      <p v-else-if="error || value === null" class="text-2xl font-semibold" style="color: var(--text);">—</p>
       <p v-else class="text-2xl font-semibold" style="color: var(--text);">{{ value }}</p>
 
-      <p v-if="hint" class="truncate text-xs" style="color: var(--text-muted);">{{ hint }}</p>
+      <p v-if="hint" class="truncate text-xs" style="color: var(--text);">{{ hint }}</p>
     </div>
   </component>
 </template>

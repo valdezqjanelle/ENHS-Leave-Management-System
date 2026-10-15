@@ -16,7 +16,7 @@ defineEmits<{ (e: "retry"): void }>();
     <header class="mb-4 flex flex-wrap items-start justify-between gap-2">
       <div>
         <h2 class="text-base font-semibold" style="color: var(--text);">{{ title }}</h2>
-        <p v-if="subtitle" class="text-xs" style="color: var(--text-muted);">{{ subtitle }}</p>
+        <p v-if="subtitle" class="text-xs" style="color: var(--text);">{{ subtitle }}</p>
       </div>
       <div class="flex items-center gap-2">
         <slot name="actions" />
@@ -41,7 +41,7 @@ defineEmits<{ (e: "retry"): void }>();
       </button>
     </div>
 
-    <p v-else-if="empty" class="py-6 text-center text-sm" style="color: var(--text-muted);">
+    <p v-else-if="empty" class="py-6 text-center text-sm" style="color: var(--text);">
       {{ emptyMessage ?? "Nothing to show yet." }}
     </p>
 

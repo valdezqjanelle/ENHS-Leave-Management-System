@@ -18,7 +18,7 @@
       <!-- PAGE INTRODUCTION (compact) + REPORT TYPE -->
       <!-- ========================================================= -->
       
-      <div class="report-type-bar print-hide" role="group" aria-label="Report type">
+      <div class="report-type-bar print-hide text-[var(--text)]" role="group" aria-label="Report type">
         <button
           v-for="reportType in reportTypes"
           :key="reportType.id"
@@ -262,7 +262,7 @@
         <div class="report-header print-hide results-bar">
 
           <div class="min-w-0">
-            <h3 class="text-base font-semibold text-white">
+            <h3 class="text-base font-semibold text-[var(--text)]">
               {{ getCurrentReportName() }}
             </h3>
 
