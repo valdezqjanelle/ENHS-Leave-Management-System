@@ -3,7 +3,7 @@
     <div>
       <h3 class="text-lg font-semibold text-[var(--text)]">{{ title }}</h3>
 
-      <p v-if="description" class="text-sm text-[var(--text-muted)] mt-1">
+      <p v-if="description" class="text-sm text-[var(--tex)] mt-1">
         {{ description }}
       </p>
     </div>
@@ -24,7 +24,7 @@
     <div>
       <label
         :for="`${idPrefix}-name`"
-        class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+        class="block text-sm font-medium text-[var(--text)] mb-2"
       >
         Name
       </label>

@@ -6,7 +6,7 @@
       @click="sidebarOpen = true"
       class="mobile-toggle lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl"
     >
-      <Menu class="w-5 h-5 text-white" />
+      <Menu class="w-5 h-5 text-black" />
     </button>
 
     <!-- Overlay -->
@@ -296,11 +296,11 @@
           <p
             v-if="currentUser.role === 'admin'"
             class="text-sm"
-            style="color: var(--text-muted)"
+            style="color: var(--text)"
           >
             Administrative Portal
           </p>
-          <p v-else class="text-sm" style="color: var(--text-muted)">
+          <p v-else class="text-sm" style="color: var(--text)">
             Faculty Portal
           </p>
         </div>
@@ -308,13 +308,14 @@
         <div class="flex items-center gap-3">
           <!-- Dark Mode Toggle -->
           <button
-            @click="toggleDarkMode"
-            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-          >
-            <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text)" />
-            <Moon v-else class="w-5 h-5" style="color: var(--text-muted)" />
-          </button>
+    @click="toggleDarkMode"
+    class="p-2 rounded-lg transition-colors"
+    style="background: var(--surface-muted); border: 1px solid var(--border);"
+    :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+  >
+    <Sun v-if="isDarkMode" class="w-5 h-5" style="color: var(--text)" />
+    <Moon v-else class="w-5 h-5" style="color: var(--text)" />
+  </button>
 
           <div class="user-summary" aria-label="Current user">
             <span class="user-avatar" :class="{ 'user-avatar-fallback': !headerPhoto || headerPhotoFailed }">
@@ -762,10 +763,15 @@ const logout = async () => {
   }
 }
 
+/* Pinned to the viewport so the document itself never scrolls.
+   (100vw includes the scrollbar width and caused the horizontal overflow;
+   100vh + any body margin caused the vertical document scroll.) */
 .app-shell {
+  position: fixed;
+  inset: 0;
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--app-bg);
   transition: background 0.3s ease;

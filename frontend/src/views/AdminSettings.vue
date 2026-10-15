@@ -1,4 +1,4 @@
- 
+and 
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
     <CompensationManagement v-if="activeTab === 'compensation'" @positions-changed="loadPositions" />
@@ -498,7 +498,7 @@
     <div v-if="activeTab === 'holidays'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Holidays &amp; Non-Working Days</h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage Philippine holidays and other configured non-working days that should be excluded from working-day calculations.
       </p>
 
@@ -506,7 +506,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
           <div>
             <h3 class="text-lg font-semibold text-[var(--text)]">Holiday Calendar</h3>
-            <p class="text-sm text-[var(--text-muted)]">Search, filter, and maintain entries used in the working-day calculations.</p>
+            <p class="text-sm text-[var(--text )]">Search, filter, and maintain entries used in the working-day calculations.</p>
           </div>
 
           <button
@@ -554,12 +554,12 @@
 
           <form @submit.prevent="saveHoliday" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Date</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Date</label>
               <input v-model="holidayForm.date" type="date" required class="w-full border rounded-lg px-3 py-2 field-editable" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Type</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Type</label>
               <select v-model="holidayForm.type" required class="w-full border rounded-lg px-3 py-2 field-editable">
                 <option value="Regular Holiday">Regular Holiday</option>
                 <option value="Special Non-Working Day">Special Non-Working Day</option>
@@ -569,12 +569,12 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Holiday Name</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Holiday Name</label>
               <input v-model="holidayForm.name" type="text" maxlength="255" required class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="e.g., Rizal Day" />
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-[var(--text-muted)] mb-2">Description / Remarks</label>
+              <label class="block text-sm font-medium text-[var(--text)] mb-2">Description / Remarks</label>
               <textarea v-model="holidayForm.description" rows="3" class="w-full border rounded-lg px-3 py-2 field-editable" placeholder="Optional remarks or notes"></textarea>
             </div>
 
@@ -588,7 +588,7 @@
             <p v-if="holidayFormError" class="md:col-span-2 text-sm text-red-600">{{ holidayFormError }}</p>
 
             <div class="md:col-span-2 flex justify-end gap-3">
-              <button type="button" @click="closeHolidayForm" class="px-4 py-2 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg hover:bg-[#eef4fb]">Cancel</button>
+              <button type="button" @click="closeHolidayForm" class="px-4 py-2 border border-[#cbd8e8] text-[var(--text)] rounded-lg hover:bg-[#eef4fb]">Cancel</button>
               <button type="submit" class="px-4 py-2 bg-[#2563eb] text-white rounded-lg hover:bg-[#1d4ed8]">{{ holidayForm.id ? 'Save Changes' : 'Add Holiday' }}</button>
             </div>
           </form>
@@ -598,11 +598,11 @@
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[#cbd8e8] text-left">
-                <th class="px-4 py-3 text-[var(--text-muted)]">Date</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday name</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Holiday type</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Status</th>
-                <th class="px-4 py-3 text-[var(--text-muted)] text-right">Actions</th>
+                <th class="px-4 py-3 text-[var(--text)]">Date</th>
+                <th class="px-4 py-3 text-[var(--text)]">Holiday name</th>
+                <th class="px-4 py-3 text-[var(--text)]">Holiday type</th>
+                <th class="px-4 py-3 text-[var(--text)]">Status</th>
+                <th class="px-4 py-3 text-[var(--text)] text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -626,7 +626,7 @@
                 </td>
               </tr>
               <tr v-if="filteredHolidays.length === 0">
-                <td colspan="5" class="px-4 py-8 text-center text-[var(--text-muted)]">No holidays match the current filters.</td>
+                <td colspan="5" class="px-4 py-8 text-center text-[var(--text)]">No holidays match the current filters.</td>
               </tr>
             </tbody>
           </table>
@@ -648,13 +648,13 @@
               Leave Types
             </h3>
 
-            <p class="text-sm text-[var(--text-muted)]">
+            <p class="text-sm text-[var(--text)]">
               Manage the leave types available to employees.
             </p>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <label class="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+            <label class="flex items-center gap-2 text-sm text-[var(--text)]">
               Sort by
               <select
                 v-model="leaveTypeSort"
@@ -678,11 +678,11 @@
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[#cbd8e8] text-left">
-                <th class="px-4 py-3 text-[var(--text-muted)]">Code</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Leave Type</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Legal Basis</th>
-                <th class="px-4 py-3 text-[var(--text-muted)]">Requirements</th>
-                <th class="px-4 py-3 text-[var(--text-muted)] text-right">
+                <th class="px-4 py-3 text-[var(--text)]">Code</th>
+                <th class="px-4 py-3 text-[var(--text)]">Leave Type</th>
+                <th class="px-4 py-3 text-[var(--text)]">Legal Basis</th>
+                <th class="px-4 py-3 text-[var(--text)]">Requirements</th>
+                <th class="px-4 py-3 text-[var(--text)] text-right">
                   Actions
                 </th>
               </tr>
@@ -706,11 +706,11 @@
                   {{ leave.leave_type_name }}
                 </td>
 
-                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
+                <td class="px-4 py-3 text-[var(--text)] max-w-md">
                   {{ leave.legal_basis || "No legal basis provided." }}
                 </td>
 
-                <td class="px-4 py-3 text-[var(--text-muted)] max-w-md">
+                <td class="px-4 py-3 text-[var(--text)] max-w-md">
                   {{ leave.requirements || "No requirements provided." }}
                 </td>
 
@@ -744,7 +744,7 @@
               <tr v-if="leaveTypes.length === 0">
                 <td
                   colspan="5"
-                  class="px-4 py-8 text-center text-[var(--text-muted)]"
+                  class="px-4 py-8 text-center text-[var(--text)]"
                 >
                   No leave types found.
                 </td>
@@ -761,7 +761,7 @@
               Leave Rules
             </h3>
 
-            <p class="text-sm text-[var(--text-muted)]">
+            <p class="text-sm text-[var(--text)]">
               Configure general rules and requirements that employees should
               follow when filing leave.
             </p>
@@ -771,7 +771,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Minimum Filing Notice
             </label>
@@ -798,7 +798,7 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Supporting Documents
             </label>
@@ -811,14 +811,14 @@
               <option :value="true">Required</option>
             </select>
 
-            <p class="text-xs text-[var(--text-muted)] mt-1">
+            <p class="text-xs text-[var(--text)] mt-1">
               Determines whether employees must provide supporting documents.
             </p>
           </div>
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Maximum Consecutive Leave Days
             </label>
@@ -831,14 +831,14 @@
               placeholder="Example: 10"
             />
 
-            <p class="text-xs text-[var(--text-muted)] mt-1">
+            <p class="text-xs text-[var(--text)] mt-1">
               Maximum number of consecutive days allowed per application.
             </p>
           </div>
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               General Leave Policy
             </label>
@@ -1018,7 +1018,7 @@
         System Settings
       </h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage general system information and configuration.
       </p>
 
@@ -1028,7 +1028,7 @@
             System Information
           </h3>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
+          <p class="text-sm text-[var(--text)] mt-1">
             Configure the basic information displayed throughout the system.
           </p>
         </div>
@@ -1036,7 +1036,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Name
             </label>
@@ -1051,7 +1051,7 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               School Name
             </label>
@@ -1066,7 +1066,7 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Version
             </label>
@@ -1081,7 +1081,7 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Contact Email
             </label>
@@ -1096,7 +1096,7 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               Contact Number
             </label>
@@ -1111,7 +1111,7 @@
 
           <div class="md:col-span-2">
             <label
-              class="block text-sm font-medium text-[var(--text-muted)] mb-2"
+              class="block text-sm font-medium text-[var(--text)] mb-2"
             >
               System Description
             </label>
@@ -1130,7 +1130,7 @@
         <div class="mb-5">
           <h3 class="text-lg font-semibold text-[var(--text)]">About Us</h3>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
+          <p class="text-sm text-[var(--text)] mt-1">
             Information about the leave management system that may be displayed
             to employees.
           </p>
@@ -1158,7 +1158,7 @@
       <h2 class="text-xl font-semibold text-[var(--text)]">
         Authorized Signatory
       </h2>
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
+      <p class="text-[var(--text)] mt-1 mb-6">
         Manage the name, designation, and signature printed in the approving
         authority block of newly generated CS Form No. 6 documents.
       </p>
@@ -1179,7 +1179,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label for="signatory-name" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+            <label for="signatory-name" class="block text-sm font-medium text-[var(--text)] mb-2">
               Name
             </label>
             <input
@@ -1199,7 +1199,7 @@
           </div>
 
           <div>
-            <label for="signatory-designation" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+            <label for="signatory-designation" class="block text-sm font-medium text-[var(--text)] mb-2">
               Designation
             </label>
             <input
@@ -1221,7 +1221,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div class="space-y-4">
             <fieldset>
-              <legend class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              <legend class="block text-sm font-medium text-[var(--text)] mb-2">
                 Signature on CS Form No. 6
               </legend>
               <div class="space-y-3">
@@ -1229,8 +1229,8 @@
                   class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
                   :class="
                     signatoryForm.signatureMode === 'esignature'
-                      ? 'border-[#2563eb] bg-[#eff6ff]'
-                      : 'border-[#cbd8e8] bg-white'
+                       ? 'border-[#2563eb] bg-[#2563eb]/15'
+                  : 'border-[var(--border)] bg-transparent hover:border-[#2563eb]/50'
                   "
                 >
                   <input
@@ -1242,20 +1242,20 @@
                   />
                   <span>
                     <span class="block font-semibold text-[var(--text)]">Use e-signature</span>
-                    <span class="block text-sm text-[var(--text-muted)]">
+                    <span class="block text-sm text-[var(--text)]">
                       The stored signature image is printed above the name.
                     </span>
                   </span>
                 </label>
 
                 <label
-                  class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
+                    class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-colors"
                   :class="
                     signatoryForm.signatureMode === 'wet'
-                      ? 'border-[#2563eb] bg-[#eff6ff]'
-                      : 'border-[#cbd8e8] bg-white'
+                      ? 'border-[#2563eb] bg-[#2563eb]/15'
+                : 'border-[var(--border)] bg-transparent hover:border-[#2563eb]/50'
                   "
-                >
+                > 
                   <input
                     v-model="signatoryForm.signatureMode"
                     type="radio"
@@ -1265,7 +1265,7 @@
                   />
                   <span>
                     <span class="block font-semibold text-[var(--text)]">Leave blank for wet signature</span>
-                    <span class="block text-sm text-[var(--text-muted)]">
+                    <span class="block text-sm text-[var(--text)]">
                       Name and designation still print, with empty space above
                       for a handwritten signature after printing.
                     </span>
@@ -1282,7 +1282,7 @@
             </fieldset>
 
             <div class="border-t border-[#cbd8e8] pt-4">
-              <label for="signatory-signature" class="block text-sm font-medium text-[var(--text-muted)] mb-2">
+              <label for="signatory-signature" class="block text-sm font-medium text-[var(--text)] mb-2">
                 {{ hasSavedSignatorySignature ? "Replace signature image" : "Signature image" }}
               </label>
               <input
@@ -1290,12 +1290,12 @@
                 ref="signatoryFileInput"
                 type="file"
                 accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-                class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:rounded-md file:border-0 file:bg-[#eef4fb] file:px-3 file:py-2 file:font-medium file:text-[var(--text)] hover:file:bg-[#e0eaf7]"
+                  class="block w-full text-sm text-[var(--text)] file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#2563eb] file:px-3 file:py-2 file:font-medium file:text-white hover:file:bg-[#1d4ed8]"
                 :aria-invalid="Boolean(signatoryErrors.signature)"
                 :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
                 @change="selectSignatorySignature"
               />
-              <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text-muted)]">
+              <p id="signatory-signature-help" class="mt-2 text-xs text-[var(--text)]">
                 PNG or JPEG, up to 2 MB. The image is stored privately and only
                 served to administrators and in authorized CS Form No. 6 PDFs.
                 Switching to wet signature keeps the stored image.
@@ -1306,7 +1306,7 @@
               <button
                 v-if="selectedSignatorySignature"
                 type="button"
-                class="mt-2 text-sm font-medium text-[var(--text-muted)] underline underline-offset-2 hover:text-[var(--text)]"
+                class="mt-2 text-sm font-medium text-[var(--text)] underline underline-offset-2 hover:text-[var(--text)]"
                 @click="clearSelectedSignatorySignature"
               >
                 Discard selected image
@@ -1314,7 +1314,7 @@
             </div>
 
             <div v-if="hasSavedSignatorySignature" class="border-t border-[#cbd8e8] pt-4">
-              <p class="text-sm font-medium text-[var(--text-muted)] mb-2">
+              <p class="text-sm font-medium text-[var(--text)] mb-2">
                 Stored signature image
               </p>
               <div class="flex flex-wrap items-center gap-3">
@@ -1340,7 +1340,7 @@
 
           <div>
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p class="text-sm font-medium text-[var(--text-muted)]">
+              <p class="text-sm font-medium text-[var(--text)]">
                 Preview: block 7.B on a new CS Form No. 6
               </p>
               <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-800">
@@ -1378,7 +1378,7 @@
                 </p>
               </div>
             </div>
-            <p class="mt-2 text-xs text-[var(--text-muted)]">
+            <p class="mt-2 text-xs text-[var(--text)]">
               {{
                 signatoryForm.signatureMode === "wet"
                   ? "The space above the name stays blank so the signatory can sign by hand after printing."
@@ -1425,27 +1425,27 @@
     <div v-if="activeTab === 'audit'" class="neo-card p-6">
       <h2 class="text-xl font-semibold text-[var(--text)]">Audit Logs</h2>
 
-      <p class="text-[var(--text-muted)] mt-2">
+      <p class="text-[var(--text)] mt-2">
         Audit trail of admin and login activity.
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Logged events</p>
+          <p class="text-sm text-[var(--text)]">Logged events</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ auditTotal }}
           </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Showing</p>
+          <p class="text-sm text-[var(--text)]">Showing</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ auditLogs.length }}
           </p>
         </div>
 
         <div class="inner-card p-4">
-          <p class="text-sm text-[var(--text-muted)]">Last event</p>
+          <p class="text-sm text-[var(--text)]">Last event</p>
           <p class="text-2xl font-semibold text-[var(--text)]">
             {{ lastEventComputed }}
           </p>
@@ -1493,19 +1493,19 @@
         <table class="min-w-full text-sm">
           <thead class="table-head">
             <tr>
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 User
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Action
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Description
               </th>
 
-              <th class="text-left px-4 py-3 font-medium text-[var(--text-muted)]">
+              <th class="text-left px-4 py-3 font-medium text-[var(--text)]">
                 Date
               </th>
             </tr>
@@ -1515,7 +1515,7 @@
             <tr v-if="auditLoading">
               <td
                 colspan="4"
-                class="px-4 py-6 text-center text-[var(--text-muted)]"
+                class="px-4 py-6 text-center text-[var(--text)]"
               >
                 Loading...
               </td>
@@ -1524,7 +1524,7 @@
             <tr v-else-if="auditLogs.length === 0">
               <td
                 colspan="4"
-                class="px-4 py-6 text-center text-[var(--text-muted)]"
+                class="px-4 py-6 text-center text-[var(--text)]"
               >
                 No audit log entries yet.
               </td>
@@ -1548,12 +1548,12 @@
                 </span>
               </td>
 
-              <td class="px-4 py-3 text-[var(--text-muted)]">
+              <td class="px-4 py-3 text-[var(--text)]">
                 {{ log.description }}
               </td>
 
               <td
-                class="px-4 py-3 text-[var(--text-muted)] whitespace-nowrap"
+                class="px-4 py-3 text-[var(--text)] whitespace-nowrap"
               >
                 {{ formatAuditDate(log.created_at) }}
               </td>
@@ -1563,7 +1563,7 @@
       </div>
 
       <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-[var(--text-muted)]">
+        <p class="text-sm text-[var(--text)]">
           Showing {{ auditFrom }}-{{ auditTo }} of {{ auditTotal }}
         </p>
 
@@ -1571,7 +1571,7 @@
           <button
             :disabled="auditPage <= 1"
             @click="loadAuditLogs(auditPage - 1)"
-            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Prev
           </button>
@@ -1579,7 +1579,7 @@
           <button
             :disabled="auditPage >= auditLastPage"
             @click="loadAuditLogs(auditPage + 1)"
-            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text-muted)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
+            class="px-3 py-1.5 border border-[#cbd8e8] text-[var(--text)] rounded-lg text-sm disabled:opacity-40 hover:bg-[#eef4fb]"
           >
             Next
           </button>
@@ -1587,232 +1587,244 @@
       </div>
     </div>
 
-    <div v-if="activeTab === 'backup'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-[var(--text)]">
-        Backup & Recovery
-      </h2>
+   <div v-if="activeTab === 'backup'" class="neo-card p-6">
+  <h2 class="text-xl font-semibold text-[var(--text)]">
+    Backup & Recovery
+  </h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
-        Create, manage, and recover system database backups.
-      </p>
+  <p class="text-[var(--text)] mt-1 mb-6">
+    Create, manage, and recover system database backups.
+  </p>
 
-      <div class="inner-card p-5">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        >
-          <div>
-            <h3 class="text-lg font-semibold text-[var(--text)]">
-              Database Backup
-            </h3>
+  <div class="inner-card p-5">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    >
+      <div>
+        <h3 class="text-lg font-semibold text-[var(--text)]">
+          Database Backup
+        </h3>
 
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Create a digital backup copy of the system database.
-            </p>
-          </div>
-
-          <button
-            @click="createBackup"
-            :disabled="backupLoading"
-            class="bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-          >
-            {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Last Backup</p>
-
-            <p class="text-lg font-semibold text-[var(--text)] mt-1">
-              {{ lastBackup.date || "No backup yet" }}
-            </p>
-          </div>
-
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Backup Type</p>
-
-            <p class="text-lg font-semibold text-[var(--text)] mt-1">
-              {{ lastBackup.type || "—" }}
-            </p>
-          </div>
-
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Status</p>
-
-            <p
-              class="text-lg font-semibold mt-1"
-              :class="
-                lastBackup.status === 'Successful'
-                  ? 'text-green-600'
-                  : 'text-[var(--text)]'
-              "
-            >
-              {{ lastBackup.status || "—" }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-5">
-          <button
-            @click="downloadLatestBackup"
-            :disabled="!lastBackup.id"
-            class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-          >
-            Download Latest Backup
-          </button>
-        </div>
+        <p class="text-sm text-[var(--text)] mt-1">
+          Create a digital backup copy of the system database.
+        </p>
       </div>
 
-      <div class="inner-card p-5 mt-6">
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-[var(--text)]">
-            Backup Methods
-          </h3>
+      <button
+        @click="createBackup"
+        :disabled="backupLoading"
+        class="bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+      >
+        {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
+      </button>
+    </div>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
-            Recommended methods for protecting important system data.
-          </p>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Last Backup</p>
 
-        <div class="space-y-4">
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">Printed Backup</h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Important reports such as leave, attendance, and employee reports
-              may be printed and stored as physical records.
-            </p>
-          </div>
-
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">
-              Digital / External Backup
-            </h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Downloaded database backups may be copied to USB drives, external
-              hard drives, or other secure storage devices.
-            </p>
-          </div>
-
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">Cloud Backup</h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Database backup files may be uploaded to an authorized cloud
-              storage service for an additional backup copy.
-            </p>
-          </div>
-        </div>
+        <p class="text-lg font-semibold text-[var(--text)] mt-1">
+          {{ lastBackup.date || "No backup yet" }}
+        </p>
       </div>
 
-      <div class="inner-card p-5 mt-6">
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-[var(--text)]">
-            Recovery / Failover Method
-          </h3>
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Backup Type</p>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
-            Procedure for recovering the system when the primary database
-            becomes unavailable.
-          </p>
-        </div>
+        <p class="text-lg font-semibold text-[var(--text)] mt-1">
+          {{ lastBackup.type || "—" }}
+        </p>
+      </div>
 
-        <div class="space-y-3">
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              1
-            </span>
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Status</p>
 
-            <span class="text-[var(--text-muted)]">
-              Identify the database failure.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              2
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Locate the latest valid database backup.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              3
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Restore the database from the backup.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              4
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Verify restored records and resume system operation.
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="mt-5 bg-[#fffbeb] border border-[#f1dfad] rounded-lg p-4"
+        <p
+          class="text-lg font-semibold mt-1"
+          :class="
+            lastBackup.status === 'Successful'
+              ? 'text-green-500'
+              : 'text-[var(--text)]'
+          "
         >
-          <p class="text-sm font-medium text-[#a16207]">Restore Database</p>
-
-          <p class="text-sm text-[#a16207] mt-1 mb-4">
-            Select a previously downloaded JSON database backup file to restore
-            the system data.
-          </p>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input
-              ref="restoreFileInput"
-              type="file"
-              accept=".json,application/json"
-              @change="handleRestoreFile"
-              class="hidden"
-            />
-
-            <button
-              @click="restoreFileInput?.click()"
-              :disabled="restoreLoading"
-              class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-            >
-              {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
-            </button>
-          </div>
-
-          <p
-            v-if="selectedRestoreFile"
-            class="text-sm text-[var(--text-muted)] mt-3"
-          >
-            Selected file:
-            <span class="text-[var(--text)]">
-              {{ selectedRestoreFile.name }}
-            </span>
-          </p>
-
-          <p class="text-xs text-red-600 mt-3">
-            Warning: Restoring a backup will replace the current database
-            records with the records contained in the selected backup.
-          </p>
-        </div>
+          {{ lastBackup.status || "—" }}
+        </p>
       </div>
     </div>
+
+    <div class="flex justify-end mt-5">
+      <button
+        @click="downloadLatestBackup"
+        :disabled="!lastBackup.id"
+        class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+      >
+        Download Latest Backup
+      </button>
+    </div>
+  </div>
+
+  <div class="inner-card p-5 mt-6">
+    <div class="mb-5">
+      <h3 class="text-lg font-semibold text-[var(--text)]">
+        Backup Methods
+      </h3>
+
+      <p class="text-sm text-[var(--text)] mt-1">
+        Recommended methods for protecting important system data.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">Printed Backup</h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Important reports such as leave, attendance, and employee reports
+          may be printed and stored as physical records.
+        </p>
+      </div>
+
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">
+          Digital / External Backup
+        </h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Downloaded database backups may be copied to USB drives, external
+          hard drives, or other secure storage devices.
+        </p>
+      </div>
+
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">Cloud Backup</h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Database backup files may be uploaded to an authorized cloud
+          storage service for an additional backup copy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="inner-card p-5 mt-6">
+    <div class="mb-5">
+      <h3 class="text-lg font-semibold text-[var(--text)]">
+        Recovery / Failover Method
+      </h3>
+
+      <p class="text-sm text-[var(--text)] mt-1">
+        Procedure for recovering the system when the primary database
+        becomes unavailable.
+      </p>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          1
+        </span>
+
+        <span class="text-[var(--text)]">
+          Identify the database failure.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          2
+        </span>
+
+        <span class="text-[var(--text)]">
+          Locate the latest valid database backup.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          3
+        </span>
+
+        <span class="text-[var(--text)]">
+          Restore the database from the backup.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          4
+        </span>
+
+        <span class="text-[var(--text)]">
+          Verify restored records and resume system operation.
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="mt-5 bg-[color-mix(in_srgb,#eab308_12%,transparent)] border border-[color-mix(in_srgb,#eab308_40%,transparent)] rounded-lg p-4"
+    >
+      <p class="text-sm font-semibold text-yellow-600">Restore Database</p>
+
+      <p class="text-sm text-[var(--text)] mt-1 mb-4">
+        Select a previously downloaded JSON database backup file to restore
+        the system data.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input
+          ref="restoreFileInput"
+          type="file"
+          accept=".json,application/json"
+          @change="handleRestoreFile"
+          class="hidden"
+        />
+
+        <button
+          @click="restoreFileInput?.click()"
+          :disabled="restoreLoading"
+          class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+        >
+          {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
+        </button>
+      </div>
+
+      <p
+        v-if="selectedRestoreFile"
+        class="text-sm text-[var(--text)] mt-3"
+      >
+        Selected file:
+        <span class="font-medium text-[var(--text)]">
+          {{ selectedRestoreFile.name }}
+        </span>
+      </p>
+
+      <p class="text-xs text-red-500 mt-3">
+        Warning: Restoring a backup will replace the current database
+        records with the records contained in the selected backup.
+      </p>
+    </div>
+  </div>
+</div>
 
     <div
       v-if="isLeaveModalOpen"
