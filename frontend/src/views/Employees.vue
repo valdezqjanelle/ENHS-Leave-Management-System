@@ -218,30 +218,30 @@
 
           <div class="flex items-center gap-1 flex-wrap">
             <button @click="goToPage(1)" :disabled="currentPage === 1"
-              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              class="px-3 py-1 rounded-lg text-[var(--text)] border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
               «
             </button>
 
             <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
-              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              class="px-3 py-1 rounded-lg text-[var(--text)] border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
               Prev
             </button>
 
             <button v-for="(page, i) in visiblePages" :key="i" @click="goToPage(page)" :disabled="page === '...'"
               :class="page === currentPage
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-blue-600 text-[var(--text)] border-blue-600'
                 : 'bg-[var(--surface)] border-[#cbd8e8] hover:bg-[#eef4fb]'
-                " class="min-w-[2rem] px-2 py-1 rounded-lg border">
+                " class="min-w-[2rem] px-2 py-1 rounded-lg border text-[var(--text)]">
               {{ page }}
             </button>
 
             <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
-              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              class="px-3 py-1 rounded-lg text-[var(--text)] border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
               Next
             </button>
 
             <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages"
-              class="px-3 py-1 rounded-lg border border-[#cbd8e8] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
+              class="px-3 py-1 rounded-lg border border-[#cbd8e8] text-[var(--text)] bg-[var(--surface)] disabled:opacity-40 hover:bg-[#eef4fb]">
               »
             </button>
           </div>
