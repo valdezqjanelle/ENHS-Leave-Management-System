@@ -8,7 +8,7 @@
               Employee Management
             </h2>
 
-            <p class="text-[var(--text-muted)] mt-1">
+            <p class="text-[var(--text)] mt-1">
               Create and manage employee accounts.
             </p>
           </div>
@@ -34,7 +34,7 @@
               class="flex-1 min-w-0 field-input rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
 
             <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:flex-shrink-0">
-              <label for="sortBy" class="text-sm font-medium text-[var(--text-muted)] whitespace-nowrap">Sort by</label>
+              <label for="sortBy" class="text-sm font-medium text-[var(--text)] whitespace-nowrap">Sort by</label>
               <select id="sortBy" v-model="sortOption" class="w-full sm:w-60 field-input rounded-lg px-4 py-2">
                 <option v-for="option in sortOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
               </select>
@@ -71,14 +71,14 @@
 
       <div class="neo-card w-full p-6">
         <div class="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text-muted)]" aria-live="polite">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--text)]" aria-live="polite">
             <strong class="text-[var(--text)]">Total: {{ employees.length }}</strong>
             <span>Active: {{ activeEmployeeCount }}</span>
             <span>Inactive: {{ inactiveEmployeeCount }}</span>
             <span>Showing: {{ filteredEmployees.length }}</span>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <span v-if="selectedEmployeeIds.length" class="text-sm text-[var(--text-muted)]">
+            <span v-if="selectedEmployeeIds.length" class="text-sm text-[var(--text)]">
               {{ selectedEmployeeIds.length }} selected
             </span>
             <button type="button" :disabled="!selectedEmployeeIds.length" @click="confirmBulkAction('activate')"
@@ -99,15 +99,15 @@
             </button>
           </div>
         </div>
-        <div class="table-wrapper employee-list-table-wrapper">
-          <table class="employee-table">
-            <thead class="table-head">
+        <div class="table-wrapper employee-list-table-wrapper text-[var(--text)]">
+          <table class="employee-table text-[var(--text)]">
+            <thead class="table-head text-[var(--text)]">
               <tr class="text-left text-[var(--text)] font-semibold">
                 <th class="px-2 sm:px-3 py-3 text-center">
                   <input type="checkbox" :checked="allPageEmployeesSelected" :indeterminate="somePageEmployeesSelected"
                     aria-label="Select employees on this page" @change="togglePageSelection" class="employee-checkbox" />
                 </th>
-                <th class="px-2 sm:px-3 py-3 font-bold text-center">#</th>
+                <th class="px-2 sm:px-3 py-3 font-bold text-center text-[var(--text)]">#</th>
                 <th v-for="column in sortableColumns" :key="column.key" class="px-2 sm:px-3 py-3 font-bold"
                   :aria-sort="ariaSort(column.key)">
                   <button type="button" @click="toggleColumnSort(column.key)"
@@ -119,7 +119,7 @@
                     </span>
                   </button>
                 </th>
-                <th class="px-2 sm:px-3 py-3 font-bold text-center">
+                <th class="px-2 sm:px-3 py-3 text-[var(--text)] font-bold text-center">
                   Actions
                 </th>
               </tr>
@@ -132,7 +132,7 @@
                   <input v-model="selectedEmployeeIds" type="checkbox" :value="employee.employee_id"
                     :aria-label="`Select ${employee.first_name} ${employee.last_name}`" class="employee-checkbox" />
                 </td>
-                <td data-label="#" class="employee-number-cell px-2 sm:px-3 py-4 text-[var(--text-muted)]">
+                <td data-label="#" class="employee-number-cell px-2 sm:px-3 py-4 text-[var(--text)]">
                   {{ (currentPage - 1) * pageSize + rowIndex + 1 }}
                 </td>
                 <td data-label="Profile" class="employee-name-cell px-2 sm:px-3 py-4 text-[var(--text)] font-medium">
@@ -2791,7 +2791,7 @@ onMounted(async () => {
 }
 
 .table-head {
-  background: var(--surface-muted);
+  background: var(--text);
 }
 
 .employee-management-page {
@@ -2981,7 +2981,7 @@ onMounted(async () => {
 }
 
 .employee-number-cell {
-  color: var(--text-muted);
+  color: var(--text);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
