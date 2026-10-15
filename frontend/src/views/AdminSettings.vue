@@ -1,4 +1,4 @@
- 
+and 
 <template>
   <div class="settings-shell p-6 min-h-screen space-y-6">
     <CompensationManagement v-if="activeTab === 'compensation'" @positions-changed="loadPositions" />
@@ -1229,8 +1229,8 @@
                   class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
                   :class="
                     signatoryForm.signatureMode === 'esignature'
-                      ? 'border-[#2563eb] bg-[#eff6ff]'
-                      : 'border-[#cbd8e8] bg-white'
+                       ? 'border-[#2563eb] bg-[#2563eb]/15'
+                  : 'border-[var(--border)] bg-transparent hover:border-[#2563eb]/50'
                   "
                 >
                   <input
@@ -1242,20 +1242,20 @@
                   />
                   <span>
                     <span class="block font-semibold text-[var(--text)]">Use e-signature</span>
-                    <span class="block text-sm text-[var(--text-muted)]">
+                    <span class="block text-sm text-[var(--text)]">
                       The stored signature image is printed above the name.
                     </span>
                   </span>
                 </label>
 
                 <label
-                  class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4"
+                    class="flex cursor-pointer items-start gap-3 rounded-xl border-2 p-4 transition-colors"
                   :class="
                     signatoryForm.signatureMode === 'wet'
-                      ? 'border-[#2563eb] bg-[#eff6ff]'
-                      : 'border-[#cbd8e8] bg-white'
+                      ? 'border-[#2563eb] bg-[#2563eb]/15'
+                : 'border-[var(--border)] bg-transparent hover:border-[#2563eb]/50'
                   "
-                >
+                > 
                   <input
                     v-model="signatoryForm.signatureMode"
                     type="radio"
@@ -1265,7 +1265,7 @@
                   />
                   <span>
                     <span class="block font-semibold text-[var(--text)]">Leave blank for wet signature</span>
-                    <span class="block text-sm text-[var(--text-muted)]">
+                    <span class="block text-sm text-[var(--text)]">
                       Name and designation still print, with empty space above
                       for a handwritten signature after printing.
                     </span>
@@ -1290,7 +1290,7 @@
                 ref="signatoryFileInput"
                 type="file"
                 accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-                class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:rounded-md file:border-0 file:bg-[#eef4fb] file:px-3 file:py-2 file:font-medium file:text-[var(--text)] hover:file:bg-[#e0eaf7]"
+                  class="block w-full text-sm text-[var(--text-muted)] file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-[#2563eb] file:px-3 file:py-2 file:font-medium file:text-white hover:file:bg-[#1d4ed8]"
                 :aria-invalid="Boolean(signatoryErrors.signature)"
                 :aria-describedby="signatoryErrors.signature ? 'signatory-signature-error' : 'signatory-signature-help'"
                 @change="selectSignatorySignature"
@@ -1587,232 +1587,244 @@
       </div>
     </div>
 
-    <div v-if="activeTab === 'backup'" class="neo-card p-6">
-      <h2 class="text-xl font-semibold text-[var(--text)]">
-        Backup & Recovery
-      </h2>
+   <div v-if="activeTab === 'backup'" class="neo-card p-6">
+  <h2 class="text-xl font-semibold text-[var(--text)]">
+    Backup & Recovery
+  </h2>
 
-      <p class="text-[var(--text-muted)] mt-1 mb-6">
-        Create, manage, and recover system database backups.
-      </p>
+  <p class="text-[var(--text)] mt-1 mb-6">
+    Create, manage, and recover system database backups.
+  </p>
 
-      <div class="inner-card p-5">
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        >
-          <div>
-            <h3 class="text-lg font-semibold text-[var(--text)]">
-              Database Backup
-            </h3>
+  <div class="inner-card p-5">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    >
+      <div>
+        <h3 class="text-lg font-semibold text-[var(--text)]">
+          Database Backup
+        </h3>
 
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Create a digital backup copy of the system database.
-            </p>
-          </div>
-
-          <button
-            @click="createBackup"
-            :disabled="backupLoading"
-            class="bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-          >
-            {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Last Backup</p>
-
-            <p class="text-lg font-semibold text-[var(--text)] mt-1">
-              {{ lastBackup.date || "No backup yet" }}
-            </p>
-          </div>
-
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Backup Type</p>
-
-            <p class="text-lg font-semibold text-[var(--text)] mt-1">
-              {{ lastBackup.type || "—" }}
-            </p>
-          </div>
-
-          <div class="inner-card-alt p-4">
-            <p class="text-sm text-[var(--text-muted)]">Status</p>
-
-            <p
-              class="text-lg font-semibold mt-1"
-              :class="
-                lastBackup.status === 'Successful'
-                  ? 'text-green-600'
-                  : 'text-[var(--text)]'
-              "
-            >
-              {{ lastBackup.status || "—" }}
-            </p>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-5">
-          <button
-            @click="downloadLatestBackup"
-            :disabled="!lastBackup.id"
-            class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-          >
-            Download Latest Backup
-          </button>
-        </div>
+        <p class="text-sm text-[var(--text)] mt-1">
+          Create a digital backup copy of the system database.
+        </p>
       </div>
 
-      <div class="inner-card p-5 mt-6">
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-[var(--text)]">
-            Backup Methods
-          </h3>
+      <button
+        @click="createBackup"
+        :disabled="backupLoading"
+        class="bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+      >
+        {{ backupLoading ? "Creating Backup..." : "Create Backup" }}
+      </button>
+    </div>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
-            Recommended methods for protecting important system data.
-          </p>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Last Backup</p>
 
-        <div class="space-y-4">
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">Printed Backup</h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Important reports such as leave, attendance, and employee reports
-              may be printed and stored as physical records.
-            </p>
-          </div>
-
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">
-              Digital / External Backup
-            </h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Downloaded database backups may be copied to USB drives, external
-              hard drives, or other secure storage devices.
-            </p>
-          </div>
-
-          <div class="border border-[#cbd8e8] rounded-lg p-4">
-            <h4 class="font-semibold text-[var(--text)]">Cloud Backup</h4>
-
-            <p class="text-sm text-[var(--text-muted)] mt-1">
-              Database backup files may be uploaded to an authorized cloud
-              storage service for an additional backup copy.
-            </p>
-          </div>
-        </div>
+        <p class="text-lg font-semibold text-[var(--text)] mt-1">
+          {{ lastBackup.date || "No backup yet" }}
+        </p>
       </div>
 
-      <div class="inner-card p-5 mt-6">
-        <div class="mb-5">
-          <h3 class="text-lg font-semibold text-[var(--text)]">
-            Recovery / Failover Method
-          </h3>
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Backup Type</p>
 
-          <p class="text-sm text-[var(--text-muted)] mt-1">
-            Procedure for recovering the system when the primary database
-            becomes unavailable.
-          </p>
-        </div>
+        <p class="text-lg font-semibold text-[var(--text)] mt-1">
+          {{ lastBackup.type || "—" }}
+        </p>
+      </div>
 
-        <div class="space-y-3">
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              1
-            </span>
+      <div
+        class="p-4 rounded-lg border border-[color-mix(in_srgb,var(--text)_20%,transparent)] bg-[color-mix(in_srgb,var(--text)_8%,transparent)]"
+      >
+        <p class="text-sm text-[var(--text)] opacity-70">Status</p>
 
-            <span class="text-[var(--text-muted)]">
-              Identify the database failure.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              2
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Locate the latest valid database backup.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              3
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Restore the database from the backup.
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span
-              class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold"
-            >
-              4
-            </span>
-
-            <span class="text-[var(--text-muted)]">
-              Verify restored records and resume system operation.
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="mt-5 bg-[#fffbeb] border border-[#f1dfad] rounded-lg p-4"
+        <p
+          class="text-lg font-semibold mt-1"
+          :class="
+            lastBackup.status === 'Successful'
+              ? 'text-green-500'
+              : 'text-[var(--text)]'
+          "
         >
-          <p class="text-sm font-medium text-[#a16207]">Restore Database</p>
-
-          <p class="text-sm text-[#a16207] mt-1 mb-4">
-            Select a previously downloaded JSON database backup file to restore
-            the system data.
-          </p>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <input
-              ref="restoreFileInput"
-              type="file"
-              accept=".json,application/json"
-              @change="handleRestoreFile"
-              class="hidden"
-            />
-
-            <button
-              @click="restoreFileInput?.click()"
-              :disabled="restoreLoading"
-              class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
-            >
-              {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
-            </button>
-          </div>
-
-          <p
-            v-if="selectedRestoreFile"
-            class="text-sm text-[var(--text-muted)] mt-3"
-          >
-            Selected file:
-            <span class="text-[var(--text)]">
-              {{ selectedRestoreFile.name }}
-            </span>
-          </p>
-
-          <p class="text-xs text-red-600 mt-3">
-            Warning: Restoring a backup will replace the current database
-            records with the records contained in the selected backup.
-          </p>
-        </div>
+          {{ lastBackup.status || "—" }}
+        </p>
       </div>
     </div>
+
+    <div class="flex justify-end mt-5">
+      <button
+        @click="downloadLatestBackup"
+        :disabled="!lastBackup.id"
+        class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+      >
+        Download Latest Backup
+      </button>
+    </div>
+  </div>
+
+  <div class="inner-card p-5 mt-6">
+    <div class="mb-5">
+      <h3 class="text-lg font-semibold text-[var(--text)]">
+        Backup Methods
+      </h3>
+
+      <p class="text-sm text-[var(--text)] mt-1">
+        Recommended methods for protecting important system data.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">Printed Backup</h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Important reports such as leave, attendance, and employee reports
+          may be printed and stored as physical records.
+        </p>
+      </div>
+
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">
+          Digital / External Backup
+        </h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Downloaded database backups may be copied to USB drives, external
+          hard drives, or other secure storage devices.
+        </p>
+      </div>
+
+      <div
+        class="border border-[color-mix(in_srgb,var(--text)_25%,transparent)] rounded-lg p-4"
+      >
+        <h4 class="font-semibold text-[var(--text)]">Cloud Backup</h4>
+
+        <p class="text-sm text-[var(--text)] mt-1">
+          Database backup files may be uploaded to an authorized cloud
+          storage service for an additional backup copy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="inner-card p-5 mt-6">
+    <div class="mb-5">
+      <h3 class="text-lg font-semibold text-[var(--text)]">
+        Recovery / Failover Method
+      </h3>
+
+      <p class="text-sm text-[var(--text)] mt-1">
+        Procedure for recovering the system when the primary database
+        becomes unavailable.
+      </p>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          1
+        </span>
+
+        <span class="text-[var(--text)]">
+          Identify the database failure.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          2
+        </span>
+
+        <span class="text-[var(--text)]">
+          Locate the latest valid database backup.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          3
+        </span>
+
+        <span class="text-[var(--text)]">
+          Restore the database from the backup.
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span
+          class="w-8 h-8 rounded-full bg-[color-mix(in_srgb,#3b82f6_20%,transparent)] text-blue-500 flex items-center justify-center font-semibold"
+        >
+          4
+        </span>
+
+        <span class="text-[var(--text)]">
+          Verify restored records and resume system operation.
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="mt-5 bg-[color-mix(in_srgb,#eab308_12%,transparent)] border border-[color-mix(in_srgb,#eab308_40%,transparent)] rounded-lg p-4"
+    >
+      <p class="text-sm font-semibold text-yellow-600">Restore Database</p>
+
+      <p class="text-sm text-[var(--text)] mt-1 mb-4">
+        Select a previously downloaded JSON database backup file to restore
+        the system data.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input
+          ref="restoreFileInput"
+          type="file"
+          accept=".json,application/json"
+          @change="handleRestoreFile"
+          class="hidden"
+        />
+
+        <button
+          @click="restoreFileInput?.click()"
+          :disabled="restoreLoading"
+          class="bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg"
+        >
+          {{ restoreLoading ? "Restoring..." : "Select Backup & Restore" }}
+        </button>
+      </div>
+
+      <p
+        v-if="selectedRestoreFile"
+        class="text-sm text-[var(--text)] mt-3"
+      >
+        Selected file:
+        <span class="font-medium text-[var(--text)]">
+          {{ selectedRestoreFile.name }}
+        </span>
+      </p>
+
+      <p class="text-xs text-red-500 mt-3">
+        Warning: Restoring a backup will replace the current database
+        records with the records contained in the selected backup.
+      </p>
+    </div>
+  </div>
+</div>
 
     <div
       v-if="isLeaveModalOpen"

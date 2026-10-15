@@ -2847,7 +2847,7 @@ onMounted(async () => {
 .employee-management-page .employee-btn-status {
   color: #166534;
   border-color: #bbf7d0;
-  background: #f0fdf4;
+  background: var(--surface);
 }
 
 .employee-management-page .employee-btn-status:hover:not(:disabled) {
@@ -2857,7 +2857,7 @@ onMounted(async () => {
 .employee-management-page .employee-btn-danger {
   color: #b91c1c;
   border-color: #fecaca;
-  background: #fff;
+ background: var(--surface);
 }
 
 .employee-management-page .employee-btn-danger:hover:not(:disabled) {

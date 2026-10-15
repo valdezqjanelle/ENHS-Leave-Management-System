@@ -25,7 +25,7 @@
   --surface-soft: #1a2144;
   --sidebar: #0d1229;
   --sidebar-hover: #151b3d;
-  --primary: #60a5fa;
+  --primary: #2f5b90;
   --primary-hover: #3b82f6;
   --text: #e2e8f0;
   --text-muted: #94a3b8;
@@ -5632,4 +5632,19 @@ textarea {
 /* AdminApplications.vue specific overrides - Light Mode */
 button.text-white {
   color: #0f172a !important;
+}
+
+
+/* Sidebar overrides for dark mode */
+.dark .sidebar a.nav-item:not(.logout-item),
+.dark .sidebar a.nav-item:not(.logout-item) span {
+  color: #ffffff !important;
+}
+
+.dark .sidebar .sidebar-section-label {
+  color: #9ca3af !important;
+}
+
+.dark .sidebar .logout-item {
+  color: rgba(248, 113, 113, 0.9) !important;
 }

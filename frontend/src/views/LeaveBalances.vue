@@ -14,8 +14,8 @@
             <button
               @click="loadBalances"
               type="button"
-              class="w-full sm:w-auto flex-shrink-0 px-4 py-2 rounded-lg font-medium transition whitespace-nowrap text-white"
-              style="background: var(--primary);"
+              class="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
+        style="border-color: var(--border); background: var(--surface); color: var(--text);"
               title="Reload balances (picks up newly applied credits)"
             >
               Refresh
@@ -51,7 +51,7 @@ style="border-color: var(--border); color: var(--text);"
             @click="searchQuery = ''"
             type="button"
             class="px-4 py-2 rounded-lg font-medium text-white"
-            style="background: var(--text-muted);"
+            style="background: var(--surface);"
           >Clear</button>
         </div>
 

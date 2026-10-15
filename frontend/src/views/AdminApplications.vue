@@ -1263,7 +1263,7 @@ const tabs = [
   {
     key: "all",
     label: "All Applications",
-    countClass: "bg-gray-100 text-gray-800",
+    countClass: "bg-blue-100 text-blue-800",
   },
   {
     key: "pending",
