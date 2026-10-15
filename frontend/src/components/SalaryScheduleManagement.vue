@@ -187,10 +187,7 @@
         >
           <Plus :size="15" aria-hidden="true" /> Add Grade Row
         </button>
-        <p class="hint">
-          Click Save Changes to keep added rows. Blank steps can be
-          completed later, before activation.
-        </p>
+     
       </div>
       <div v-if="unsupportedRates.length" class="error" role="alert">
         <p>
