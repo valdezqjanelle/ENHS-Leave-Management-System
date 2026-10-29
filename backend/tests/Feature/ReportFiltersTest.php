@@ -73,8 +73,8 @@ class ReportFiltersTest extends TestCase
      * Ana (Math), Ben (Science), Cara (no department), Dan (Math, inactive),
      * and Eve (Math) who is archived. Ten applications across both leave types and all statuses.
      */
-    private function seed(): array
-    {
+private function setUpTestData(): array
+{
         $ana = $this->employee('Ana', 'Cruz', $this->math, 'active', 'Maria');
         $ben = $this->employee('Ben', 'Reyes', $this->science);
         $cara = $this->employee('Cara', 'Santos', null);
@@ -117,7 +117,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_no_filters_keeps_the_existing_totals(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $response = $this->summary()->assertOk();
 
@@ -134,7 +134,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_department_filter_limits_every_total(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         // Mathematics = Ana (2) + Dan (2) + archived Eve (2) while inactive/archived are included.
         $math = $this->summary("department_id={$this->math->department_id}")->assertOk();
@@ -155,7 +155,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_status_and_leave_type_filters(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $approved = $this->summary('status=approved')->assertOk();
         $this->assertSame(5, $approved->json('totals.applications'));
@@ -178,7 +178,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_employee_search_matches_name_parts_in_any_order_case_insensitively(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         foreach (['cruz', 'CRUZ', 'ana', 'ana cruz', 'cruz, ana', 'maria', 'ANA   CRUZ'] as $query) {
             $response = $this->summary('search=' . rawurlencode($query))->assertOk();
@@ -198,7 +198,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_search_treats_like_wildcards_literally(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         // "%" and "_" would match every employee if they were passed through as wildcards.
         $this->assertSame(0, $this->summary('search=' . rawurlencode('%'))->json('totals.applications'));
@@ -209,7 +209,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_search_normalises_blank_input_and_limits_words(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $blank = $this->summary('search=' . rawurlencode('   '))->assertOk();
         $this->assertNull($blank->json('filters.search'));
@@ -221,7 +221,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_filters_combine_with_dates_and_employee_scope(): void
     {
-        $seeded = $this->seed();
+        $seeded = $this->setUpTestData();
         // Outside the reporting period, so the date filter must still apply together with the others.
         $this->leave($seeded['ana'], $this->vacation, 'approved', 9, '2026-08-01');
 
@@ -251,7 +251,7 @@ class ReportFiltersTest extends TestCase
 
     public function test_invalid_filter_values_are_rejected(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $this->summary('status=cancelled')->assertStatus(422)->assertJsonValidationErrors('status');
         $this->summary('department_id=abc')->assertStatus(422)->assertJsonValidationErrors('department_id');
