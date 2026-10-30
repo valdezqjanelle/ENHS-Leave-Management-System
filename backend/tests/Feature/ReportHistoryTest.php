@@ -74,7 +74,7 @@ class ReportHistoryTest extends TestCase
     }
 
     /** Ana (Math), Ben (Science), Cara (no department) and an archived Eve (Math); six applications. */
-    private function seed(): array
+    private function setUpTestData(): array
     {
         $ana = $this->employee('Ana', 'Cruz', $this->math);
         $ben = $this->employee('Ben', 'Reyes', $this->science);
@@ -111,7 +111,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_returns_one_record_per_application_with_recorded_fields_only(): void
     {
-        $seeded = $this->seed();
+        $seeded = $this->setUpTestData();
 
         $response = $this->history()->assertOk();
 
@@ -149,7 +149,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_records_are_newest_leave_first_and_flag_archived_and_unassigned_employees(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $records = collect($this->history()->assertOk()->json('records'));
 
@@ -160,7 +160,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_filters_match_leave_summary_exactly(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $queries = [
             '',
@@ -191,7 +191,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_period_filter_uses_leave_dates(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $march = $this->history('start_date=2026-03-01&end_date=2026-03-31')->assertOk();
         $this->assertSame(4, $march->json('totals.records'));
@@ -204,7 +204,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_invalid_filters_are_rejected(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $this->history('status=cancelled')->assertStatus(422)->assertJsonValidationErrors('status');
         $this->history('department_id=999999')->assertStatus(422)->assertJsonValidationErrors('department_id');
@@ -213,7 +213,7 @@ class ReportHistoryTest extends TestCase
 
     public function test_leave_summary_reports_applications_filed_per_month_by_current_status(): void
     {
-        $this->seed();
+        $this->setUpTestData();
 
         $response = $this->summary()->assertOk();
         $monthly = collect($response->json('monthly'))->keyBy('month');
