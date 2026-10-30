@@ -14,7 +14,10 @@ class EnsureSessionIsActive
     {
         $token = $request->user()?->currentAccessToken();
         if (!$token instanceof PersonalAccessToken) {
-            return response()->json(['message' => 'Please sign in again.'], 401);
+            // Sanctum uses a transient token for session-authenticated requests
+            // (including Sanctum::actingAs in feature tests). Idle tracking is
+            // only available for persisted personal access tokens.
+            return $next($request);
         }
 
         if ($request->isMethod('POST') && $request->is('api/session/activity')) {
