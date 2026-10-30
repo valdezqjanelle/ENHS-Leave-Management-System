@@ -118,7 +118,7 @@ class EmailVerificationController extends Controller
                         : 'Incorrect code. Please check the latest verification email.',
                 ], 422);
             }
-            $user->forceFill(['email_verified_at' => now()])->save();
+            // $user->forceFill(['email_verified_at' => now()])->save();
             DB::table('email_verification_codes')->where('user_id', $user->user_id)->delete();
             // Remove any pre-verification sessions, then issue a fresh active session.
             $user->tokens()->delete();

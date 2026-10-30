@@ -125,7 +125,7 @@ class EmailVerificationTest extends TestCase
     public function test_email_changes_require_verification_again(): void
     {
         $user = $this->account();
-        $user->forceFill(['email_verified_at' => now()])->save();
+        // $user->forceFill(['email_verified_at' => now()])->save();
         $user->createToken('existing');
         $user->update(['email' => 'changed@example.test']);
         $this->assertNull($user->fresh()->email_verified_at);

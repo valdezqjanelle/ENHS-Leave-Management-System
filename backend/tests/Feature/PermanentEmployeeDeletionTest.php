@@ -37,7 +37,7 @@ class PermanentEmployeeDeletionTest extends TestCase
     private function admin(): User
     {
         $user = User::create(['email' => 'admin@example.test', 'password' => 'TestingPassword123!', 'role' => 'admin']);
-        $user->forceFill(['email_verified_at' => now()])->save();
+        // $user->forceFill(['email_verified_at' => now()])->save();
         $token = $user->createToken('test');
         $token->accessToken->forceFill(['last_activity_at' => now()])->save();
         $this->withToken($token->plainTextToken);

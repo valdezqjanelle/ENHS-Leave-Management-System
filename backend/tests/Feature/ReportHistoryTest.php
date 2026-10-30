@@ -27,7 +27,7 @@ class ReportHistoryTest extends TestCase
 
         
         $this->admin = User::create(['email' => 'admin@example.test', 'password' => 'password', 'role' => 'admin']);
-        $this->admin->forceFill(['email_verified_at' => now()])->save();
+        // $this->admin->forceFill(['email_verified_at' => now()])->save();
         $this->vacation = LeaveType::create(['code' => 'VL', 'leave_type_name' => 'Vacation Leave']);
         $this->sick = LeaveType::create(['code' => 'SL', 'leave_type_name' => 'Sick Leave']);
         $this->math = Department::create(['department_name' => 'Mathematics', 'level' => 'JHS']);
